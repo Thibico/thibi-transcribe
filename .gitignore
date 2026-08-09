@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local notes — strategy, research and one-off docs. Reference material, not project source.
+*.local.md
+/research/
