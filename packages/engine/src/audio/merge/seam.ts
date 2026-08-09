@@ -137,20 +137,31 @@ export interface NoWordsSeamInput {
   seamMs: number;
   leadMs: number;
   lang: TokenizeRules;
-  minScore?: number;
 }
 
 export interface NoWordsSeamResult {
   /** Index into nextSegments, inclusive; segments up to here are dropped. */
   dropNextThrough: number;
   method: 'no-words';
+  /**
+   * Character-level agreement across the seam, reported but **not** acted on.
+   *
+   * At segment granularity there is only one available action — drop the `next` segments
+   * inside the overlap — and it is correct either way: the overlap region genuinely
+   * contains audio we extracted twice, so something was said twice whether or not the two
+   * transcriptions of it agree. A low score means the provider transcribed the same audio
+   * differently, not that there is nothing to de-duplicate.
+   *
+   * The number is worth carrying because it tells an operator how much to trust the seam,
+   * and Phase 12 renders it. Acting on it would need the LCS extent mapped back to segment
+   * boundaries, which is more machinery than a flagged seam is worth today.
+   */
   score: number;
   flagged: boolean;
 }
 
 export function mergeSeamNoWords(input: NoWordsSeamInput): NoWordsSeamResult {
   const { prevSegments, nextSegments, seamMs, leadMs, lang } = input;
-  const minScore = input.minScore ?? DEFAULT_MIN_SCORE;
 
   const prevText = prevSegments
     .map((s) => s.text)
