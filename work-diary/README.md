@@ -13,3 +13,4 @@ file.
 | Date | Covers |
 |---|---|
 | [2026-08-09](./2026-08-09.md) | Repo created · 16 plan documents · Phase 0 spikes · Phase 0 monorepo, language registry, CLI and live provider probe |
+| [2026-08-10](./2026-08-10.md) | Phase 1 engine: core primitives, storage port, database schema, audio stages, seam merge, Google provider, pipeline and `thibi transcribe` |
