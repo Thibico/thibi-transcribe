@@ -1,6 +1,38 @@
-// ObjectStore port plus S3/MinIO, filesystem and in-memory adapters. Phase 1.
+// @thibi/storage — the ObjectStore port and its adapters.
 //
-// Placeholder: this package exists now so the dependency graph — and the ESLint
-// rule that enforces its direction — is real from the first commit.
+// One interface, three adapters, one contract suite run against all of them. That is what
+// makes `STORAGE_DRIVER=fs` a supported configuration rather than a degraded one, and what
+// lets every test above this layer run without a container.
 
-export {};
+export {
+  NotSupportedError,
+  ObjectNotFoundError,
+  StorageError,
+  type HeadResult,
+  type ObjectStore,
+  type PutOpts,
+  type PutResult,
+  type TempDir,
+  type TempFile,
+} from './types.js';
+
+export {
+  assertSafeKey,
+  assetKey,
+  chunkKey,
+  derivativeKey,
+  extensionOf,
+  rawResponseKey,
+  runChunksPrefix,
+  runPrefix,
+} from './keys.js';
+
+export { MemoryObjectStore } from './memory.js';
+export { FsObjectStore } from './fs.js';
+export { S3ObjectStore, type S3ObjectStoreOptions } from './s3.js';
+export {
+  createTempDirPort,
+  fromTempFile,
+  toTempFile,
+  type TempDirPort,
+} from './tempfile.js';

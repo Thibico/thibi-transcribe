@@ -1,0 +1,64 @@
+# Development services only — Postgres and MinIO.
+#
+# The full stack (caddy, web, worker, worker-heavy, sidecar, migrate, backup) is Phase 15.
+# This file exists so Phase 1 can be developed and tested against the real datastores rather
+# than mocks, because the things most likely to be wrong — partial unique indexes, CHECK
+# constraints, COPY, presigned URLs — are exactly the things a mock cannot tell you about.
+#
+#   docker compose -f infra/compose.dev.yml up -d
+#   docker compose -f infra/compose.dev.yml down -v     # -v also drops the data
+
+name: thibi-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: thibi
+      POSTGRES_PASSWORD: thibi
+      POSTGRES_DB: thibi
+    ports:
+      - '5433:5432' # 5433 so a Homebrew postgres on 5432 does not collide
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U thibi -d thibi']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: thibi
+      MINIO_ROOT_PASSWORD: thibi-dev-secret
+    ports:
+      - '9000:9000'
+      - '9001:9001' # console, http://localhost:9001
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # One-shot: create the bucket so a fresh clone needs no console clicking.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 thibi thibi-dev-secret &&
+        mc mb --ignore-existing local/thibi &&
+        echo 'bucket ready'
+      "
+
+volumes:
+  pgdata:
+  miniodata:

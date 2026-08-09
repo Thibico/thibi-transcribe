@@ -24,6 +24,7 @@
     "@thibi/core": "workspace:*"
   },
   "devDependencies": {
+    "cldr-core": "^48.2.0",
     "cldr-localenames-full": "^48.2.0",
     "zod": "^4.4.3"
   }
