@@ -25,8 +25,16 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
-.env
+.env*
+!.env.example
+
+# service-account keys and credentials — anything in here can spend against
+# your billing account. This repo is public; do not weaken these patterns.
+/keys/
+*service-account*.json
+*-credentials.json
+*.p12
+gha-creds-*.json
 
 # vercel
 .vercel

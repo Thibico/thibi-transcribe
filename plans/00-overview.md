@@ -48,10 +48,10 @@ Fresh repo. No data migration from the old app; it keeps running until this reac
 | Auth | Local username/password, roles admin/editor, per-user edit attribution |
 | Stack | TS monorepo (engine + CLI + thin Next.js UI) + Python sidecar |
 | ASR providers | Google STT v2 (primary), OpenAI/Groq Whisper, self-hosted faster-whisper |
-| Long audio | Auto: parallel sync chunks < 15 min, GCS-staged `batchRecognize` above |
+| Long audio | **Chunked parallel sync at any duration** — measured faster everywhere. `batchRecognize` is the opt-in cheaper/slower path, not the long-file path |
 | Diarization | pyannote sidecar (default), ElevenLabs Scribe fallback |
 | Word data | Word-level timings + confidence stored |
-| Accuracy | Per-job/project/instance glossary → Google adaptation + post-hoc entity pass |
+| Accuracy | Per-job/project/instance glossary → **post-hoc entity pass only**; Google adaptation measured non-functional on Chirp (S1) |
 | Segment model | ASR segments canonical; words attached; subtitles re-flowed at export |
 | LLM layer | Provider-agnostic over Anthropic / OpenAI / OpenRouter; model per pass |
 | Passes | Restraint cleanup · translate to configurable target · glossary entities · document |
@@ -64,31 +64,24 @@ Fresh repo. No data migration from the old app; it keeps running until this reac
 
 ---
 
-## Phase 0 — three spikes, before anything is built
+## Phase 0 — three spikes: RUN 2026-08-09
 
-Each is a few API calls. Each invalidates a plank of the design if it fails.
+All three are answered. Method, numbers and limits in
+**[phase-00-spike-results.md](./phase-00-spike-results.md)**; the consequences are already
+folded into the sections below.
 
-**S1 — Does Chirp support speech adaptation?** Chirp/Chirp 2 have historically not supported
-phrase sets or model adaptation in STT v2 — those are `long`/`short` model features covering a
-fraction of the 107 codes. If that is still true, then for exactly the exclusive-language set
-that *is* the product thesis, keyterm biasing is unavailable. Call `chirp_2` + `my-MM` + an
-inline phrase set and see. **Mitigation regardless:** make `adaptation` a probed
-per-`(provider, model, language)` capability, and treat the post-hoc glossary entity pass as
-the primary entity mechanism with pre-recognition biasing as an opportunistic bonus. Do not
-promise phrase-set biasing for Hausa until measured.
+| | Question | Verdict |
+|---|---|---|
+| **S1** | Does Chirp honour speech adaptation? | **FAIL.** Boost 0/10/20 byte-identical; relevant keyterms produced zero lexical change; an *irrelevant* phrase set corrupted a word the baseline got right, in all five occurrences. Never send `config.adaptation` to Chirp. The glossary entity pass is the only entity mechanism for the exclusive-language set. |
+| **S2** | Is `wordConfidence` populated on Chirp? | **PASS.** 101/101 words, 101 distinct values, full offsets. Low-confidence QA is viable on the primary provider. |
+| **S3** | Does `batchRecognize` work, and how fast? | **Works, but it is the slow path.** Flat 5.9× realtime vs chunked parallel sync's 3.6–7× advantage at every size. Batch is an admin cost choice, not the long-file path. Also: `done: true` can hide a per-file error (1 run in 5); hard cuts lose 2–3 words per seam; sequential chunk cutting dominates long-file prep. |
 
-**S2 — Is `wordConfidence` actually populated on Chirp?** Low-confidence QA highlighting
-depends on it. Inspect a real response. If it comes back 0/absent, faster-whisper becomes the
-only provider with genuine word confidence and the UI must say so rather than imply certainty.
-
-**S3 — Does `batchRecognize` work end to end?** GCS bucket location must match the recognizer
-region. It only accepts `gs://` URIs. Verify submit → poll → read output JSON. The prize is
-money: Recognition $0.016/min vs Dynamic Batch $0.003/min — 50 h/month is **$48 vs $9**. If it
-fails, chunked sync stays canonical and the GCS bucket is dropped entirely.
+Bonus control: **Chirp 2 is deterministic** — two identical requests returned byte-identical
+transcripts. The eval harness therefore needs no repeat-and-average for a fixed input.
 
 Also delete on sight when porting: the stale region doctrine at `lib/providers/google.ts:11-14`
-and `:139-141`, `lib/settings.ts:29`, `app/settings/page.tsx:27`. The research proved `my-MM`
-returns identical correct output from all three regions.
+and `:139-141`, `lib/settings.ts:29`, `app/settings/page.tsx:27`. Confirmed again here — Speech
+v2 returned `200` from all three regions for this project.
 
 ---
 
@@ -340,11 +333,23 @@ same pass.
 **plan.** Writes `run_chunks` before any network call.
 ```
 duration ≤ syncMaxSeconds && bytes ≤ syncMaxBytes  → sync
-staging configured && duration > 15 min            → batch
-otherwise                                          → sync_chunked
+admin opted into "cheaper, slower"                 → batch
+sync quota exhausted / sustained 429s              → batch
+otherwise                                          → sync_chunked   ← the default at ANY duration
 ```
-15 min because `batchRecognize` has minutes of queue latency; below that, 8 parallel chunks
-finish sooner. No staging bucket → chunked sync still works, with a one-time UI warning.
+**Amended 2026-08-09 by spike S3.** The original rule split on duration at 15 minutes and
+justified it on latency. That was wrong. `batchRecognize` runs at a flat **5.9× realtime**
+(305 s for 30 min, 1211 s for 2 h) while chunked parallel sync at concurrency 8 is **3.6–7×
+faster at every size measured**, with zero 429s across 136 requests. Batch's only
+justifications are cost — the Dynamic Batch SKU, whose rate advantage is still unverified — and
+sync-quota pressure. It is therefore an admin trade-off, not something the engine infers from
+duration. No staging bucket configured is now the normal case, not a degraded one. Full numbers
+in [phase-00-spike-results.md](./phase-00-spike-results.md).
+
+**Chunk cutting must be parallelised.** At 2 h it is 200 s of the 338 s total — ffmpeg cutting
+136 chunks sequentially, which is what `lib/audio/chunk.ts` does today. Parallelised across
+cores it drops to roughly 30 s. Without this, prep dominates on exactly the long files the
+product exists for.
 
 Chunking reuses `detectSilences` and `planBoundaries` (`lib/audio/chunk.ts:40-102`) nearly
 verbatim, including the back-half-of-window rule and the bitrate-derived byte budget at
@@ -852,10 +857,14 @@ and a human sign-off. No prompt change merges if it exceeds its do-nothing contr
 
 ## Open risks
 
-1. **Chirp adaptation (S1).** If phrase sets don't work on Chirp, keyterm biasing is
-   unavailable for exactly the exclusive-language set. The glossary entity pass is the
-   mitigation and is built either way — but the roadmap must not promise pre-recognition
-   biasing for Hausa until it's measured.
+1. ~~**Chirp adaptation (S1).**~~ **Measured 2026-08-09 — it does not work.** Boost 0/10/20
+   produced byte-identical output; relevant keyterms produced zero lexical change and did not
+   fix a targeted error; an irrelevant phrase set *degraded* five occurrences of a word the
+   baseline got right. `chirp_2` is `adaptation: "none"`, the engine must not send
+   `config.adaptation` to it, and nothing in the product may promise keyterm biasing on Google.
+   The glossary entity-correction pass in Phase 6 is therefore the **only** entity mechanism
+   for the exclusive-language set, not a supplement — its priority rises accordingly. Full
+   method, numbers and limits in [phase-00-spike-results.md](./phase-00-spike-results.md).
 2. **Word timings are the spine of half the design and the least reliable field in the
    response.** Subtitle re-flow, reconciliation, bilingual alignment, overlap de-dup and
    quote-to-audio all assume words exist with usable timings; Chirp can return a transcript
@@ -889,7 +898,7 @@ argued in full in the phase doc named.
 | # | Amendment | Where |
 |---|---|---|
 | 1 | **`distil-large-v3` was the wrong default** — Distil-Whisper is an English-only distillation, the worst possible default for a product built on 44 non-English languages. `large-v3` default, distil for English only, `large-v3-turbo` behind "prefer speed". Corrected inline above. | [04](./phase-04-whisper-providers.md) |
-| 2 | **The 15-minute sync/batch threshold is a measurement, not a constant.** Spike S3 times `batchRecognize` at 30 min and 2 h; that number *is* the threshold, and it lives in settings. | [00](./phase-00-spikes-and-registries.md), [02](./phase-02-batch-recognize.md) |
+| 2 | **There is no duration threshold — chunked parallel sync wins at every size.** Measured: batch is a flat 5.9x realtime (305 s / 30 min, 1211 s / 2 h); chunked sync at concurrency 8 is 43 s and 338 s for the same inputs, no 429s across 136 requests. Batch is an admin cost choice, not the long-file path. Also measured: hard cuts lose ~2-3 words per seam (2.1% at 30 min, 3.4% at 2 h), which is the overlap merge's justification; `results[uri].error` can be set while `done: true` and `operation.error` is absent (hit 1 run in 5, transient code 13, unbilled); and sequential chunk cutting is 200 s of the 338 s 2-hour prep. | [00 results](./phase-00-spike-results.md), [02](./phase-02-batch-recognize.md) |
 | 3 | **`lib/export.ts:15-22` has a live bug.** `formatTimestamp(59.9996, ",")` → `00:00:59,1000` — a four-digit ms field and malformed SRT; the rounding never carries. The rewrite works in integer ms with a named regression test. | [07](./phase-07-export.md) |
 | 4 | **FLEURS TSVs are tab-delimited but CSV-quoted.** `split('\t')` leaves stray quotes in the reference and silently corrupts every CER computed against it. Quote-aware parser + fixture. | [05](./phase-05-eval-harness.md) |
 | 5 | **`num_samples` (column 5) gives exact duration**, so `--dry-run` costing needs zero audio downloaded. And the HF blob `oid` is byte-identical to the resolve endpoint's `ETag`, so caching by oid in the filename needs no conditional request. | [05](./phase-05-eval-harness.md) |
