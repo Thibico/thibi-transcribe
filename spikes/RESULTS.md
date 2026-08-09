@@ -11,8 +11,37 @@ mono FLAC. Long inputs synthesised by concatenating that clip 17× and 68× and 
 | id | date | region | model | verdict | evidence | raw |
 |----|------|--------|-------|---------|----------|-----|
 | S1 | 2026-08-09 | asia-southeast1 | chirp_2 | **FAIL — adaptation is inert on Chirp.** Boost 0/10/20 byte-identical; relevant keyterms produced zero lexical change and did not fix the targeted error; an *irrelevant* phrase set corrupted အာဆီယံ → အာစီယံ in all five occurrences. | Never send `config.adaptation` to Chirp. The glossary entity pass in Phase 6 is the *only* entity mechanism for the exclusive-language set, not a supplement. Nothing in the product may promise keyterm biasing on Google. | `raw/s1-*.json` |
-| S2 | 2026-08-09 | asia-southeast1 | chirp_2 | **PASS — word confidence is genuine.** 101/101 words carried a confidence, with **101 distinct values** over 0.728–0.99, and 101/101 carried both start and end offsets. | Low-confidence QA highlighting (Phase 12) is viable on the primary provider. One distinct value would have meant a placeholder. | `raw/base.json` |
+| S2 | 2026-08-09 | asia-southeast1 | chirp_2 | **PASS — word confidence is genuine, across the long tail.** On 50 s of Burmese: 101/101 words carried a confidence, with **101 distinct values** over 0.728–0.99, and 101/101 carried both start and end offsets. Confirmed per language over a ten-language sample (below). | Low-confidence QA highlighting (Phase 12) is viable on the primary provider, for the long-tail languages too. One distinct value would have meant a placeholder. | `raw/base.json` |
 | S3 | 2026-08-09 | asia-southeast1 | chirp_2 | **Works, but it is the slow path.** Flat 5.9× realtime (305 s for 30 min, 1211 s for 2 h) against chunked parallel sync's 43 s and 338 s at concurrency 8 — 3.6–7× faster at every size, zero 429s across 136 requests. | The 15-minute duration threshold is deleted. Chunked sync is the default at any length; batch becomes an admin cost choice justified only by the Dynamic Batch SKU and sync-quota pressure. | `raw/batch-*.json` |
+
+## S2 per language, over the sample most likely to be missing the word array
+
+The phase plan requires S2's verdict per language, not as one global answer. Run against
+the committed 2 s probe clip (`fixtures/probe-2s.flac`, Burmese) on 2026-08-09:
+
+```
+lang     segs  words  withConf  distinct  minConf  maxConf  withOffsets  segConf
+my-MM       1      5         5         5    0.738    0.973            5    0.933
+ha-NG       1     10        10        10    0.245    0.606           10    0.442
+yo-NG       1      6         6         6    0.461    0.969            6    0.885
+am-ET       1      5         5         5    0.254    0.545            5    0.464
+km-KH       1      8         8         8    0.453    0.772            8    0.615
+ps-AF       1      1         1         1    0.970    0.970            1    0.969
+ceb-PH      1      6         6         6    0.431    0.970            6    0.892
+om-ET       1      4         4         4    0.788    0.957            4    0.884
+zu-ZA       1      5         5         5    0.128    0.333            5    0.357
+si-LK       1      6         6         6    0.484    0.692            6    0.567
+```
+
+Every language returned words, every word carried a confidence and both offsets, and
+`distinct == words` throughout. Nothing here is a placeholder. (`ps-AF` shows one distinct
+value because it returned one word; with n=1 that is not the placeholder signal.)
+
+**The confidence signal is calibrated, which is the more useful finding.** The clip is
+Burmese. Asked to hear it as Zulu, Chirp returns 0.128–0.333; asked to hear it as Burmese,
+0.738–0.973. Confidence tracks whether the model is actually right rather than decorating
+the output, which is what makes Phase 12's uncertain-word toolbar worth building and gives
+its 0.6 default threshold an empirical basis rather than a round number.
 
 Bonus control, and load-bearing for everything above: **Chirp 2 is deterministic.** Two
 identical requests returned byte-identical transcripts (`sha1 c1202dd838f7`, 649 chars).
