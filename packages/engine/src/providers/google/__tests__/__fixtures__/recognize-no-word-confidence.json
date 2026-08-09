@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "alternatives": [
+        {
+          "transcript": "sannu duniya",
+          "words": [
+            { "startOffset": "0.100s", "endOffset": "0.600s", "word": "sannu" },
+            { "startOffset": "0.600s", "endOffset": "1.200s", "word": "duniya" }
+          ]
+        }
+      ],
+      "resultEndOffset": "1.200s"
+    }
+  ]
+}

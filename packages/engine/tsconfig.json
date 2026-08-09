@@ -9,16 +9,16 @@
   ],
   "references": [
     {
-      "path": "../../packages/core"
+      "path": "../core"
     },
     {
-      "path": "../../packages/languages"
+      "path": "../languages"
     },
     {
-      "path": "../../packages/db"
+      "path": "../db"
     },
     {
-      "path": "../../packages/storage"
+      "path": "../storage"
     }
   ]
 }

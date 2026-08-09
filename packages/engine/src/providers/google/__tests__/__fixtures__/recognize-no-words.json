@@ -1,0 +1,12 @@
+{
+  "results": [
+    {
+      "alternatives": [{ "transcript": "Waan ku mahadsan yahay", "confidence": 0.71 }],
+      "resultEndOffset": "2.400s"
+    },
+    {
+      "alternatives": [{ "transcript": "sidee tahay", "confidence": 0.64 }],
+      "resultEndOffset": "4.100s"
+    }
+  ]
+}

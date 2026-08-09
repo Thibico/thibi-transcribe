@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "alternatives": [
+        {
+          "transcript": "အာဆီယံ ရဲ့ ဆုံးဖြတ်ချက် ကို",
+          "confidence": 0.90085196,
+          "words": [
+            { "startOffset": "0.120s", "endOffset": "0.410s", "word": "အာဆီယံ", "confidence": 0.9731 },
+            { "startOffset": "0.410s", "endOffset": "0.680s", "word": "ရဲ့", "confidence": 0.8412 },
+            { "startOffset": "0.680s", "endOffset": "1.240s", "word": "ဆုံးဖြတ်ချက်", "confidence": 0.7381 },
+            { "startOffset": "1.240s", "endOffset": "1.500s", "word": "ကို", "confidence": 0.9522 }
+          ]
+        }
+      ],
+      "resultEndOffset": "1.500s"
+    },
+    {
+      "alternatives": [
+        {
+          "transcript": "ချမှတ် ခဲ့ ပါတယ်",
+          "confidence": 0.8982026,
+          "words": [
+            { "startOffset": "1.600s", "endOffset": "2.100s", "word": "ချမှတ်", "confidence": 0.881 },
+            { "startOffset": "2.100s", "endOffset": "2.400s", "word": "ခဲ့", "confidence": 0.912 },
+            { "startOffset": "2.400s", "endOffset": "2.950s", "word": "ပါတယ်", "confidence": 0.944 }
+          ]
+        }
+      ],
+      "resultEndOffset": "2.950s"
+    }
+  ]
+}

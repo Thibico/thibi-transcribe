@@ -21,8 +21,11 @@
   },
   "dependencies": {
     "@thibi/core": "workspace:*",
-    "@thibi/languages": "workspace:*",
     "@thibi/db": "workspace:*",
-    "@thibi/storage": "workspace:*"
+    "@thibi/languages": "workspace:*",
+    "@thibi/storage": "workspace:*",
+    "google-auth-library": "^11.0.0",
+    "is-zawgyi": "^1.0.3",
+    "rabbit-node": "^1.0.4"
   }
 }

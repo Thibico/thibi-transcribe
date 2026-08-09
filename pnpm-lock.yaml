@@ -116,6 +116,15 @@ importers:
       '@thibi/storage':
         specifier: workspace:*
         version: link:../storage
+      google-auth-library:
+        specifier: ^11.0.0
+        version: 11.0.0
+      is-zawgyi:
+        specifier: ^1.0.3
+        version: 1.0.3
+      rabbit-node:
+        specifier: ^1.0.4
+        version: 1.0.4
 
   packages/eval:
     dependencies:
@@ -1476,6 +1485,9 @@ packages:
     resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
     engines: {node: '>=0.10.0'}
 
+  is-zawgyi@1.0.3:
+    resolution: {integrity: sha512-1q7h9zt9QGflpp7MVlNLF65mRiMF9tLLxd9/hcEwnLfZWFTkLUzw0nrnwyT0t+6ZUbmERiNtewhusBfW2WOq7A==}
+
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
@@ -1653,6 +1665,10 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  rabbit-node@1.0.4:
+    resolution: {integrity: sha512-B+eMJwfnRab47sp5q96TfZVdGEHunA3sAuoXcwRFiM3e4ZT5t7h9U8dl1fCM1aSMqOg9ysGbE8Szpl2Q8w504Q==}
+    engines: {node: '>= 6.9.0'}
 
   readable-stream@3.6.2:
     resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
@@ -3058,6 +3074,8 @@ snapshots:
     dependencies:
       is-extglob: 2.1.1
 
+  is-zawgyi@1.0.3: {}
+
   isexe@2.0.0: {}
 
   js-tokens@9.0.1: {}
@@ -3219,6 +3237,8 @@ snapshots:
   prelude-ls@1.2.1: {}
 
   punycode@2.3.1: {}
+
+  rabbit-node@1.0.4: {}
 
   readable-stream@3.6.2:
     dependencies:
