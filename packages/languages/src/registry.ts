@@ -153,6 +153,7 @@ function matches(language: ResolvedLanguage, filter: LanguageFilter): boolean {
   if (filter.enabledOnly && !language.enabled) return false;
   if (filter.script && language.script !== filter.script) return false;
   if (filter.provider && !isSupportedBy(language, filter.provider)) return false;
+  if (filter.notSupportedBy && isSupportedBy(language, filter.notSupportedBy)) return false;
   if (filter.exclusiveTo) {
     if (!isSupportedBy(language, filter.exclusiveTo)) return false;
     const others = (Object.keys(language.providers) as ProviderId[]).filter(

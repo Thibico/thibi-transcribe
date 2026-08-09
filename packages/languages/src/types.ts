@@ -195,8 +195,21 @@ export interface LanguageFilter {
   /** Languages this provider supports. */
   provider?: ProviderId;
   enabledOnly?: boolean;
-  /** Supported by this provider and by no other. `exclusiveTo: 'google'` is the "44". */
+  /**
+   * Supported by this provider and by no other at all.
+   *
+   * Measured 2026-08-09: `exclusiveTo: 'google'` is 21 — the 20 languages every
+   * Whisper-family endpoint rejects, plus Burmese, which Groq *accepts* and mangles and
+   * which `matrix-overrides.json` therefore marks unsupported. This is not the "44"; see
+   * `notSupportedBy`.
+   */
   exclusiveTo?: ProviderId;
+  /**
+   * Excludes languages this provider supports. Combined with `provider`, this is the
+   * strategic figure the product is built on: `{ provider: 'google', notSupportedBy:
+   * 'openai' }` is the 44 languages Google handles that no OpenAI model will accept.
+   */
+  notSupportedBy?: ProviderId;
   script?: string;
 }
 

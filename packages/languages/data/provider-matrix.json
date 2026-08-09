@@ -1,0 +1,4676 @@
+{
+  "_meta": {
+    "generatedBy": "thibi probe languages",
+    "schema": 1
+  },
+  "languages": {
+    "af-ZA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "af-ZA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "af",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "af",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "am-ET": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "am-ET",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "am",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'am' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "am",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ar-EG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ar-EG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ar",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ar",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "as-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "as-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "as",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'as' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "as",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ast-ES": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ast-ES",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ast\nLanguage must be one of: [tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk uz en jv nl sr]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ast",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'ast'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ast",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "az-AZ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "az-AZ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "az",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "az",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "be-BY": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "be-BY",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "be",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "be",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "bg-BG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bg-BG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bg",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bg",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "bn-BD": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn-BD",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "bn-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "bs-BA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bs-BA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bs",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "bs",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ca-ES": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ca-ES",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ca",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ca",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ceb-PH": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ceb-PH",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ceb\nLanguage must be one of: [be is si ka fo ba pl ca no lt eu yue it hi th hr bn sw gl mt ko id cs sq de ru ur sl mr sa jv es et ne pa af yi mg tt ta lo tk lb my bo tl haw az tg sd ha en zh bg lv sv ro mk mn yo gu ln fr pt uk la bs uz he mi sk am ht ps as fa sr kk sn su ja ar fi vi ml km tr el ms da hy so nn nl hu cy te kn br oc]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ceb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'ceb'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ceb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ckb-IQ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ckb-IQ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ckb\nLanguage must be one of: [oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ckb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'ckb'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ckb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "cmn-Hans-CN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cmn-Hans-CN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "zh",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "zh",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "cmn-Hant-TW": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cmn-Hant-TW",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "zh",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "zh",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "cs-CZ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cs-CZ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cs",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cs",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "cy-GB": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cy-GB",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cy",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "cy",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "da-DK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "da-DK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "da",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "da",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "de-DE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "de-DE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "de",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "de",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "el-GR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "el-GR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "el",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "el",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "en-AU": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en-AU",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "en-GB": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en-GB",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "en-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "en-US": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en-US",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "en",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "es-419": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es-419",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "es-ES": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es-ES",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "es-US": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es-US",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "es",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "et-EE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "et-EE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "et",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "et",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "eu-ES": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "eu-ES",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "eu",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'eu' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "eu",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "fa-IR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fa-IR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fa",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fa",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ff-SN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ff-SN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ff\nLanguage must be one of: [es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ff",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ff' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ff",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "fi-FI": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fi-FI",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "fil-PH": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fil-PH",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "fr-CA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr-CA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "fr-FR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr-FR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "fr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ga-IE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ga-IE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ga\nLanguage must be one of: [mn bs sn ar br hy kk tg nn my jv ko fi so mg ln su ja ca id la te fa km am tr uk hr sr az as haw sv he ro mi et sw tt en vi cs ne uz fo yue ru ur ml is tl ha th sd zh mk mr si af ps tk bo el ta bg gl pa pt nl hi da cy sk ka gu ms sl oc yi lo ht mt fr lt kn eu sq bn lb it lv yo be sa ba de es pl hu no]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ga",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ga' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ga",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "gl-ES": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gl-ES",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "gu-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gu-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gu",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "gu",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "ha-NG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ha-NG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ha",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ha' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ha",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "he-IL": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "he-IL",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "he",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "he",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "hi-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hi-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "hr-HR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hr-HR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "hu-HU": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hu-HU",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hu",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hu",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "hy-AM": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hy-AM",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hy",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "hy",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "id-ID": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "id-ID",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "id",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "id",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ig-NG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ig-NG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ig\nLanguage must be one of: [kk uz as fr ja uk da ur la br gl af sd yi my ko ar fi ta lt mt sa su pl ro az de no fa mn bs lb ha ru mi hy ne mr sn zh nl hu te et is km ba id sq sw tl hi sr so tg pt ca ms th sk mk eu oc it vi fo bo ln en es sv bg cy kn si ka hr am ps tk mg tt haw yue cs lv yo gu nn tr he bn pa be lo ht jv el ml sl]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ig",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ig' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ig",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "is-IS": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "is-IS",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "is",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "is",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "it-IT": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "it-IT",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "it",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "it",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "ja-JP": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ja-JP",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ja",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ja",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "jv-ID": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "jv-ID",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "jv",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'jv' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "jv",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ka-GE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ka-GE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ka",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ka",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "kam-KE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kam-KE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: kam\nLanguage must be one of: [es pl hu no mn bs sn ar br hy kk tg nn my jv ko fi so mg ln su ja ca id la te fa km am tr uk hr sr az as haw sv he ro mi et sw tt en vi cs ne uz fo yue ru ur ml is tl ha th sd zh mk mr si af ps tk bo el ta bg gl pa pt nl hi da cy sk ka gu ms sl oc yi lo ht mt fr lt kn eu sq bn lb it lv yo be sa ba de]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "kam",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'kam'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "kam",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "kea-CV": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kea-CV",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: kea\nLanguage must be one of: [cs pa sn af yi mt da th so tk bo tl haw su tr sv id mi ps en ur mr si ln ms ml lv et hy uz ja sk sl km ht yue sd ba hi ne sw lo tt el la cy te nn de pt it vi lt fa br mn ru ar sr yo ka mg uk hu az eu kk sq fo sa es ko bg bn be gu lb my ca ro hr mk bs am jv zh fr nl kn is oc as ha fi ta no gl tg pl he]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "kea",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'kea'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "kea",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "kk-KZ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kk-KZ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "km-KH": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "km-KH",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "km",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'km' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "km",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "kn-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kn-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "kn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ko-KR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ko-KR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ko",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ko",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ky-KG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ky-KG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ky\nLanguage must be one of: [ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ky",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ky' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ky",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "lb-LU": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lb-LU",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lb",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'lb' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "lb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "lg-UG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lg-UG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: lg\nLanguage must be one of: [sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "lg",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'lg' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "lg",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ln-CD": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ln-CD",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ln",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ln' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ln",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "lo-LA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lo-LA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lo",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'lo' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "lo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "lt-LT": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lt-LT",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "luo-KE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "luo-KE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: luo\nLanguage must be one of: [nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "luo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'luo'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "luo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "lv-LV": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lv-LV",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lv",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "lv",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "mi-NZ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mi-NZ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "mk-MK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mk-MK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ml-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ml-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ml",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ml",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "mn-MN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mn-MN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'mn' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "mn",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "mr-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mr-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ms-MY": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ms-MY",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ms",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ms",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "mt-MT": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mt-MT",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "mt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'mt' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "mt",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "my-MM": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "my-MM",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "my",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'my' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "my",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "nb-NO": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "nb-NO",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "no",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "no",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "ne-NP": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ne-NP",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ne",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ne",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "nl-NL": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "nl-NL",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "nl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "nl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "nso-ZA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "nso-ZA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: nso\nLanguage must be one of: [fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "nso",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'nso'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "nso",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ny-MW": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ny-MW",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: ny\nLanguage must be one of: [ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ny",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ny' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ny",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "oc-FR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "oc-FR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "oc",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'oc' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "oc",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "om-ET": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "om-ET",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: om\nLanguage must be one of: [da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "om",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'om' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "om",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "or-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "or-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: or\nLanguage must be one of: [eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "or",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'or' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "or",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "pa-Guru-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pa-Guru-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pa",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'pa' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "pa",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "pl-PL": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pl-PL",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ps-AF": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ps-AF",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ps",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'ps' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "ps",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "pt-BR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt-BR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "pt-PT": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt-PT",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "pt",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ro-RO": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ro-RO",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ro",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ro",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ru-RU": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ru-RU",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ru",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ru",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "rup-BG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "rup-BG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: rup\nLanguage must be one of: [uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "rup",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'rup'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "rup",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "sd-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sd-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sd",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'sd' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "sd",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "si-LK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "si-LK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "si",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'si' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "si",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "sk-SK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sk-SK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "sl-SI": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sl-SI",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sl",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "sn-ZW": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sn-ZW",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sn",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'sn' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "sn",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "so-SO": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "so-SO",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "so",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'so' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "so",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "sq-AL": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sq-AL",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sq",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'sq' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "sq",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "sr-RS": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sr-RS",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "su-ID": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "su-ID",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "su",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'su' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "su",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "sv-SE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sv-SE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sv",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sv",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": null
+      }
+    },
+    "sw-KE": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sw-KE",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sw",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "sw",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "ta-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ta-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ta",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ta",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "te-IN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "te-IN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "te",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "te",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "tg-TJ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tg-TJ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tg",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'tg' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "tg",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "th-TH": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "th-TH",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "th",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "th",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "tr-TR": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tr-TR",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "tr",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "uk-UA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "uk-UA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "uk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "uk",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "umb-AO": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "umb-AO",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: umb\nLanguage must be one of: [lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa sd tk pl te sr eu ne mr lo tl no th]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "umb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Invalid language 'umb'. Language parameter must be specified in ISO-639-1 format.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "umb",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "ur-PK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ur-PK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ur",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "ur",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "uz-UZ": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "uz-UZ",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "uz",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'uz' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "uz",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "vi-VN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "vi-VN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "vi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-1"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "vi",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      }
+    },
+    "wo-SN": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "wo-SN",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: wo\nLanguage must be one of: [sd tk pl te sr eu ne mr lo tl no th lt bn km ka nn mg hi cs mk af gu ko id mi sq be uz haw da kn is so yi yue ru pt he si as tt hu bs yo ba jv uk ta ml lv am ha zh de ca sv ro az ht su fr oc es ja nl it kk sw mt fi hy lb bo en el ms bg sk tg fo ps ar fa br sn sa tr ur hr sl gl my ln vi la cy et mn pa]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "wo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'wo' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "wo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "xh-ZA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "xh-ZA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: xh\nLanguage must be one of: [ne bs kk uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "xh",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'xh' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "xh",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "yo-NG": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "yo-NG",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "yo",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'yo' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "yo",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    },
+    "yue-Hant-HK": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "yue-Hant-HK",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "whisper-large-v3"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "yue",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "httpStatus": 200,
+        "models": [
+          "gpt-4o-transcribe"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "yue",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": false
+      }
+    },
+    "zu-ZA": {
+      "google": {
+        "adaptation": "none",
+        "httpStatus": 200,
+        "models": [
+          "chirp_2"
+        ],
+        "probedAt": "2026-08-09",
+        "providerCode": "zu-ZA",
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "wordTimestamps": true
+      },
+      "groq": {
+        "adaptation": "prompt",
+        "errorMessage": "unsupported language: zu\nLanguage must be one of: [gu haw ha ja sv da mk sn fo zh ko sk hy km yo ln no et mr si oc sd mt bo he ur la lv sw so tk sa fr fi el ms hu th br lb lt bn is mn ba de ml af be am ht nn mg id az yi su yue tr vi hr sl pa lo ps hi cs mi fa eu sq my tl ar it uk ro ne bs kk uz en jv nl sr tg es pl ta kn as pt ca bg cy te gl ka tt ru]",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "zu",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      },
+      "openai": {
+        "adaptation": "prompt",
+        "errorMessage": "Language 'zu' is not supported.",
+        "httpStatus": 400,
+        "probedAt": "2026-08-09",
+        "providerCode": "zu",
+        "status": "rejected",
+        "supported": false,
+        "verdict": "measured-failure",
+        "wordTimestamps": null
+      }
+    }
+  },
+  "providers": {
+    "google": {
+      "accepted": 116,
+      "clipSha256": "0f9a5c4168630b5492b0b12ddd8ff9a6d6c91378c9acc5055ed6f3d8c39103b7",
+      "codesTried": 116,
+      "errored": 0,
+      "models": [
+        "chirp_2"
+      ],
+      "probedAt": "2026-08-09",
+      "region": "asia-southeast1",
+      "rejected": 0,
+      "unknown": 0
+    },
+    "groq": {
+      "accepted": 96,
+      "clipSha256": "0f9a5c4168630b5492b0b12ddd8ff9a6d6c91378c9acc5055ed6f3d8c39103b7",
+      "codesTried": 116,
+      "errored": 0,
+      "models": [
+        "whisper-large-v3"
+      ],
+      "probedAt": "2026-08-09",
+      "rejected": 20,
+      "unknown": 0
+    },
+    "openai": {
+      "accepted": 72,
+      "clipSha256": "0f9a5c4168630b5492b0b12ddd8ff9a6d6c91378c9acc5055ed6f3d8c39103b7",
+      "codesTried": 116,
+      "errored": 0,
+      "models": [
+        "whisper-1",
+        "gpt-4o-transcribe"
+      ],
+      "probedAt": "2026-08-09",
+      "rejected": 44,
+      "unknown": 0
+    }
+  }
+}

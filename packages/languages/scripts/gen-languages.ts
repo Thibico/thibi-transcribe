@@ -117,7 +117,9 @@ const LanguagesFile = z.object({ _meta: z.unknown(), languages: z.record(z.strin
 const MatrixFile = z.object({
   _meta: z.unknown(),
   providers: z.record(z.string(), z.unknown()),
-  languages: z.record(z.string(), z.record(ProviderId, Capability)),
+  // Partial: a language probed against Google but not yet against faster-whisper has one
+  // column, not four. zod's z.record over an enum demands every key.
+  languages: z.record(z.string(), z.partialRecord(ProviderId, Capability)),
 });
 const OverridesFile = z.record(z.string(), z.unknown());
 
