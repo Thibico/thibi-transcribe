@@ -20,6 +20,9 @@ importers:
       globals:
         specifier: ^16.5.0
         version: 16.5.0
+      google-auth-library:
+        specifier: ^11.0.0
+        version: 11.0.0
       tsx:
         specifier: ^4.20.6
         version: 4.23.11
