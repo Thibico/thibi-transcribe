@@ -648,8 +648,22 @@ thibi lang list --script Arab
 thibi lang show my-MM
 ```
 
-`--exclusive-to google` recomputes the research doc's "44 languages" from the committed matrix. It
-is asserted in a test, which makes the matrix self-checking against a number we already trust.
+`--exclusive-to google` recomputes the exclusive set from the committed matrix, asserted in a test,
+which makes the matrix self-checking against numbers we already trust.
+
+**Corrected 2026-08-09 by the live probe.** This plan said the flag would return 44. It conflates
+two different figures and the flag means the stricter one:
+
+| Query | Meaning | Research (2026-07-30) | Probe (2026-08-09) |
+|---|---|---|---|
+| `--provider google --not-supported-by openai` | Google handles it, no OpenAI model accepts it | 44 | **44** |
+| `--exclusive-to google` | no other provider at all | 20 | **21** |
+
+`--not-supported-by` was added for the first row; without it the headline figure was not
+expressible on the CLI. The second row's extra language is `my-MM`: Groq *accepts* `my` and returns
+non-words, so `matrix-overrides.json` marks it unsupported and Google becomes the only real option
+for Burmese. The overrides mechanism proving itself on the one language this project was built for
+is the best demonstration available that accepting a language code proves nothing.
 
 ### 0.5 Seed tiers
 
@@ -696,7 +710,7 @@ findings*, and what matters most is what must not survive.
 | `normalize-code.test.ts` | table: `my`→`my-MM`, `mya`→`my-MM`, `MY-mm`→`my-MM`, `my-MM`→`my-MM`, `Burmese`→`my-MM`, `burmese`→`my-MM`, `pa`→`pa-Guru-IN`, `pa-IN`→`pa-Guru-IN`, `zh`→`cmn-Hans-CN`, `xx`→`null`, `''`→`null`, `'../etc/passwd'`→`null` |
 | `resolve.test.ts` | merge order script→language→override; `my-MM` gets `lineHeight 1.9`, `wordSegmentation 'none'`, `cerStripsWhitespace true`, `reportWer false`, `direction 'ltr'`; `ps-AF` gets `direction 'rtl'` and `clusters 'codepoint'`; `sd-IN` gets `script 'Arab'` (the trap); an override with `tier:'beta'` wins over the seeded `experimental`; an override for an unknown code is ignored, not thrown |
 | `data-integrity.test.ts` | every `language.script` exists in `SCRIPTS`; every `fleurs.config` non-null except exactly `{eu-ES, si-LK, sq-AL, su-ID, rup-BG}`; every registry code has a `google` matrix row; no duplicate `(iso639_3, region)`; every RTL language's script has `direction:'rtl'`; every `normalizers[]` entry is a known id; every `unicodeRanges` pair is ascending |
-| `matrix.test.ts` | `list({exclusiveTo:'google'}).length >= 40` and includes `ha-NG, ig-NG, ceb-PH, om-ET, ckb-IQ`; the 20 no-provider languages all have `groq.status === 'rejected'`; `get('my-MM').providers.groq.supported === false` with a non-empty `reason`; overrides are applied after the probe layer (order test) |
+| `matrix.test.ts` | `list({provider:'google', notSupportedBy:'openai'}).length === 44` including `ha-NG, ig-NG, ceb-PH, om-ET, ckb-IQ, my-MM, km-KH, ps-AF`; `list({exclusiveTo:'google'})` is the exact 21-code set; `get('my-MM').providers.groq` is `status:'accepted'` but `supported:false` with a non-empty `reason` and dated `evidence` — proving overrides are applied after the probe layer; the five `suspected` languages keep `supported:true`; no google row ever claims `adaptation` other than `'none'` |
 | `frozen.test.ts` | `Object.isFrozen(LANGUAGES)`; `Object.isFrozen(LANGUAGES['my-MM'])`; assignment throws in strict mode |
 | `registry-refresh.test.ts` | `refresh()` replaces tiers without re-reading static data; two registries with different overrides do not share state (guards against a module-global cache) |
 
@@ -731,8 +745,10 @@ my-MM   Burmese   မြန်မာ      Mymr    ltr  verified  google
 ```
 
 ```bash
-$ pnpm thibi lang list --exclusive-to google --json | jq length
+$ pnpm thibi lang list --provider google --not-supported-by openai --json | jq length
 44
+$ pnpm thibi lang list --exclusive-to google --json | jq length
+21
 $ pnpm thibi lang show ps-AF
 ps-AF  Pashto  پښتو
   script      Arab (rtl, complex)   clusters codepoint
@@ -809,7 +825,9 @@ Any row whose verdict is `inconclusive` blocks the phase.
 - [ ] `provider-matrix.json` is committed with a `probedAt` date and a clip sha256 for at least Google.
 - [ ] `matrix-overrides.json` encodes the Groq Burmese failure as `supported: false` with its evidence, and the five suspected languages as `suspected` rather than unsupported.
 - [ ] `my-MM` is the only `verified` language and its notes say why (operational use, not measured).
-- [ ] `thibi lang list --exclusive-to google` returns 44 and the test asserts ≥40.
+- [x] `thibi lang list --provider google --not-supported-by openai` returns **44**, reproducing the
+      2026-07-30 research figure from a live probe; `--exclusive-to google` returns **21** and the
+      test asserts the exact set.
 - [ ] `LANGUAGES` is deeply frozen and mutation throws.
 - [ ] `pnpm gen` produces no diff.
 - [ ] `grep -rn 'process.env' packages/*/src` is empty and the lint rule that enforces it is in `eslint.config.js`.
