@@ -16,10 +16,15 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "gen": "tsx scripts/gen-languages.ts",
     "build": "tsc -b",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@thibi/core": "workspace:*"
+  },
+  "devDependencies": {
+    "cldr-localenames-full": "^48.2.0",
+    "zod": "^4.4.3"
   }
 }

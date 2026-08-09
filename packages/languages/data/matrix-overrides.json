@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "note": "Hand-judged corrections to the probe output. Merged LAST by scripts/gen-languages.ts and NEVER written by `thibi probe languages` — that is what stops a re-run from silently erasing a measured finding. A 200 from the API can only ever set `supported: true`; the sole ways to set it false are this file and the eval harness.",
+    "verdicts": {
+      "measured-failure": "We ran it and the output was wrong. Sets supported: false.",
+      "suspected": "We have not measured it, but we have a specific reason to doubt it. Leaves supported: true and makes the picker say 'unverified on this provider'. Marking a whole family unsupported on a hunch would be the same error as marking it supported on a status code, in the other direction."
+    }
+  },
+  "groq": {
+    "my-MM": {
+      "supported": false,
+      "verdict": "measured-failure",
+      "reason": "Accepts language=my and returns non-words; on autodetect returns romanized Latin.",
+      "evidence": "လာက္းကေက် ရိုရ်းသဲ့ထါတ် … versus Google's correct output on the same 12 s clip. research/language-support-whisper-vs-google.md, 2026-07-30. This is the finding the whole 'accepting a language code proves nothing' rule is built on."
+    },
+    "km-KH": {
+      "verdict": "suspected",
+      "reason": "Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support."
+    },
+    "lo-LA": { "verdict": "suspected", "reason": "as km-KH" },
+    "si-LK": { "verdict": "suspected", "reason": "as km-KH" },
+    "ps-AF": { "verdict": "suspected", "reason": "as km-KH" },
+    "am-ET": { "verdict": "suspected", "reason": "as km-KH" }
+  }
+}
