@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+# Generated. Collapsed in diffs and excluded from language stats; regenerate with
+# `pnpm gen`, never hand-edit. CI asserts `pnpm gen` produces no diff.
+packages/languages/src/generated/** linguist-generated=true
+
+# Probe output. Sorted-key, two-space, trailing newline so a re-run's diff is
+# exactly what changed — but it is machine-written, not authored.
+packages/languages/data/provider-matrix.json linguist-generated=true
+
+*.flac binary
+*.m4a binary
+*.wav binary

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    // ESNext.Disposable is here from day one: Phase 1's `await using` temp-file handles
+    // need Symbol.asyncDispose, and adding it later means touching every package.
+    "lib": ["ES2023", "ESNext.Disposable", "ESNext.Intl"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    // The registry is one giant record lookup and the Phase 1 LCS merge is array
+    // indexing; this is the cheapest defence available against both.
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  }
+}

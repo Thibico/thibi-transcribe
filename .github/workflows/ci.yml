@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The generated registry is committed so `next dev` and `tsc` work with no prior
+      # build. This is the guard that it still matches data/*.json.
+      - name: Registry drift
+        run: |
+          pnpm gen
+          git diff --exit-code packages/languages/src/generated
+
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+      # Second line of defence behind the no-restricted-properties rule: an
+      # `eslint-disable` comment would be enough to slip process.env back into the engine,
+      # and a grep is not disable-able.
+      - name: Engine reads no ambient configuration
+        run: |
+          if grep -rn 'process\.env\|process\.cwd' packages/*/src \
+               --include='*.ts' | grep -v '__tests__'; then
+            echo "::error::The engine never reads process.env or process.cwd() — take it from EngineContext."
+            exit 1
+          fi
+
+      # The old app justified pinning a Google region with a doctrine measured false twice
+      # (2026-07-30 probe and 2026-08-09 spike S3 both got correct output from all three
+      # regions). It lived in four places: a provider comment, an error hint, a settings
+      # default's justification and a settings-page hint. The region *value* is a fine
+      # default; the claim that it is forced is not, and it must not reappear as a comment
+      # or an error message. One file may name it, and it is named here.
+      - name: No region doctrine
+        run: |
+          hits=$(grep -rn 'asia-southeast1' packages apps services 2>/dev/null \
+                 | grep -v '^apps/cli/src/config.ts:' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::Region is a free choice — see .env.example. apps/cli/src/config.ts is its only home in source."
+            exit 1
+          fi
+
+# Deliberately absent: `thibi probe languages`. It calls paid provider APIs, so freshness
+# is a documented quarterly task plus the probedAt dates being visible in
+# /settings/languages — not something CI does on every push.
