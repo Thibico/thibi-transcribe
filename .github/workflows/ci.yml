@@ -39,11 +39,19 @@ jobs:
       # Second line of defence behind the no-restricted-properties rule: an
       # `eslint-disable` comment would be enough to slip process.env back into the engine,
       # and a grep is not disable-able.
+      #
+      # Comment lines are stripped first. The rules are worth explaining where they are
+      # enforced, and a check that forbids naming the thing it forbids would delete its own
+      # documentation — including the record of exactly which false claim was removed.
       - name: Engine reads no ambient configuration
         run: |
-          if grep -rn 'process\.env\|process\.cwd' packages/*/src \
-               --include='*.ts' | grep -v '__tests__'; then
-            echo "::error::The engine never reads process.env or process.cwd() — take it from EngineContext."
+          hits=$(grep -rn 'process\.env\|process\.cwd\|__dirname' packages/*/src \
+                   --include='*.ts' \
+                 | grep -v '__tests__' \
+                 | grep -vE ':[[:space:]]*(\*|//|/\*)' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::The engine reads no ambient configuration — take it from EngineContext."
             exit 1
           fi
 
@@ -55,8 +63,10 @@ jobs:
       # or an error message. One file may name it, and it is named here.
       - name: No region doctrine
         run: |
-          hits=$(grep -rn 'asia-southeast1' packages apps services 2>/dev/null \
-                 | grep -v '^apps/cli/src/config.ts:' || true)
+          hits=$(grep -rn 'asia-southeast1' packages/*/src apps/*/src 2>/dev/null \
+                 | grep -v '^apps/cli/src/config.ts:' \
+                 | grep -v '__tests__' \
+                 | grep -vE ':[[:space:]]*(\*|//|/\*)' || true)
           if [ -n "$hits" ]; then
             echo "$hits"
             echo "::error::Region is a free choice — see .env.example. apps/cli/src/config.ts is its only home in source."

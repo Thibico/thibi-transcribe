@@ -41,18 +41,37 @@ importers:
 
   apps/cli:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1106.0
+        version: 3.1106.0
       '@thibi/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@thibi/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@thibi/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
       '@thibi/languages':
         specifier: workspace:*
         version: link:../../packages/languages
+      '@thibi/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       commander:
         specifier: ^14.0.2
         version: 14.0.3
       google-auth-library:
         specifier: ^11.0.0
         version: 11.0.0
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.21.0
+        version: 8.21.0
 
   apps/web:
     dependencies:
@@ -116,6 +135,9 @@ importers:
       '@thibi/storage':
         specifier: workspace:*
         version: link:../storage
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.21.0)(pg@8.23.0)
       google-auth-library:
         specifier: ^11.0.0
         version: 11.0.0

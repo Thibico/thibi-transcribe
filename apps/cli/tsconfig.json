@@ -13,6 +13,15 @@
     },
     {
       "path": "../../packages/languages"
+    },
+    {
+      "path": "../../packages/storage"
+    },
+    {
+      "path": "../../packages/db"
+    },
+    {
+      "path": "../../packages/engine"
     }
   ]
 }

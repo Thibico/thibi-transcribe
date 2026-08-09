@@ -37,16 +37,43 @@ describe('mergeSeam', () => {
    * chunk k identically.
    */
   it('aligns a clean duplicate and drops exactly the repeated words', () => {
+    // Realistic geometry matters here. Chunk k's audio ENDS at the seam, so it cannot have
+    // a word extending past it — and chunk k+1's extraction STARTS at seam − lead, so it
+    // cannot have one beginning before that. The overlap is exactly the region both
+    // transcribed: 'za a gudanar', which k+1 then continues past.
     const seamMs = 10_000;
-    const prev = words(['gwamnati', 'ta', 'ce', 'za', 'a', 'gudanar'], 8_000);
-    const next = words(['za', 'a', 'gudanar', 'da', 'zabe', 'a'], 9_200);
+    const prev = words(['gwamnati', 'ta', 'ce', 'za', 'a', 'gudanar'], 7_600);
+    const next = words(['za', 'a', 'gudanar', 'da', 'zabe', 'a'], 8_800);
 
     const result = mergeSeam({ prevWords: prev, nextWords: next, seamMs, leadMs: 1200, lang: HAUSA });
 
     expect(result.method).toBe('lcs');
-    expect(result.score).toBeGreaterThan(0.5);
+    expect(result.score).toBe(1);
     // 'za a gudanar' is the duplicated run; next resumes at 'da'.
     expect(result.dropNextThrough).toBe(2);
+    expect(result.flagged).toBe(false);
+  });
+
+  /**
+   * The regression behind the window bounds, from a real 100-second Burmese file.
+   *
+   * Selecting the prev-side window by `endMs` rather than `startMs` pulls in a word that
+   * *began* before the overlap did — audio chunk k+1 never received, so it can never
+   * align. On that file one 760 ms word dropped the score from 0.86 to 0.43 and forced a
+   * needless hard cut on an otherwise perfect seam.
+   */
+  it('excludes a prev word that began before the overlap', () => {
+    const seamMs = 10_000;
+    const prev = [
+      // 760 ms, starting well before the overlap begins at 8800.
+      { idx: 0, startMs: 7_760, endMs: 8_520, text: 'ubangidansa', confidence: 0.9 },
+      ...words(['za', 'a', 'gudanar'], 8_800).map((w, i) => ({ ...w, idx: i + 1 })),
+    ];
+    const next = words(['za', 'a', 'gudanar', 'da', 'zabe'], 8_800);
+
+    const result = mergeSeam({ prevWords: prev, nextWords: next, seamMs, leadMs: 1200, lang: HAUSA });
+    expect(result.score).toBe(1);
+    expect(result.method).toBe('lcs');
     expect(result.flagged).toBe(false);
   });
 

@@ -60,15 +60,23 @@ export function mergeSeam(input: SeamInput): SeamResult {
 
   // 1. Window. Bounded so the DP stays trivially cheap, and time-bounded so a phrase
   //    genuinely repeated elsewhere in the chunk cannot be mistaken for the overlap.
+  //
+  //    Both bounds are on the side of the word that decides whether the *other* chunk
+  //    could have seen it. A word whose START precedes the overlap began before chunk k+1's
+  //    extraction did, so k+1 never had it and it can never align — including it only
+  //    depresses the score. Symmetrically, a word of k+1 whose END runs past the overlap
+  //    extends beyond what k transcribed. Measured on a real 100 s Burmese file: an
+  //    end-based prev bound pulled in one 760 ms word from before the overlap and dropped
+  //    the score from 0.86 to 0.43, forcing a needless hard cut.
   const lo = seamMs - leadMs - slack;
   const hi = seamMs + slack;
-  const pStartByTime = prevWords.findIndex((w) => w.endMs >= lo);
+  const pStartByTime = prevWords.findIndex((w) => w.startMs >= lo);
   const pStart =
     pStartByTime === -1
       ? prevWords.length
       : Math.max(pStartByTime, prevWords.length - MAX_WINDOW_WORDS);
   const pTail = prevWords.slice(pStart);
-  const nHead = nextWords.filter((w) => w.startMs <= hi).slice(0, MAX_WINDOW_WORDS);
+  const nHead = nextWords.filter((w) => w.endMs <= hi).slice(0, MAX_WINDOW_WORDS);
 
   // Nothing was spoken in the overlap. Score 1 by convention — not NaN, and deliberately
   // not a low score, which would flag every pause in the recording.

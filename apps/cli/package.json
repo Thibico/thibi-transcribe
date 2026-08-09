@@ -23,9 +23,17 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1106.0",
     "@thibi/core": "workspace:*",
+    "@thibi/db": "workspace:*",
+    "@thibi/engine": "workspace:*",
     "@thibi/languages": "workspace:*",
+    "@thibi/storage": "workspace:*",
     "commander": "^14.0.2",
-    "google-auth-library": "^11.0.0"
+    "google-auth-library": "^11.0.0",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.21.0"
   }
 }
