@@ -1,6 +1,14 @@
 import { Command } from 'commander';
 import pg from 'pg';
-import { migrate, migrationStatus, MIGRATIONS_DIR } from '@thibi/db';
+import {
+  closeDb,
+  createDb,
+  DEFAULT_RATES,
+  migrate,
+  migrationStatus,
+  seedRates,
+  MIGRATIONS_DIR,
+} from '@thibi/db';
 import { readEnvironment } from '../context.js';
 import { EXIT } from '../output.js';
 
@@ -54,6 +62,29 @@ export function dbCommand(): Command {
         if (rows.some((r) => r.changed)) process.exitCode = EXIT.usage;
       } finally {
         await pool.end();
+      }
+    });
+
+  db.command('seed')
+    .description('Insert or refresh the default provider rates. Never overwrites an override.')
+    .action(async () => {
+      const client = createDb({ url: requireDatabaseUrl(), max: 2 });
+      try {
+        const result = await seedRates(client);
+        process.stdout.write(
+          `rates: ${result.inserted} inserted, ${result.updated} updated, ` +
+            `${result.skippedOverrides} left alone (source=override)\n`,
+        );
+        // The numbers came from a dated catalog read, and a stale price is the kind of
+        // wrong that nobody notices. Say where they are from every time.
+        for (const rate of DEFAULT_RATES) {
+          process.stdout.write(
+            `  ${rate.providerId}/${rate.model}/${rate.unit}`.padEnd(34) +
+              `$${rate.usdPerUnit}\n`,
+          );
+        }
+      } finally {
+        await closeDb(client);
       }
     });
 

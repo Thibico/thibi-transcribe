@@ -31,11 +31,48 @@ export {
   ProviderError,
   ProviderUnavailableError,
   RateLimitedError,
+  StagingRefusedError,
   UnsupportedLanguageError,
   UnsupportedMediaError,
   isReplannable,
   isRetryable,
 } from './errors.js';
+
+// ---- staging: the bucket batchRecognize reads from -------------------------------------
+export {
+  DEFAULT_MAX_JSON_BYTES,
+  STAGING_ROOT,
+  parseGsUri,
+  stagingPrefixFor,
+  type BucketInfo,
+  type LifecycleCheck,
+  type StagingBody,
+  type StagingLocation,
+  type StagingObject,
+} from './staging/types.js';
+export {
+  BucketMetadataDenied,
+  createGcsStaging,
+  STAGING_SCOPES,
+  type GcsStagingOptions,
+} from './staging/gcs.js';
+export { FakeStagingStore, type FakeStagingOptions } from './staging/memory.js';
+export {
+  assertLifecycle,
+  fixCommand,
+  iamFixCommand,
+  MAX_AGE_DAYS,
+  PREFERRED_AGE_DAYS,
+  type RawLifecycle,
+} from './staging/lifecycle.js';
+export {
+  ensureStageable,
+  validateStagingBucket,
+  type CheckId,
+  type CheckResult,
+  type ValidateOptions,
+  type ValidationReport,
+} from './staging/validate.js';
 
 export {
   fullJitterDelay,
@@ -104,7 +141,12 @@ export {
 } from './settings.js';
 
 export type {
+  BatchOp,
+  BatchRequest,
+  BatchState,
+  BatchStatus,
   CostModel,
+  FetchBatchArgs,
   ProviderCapabilities,
   ProviderConfig,
   ProviderSegment,
@@ -126,8 +168,32 @@ export {
   S1_ADAPTATION,
   S2_WORD_CONFIDENCE,
 } from './providers/google/capabilities.js';
-export { parseOffsetMs, parseRecognizeResponse } from './providers/google/parse.js';
+export {
+  parseOffsetMs,
+  parseRecognizeResponse,
+  parseRecognizeResults,
+  type BatchRecognizeResults,
+  type RecognizeResponse,
+} from './providers/google/parse.js';
 export { toProviderError } from './providers/google/errors.js';
+export {
+  batchRecognizeUrl,
+  cancelOperationUrl,
+  listOperationsUrl,
+  operationUrl,
+  recognizeUrl,
+  regionOfOperation,
+} from './providers/google/endpoints.js';
+export {
+  buildBatchBody,
+  cancelBatch,
+  classifyOperation,
+  fetchBatchResult,
+  findOrphanOperation,
+  pollBatch,
+  submitBatch,
+  type BatchDeps,
+} from './providers/google/batch.js';
 
 export {
   runAsr,
@@ -152,3 +218,39 @@ export {
   type TranscribeInput,
   type TranscribeOutput,
 } from './pipeline/transcribe.js';
+export {
+  ModeUnavailableError,
+  planMode,
+  type PlanDecision,
+  type PlanInput,
+  type PlanWarning,
+} from './pipeline/plan.js';
+export {
+  BatchFailedError,
+  POLL_MAX_MS,
+  POLL_START_MS,
+  pollToCompletion,
+  runBatch,
+  type BatchRunInput,
+  type BatchRunOutput,
+} from './pipeline/batch-run.js';
+export {
+  claimStagingPrefix,
+  clearStagingPrefix,
+  isCancelRequested,
+  loadOperation,
+  parseBilledSeconds,
+  persistOperation,
+  recordBatchProgress,
+  recordUsage,
+  requestCancel,
+  type BatchPipelineRecord,
+  type UsageInput,
+  type UsageWritten,
+} from './pipeline/batch-persist.js';
+export {
+  DEFAULT_LOOKBACK_MS,
+  resumeBatchRun,
+  type ResumeOptions,
+  type ResumeOutcome,
+} from './pipeline/operation-reconcile.js';

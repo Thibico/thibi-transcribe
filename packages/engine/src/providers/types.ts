@@ -87,6 +87,60 @@ export interface CostModel {
   source: string;
 }
 
+/**
+ * A submitted long-running operation, as **plain JSON**.
+ *
+ * No clients, no closures, no timers, no `AbortController`. This is the single constraint
+ * that lets Phase 9 replace Phase 2's in-process poll loop with a self-rescheduling
+ * `run_steps` row without touching a provider: a worker that never saw the submit rehydrates
+ * this from the database and polls. `region` and `inputUri` are stored fields rather than
+ * values recomputed from config for exactly that reason. A test round-trips it through
+ * `JSON.parse(JSON.stringify(op))` and polls with the result.
+ */
+export interface BatchOp {
+  provider: ProviderId;
+  /** The provider's regional host, needed to rebuild the poll URL after a restart. */
+  region: string;
+  /** The operation's resource name — the thing that must not be lost. */
+  name: string;
+  /** Identifies our file in the operation's result map. */
+  inputUri: string;
+  outputPrefix: string;
+  submittedAtMs: number;
+  /** False when the cheaper processing strategy was rejected and we submitted without it. */
+  dynamicBatching: boolean;
+}
+
+export interface BatchRequest {
+  runId: string;
+  /** A staged URI. The engine put it there; the provider never touches the bucket. */
+  audioUri: string;
+  outputUri: string;
+  /** Already mapped through the matrix by the caller. */
+  languageCode: string;
+  model: string;
+  durationMs: number;
+  /** Only sent when `capabilities().adaptation === 'phrase-set'`. Never for Google (S1). */
+  phraseSet?: { phrases: Array<{ value: string; boost?: number }>; boost?: number };
+}
+
+export type BatchState = 'running' | 'succeeded' | 'failed';
+
+export interface BatchStatus {
+  state: BatchState;
+  /** Only when the provider actually sent one. Never fabricated. */
+  progressPercent?: number;
+  outputUri?: string;
+  totalBilledDuration?: string;
+  /**
+   * `scope` matters: an operation-level failure and a per-file failure inside a *successful*
+   * operation are different events, and spike S3 measured the second one at 1 run in 5.
+   */
+  error?: { code?: number; message: string; scope: 'operation' | 'file' };
+  retryable?: boolean;
+  doneAtMs?: number;
+}
+
 export interface TranscriptionProvider {
   readonly id: ProviderId;
   readonly label: string;
@@ -97,10 +151,29 @@ export interface TranscriptionProvider {
   costModel(mode: RunMode): CostModel;
   transcribe(cfg: ProviderConfig, req: TranscribeRequest): Promise<TranscribeResult>;
 
-  // Phase 2. The submit/poll/fetch split is the load-bearing change from a single
-  // `transcribeChunk`: a long async operation must never hold a worker slot.
-  submitBatch?(cfg: ProviderConfig, req: unknown): Promise<unknown>;
-  pollBatch?(cfg: ProviderConfig, op: unknown): Promise<unknown>;
-  fetchBatchResult?(cfg: ProviderConfig, op: unknown, req: unknown): Promise<TranscribeResult>;
-  cancelBatch?(cfg: ProviderConfig, op: unknown): Promise<void>;
+  // The submit/poll/fetch split is the load-bearing change from a single `transcribeChunk`:
+  // a long async operation must never hold a worker slot. Optional because a provider
+  // without a batch surface is a normal provider, not a broken one.
+  submitBatch?(cfg: ProviderConfig, req: BatchRequest): Promise<BatchOp>;
+  pollBatch?(cfg: ProviderConfig, op: BatchOp): Promise<BatchStatus>;
+  fetchBatchResult?(
+    cfg: ProviderConfig,
+    op: BatchOp,
+    args: FetchBatchArgs,
+  ): Promise<TranscribeResult>;
+  cancelBatch?(cfg: ProviderConfig, op: BatchOp): Promise<void>;
+}
+
+/**
+ * What `fetchBatchResult` needs beyond the operation.
+ *
+ * `read` and `list` are the staging port's methods, handed in rather than imported. That is
+ * what stops a provider from ever learning what GCS is, and it is why the fetch path is
+ * testable against a recorded fixture with no network at all.
+ */
+export interface FetchBatchArgs {
+  status: BatchStatus;
+  durationMs: number;
+  read: <T = unknown>(uri: string, opts?: { maxBytes?: number }) => Promise<T>;
+  list: (prefix: string) => Promise<Array<{ key: string; uri: string; bytes: number }>>;
 }
