@@ -186,9 +186,29 @@ underline in the editor reads `words.confidence`, so for OpenAI and Groq runs it
 appear, and the toolbar says *"per-word confidence is not available from this provider"* rather
 than showing an empty count. Implying precision that is not there is worse than showing nothing.
 
-Limits arithmetic: 25 MB at 16 kHz mono FLAC (~110 KB/s) is about 230 s, so the byte budget binds
-long before `syncMaxSeconds`. That is exactly the case the bitrate-derived budget at
-`lib/audio/chunk.ts:134-136` was written for — reused unchanged with a different constant.
+Limits arithmetic: ~~25 MB at 16 kHz mono FLAC (~110 KB/s) is about 230 s, so the byte budget
+binds long before `syncMaxSeconds`.~~
+
+**Corrected 2026-08-10 — the constant was about 6× too high and it inverts the conclusion.**
+Measured on the first real normalized derivative Phase 2 produced: **18.9 KB/s**, i.e. 22.7 MB
+for 1200 s of 16 kHz mono FLAC, a 59% ratio against raw 16-bit. At that rate OpenAI's 25 MB cap
+binds at about **1320 s — 22 minutes**, not 230 s.
+
+So the byte budget does **not** bind first for these providers, and a chunk here can be an order
+of magnitude longer than the plan assumed. What binds instead has to be established rather than
+inherited from this paragraph: OpenAI publishes no separate duration limit, so the practical
+ceiling is request timeout and the cost of losing a long chunk to one failure. Pick a duration
+budget deliberately — the seam merge means more chunks is not free either, at ~2–3 words lost per
+hard cut before de-duplication — and record the reasoning where the constant lives.
+
+Two caveats on the 18.9 KB/s. It is one clip of Burmese news speech, and FLAC is content-dependent:
+denser material will exceed it. And it is only true *since* 2026-08-10, because until then the
+`norm_16k_mono_flac` recipe emitted 192 kHz — `loudnorm` resamples internally and the
+`aresample=16000` in front of it was silently discarded — which produced 113 KB/s and is very
+close to the number this paragraph originally carried. Re-measure across the Phase 5 eval corpus
+before treating 18.9 as settled; the bitrate-derived budget at `lib/audio/chunk.ts:134-136` is
+still the right *mechanism*, and it derives the budget from the actual file rather than from a
+constant, which is why it survives the constant being wrong.
 
 ### 3. Groq specifics
 

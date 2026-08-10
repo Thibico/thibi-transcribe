@@ -447,7 +447,7 @@ Election 2026                                                       12 jobs ▾
 | Title | `jobs.title` falling back to `media_assets.filename`. `unicode-bidi: plaintext` |
 | Language | `<ScriptedText>` endonym + `<TierPill>`. Endonym first: a Burmese journalist scanning a list finds ဗမာ faster than "Burmese" |
 | Duration | `formatDuration`, ported from `app/page.tsx:30-35` |
-| Status | `<RunStatusPill>` for the primary run, with an inline progress bar for live runs, fed by `use-run-stream` |
+| Status | `<RunStatusPill>` for the primary run, with an inline progress bar for live runs, fed by `use-run-stream`. A `batch` run has real progress to show — measured 2026-08-10, Google populates `metadata.progressPercent` (26/52/78 across thirteen polls on a 20-minute file), which Phase 2's risk 3 had assumed might always be absent. It is only ever read when actually sent, so a run that omits it falls back to elapsed time rather than to an invented number |
 | Runs | Count, as today (`app/page.tsx:165-167`) |
 | Cost | **Actual** from `usage_records` once a run exists; `formatEstimate` before that. Never show an estimate next to a completed run |
 | Updated | Relative time |
@@ -837,6 +837,26 @@ Three things this adds that the original could not:
 
 1. **Mode.** `batch` has minutes of queue latency before anything appears to happen. A user who
    isn't told will reload the page and start a second run.
+
+   **Corrected 2026-08-10: `Mode` has to be a control here, not a read-out.** The dialog above
+   shows `batch` for a 68-minute file, which assumed the engine routes long files to batch. It
+   does not, and cannot: spike S3 measured `batchRecognize` at a flat 5.9× realtime against
+   chunked parallel sync's 3.6–7× advantage, so the two curves never cross and no duration makes
+   batch the better choice. `planMode` reaches `batch` **only** through an explicit `force`, so
+   a 68-minute file with no user input is `sync_chunked` and this dialog would be showing a mode
+   nobody asked for.
+
+   The row becomes the "cheaper, slower" choice itself — the one place a user trades money
+   against time, with both numbers already on screen:
+
+   ```
+     Mode              ◉ Standard   ~3 min      ~$1.09
+                       ○ Cheaper    ~12 min     ~$0.21   staged to Google Cloud Storage
+   ```
+
+   Disabled with a one-line reason when no staging bucket is configured, since that is a
+   supported and *faster* setup rather than a missing feature. `planMode` throws rather than
+   silently downgrading, so the dialog must not offer what it would refuse.
 2. **Diarization's cost is time, not money.** pyannote on CPU is 0.15–0.4× realtime — a 68-minute
    file is 2.5–7 hours. The dialog says so, reading a measured realtime factor from settings when
    one exists. Someone who starts a diarization at 5 pm expecting it at 5:10 pm is a support ticket

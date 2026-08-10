@@ -19,7 +19,7 @@ UI — Phase 15's `/setup` wizard hands off to these pages.
 | `model_profiles`, prompt files with versions, `editorial_passes` | Phase 6 |
 | `language_support` + `packages/eval/results/tiers.json` | Phase 5 |
 | `run_steps`, `run_chunks`, dead-letter, reconcile, cancel | Phase 9 |
-| `usage_records` written by ASR and LLM steps | Phases 1–6 |
+| `usage_records` written by ASR and LLM steps | **Phase 2** for ASR (both SKUs, from Google's own reported `totalBilledDuration`); Phases 4 and 6 for the rest |
 | `audit_log`, `media_access_log`, `segment_revisions` | Phases 10–13 |
 | shadcn `Tabs`, `Table`, `Switch`, `Dialog`, `Select`, `Badge`, `Toast` | Phase 11 |
 
@@ -30,7 +30,7 @@ UI — Phase 15's `/setup` wizard hands off to these pages.
 | Path | Purpose |
 |---|---|
 | `packages/db/migrations/0016_retention.sql` | `media_assets.legal_hold bool default false`, `deleted_at`, `deleted_reason`; `settings` seeds for the retention keys |
-| `packages/db/migrations/0017_rates_seed.sql` | `rates` seeded from `packages/engine/data/rates.default.json` with `source='default'` |
+| ~~`packages/db/migrations/0017_rates_seed.sql`~~ | **Not needed.** `rates` and `usage_records` ship in Phase 2's `0001_spend.sql`, seeded by `seedRates()` from `packages/db/src/seed/rates.ts`. See the reconciliation note in Design §Rates. |
 | `packages/db/migrations/0018_probe_cache.sql` | `service_probes(service, ok, version, detail jsonb, latency_ms, probed_at)` |
 
 ### Web — settings
@@ -66,11 +66,11 @@ UI — Phase 15's `/setup` wizard hands off to these pages.
 |---|---|
 | `packages/engine/src/settings/schema.ts` | the key registry replacing `lib/settings.ts`'s `SETTING_KEYS` |
 | `packages/engine/src/providers/*/probe.ts` | one `probe(cfg)` per provider, shared by the UI, the CLI and `/admin/system` |
-| `packages/engine/src/pricing/rates.ts` | rate lookup, estimate, `recordUsage` |
+| `packages/engine/src/pricing/rates.ts` | rate lookup, estimate, `recordUsage` — **a refactor, not a build**: `resolveRate`/`unitForMode` already live in `@thibi/db` and `recordUsage` in `pipeline/batch-persist.ts`, both shipped in Phase 2 |
 | `packages/engine/src/pricing/rollup.ts` | spend by month / project / user |
 | `packages/engine/src/retention/sweep.ts` | `maintenance.retention` handler + `dryRun()` returning the same shape |
 | `packages/engine/src/system/probes.ts` | postgres, minio, staging, sidecar, workers |
-| `packages/engine/data/rates.default.json` | seeded rates with a `pricedOn` date |
+| `packages/engine/data/rates.default.json` | seeded rates with a `pricedOn` date — **exists as `packages/db/src/seed/rates.ts`**, dated and with per-row provenance; convert to JSON only if the admin UI needs to diff it |
 | `packages/engine/data/model-profiles.default.json` | seeded per-pass model choices, pinned and dated |
 
 ### Deleted
@@ -434,6 +434,34 @@ It is not ported. In its place, two tables that were already in the data model:
 rates          provider, model, unit, usd_per_unit, source (default|override)
 usage_records  run_id, step_id, kind (asr_minutes|llm_tokens), quantity, usd
 ```
+
+> **Both tables already exist — Phase 2 built them, 2026-08-10.** Not a land-grab: Phase 2's
+> entire justification is a price difference (`batchRecognize` is *slower* than chunked sync at
+> every duration and worth using only because it is 5.33× cheaper), and a cost argument with no
+> ledger behind it is a claim. Its definition of done required `--dry-run` to cost from the table
+> and `usage_records` to hold actual spend, so the table came with it.
+>
+> Reconcile this phase against what shipped rather than building it twice:
+>
+> | This plan says | What exists |
+> |---|---|
+> | migration `0017_rates_seed.sql` | `0001_spend.sql`, applied. This phase adds no migration for these two tables. |
+> | `packages/engine/data/rates.default.json` with a `pricedOn` date | `packages/db/src/seed/rates.ts` — a typed `DEFAULT_RATES` array with the provenance in each row's `note` and the date in the file header. Move it to JSON if the admin UI wants to diff it; the dating requirement is already met. |
+> | `packages/engine/src/pricing/rates.ts` — lookup, estimate, `recordUsage` | `resolveRate` and `unitForMode` in `@thibi/db`, `recordUsage` in `packages/engine/src/pipeline/batch-persist.ts`. Both want moving into a `pricing/` module here; that is a refactor, not a build. |
+> | unit `audio_minute` (see the Rates tab table below) | **`minute` and `batch_minute`.** Two units rather than one, because they are two SKUs at different prices for the same physical minute, which keeps the lookup a single equality instead of a nullable `sku` column. The tab below must render `google · chirp_2 · batch_minute`, not a synthesised "chirp_2 · batch" row. |
+> | — | A `*` model wildcard row per provider, so a run on a model nobody priced is costed rather than silently free. The grid has to show and allow editing those. |
+>
+> `resolveRate` returns **null**, never 0, when nothing matches, and `recordUsage` writes no row —
+> "we do not know what this cost" and "$0.00" are different facts and only one of them is
+> honest. The Rates tab and the confirm dialog both have to carry that distinction through.
+>
+> One rate the seed deliberately omits, and the tab should explain rather than offer: Google
+> publishes `Cloud Speech-to-Text Recognition (Logged)` at $0.012/min and
+> `Dynamic Batch Recognition (Logged)` at $0.00225 — **25% off both, in exchange for Google
+> retaining the audio to improve its models.** For a newsroom transcribing confidential sources
+> that is a disclosure and not a saving. Nothing in the codebase sets the flag that earns it. If
+> this phase surfaces it at all it is as an explicit choice with that sentence beside it, never
+> as a default and never framed as a cost optimisation.
 
 The rate table is **configuration**, seeded with committed defaults and editable in one grid.
 The usage table is **fact**, written by each step from the provider's own reported usage —

@@ -24,7 +24,8 @@ exactly the moment a surprise bill is created.
 | From | What is needed |
 |---|---|
 | Phase 1 | `EngineContext`, `ObjectStore` port + S3/MinIO adapter, `media_assets`, `jobs`, `projects`, `thibi` CLI |
-| Phase 1 | `rates` + `estimateCost()` — the batch and URL confirmations are worthless without real numbers |
+| **Phase 2** | `rates` + `resolveRate()` + `recordUsage()` — the batch and URL confirmations are worthless without real numbers. *(Corrected 2026-08-10: Phase 1 did not build these; Phase 2 did, because its own justification was a price difference. The function is `resolveRate`, it returns **null** rather than 0 when nothing matches, and the unit is `minute` or `batch_minute`.)* |
+| **Phase 2** | `planMode(…, { force })` — the seam this phase's "cheap and slow" import flag plugs into |
 | Phase 0 | Language registry, for the `--lang` validation and the default per project |
 | Image | `ffprobe` and `yt-dlp` on `PATH` (both already baked into the Node image per the overview) |
 
@@ -902,6 +903,17 @@ mc ls --incomplete local/thibi/media/    # empty
    bytes off the Node process entirely. It is rejected for phase 8 because the sha256 passthrough
    is the dedupe mechanism and moving it means either hashing in the browser or re-reading every
    object server-side. Revisit only if upload throughput becomes a measured problem.
+10. **Inherited from Phase 2, and now answerable: should a bulk import default to
+    `batchRecognize`?** Phase 2 deferred this here and left the seam — `planMode` takes a `force`,
+    so an importer that wants it passes `force: 'batch'` and nothing else changes. The trade is
+    now measured on both sides: 5.33× less money (Cloud Billing Catalog, 2026-08-10) against
+    roughly 5× the wall-clock (258 s for a 20-minute file). An import of forty files that nobody
+    is waiting on is exactly the job where that is the right way round, so the recommendation is
+    **yes, per-import and defaulted on, never instance-wide** — a single urgent file dropped into
+    the same UI must not inherit it. Two constraints if it ships: the importer has to refuse
+    rather than silently downgrade when no staging bucket is configured (`planMode` already
+    throws), and forty concurrent staged uploads is a different load profile from one, which is
+    untested.
 
 ## Definition of done
 

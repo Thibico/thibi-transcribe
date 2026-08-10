@@ -352,6 +352,16 @@ Three details that matter more than they look:
 `runs.pipeline` is written at run creation and is the complete specification of what the DAG
 should be. The planner is a pure function of it plus the chunk plan.
 
+**It is no longer only a specification, and every writer must merge rather than replace.**
+Phase 2 added runtime keys beside the spec — `planReason`, and `batch` holding the whole
+`BatchOp`, its latency, its billed duration and its poll count. `persistResult` originally did
+`SET pipeline = $4` and silently deleted all of it; the fix is `pipeline = pipeline || $4::jsonb`
+and it was found by querying `pipeline->'batch'` after the first successful live run and getting
+null. Anything in this phase that writes the column inherits that rule: `||` to merge a whole
+object, `jsonb_set` for a nested key, never a bare assignment. If the spec and the runtime state
+ever need to stop sharing a column, split them — but silently truncating one from the other is
+the failure that is easy to ship and hard to notice.
+
 ```ts
 export interface Pipeline {
   asr:      { providerId: string; model: string; mode: 'sync' | 'sync_chunked' | 'batch'; local: boolean };
@@ -671,6 +681,20 @@ per-database, so they hold across containers, which is the entire point.
 **Outbound per-provider token bucket.** Google's quota is per *project*. Ten containers each
 respecting `maxConcurrentRequests: 8` is 80 concurrent requests against one project quota.
 
+> **This is also the only place that can own the overview's fourth routing rule, and it is
+> unbuilt.** `00-overview.md` lists *"sync quota exhausted / sustained 429s → batch"* as a way
+> into batch mode. Phase 2 did not build it and deliberately did not design it: `planMode` takes
+> no quota input, and it would have to, because the decision depends on live 429 rates rather
+> than on anything about the file. This table is the only component that knows that state.
+>
+> Two things to settle before building it. It must not be silent — a run that becomes ~5× slower
+> because a *different* run exhausted the quota is a support ticket, not a graceful degradation,
+> so it needs a run event and a visible reason on the timeline. And it only makes sense at
+> submit time: a run already chunked and half-transcribed cannot become a batch run, so the
+> escape hatch is for runs still in `pending`, not for ones hitting 429s mid-flight. Those keep
+> the existing penalty-debit behaviour. If neither turns out to be worth it, delete the rule from
+> the overview rather than leaving it as an unimplemented promise.
+
 ```sql
 CREATE TABLE rate_buckets (
   key           text PRIMARY KEY,     -- 'google:asia-southeast1' | 'openai:whisper-1' | 'anthropic'
@@ -716,6 +740,34 @@ sweep never touches it.
 ```ts
 // packages/engine/src/queue/handlers/asr-batch.ts
 
+> **Reconciled 2026-08-10 against what Phase 2 shipped.** The two handlers below were written
+> before the provider surface existed and their calls do not match it. Phase 2's whole design
+> constraint was that these steps would need *no* provider change, and that holds — but the
+> sketch has to be read with four corrections, all of which are in `pipeline/batch-run.ts` and
+> `pipeline/batch-persist.ts` today:
+>
+> 1. **`pollBatch(cfg, op)` takes the whole `BatchOp`, not `externalRef`.** Passing the name
+>    alone loses `region`, and Speech v2 is regional: polling the wrong regional host 404s in a
+>    way that reads like "the operation is gone" rather than "you asked the wrong server". The
+>    struct is plain JSON in `runs.pipeline.batch` for exactly this reason — call
+>    `loadOperation(ctx, runId)` and get a poll-ready `BatchOp` back. `pollBatch` also
+>    cross-checks the name's embedded region against the stored one and refuses on a mismatch.
+> 2. **The return is a `BatchStatus`, not a raw LRO.** `status.state` is
+>    `running | succeeded | failed`; there is no `op.done`, and `op.error` is not the whole
+>    story — see 3.
+> 3. **`done: true` with no operation-level error is not success.** Spike S3 measured
+>    `response.results[uri].error` set while `done` was true, `progressPercent` was 100 and
+>    `error` was absent, at **1 run in 5**. `classifyOperation` already collapses this into
+>    `state: 'failed'` with `error.scope: 'file'` and a `retryable` flag, so the handler must
+>    branch on `state` and never on `done`.
+> 4. **`progressPercent` is a percentage, not a fraction.** `op.progressPercent ?? 0.2` below
+>    mixes units — a live run would jump to 2600% progress. Divide by 100. It *is* populated:
+>    measured 26/52/78 across thirteen polls on a 20-minute file, which retires the Phase 2 risk
+>    that assumed it might always be absent.
+>
+> One thing the sketch gets right and should keep: polling must not increment `attempt`. Phase 2
+> counts polls separately in `runs.pipeline.batch.polls` for the same reason.
+
 export const asrBatchSubmit: StepHandler = async (ctx, step, signal) => {
   const run = await getRun(ctx, step.runId);
   const provider = ctx.providers.get(run.providerId);
@@ -754,21 +806,36 @@ export const asrPoll: StepHandler = async (ctx, step, signal) => {
     throw new NonRetryableError('BATCH_DEADLINE_EXCEEDED', { operation: submit.externalRef });
   }
 
-  const op = await provider.pollBatch!(await ctx.settings.providerConfig(run.providerId), submit.externalRef!);
+  // Corrected: the whole BatchOp, rehydrated from runs.pipeline.batch. `region` travels with
+  // it because the poll URL cannot be rebuilt without one.
+  const { op: batchOp } = await loadOperation(ctx, step.runId);
+  const status = await provider.pollBatch!(
+    await ctx.settings.providerConfig(run.providerId),
+    batchOp!,
+  );
 
-  if (!op.done) {
+  if (status.state === 'running') {
     // Capped backoff 30 → 300 s, keyed off attempt count rather than wall clock so a
     // restart does not reset the schedule to aggressive.
     const nextMs = Math.min(300_000, 30_000 * 2 ** Math.min(step.attempt, 4));
     return {
       state: 'awaiting_external',
       // Polling is not a retry. Bump a poll counter, never `attempt`.
-      output: { ...step.output, polls: (step.output?.polls ?? 0) + 1, progress: op.progressPercent ?? 0.2 },
+      output: {
+        ...step.output,
+        polls: (step.output?.polls ?? 0) + 1,
+        // A percentage, divided to a fraction. Populated in practice; the fallback is only
+        // for a provider or a run that omits it, and is never fabricated upward.
+        progress: status.progressPercent !== undefined ? status.progressPercent / 100 : 0.2,
+      },
       pollAfter: new Date(Date.now() + jitter(nextMs)),
     };
   }
-  if (op.error) throw providerError(op.error);
-  return { state: 'done', output: { resultUris: op.resultUris, progress: 1 } };
+  // `state`, never `done`: an operation can report done with a per-file error and no
+  // operation-level error. Measured at 1 run in 5. `error.scope` says which happened and
+  // `retryable` says whether resubmitting is worth anything — code 13 yes, code 8 no.
+  if (status.state === 'failed') throw providerError(status.error, { retryable: status.retryable });
+  return { state: 'done', output: { outputUri: status.outputUri, progress: 1 } };
 };
 ```
 
