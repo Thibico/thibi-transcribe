@@ -1,0 +1,31 @@
+{
+  "name": "thibi-transcribe",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "pretest": "turbo run build",
+    "test": "vitest run",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc -b",
+    "gen": "turbo run gen",
+    "thibi": "node apps/cli/dist/index.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^22.18.12",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "google-auth-library": "^11.0.0",
+    "tsx": "^4.20.6",
+    "turbo": "^2.5.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vitest": "^3.2.4"
+  }
+}

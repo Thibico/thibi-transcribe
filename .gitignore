@@ -1,12 +1,16 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
+# build output
+dist/
+.turbo/
+
 # testing
-/coverage
+coverage/
 
 # next.js
 /.next/
@@ -46,3 +50,8 @@ next-env.d.ts
 # local notes — strategy, research and one-off docs. Reference material, not project source.
 *.local.md
 /research/
+
+# raw spike responses — several MB of provider JSON. The measurements distilled from
+# them are committed in spikes/RESULTS.md and plans/phase-00-spike-results.md; the
+# bytes are kept locally so a disputed number can be re-checked.
+/spikes/raw/

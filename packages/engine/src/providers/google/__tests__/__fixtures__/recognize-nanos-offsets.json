@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "alternatives": [
+        {
+          "transcript": "one two",
+          "confidence": 0.8,
+          "words": [
+            { "startOffset": { "seconds": 0, "nanos": 120000000 }, "endOffset": { "seconds": 0, "nanos": 410000000 }, "word": "one", "confidence": 0.9 },
+            { "startOffset": { "seconds": 1, "nanos": 500000000 }, "endOffset": { "seconds": 2, "nanos": 0 }, "word": "two", "confidence": 0.8 }
+          ]
+        }
+      ],
+      "resultEndOffset": { "seconds": 2, "nanos": 0 }
+    }
+  ]
+}

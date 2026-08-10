@@ -1,0 +1,2488 @@
+{
+  "_meta": {
+    "note": "Judgements (direction, complex, clusters, typography, zero-width, digits) are hand-maintained in scripts/gen-scripts.ts. unicodeRanges are derived from the runtime's Unicode data. Re-run `tsx scripts/gen-scripts.ts` after editing the table.",
+    "icuVersion": "77.1",
+    "generatedAt": "2026-08-09"
+  },
+  "scripts": {
+    "Arab": {
+      "code": "Arab",
+      "nameEn": "Arabic",
+      "direction": "rtl",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          1536,
+          1540
+        ],
+        [
+          1542,
+          1547
+        ],
+        [
+          1549,
+          1562
+        ],
+        [
+          1564,
+          1566
+        ],
+        [
+          1568,
+          1599
+        ],
+        [
+          1601,
+          1610
+        ],
+        [
+          1622,
+          1647
+        ],
+        [
+          1649,
+          1756
+        ],
+        [
+          1758,
+          1791
+        ],
+        [
+          1872,
+          1919
+        ],
+        [
+          2160,
+          2190
+        ],
+        [
+          2192,
+          2193
+        ],
+        [
+          2199,
+          2273
+        ],
+        [
+          2275,
+          2303
+        ],
+        [
+          64336,
+          64450
+        ],
+        [
+          64467,
+          64829
+        ],
+        [
+          64832,
+          64911
+        ],
+        [
+          64914,
+          64967
+        ],
+        [
+          64975,
+          64975
+        ],
+        [
+          65008,
+          65023
+        ],
+        [
+          65136,
+          65140
+        ],
+        [
+          65142,
+          65276
+        ],
+        [
+          69216,
+          69246
+        ],
+        [
+          69314,
+          69316
+        ],
+        [
+          69372,
+          69375
+        ],
+        [
+          126464,
+          126467
+        ],
+        [
+          126469,
+          126495
+        ],
+        [
+          126497,
+          126498
+        ],
+        [
+          126500,
+          126500
+        ],
+        [
+          126503,
+          126503
+        ],
+        [
+          126505,
+          126514
+        ],
+        [
+          126516,
+          126519
+        ],
+        [
+          126521,
+          126521
+        ],
+        [
+          126523,
+          126523
+        ],
+        [
+          126530,
+          126530
+        ],
+        [
+          126535,
+          126535
+        ],
+        [
+          126537,
+          126537
+        ],
+        [
+          126539,
+          126539
+        ],
+        [
+          126541,
+          126543
+        ],
+        [
+          126545,
+          126546
+        ],
+        [
+          126548,
+          126548
+        ],
+        [
+          126551,
+          126551
+        ],
+        [
+          126553,
+          126553
+        ],
+        [
+          126555,
+          126555
+        ],
+        [
+          126557,
+          126557
+        ],
+        [
+          126559,
+          126559
+        ],
+        [
+          126561,
+          126562
+        ],
+        [
+          126564,
+          126564
+        ],
+        [
+          126567,
+          126570
+        ],
+        [
+          126572,
+          126578
+        ],
+        [
+          126580,
+          126583
+        ],
+        [
+          126585,
+          126588
+        ],
+        [
+          126590,
+          126590
+        ],
+        [
+          126592,
+          126601
+        ],
+        [
+          126603,
+          126619
+        ],
+        [
+          126625,
+          126627
+        ],
+        [
+          126629,
+          126633
+        ],
+        [
+          126635,
+          126651
+        ],
+        [
+          126704,
+          126705
+        ]
+      ],
+      "clusters": "codepoint",
+      "typography": {
+        "fontFamily": "Noto Naskh Arabic",
+        "googleFontSubset": "arabic",
+        "cssStack": "'Noto Naskh Arabic', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "٠١٢٣٤٥٦٧٨٩",
+          "۰۱۲۳۴۵۶۷۸۹"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Armn": {
+      "code": "Armn",
+      "nameEn": "Armenian",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          1329,
+          1366
+        ],
+        [
+          1369,
+          1418
+        ],
+        [
+          1421,
+          1423
+        ],
+        [
+          64275,
+          64279
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Armenian",
+        "googleFontSubset": "armenian",
+        "cssStack": "'Noto Sans Armenian', system-ui, sans-serif",
+        "lineHeight": 1.6,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Beng": {
+      "code": "Beng",
+      "nameEn": "Bengali",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2432,
+          2435
+        ],
+        [
+          2437,
+          2444
+        ],
+        [
+          2447,
+          2448
+        ],
+        [
+          2451,
+          2472
+        ],
+        [
+          2474,
+          2480
+        ],
+        [
+          2482,
+          2482
+        ],
+        [
+          2486,
+          2489
+        ],
+        [
+          2492,
+          2500
+        ],
+        [
+          2503,
+          2504
+        ],
+        [
+          2507,
+          2510
+        ],
+        [
+          2519,
+          2519
+        ],
+        [
+          2524,
+          2525
+        ],
+        [
+          2527,
+          2531
+        ],
+        [
+          2534,
+          2558
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Bengali",
+        "googleFontSubset": "bengali",
+        "cssStack": "'Noto Sans Bengali', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "০১২৩৪৫৬৭৮৯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Cyrl": {
+      "code": "Cyrl",
+      "nameEn": "Cyrillic",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          1024,
+          1156
+        ],
+        [
+          1159,
+          1327
+        ],
+        [
+          7296,
+          7306
+        ],
+        [
+          7467,
+          7467
+        ],
+        [
+          7544,
+          7544
+        ],
+        [
+          11744,
+          11775
+        ],
+        [
+          42560,
+          42655
+        ],
+        [
+          65070,
+          65071
+        ],
+        [
+          122928,
+          122989
+        ],
+        [
+          123023,
+          123023
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": "cyrillic",
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.5,
+        "minFontPx": 14
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Deva": {
+      "code": "Deva",
+      "nameEn": "Devanagari",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2304,
+          2384
+        ],
+        [
+          2389,
+          2403
+        ],
+        [
+          2406,
+          2431
+        ],
+        [
+          43232,
+          43263
+        ],
+        [
+          72448,
+          72457
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Devanagari",
+        "googleFontSubset": "devanagari",
+        "cssStack": "'Noto Sans Devanagari', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "०१२३४५६७८९"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Ethi": {
+      "code": "Ethi",
+      "nameEn": "Ethiopic",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          4608,
+          4680
+        ],
+        [
+          4682,
+          4685
+        ],
+        [
+          4688,
+          4694
+        ],
+        [
+          4696,
+          4696
+        ],
+        [
+          4698,
+          4701
+        ],
+        [
+          4704,
+          4744
+        ],
+        [
+          4746,
+          4749
+        ],
+        [
+          4752,
+          4784
+        ],
+        [
+          4786,
+          4789
+        ],
+        [
+          4792,
+          4798
+        ],
+        [
+          4800,
+          4800
+        ],
+        [
+          4802,
+          4805
+        ],
+        [
+          4808,
+          4822
+        ],
+        [
+          4824,
+          4880
+        ],
+        [
+          4882,
+          4885
+        ],
+        [
+          4888,
+          4954
+        ],
+        [
+          4957,
+          4988
+        ],
+        [
+          4992,
+          5017
+        ],
+        [
+          11648,
+          11670
+        ],
+        [
+          11680,
+          11686
+        ],
+        [
+          11688,
+          11694
+        ],
+        [
+          11696,
+          11702
+        ],
+        [
+          11704,
+          11710
+        ],
+        [
+          11712,
+          11718
+        ],
+        [
+          11720,
+          11726
+        ],
+        [
+          11728,
+          11734
+        ],
+        [
+          11736,
+          11742
+        ],
+        [
+          43777,
+          43782
+        ],
+        [
+          43785,
+          43790
+        ],
+        [
+          43793,
+          43798
+        ],
+        [
+          43808,
+          43814
+        ],
+        [
+          43816,
+          43822
+        ],
+        [
+          124896,
+          124902
+        ],
+        [
+          124904,
+          124907
+        ],
+        [
+          124909,
+          124910
+        ],
+        [
+          124912,
+          124926
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Ethiopic",
+        "googleFontSubset": "ethiopic",
+        "cssStack": "'Noto Sans Ethiopic', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Geor": {
+      "code": "Geor",
+      "nameEn": "Georgian",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          4256,
+          4293
+        ],
+        [
+          4295,
+          4295
+        ],
+        [
+          4301,
+          4301
+        ],
+        [
+          4304,
+          4346
+        ],
+        [
+          4348,
+          4351
+        ],
+        [
+          7312,
+          7354
+        ],
+        [
+          7357,
+          7359
+        ],
+        [
+          11520,
+          11557
+        ],
+        [
+          11559,
+          11559
+        ],
+        [
+          11565,
+          11565
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Georgian",
+        "googleFontSubset": "georgian",
+        "cssStack": "'Noto Sans Georgian', system-ui, sans-serif",
+        "lineHeight": 1.6,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Grek": {
+      "code": "Grek",
+      "nameEn": "Greek",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          880,
+          883
+        ],
+        [
+          885,
+          887
+        ],
+        [
+          890,
+          893
+        ],
+        [
+          895,
+          895
+        ],
+        [
+          900,
+          900
+        ],
+        [
+          902,
+          902
+        ],
+        [
+          904,
+          906
+        ],
+        [
+          908,
+          908
+        ],
+        [
+          910,
+          929
+        ],
+        [
+          931,
+          993
+        ],
+        [
+          1008,
+          1023
+        ],
+        [
+          7462,
+          7466
+        ],
+        [
+          7517,
+          7521
+        ],
+        [
+          7526,
+          7530
+        ],
+        [
+          7615,
+          7615
+        ],
+        [
+          7936,
+          7957
+        ],
+        [
+          7960,
+          7965
+        ],
+        [
+          7968,
+          8005
+        ],
+        [
+          8008,
+          8013
+        ],
+        [
+          8016,
+          8023
+        ],
+        [
+          8025,
+          8025
+        ],
+        [
+          8027,
+          8027
+        ],
+        [
+          8029,
+          8029
+        ],
+        [
+          8031,
+          8061
+        ],
+        [
+          8064,
+          8116
+        ],
+        [
+          8118,
+          8132
+        ],
+        [
+          8134,
+          8147
+        ],
+        [
+          8150,
+          8155
+        ],
+        [
+          8157,
+          8175
+        ],
+        [
+          8178,
+          8180
+        ],
+        [
+          8182,
+          8190
+        ],
+        [
+          8486,
+          8486
+        ],
+        [
+          43877,
+          43877
+        ],
+        [
+          65856,
+          65934
+        ],
+        [
+          65952,
+          65952
+        ],
+        [
+          119296,
+          119365
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": "greek",
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.5,
+        "minFontPx": 14
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Gujr": {
+      "code": "Gujr",
+      "nameEn": "Gujarati",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2689,
+          2691
+        ],
+        [
+          2693,
+          2701
+        ],
+        [
+          2703,
+          2705
+        ],
+        [
+          2707,
+          2728
+        ],
+        [
+          2730,
+          2736
+        ],
+        [
+          2738,
+          2739
+        ],
+        [
+          2741,
+          2745
+        ],
+        [
+          2748,
+          2757
+        ],
+        [
+          2759,
+          2761
+        ],
+        [
+          2763,
+          2765
+        ],
+        [
+          2768,
+          2768
+        ],
+        [
+          2784,
+          2787
+        ],
+        [
+          2790,
+          2801
+        ],
+        [
+          2809,
+          2815
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Gujarati",
+        "googleFontSubset": "gujarati",
+        "cssStack": "'Noto Sans Gujarati', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "૦૧૨૩૪૫૬૭૮૯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Guru": {
+      "code": "Guru",
+      "nameEn": "Gurmukhi",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2561,
+          2563
+        ],
+        [
+          2565,
+          2570
+        ],
+        [
+          2575,
+          2576
+        ],
+        [
+          2579,
+          2600
+        ],
+        [
+          2602,
+          2608
+        ],
+        [
+          2610,
+          2611
+        ],
+        [
+          2613,
+          2614
+        ],
+        [
+          2616,
+          2617
+        ],
+        [
+          2620,
+          2620
+        ],
+        [
+          2622,
+          2626
+        ],
+        [
+          2631,
+          2632
+        ],
+        [
+          2635,
+          2637
+        ],
+        [
+          2641,
+          2641
+        ],
+        [
+          2649,
+          2652
+        ],
+        [
+          2654,
+          2654
+        ],
+        [
+          2662,
+          2678
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Gurmukhi",
+        "googleFontSubset": "gurmukhi",
+        "cssStack": "'Noto Sans Gurmukhi', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "੦੧੨੩੪੫੬੭੮੯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Hang": {
+      "code": "Hang",
+      "nameEn": "Hangul",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          4352,
+          4607
+        ],
+        [
+          11904,
+          11929
+        ],
+        [
+          11931,
+          12019
+        ],
+        [
+          12032,
+          12245
+        ],
+        [
+          12293,
+          12293
+        ],
+        [
+          12295,
+          12295
+        ],
+        [
+          12321,
+          12329
+        ],
+        [
+          12334,
+          12335
+        ],
+        [
+          12344,
+          12347
+        ],
+        [
+          12593,
+          12686
+        ],
+        [
+          12800,
+          12830
+        ],
+        [
+          12896,
+          12926
+        ],
+        [
+          13312,
+          19903
+        ],
+        [
+          19968,
+          40959
+        ],
+        [
+          43360,
+          43388
+        ],
+        [
+          44032,
+          55203
+        ],
+        [
+          55216,
+          55238
+        ],
+        [
+          55243,
+          55291
+        ],
+        [
+          63744,
+          64109
+        ],
+        [
+          64112,
+          64217
+        ],
+        [
+          65440,
+          65470
+        ],
+        [
+          65474,
+          65479
+        ],
+        [
+          65482,
+          65487
+        ],
+        [
+          65490,
+          65495
+        ],
+        [
+          65498,
+          65500
+        ],
+        [
+          94178,
+          94179
+        ],
+        [
+          94192,
+          94193
+        ],
+        [
+          131072,
+          173791
+        ],
+        [
+          173824,
+          177977
+        ],
+        [
+          177984,
+          178205
+        ],
+        [
+          178208,
+          183969
+        ],
+        [
+          183984,
+          191456
+        ],
+        [
+          191472,
+          192093
+        ],
+        [
+          194560,
+          195101
+        ],
+        [
+          196608,
+          201546
+        ],
+        [
+          201552,
+          205743
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": null,
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Hani": {
+      "code": "Hani",
+      "nameEn": "Han",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          11904,
+          11929
+        ],
+        [
+          11931,
+          12019
+        ],
+        [
+          12032,
+          12245
+        ],
+        [
+          12293,
+          12293
+        ],
+        [
+          12295,
+          12295
+        ],
+        [
+          12321,
+          12329
+        ],
+        [
+          12344,
+          12347
+        ],
+        [
+          13312,
+          19903
+        ],
+        [
+          19968,
+          40959
+        ],
+        [
+          63744,
+          64109
+        ],
+        [
+          64112,
+          64217
+        ],
+        [
+          94178,
+          94179
+        ],
+        [
+          94192,
+          94193
+        ],
+        [
+          131072,
+          173791
+        ],
+        [
+          173824,
+          177977
+        ],
+        [
+          177984,
+          178205
+        ],
+        [
+          178208,
+          183969
+        ],
+        [
+          183984,
+          191456
+        ],
+        [
+          191472,
+          192093
+        ],
+        [
+          194560,
+          195101
+        ],
+        [
+          196608,
+          201546
+        ],
+        [
+          201552,
+          205743
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": null,
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Hebr": {
+      "code": "Hebr",
+      "nameEn": "Hebrew",
+      "direction": "rtl",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          1425,
+          1479
+        ],
+        [
+          1488,
+          1514
+        ],
+        [
+          1519,
+          1524
+        ],
+        [
+          64285,
+          64310
+        ],
+        [
+          64312,
+          64316
+        ],
+        [
+          64318,
+          64318
+        ],
+        [
+          64320,
+          64321
+        ],
+        [
+          64323,
+          64324
+        ],
+        [
+          64326,
+          64335
+        ]
+      ],
+      "clusters": "codepoint",
+      "typography": {
+        "fontFamily": "Noto Sans Hebrew",
+        "googleFontSubset": "hebrew",
+        "cssStack": "'Noto Sans Hebrew', system-ui, sans-serif",
+        "lineHeight": 1.6,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Jpan": {
+      "code": "Jpan",
+      "nameEn": "Japanese",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          11904,
+          11929
+        ],
+        [
+          11931,
+          12019
+        ],
+        [
+          12032,
+          12245
+        ],
+        [
+          12293,
+          12293
+        ],
+        [
+          12295,
+          12295
+        ],
+        [
+          12321,
+          12329
+        ],
+        [
+          12344,
+          12347
+        ],
+        [
+          12353,
+          12438
+        ],
+        [
+          12445,
+          12447
+        ],
+        [
+          12449,
+          12538
+        ],
+        [
+          12541,
+          12543
+        ],
+        [
+          12784,
+          12799
+        ],
+        [
+          13008,
+          13054
+        ],
+        [
+          13056,
+          13143
+        ],
+        [
+          13312,
+          19903
+        ],
+        [
+          19968,
+          40959
+        ],
+        [
+          63744,
+          64109
+        ],
+        [
+          64112,
+          64217
+        ],
+        [
+          65382,
+          65391
+        ],
+        [
+          65393,
+          65437
+        ],
+        [
+          94178,
+          94179
+        ],
+        [
+          94192,
+          94193
+        ],
+        [
+          110576,
+          110579
+        ],
+        [
+          110581,
+          110587
+        ],
+        [
+          110589,
+          110590
+        ],
+        [
+          110592,
+          110882
+        ],
+        [
+          110898,
+          110898
+        ],
+        [
+          110928,
+          110930
+        ],
+        [
+          110933,
+          110933
+        ],
+        [
+          110948,
+          110951
+        ],
+        [
+          127488,
+          127488
+        ],
+        [
+          131072,
+          173791
+        ],
+        [
+          173824,
+          177977
+        ],
+        [
+          177984,
+          178205
+        ],
+        [
+          178208,
+          183969
+        ],
+        [
+          183984,
+          191456
+        ],
+        [
+          191472,
+          192093
+        ],
+        [
+          194560,
+          195101
+        ],
+        [
+          196608,
+          201546
+        ],
+        [
+          201552,
+          205743
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": null,
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Khmr": {
+      "code": "Khmr",
+      "nameEn": "Khmer",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          6016,
+          6109
+        ],
+        [
+          6112,
+          6121
+        ],
+        [
+          6128,
+          6137
+        ],
+        [
+          6624,
+          6655
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Khmer",
+        "googleFontSubset": "khmer",
+        "cssStack": "'Noto Sans Khmer', system-ui, sans-serif",
+        "lineHeight": 1.9,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "០១២៣៤៥៦៧៨៩"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Knda": {
+      "code": "Knda",
+      "nameEn": "Kannada",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3200,
+          3212
+        ],
+        [
+          3214,
+          3216
+        ],
+        [
+          3218,
+          3240
+        ],
+        [
+          3242,
+          3251
+        ],
+        [
+          3253,
+          3257
+        ],
+        [
+          3260,
+          3268
+        ],
+        [
+          3270,
+          3272
+        ],
+        [
+          3274,
+          3277
+        ],
+        [
+          3285,
+          3286
+        ],
+        [
+          3293,
+          3294
+        ],
+        [
+          3296,
+          3299
+        ],
+        [
+          3302,
+          3311
+        ],
+        [
+          3313,
+          3315
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Kannada",
+        "googleFontSubset": "kannada",
+        "cssStack": "'Noto Sans Kannada', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "೦೧೨೩೪೫೬೭೮೯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Laoo": {
+      "code": "Laoo",
+      "nameEn": "Lao",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3713,
+          3714
+        ],
+        [
+          3716,
+          3716
+        ],
+        [
+          3718,
+          3722
+        ],
+        [
+          3724,
+          3747
+        ],
+        [
+          3749,
+          3749
+        ],
+        [
+          3751,
+          3773
+        ],
+        [
+          3776,
+          3780
+        ],
+        [
+          3782,
+          3782
+        ],
+        [
+          3784,
+          3790
+        ],
+        [
+          3792,
+          3801
+        ],
+        [
+          3804,
+          3807
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Lao",
+        "googleFontSubset": "lao",
+        "cssStack": "'Noto Sans Lao', system-ui, sans-serif",
+        "lineHeight": 1.8,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "໐໑໒໓໔໕໖໗໘໙"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Latn": {
+      "code": "Latn",
+      "nameEn": "Latin",
+      "direction": "ltr",
+      "complex": false,
+      "unicodeRanges": [
+        [
+          65,
+          90
+        ],
+        [
+          97,
+          122
+        ],
+        [
+          170,
+          170
+        ],
+        [
+          186,
+          186
+        ],
+        [
+          192,
+          214
+        ],
+        [
+          216,
+          246
+        ],
+        [
+          248,
+          696
+        ],
+        [
+          736,
+          740
+        ],
+        [
+          7424,
+          7461
+        ],
+        [
+          7468,
+          7516
+        ],
+        [
+          7522,
+          7525
+        ],
+        [
+          7531,
+          7543
+        ],
+        [
+          7545,
+          7614
+        ],
+        [
+          7680,
+          7935
+        ],
+        [
+          8305,
+          8305
+        ],
+        [
+          8319,
+          8319
+        ],
+        [
+          8336,
+          8348
+        ],
+        [
+          8490,
+          8491
+        ],
+        [
+          8498,
+          8498
+        ],
+        [
+          8526,
+          8526
+        ],
+        [
+          8544,
+          8584
+        ],
+        [
+          11360,
+          11391
+        ],
+        [
+          42786,
+          42887
+        ],
+        [
+          42891,
+          42957
+        ],
+        [
+          42960,
+          42961
+        ],
+        [
+          42963,
+          42963
+        ],
+        [
+          42965,
+          42972
+        ],
+        [
+          42994,
+          43007
+        ],
+        [
+          43824,
+          43866
+        ],
+        [
+          43868,
+          43876
+        ],
+        [
+          43878,
+          43881
+        ],
+        [
+          64256,
+          64262
+        ],
+        [
+          65313,
+          65338
+        ],
+        [
+          65345,
+          65370
+        ],
+        [
+          67456,
+          67461
+        ],
+        [
+          67463,
+          67504
+        ],
+        [
+          67506,
+          67514
+        ],
+        [
+          122624,
+          122654
+        ],
+        [
+          122661,
+          122666
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": null,
+        "googleFontSubset": "latin",
+        "cssStack": "system-ui, sans-serif",
+        "lineHeight": 1.5,
+        "minFontPx": 14
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Mlym": {
+      "code": "Mlym",
+      "nameEn": "Malayalam",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3328,
+          3340
+        ],
+        [
+          3342,
+          3344
+        ],
+        [
+          3346,
+          3396
+        ],
+        [
+          3398,
+          3400
+        ],
+        [
+          3402,
+          3407
+        ],
+        [
+          3412,
+          3427
+        ],
+        [
+          3430,
+          3455
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Malayalam",
+        "googleFontSubset": "malayalam",
+        "cssStack": "'Noto Sans Malayalam', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "൦൧൨൩൪൫൬൭൮൯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Mymr": {
+      "code": "Mymr",
+      "nameEn": "Myanmar",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          4096,
+          4255
+        ],
+        [
+          43488,
+          43518
+        ],
+        [
+          43616,
+          43647
+        ],
+        [
+          71376,
+          71395
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Myanmar",
+        "googleFontSubset": "myanmar",
+        "cssStack": "'Noto Sans Myanmar', system-ui, sans-serif",
+        "lineHeight": 1.9,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "strip",
+        "zwj": "strip"
+      },
+      "digits": {
+        "native": [
+          "၀၁၂၃၄၅၆၇၈၉"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Orya": {
+      "code": "Orya",
+      "nameEn": "Odia",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2817,
+          2819
+        ],
+        [
+          2821,
+          2828
+        ],
+        [
+          2831,
+          2832
+        ],
+        [
+          2835,
+          2856
+        ],
+        [
+          2858,
+          2864
+        ],
+        [
+          2866,
+          2867
+        ],
+        [
+          2869,
+          2873
+        ],
+        [
+          2876,
+          2884
+        ],
+        [
+          2887,
+          2888
+        ],
+        [
+          2891,
+          2893
+        ],
+        [
+          2901,
+          2903
+        ],
+        [
+          2908,
+          2909
+        ],
+        [
+          2911,
+          2915
+        ],
+        [
+          2918,
+          2935
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Oriya",
+        "googleFontSubset": "oriya",
+        "cssStack": "'Noto Sans Oriya', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "୦୧୨୩୪୫୬୭୮୯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Sinh": {
+      "code": "Sinh",
+      "nameEn": "Sinhala",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3457,
+          3459
+        ],
+        [
+          3461,
+          3478
+        ],
+        [
+          3482,
+          3505
+        ],
+        [
+          3507,
+          3515
+        ],
+        [
+          3517,
+          3517
+        ],
+        [
+          3520,
+          3526
+        ],
+        [
+          3530,
+          3530
+        ],
+        [
+          3535,
+          3540
+        ],
+        [
+          3542,
+          3542
+        ],
+        [
+          3544,
+          3551
+        ],
+        [
+          3558,
+          3567
+        ],
+        [
+          3570,
+          3572
+        ],
+        [
+          70113,
+          70132
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Sinhala",
+        "googleFontSubset": "sinhala",
+        "cssStack": "'Noto Sans Sinhala', system-ui, sans-serif",
+        "lineHeight": 1.9,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Taml": {
+      "code": "Taml",
+      "nameEn": "Tamil",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          2946,
+          2947
+        ],
+        [
+          2949,
+          2954
+        ],
+        [
+          2958,
+          2960
+        ],
+        [
+          2962,
+          2965
+        ],
+        [
+          2969,
+          2970
+        ],
+        [
+          2972,
+          2972
+        ],
+        [
+          2974,
+          2975
+        ],
+        [
+          2979,
+          2980
+        ],
+        [
+          2984,
+          2986
+        ],
+        [
+          2990,
+          3001
+        ],
+        [
+          3006,
+          3010
+        ],
+        [
+          3014,
+          3016
+        ],
+        [
+          3018,
+          3021
+        ],
+        [
+          3024,
+          3024
+        ],
+        [
+          3031,
+          3031
+        ],
+        [
+          3046,
+          3066
+        ],
+        [
+          73664,
+          73713
+        ],
+        [
+          73727,
+          73727
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Tamil",
+        "googleFontSubset": "tamil",
+        "cssStack": "'Noto Sans Tamil', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "௦௧௨௩௪௫௬௭௮௯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Telu": {
+      "code": "Telu",
+      "nameEn": "Telugu",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3072,
+          3084
+        ],
+        [
+          3086,
+          3088
+        ],
+        [
+          3090,
+          3112
+        ],
+        [
+          3114,
+          3129
+        ],
+        [
+          3132,
+          3140
+        ],
+        [
+          3142,
+          3144
+        ],
+        [
+          3146,
+          3149
+        ],
+        [
+          3157,
+          3158
+        ],
+        [
+          3160,
+          3162
+        ],
+        [
+          3165,
+          3165
+        ],
+        [
+          3168,
+          3171
+        ],
+        [
+          3174,
+          3183
+        ],
+        [
+          3191,
+          3199
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Telugu",
+        "googleFontSubset": "telugu",
+        "cssStack": "'Noto Sans Telugu', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "౦౧౨౩౪౫౬౭౮౯"
+        ],
+        "foldToLatin": false
+      }
+    },
+    "Thaa": {
+      "code": "Thaa",
+      "nameEn": "Thaana",
+      "direction": "rtl",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          1920,
+          1969
+        ]
+      ],
+      "clusters": "codepoint",
+      "typography": {
+        "fontFamily": "Noto Sans Thaana",
+        "googleFontSubset": "thaana",
+        "cssStack": "'Noto Sans Thaana', system-ui, sans-serif",
+        "lineHeight": 1.7,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [],
+        "foldToLatin": false
+      }
+    },
+    "Thai": {
+      "code": "Thai",
+      "nameEn": "Thai",
+      "direction": "ltr",
+      "complex": true,
+      "unicodeRanges": [
+        [
+          3585,
+          3642
+        ],
+        [
+          3648,
+          3675
+        ]
+      ],
+      "clusters": "grapheme",
+      "typography": {
+        "fontFamily": "Noto Sans Thai",
+        "googleFontSubset": "thai",
+        "cssStack": "'Noto Sans Thai', system-ui, sans-serif",
+        "lineHeight": 1.8,
+        "minFontPx": 15
+      },
+      "zeroWidth": {
+        "zwsp": "strip",
+        "zwnj": "keep",
+        "zwj": "keep"
+      },
+      "digits": {
+        "native": [
+          "๐๑๒๓๔๕๖๗๘๙"
+        ],
+        "foldToLatin": false
+      }
+    }
+  }
+}

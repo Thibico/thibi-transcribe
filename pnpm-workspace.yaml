@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+  - apps/*
+  - services/*
+
+# pnpm 10 refuses to run install scripts unless a package is listed here.
+# Keep this list short and justified — each entry is arbitrary code at install time.
+onlyBuiltDependencies:
+  - esbuild
+  - '@node-rs/argon2'

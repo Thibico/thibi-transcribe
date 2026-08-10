@@ -870,7 +870,10 @@ and a human sign-off. No prompt change merges if it exceeds its do-nothing contr
    quote-to-audio all assume words exist with usable timings; Chirp can return a transcript
    with an empty word array for long-tail languages. `word_timing_quality` and
    `segments.has_words` are first-class and surfaced in the UI. **Build the no-words path
-   first, not last** — otherwise the first Oromo file breaks four features at once. Fallbacks:
+   first, not last** — otherwise the first Oromo file breaks four features at once.
+   **Partially measured 2026-08-09:** all 116 Google codes returned word offsets on a 2-second
+   clip, so the long-tail-Google case is less likely than assumed. The path is still built first;
+   it also covers `gpt-4o-transcribe`, which returns no timestamps at all. Fallbacks:
    proportional character-count interpolation for re-flow (and say so), segment-interval
    overlap plus mandatory review flag for speakers.
 3. **Segment immutability vs. two people in one segment.** ASR endpointing routinely straddles
@@ -912,6 +915,11 @@ argued in full in the phase doc named.
 | 13 | **`Intl.Segmenter` verified on Node 22.18 full ICU** for Burmese, Thai, Lao and Khmer. `မင်္ဂလာပါခင်ဗျာ` is 15 code points but 11 graphemes, so CPS counts graphemes — now an explicit registry field, with a capability probe for small-ICU builds. Myanmar falls back to syllables; Thai/Khmer/Lao refuse to guess. | [07](./phase-07-export.md), [11](./phase-11-ui-shell.md) |
 | 14 | **Interpolated word timings are computed at read time, never stored** — `is_estimated` rows would poison the low-confidence query and the reconciler. | [01](./phase-01-engine-core.md) |
 | 15 | **Model IDs and per-token prices are deliberately not pinned in any plan**; they live in dated seed files (`model-profiles.default.json`, `rates.default.json`). A plan that hardcodes them is stale within a quarter. | [14](./phase-14-ui-settings-admin.md) |
+| 16 | **The "44" and "exclusive to Google" are two different numbers** and Phase 0 conflated them. `--provider google --not-supported-by openai` is 44 — the live 2026-08-09 probe reproduces the 2026-07-30 research figure exactly. `--exclusive-to google`, meaning no other provider at all, is 21: the research's 20 plus Burmese, which Groq accepts and mangles and which `matrix-overrides.json` therefore marks unsupported. | [00](./phase-00-spikes-and-registries.md) |
+| 17 | **Chirp returned word offsets for all 116 language codes**, measured 2026-08-09 on a 2-second clip. Risk 2 below anticipated an empty word array for long-tail languages; on this clip none occurred, and Chirp transcribes the audio as *something* in whatever language it is asked for rather than returning silence. The no-words path is still built first — one clip on one day is evidence, not proof, and it also covers providers that genuinely lack the field — but Google's long tail is no longer the expected reason it fires. | [00](./phase-00-spikes-and-registries.md) |
+| 18 | **Every provider words a language rejection differently and none uses a distinguishing status code** — Google `Bad language code`, OpenAI `Language code 'ha' is not recognized`, Groq `unsupported language: xx`. A pattern that misses one degrades to `error`, which preserves the previous row: the safe direction. Phase 4's provider adapters inherit this table. | [00](./phase-00-spikes-and-registries.md) |
+| 19 | **Groq's on-demand tier allows 20 requests per minute**, and probing faster turned 55 of 116 languages into `unknown` rather than data. Any Groq path needs an outbound throttle and `Retry-After`, not just retries. | [00](./phase-00-spikes-and-registries.md), [04](./phase-04-whisper-providers.md) |
+| 20 | **Digraphia must be measured by whole sentences, not character share.** Latin runs at 2-5% of a Telugu, Lao, Nepali, Korean or Chinese corpus from acronyms alone; only Serbian has whole sentences in a second script (11 of 199 FLEURS rows). `LanguageEntry.altScripts` records it so the eval harness's script-integrity check cannot fail a correct Cyrillic Serbian transcript. | [00](./phase-00-spikes-and-registries.md), [05](./phase-05-eval-harness.md) |
 
 ### Open decisions, surfaced not assumed
 

@@ -1,0 +1,35 @@
+{
+  "name": "@thibi/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "gen": "drizzle-kit generate",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@thibi/core": "workspace:*",
+    "@thibi/languages": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.23.0",
+    "pg-copy-streams": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.21.0",
+    "@types/pg-copy-streams": "^1.2.5",
+    "drizzle-kit": "^0.31.10"
+  }
+}

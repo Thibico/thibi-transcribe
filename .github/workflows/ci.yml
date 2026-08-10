@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    # Postgres and MinIO, matching infra/compose.dev.yml. Without them the constraint
+    # suite and the S3 half of the storage contract skip themselves — and those cover
+    # exactly what a mock cannot: partial unique indexes, CHECK constraints, COPY escaping
+    # and presigned URLs. A suite that silently skips is worse than one that is absent.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: thibi
+          POSTGRES_PASSWORD: thibi
+          POSTGRES_DB: thibi
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U thibi -d thibi"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ROOT_USER: thibi
+          MINIO_ROOT_PASSWORD: thibi-dev-secret
+          MINIO_DEFAULT_BUCKETS: thibi
+        ports: ['9000:9000']
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+
+    env:
+      TEST_DATABASE_URL: postgres://thibi:thibi@localhost:5433/thibi
+      TEST_S3_ENDPOINT: http://localhost:9000
+      TEST_S3_BUCKET: thibi
+      TEST_S3_ACCESS_KEY_ID: thibi
+      TEST_S3_SECRET_ACCESS_KEY: thibi-dev-secret
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The generated registry is committed so `next dev` and `tsc` work with no prior
+      # build. This is the guard that it still matches data/*.json.
+      - name: Registry drift
+        run: |
+          pnpm gen
+          git diff --exit-code packages/languages/src/generated
+
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+      # The database-backed suites skip themselves when Postgres is unreachable, which is
+      # right for a laptop with no Docker and wrong for CI. Assert they actually ran.
+      - name: Database-backed tests were not skipped
+        run: |
+          if pnpm exec vitest run --project @thibi/db --reporter=json 2>/dev/null \
+             | grep -q '"status":"skipped"'; then
+            echo "::error::The @thibi/db suite skipped — Postgres was not reachable in CI."
+            exit 1
+          fi
+
+      # Second line of defence behind the no-restricted-properties rule: an
+      # `eslint-disable` comment would be enough to slip process.env back into the engine,
+      # and a grep is not disable-able.
+      #
+      # Comment lines are stripped first. The rules are worth explaining where they are
+      # enforced, and a check that forbids naming the thing it forbids would delete its own
+      # documentation — including the record of exactly which false claim was removed.
+      - name: Engine reads no ambient configuration
+        run: |
+          hits=$(grep -rn 'process\.env\|process\.cwd\|__dirname' packages/*/src \
+                   --include='*.ts' \
+                 | grep -v '__tests__' \
+                 | grep -vE ':[[:space:]]*(\*|//|/\*)' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::The engine reads no ambient configuration — take it from EngineContext."
+            exit 1
+          fi
+
+      # The old app justified pinning a Google region with a doctrine measured false twice
+      # (2026-07-30 probe and 2026-08-09 spike S3 both got correct output from all three
+      # regions). It lived in four places: a provider comment, an error hint, a settings
+      # default's justification and a settings-page hint. The region *value* is a fine
+      # default; the claim that it is forced is not, and it must not reappear as a comment
+      # or an error message. One file may name it, and it is named here.
+      - name: No region doctrine
+        run: |
+          hits=$(grep -rn 'asia-southeast1' packages/*/src apps/*/src 2>/dev/null \
+                 | grep -v '^apps/cli/src/config.ts:' \
+                 | grep -v '__tests__' \
+                 | grep -vE ':[[:space:]]*(\*|//|/\*)' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::Region is a free choice — see .env.example. apps/cli/src/config.ts is its only home in source."
+            exit 1
+          fi
+
+# Deliberately absent: `thibi probe languages`. It calls paid provider APIs, so freshness
+# is a documented quarterly task plus the probedAt dates being visible in
+# /settings/languages — not something CI does on every push.

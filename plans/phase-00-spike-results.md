@@ -35,8 +35,23 @@ input, which removes a cost multiplier from Phase 5.
 
 **Design consequence:** none — the design assumed this and it holds. Low-confidence QA
 highlighting (Phase 12) is viable on the primary provider, and `word_timing_quality` is `full`
-for Burmese. The `has_words = false` degradation path is still required, because this result
-covers one language; do not generalise it to the long tail without measuring.
+for Burmese.
+
+**Extended to the long tail, same day.** The caveat above — "this result covers one language;
+do not generalise it without measuring" — has now been measured. Over
+`my-MM, ha-NG, yo-NG, am-ET, km-KH, ps-AF, ceb-PH, om-ET, zu-ZA, si-LK`, every language
+returned words, every word carried a confidence and both offsets, and `distinct == words`
+throughout. The full table is in [../spikes/RESULTS.md](../spikes/RESULTS.md). Separately, the
+2026-08-09 provider probe found word offsets present for **all 116** Google codes.
+
+**And the signal is calibrated, which matters more than its presence.** The probe clip is
+Burmese. Read as Zulu it scores 0.128–0.333; read as Burmese, 0.738–0.973. Confidence tracks
+whether the model is actually right rather than decorating the output — so Phase 12's
+uncertain-word toolbar is worth building and its 0.6 default threshold has an empirical basis
+rather than being a round number.
+
+The `has_words = false` degradation path is still required: it covers providers that genuinely
+lack the field, `gpt-4o-transcribe` foremost, which returns no timestamps at all.
 
 ---
 

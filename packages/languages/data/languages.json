@@ -1,0 +1,5863 @@
+{
+  "_meta": {
+    "seededFrom": "102 FLEURS configs (huggingface.co/api/datasets/google/fleurs) + 5 non-FLEURS Google locales + 9 extra locales = 116. Scripts inferred from each language's own FLEURS reference text by sentence-majority Unicode script, then human-reviewed; the 14 codes with no FLEURS config are hand-assigned in scripts/infer-scripts.ts. Names and endonyms from CLDR; endonym is null where CLDR has nothing rather than guessed.",
+    "seededAt": "2026-08-09",
+    "reconciledWithProbe": null,
+    "provenance": {
+      "subtitle": "default, untuned — cpsMax/charsPerLineMax are guesses to be measured in Phase 7 and must not be read as measurements.",
+      "punctuation": "default, untuned except for the well-established quote conventions.",
+      "waveHint": "advisory only; drives docs and default ordering, never behaviour."
+    }
+  },
+  "languages": {
+    "af-ZA": {
+      "code": "af-ZA",
+      "iso639_1": "af",
+      "iso639_3": "afr",
+      "nameEn": "Afrikaans",
+      "endonym": "Afrikaans",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ZA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "af_za"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "am-ET": {
+      "code": "am-ET",
+      "iso639_1": "am",
+      "iso639_3": "amh",
+      "nameEn": "Amharic",
+      "endonym": "አማርኛ",
+      "altNames": [],
+      "script": "Ethi",
+      "altScripts": [],
+      "region": "ET",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "።",
+            "፣",
+            "፧"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "am_et"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ar-EG": {
+      "code": "ar-EG",
+      "iso639_1": "ar",
+      "iso639_3": "ara",
+      "nameEn": "Arabic",
+      "endonym": "العربية",
+      "altNames": [],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "EG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ar_eg"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "as-IN": {
+      "code": "as-IN",
+      "iso639_1": "as",
+      "iso639_3": "asm",
+      "nameEn": "Assamese",
+      "endonym": "অসমীয়া",
+      "altNames": [],
+      "script": "Beng",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "as_in"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ast-ES": {
+      "code": "ast-ES",
+      "iso639_1": null,
+      "iso639_3": "ast",
+      "nameEn": "Asturian",
+      "endonym": "asturianu",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ES",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ast_es"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "az-AZ": {
+      "code": "az-AZ",
+      "iso639_1": "az",
+      "iso639_3": "aze",
+      "nameEn": "Azerbaijani",
+      "endonym": "azərbaycan",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "AZ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "az_az"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "be-BY": {
+      "code": "be-BY",
+      "iso639_1": "be",
+      "iso639_3": "bel",
+      "nameEn": "Belarusian",
+      "endonym": "беларуская",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "BY",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "be_by"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "bg-BG": {
+      "code": "bg-BG",
+      "iso639_1": "bg",
+      "iso639_3": "bul",
+      "nameEn": "Bulgarian",
+      "endonym": "български",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "BG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "bg_bg"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "bn-BD": {
+      "code": "bn-BD",
+      "iso639_1": "bn",
+      "iso639_3": "ben",
+      "nameEn": "Bangla (Bangladesh)",
+      "endonym": "বাংলা",
+      "altNames": [],
+      "script": "Beng",
+      "altScripts": [],
+      "region": "BD",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "bn-IN": {
+      "code": "bn-IN",
+      "iso639_1": "bn",
+      "iso639_3": "ben",
+      "nameEn": "Bangla (India)",
+      "endonym": "বাংলা",
+      "altNames": [],
+      "script": "Beng",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "bn_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "bs-BA": {
+      "code": "bs-BA",
+      "iso639_1": "bs",
+      "iso639_3": "bos",
+      "nameEn": "Bosnian",
+      "endonym": "bosanski",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "BA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "bs_ba"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ca-ES": {
+      "code": "ca-ES",
+      "iso639_1": "ca",
+      "iso639_3": "cat",
+      "nameEn": "Catalan",
+      "endonym": "català",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ES",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ca_es"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ceb-PH": {
+      "code": "ceb-PH",
+      "iso639_1": null,
+      "iso639_3": "ceb",
+      "nameEn": "Cebuano",
+      "endonym": "Cebuano",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "PH",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ceb_ph"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ckb-IQ": {
+      "code": "ckb-IQ",
+      "iso639_1": null,
+      "iso639_3": "ckb",
+      "nameEn": "Central Kurdish",
+      "endonym": "کوردیی ناوەندی",
+      "altNames": [
+        "Sorani",
+        "Sorani Kurdish",
+        "Kurdish (Sorani)"
+      ],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "IQ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ckb_iq"
+      },
+      "waveHint": "rtl",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "cmn-Hans-CN": {
+      "code": "cmn-Hans-CN",
+      "iso639_1": null,
+      "iso639_3": "cmn",
+      "nameEn": "Mandarin Chinese (China)",
+      "endonym": "普通话",
+      "altNames": [
+        "zh",
+        "zh-CN",
+        "zh-Hans",
+        "Chinese",
+        "Mandarin",
+        "Simplified Chinese"
+      ],
+      "script": "Hani",
+      "altScripts": [],
+      "region": "CN",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "。",
+            "！",
+            "？"
+          ],
+          "quotes": [
+            "「",
+            "」"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "grapheme"
+      },
+      "fleurs": {
+        "config": "cmn_hans_cn"
+      },
+      "waveHint": "skip",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "cmn-Hant-TW": {
+      "code": "cmn-Hant-TW",
+      "iso639_1": null,
+      "iso639_3": "cmn",
+      "nameEn": "Mandarin Chinese (Taiwan)",
+      "endonym": "普通话",
+      "altNames": [
+        "zh-TW",
+        "zh-Hant",
+        "Traditional Chinese"
+      ],
+      "script": "Hani",
+      "altScripts": [],
+      "region": "TW",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "。",
+            "！",
+            "？"
+          ],
+          "quotes": [
+            "「",
+            "」"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "grapheme"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "skip",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "cs-CZ": {
+      "code": "cs-CZ",
+      "iso639_1": "cs",
+      "iso639_3": "ces",
+      "nameEn": "Czech",
+      "endonym": "čeština",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "CZ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "cs_cz"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "cy-GB": {
+      "code": "cy-GB",
+      "iso639_1": "cy",
+      "iso639_3": "cym",
+      "nameEn": "Welsh",
+      "endonym": "Cymraeg",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "GB",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "cy_gb"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "da-DK": {
+      "code": "da-DK",
+      "iso639_1": "da",
+      "iso639_3": "dan",
+      "nameEn": "Danish",
+      "endonym": "dansk",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "DK",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "da_dk"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "de-DE": {
+      "code": "de-DE",
+      "iso639_1": "de",
+      "iso639_3": "deu",
+      "nameEn": "German",
+      "endonym": "Deutsch",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "DE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "„",
+            "“"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "de_de"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "el-GR": {
+      "code": "el-GR",
+      "iso639_1": "el",
+      "iso639_3": "ell",
+      "nameEn": "Greek",
+      "endonym": "Ελληνικά",
+      "altNames": [],
+      "script": "Grek",
+      "altScripts": [],
+      "region": "GR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "·",
+            ";"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "el_gr"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "en-AU": {
+      "code": "en-AU",
+      "iso639_1": "en",
+      "iso639_3": "eng",
+      "nameEn": "English (Australia)",
+      "endonym": "English",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "AU",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "en-GB": {
+      "code": "en-GB",
+      "iso639_1": "en",
+      "iso639_3": "eng",
+      "nameEn": "English (United Kingdom)",
+      "endonym": "English",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "GB",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "en-IN": {
+      "code": "en-IN",
+      "iso639_1": "en",
+      "iso639_3": "eng",
+      "nameEn": "English (India)",
+      "endonym": "English",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "en-US": {
+      "code": "en-US",
+      "iso639_1": "en",
+      "iso639_3": "eng",
+      "nameEn": "English (United States)",
+      "endonym": "English",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "US",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "en_us"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "es-419": {
+      "code": "es-419",
+      "iso639_1": "es",
+      "iso639_3": "spa",
+      "nameEn": "Spanish (Latin America)",
+      "endonym": "español",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "419",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "es_419"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "es-ES": {
+      "code": "es-ES",
+      "iso639_1": "es",
+      "iso639_3": "spa",
+      "nameEn": "Spanish (Spain)",
+      "endonym": "español",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ES",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "es-US": {
+      "code": "es-US",
+      "iso639_1": "es",
+      "iso639_3": "spa",
+      "nameEn": "Spanish (United States)",
+      "endonym": "español",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "US",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "et-EE": {
+      "code": "et-EE",
+      "iso639_1": "et",
+      "iso639_3": "est",
+      "nameEn": "Estonian",
+      "endonym": "eesti",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "EE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "et_ee"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "eu-ES": {
+      "code": "eu-ES",
+      "iso639_1": "eu",
+      "iso639_3": "eus",
+      "nameEn": "Basque",
+      "endonym": "euskara",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ES",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "fa-IR": {
+      "code": "fa-IR",
+      "iso639_1": "fa",
+      "iso639_3": "fas",
+      "nameEn": "Persian",
+      "endonym": "فارسی",
+      "altNames": [],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "IR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "fa_ir"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ff-SN": {
+      "code": "ff-SN",
+      "iso639_1": "ff",
+      "iso639_3": "ful",
+      "nameEn": "Fula",
+      "endonym": "Pulaar",
+      "altNames": [
+        "Fulah",
+        "Fulfulde",
+        "Pulaar"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ff_sn"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "fi-FI": {
+      "code": "fi-FI",
+      "iso639_1": "fi",
+      "iso639_3": "fin",
+      "nameEn": "Finnish",
+      "endonym": "suomi",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "FI",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "fi_fi"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "fil-PH": {
+      "code": "fil-PH",
+      "iso639_1": null,
+      "iso639_3": "fil",
+      "nameEn": "Filipino",
+      "endonym": "Filipino",
+      "altNames": [
+        "tl",
+        "tgl",
+        "Tagalog"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "PH",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "fil_ph"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "fr-CA": {
+      "code": "fr-CA",
+      "iso639_1": "fr",
+      "iso639_3": "fra",
+      "nameEn": "French (Canada)",
+      "endonym": "français",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "CA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "fr-FR": {
+      "code": "fr-FR",
+      "iso639_1": "fr",
+      "iso639_3": "fra",
+      "nameEn": "French (France)",
+      "endonym": "français",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "FR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "fr_fr"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ga-IE": {
+      "code": "ga-IE",
+      "iso639_1": "ga",
+      "iso639_3": "gle",
+      "nameEn": "Irish",
+      "endonym": "Gaeilge",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "IE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ga_ie"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "gl-ES": {
+      "code": "gl-ES",
+      "iso639_1": "gl",
+      "iso639_3": "glg",
+      "nameEn": "Galician",
+      "endonym": "galego",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ES",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "gl_es"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "gu-IN": {
+      "code": "gu-IN",
+      "iso639_1": "gu",
+      "iso639_3": "guj",
+      "nameEn": "Gujarati",
+      "endonym": "ગુજરાતી",
+      "altNames": [],
+      "script": "Gujr",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "gu_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ha-NG": {
+      "code": "ha-NG",
+      "iso639_1": "ha",
+      "iso639_3": "hau",
+      "nameEn": "Hausa",
+      "endonym": "Hausa",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ha_ng"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "he-IL": {
+      "code": "he-IL",
+      "iso639_1": "he",
+      "iso639_3": "heb",
+      "nameEn": "Hebrew",
+      "endonym": "עברית",
+      "altNames": [
+        "iw"
+      ],
+      "script": "Hebr",
+      "altScripts": [],
+      "region": "IL",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "?",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "he_il"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "hi-IN": {
+      "code": "hi-IN",
+      "iso639_1": "hi",
+      "iso639_3": "hin",
+      "nameEn": "Hindi",
+      "endonym": "हिन्दी",
+      "altNames": [],
+      "script": "Deva",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "hi_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "hr-HR": {
+      "code": "hr-HR",
+      "iso639_1": "hr",
+      "iso639_3": "hrv",
+      "nameEn": "Croatian",
+      "endonym": "hrvatski",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "HR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "hr_hr"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "hu-HU": {
+      "code": "hu-HU",
+      "iso639_1": "hu",
+      "iso639_3": "hun",
+      "nameEn": "Hungarian",
+      "endonym": "magyar",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "HU",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "hu_hu"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "hy-AM": {
+      "code": "hy-AM",
+      "iso639_1": "hy",
+      "iso639_3": "hye",
+      "nameEn": "Armenian",
+      "endonym": "հայերեն",
+      "altNames": [],
+      "script": "Armn",
+      "altScripts": [],
+      "region": "AM",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "։",
+            "՞",
+            "՜"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "hy_am"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "id-ID": {
+      "code": "id-ID",
+      "iso639_1": "id",
+      "iso639_3": "ind",
+      "nameEn": "Indonesian",
+      "endonym": "Indonesia",
+      "altNames": [
+        "in"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ID",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "id_id"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ig-NG": {
+      "code": "ig-NG",
+      "iso639_1": "ig",
+      "iso639_3": "ibo",
+      "nameEn": "Igbo",
+      "endonym": "Igbo",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ig_ng"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "is-IS": {
+      "code": "is-IS",
+      "iso639_1": "is",
+      "iso639_3": "isl",
+      "nameEn": "Icelandic",
+      "endonym": "íslenska",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "IS",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "is_is"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "it-IT": {
+      "code": "it-IT",
+      "iso639_1": "it",
+      "iso639_3": "ita",
+      "nameEn": "Italian",
+      "endonym": "italiano",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "IT",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "it_it"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ja-JP": {
+      "code": "ja-JP",
+      "iso639_1": "ja",
+      "iso639_3": "jpn",
+      "nameEn": "Japanese",
+      "endonym": "日本語",
+      "altNames": [],
+      "script": "Jpan",
+      "altScripts": [],
+      "region": "JP",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "。",
+            "！",
+            "？"
+          ],
+          "quotes": [
+            "「",
+            "」"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "grapheme"
+      },
+      "fleurs": {
+        "config": "ja_jp"
+      },
+      "waveHint": "skip",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "jv-ID": {
+      "code": "jv-ID",
+      "iso639_1": "jv",
+      "iso639_3": "jav",
+      "nameEn": "Javanese",
+      "endonym": "Jawa",
+      "altNames": [
+        "Javanese"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ID",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "jv_id"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ka-GE": {
+      "code": "ka-GE",
+      "iso639_1": "ka",
+      "iso639_3": "kat",
+      "nameEn": "Georgian",
+      "endonym": "ქართული",
+      "altNames": [],
+      "script": "Geor",
+      "altScripts": [],
+      "region": "GE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ka_ge"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "kam-KE": {
+      "code": "kam-KE",
+      "iso639_1": null,
+      "iso639_3": "kam",
+      "nameEn": "Kamba",
+      "endonym": "Kikamba",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "KE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "kam_ke"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "kea-CV": {
+      "code": "kea-CV",
+      "iso639_1": null,
+      "iso639_3": "kea",
+      "nameEn": "Kabuverdianu",
+      "endonym": "kabuverdianu",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "CV",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "kea_cv"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "kk-KZ": {
+      "code": "kk-KZ",
+      "iso639_1": "kk",
+      "iso639_3": "kaz",
+      "nameEn": "Kazakh",
+      "endonym": "қазақ тілі",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "KZ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "kk_kz"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "km-KH": {
+      "code": "km-KH",
+      "iso639_1": "km",
+      "iso639_3": "khm",
+      "nameEn": "Khmer",
+      "endonym": "ខ្មែរ",
+      "altNames": [],
+      "script": "Khmr",
+      "altScripts": [],
+      "region": "KH",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "។",
+            "៕",
+            "?",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "icu"
+      },
+      "fleurs": {
+        "config": "km_kh"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "kn-IN": {
+      "code": "kn-IN",
+      "iso639_1": "kn",
+      "iso639_3": "kan",
+      "nameEn": "Kannada",
+      "endonym": "ಕನ್ನಡ",
+      "altNames": [],
+      "script": "Knda",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "kn_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ko-KR": {
+      "code": "ko-KR",
+      "iso639_1": "ko",
+      "iso639_3": "kor",
+      "nameEn": "Korean",
+      "endonym": "한국어",
+      "altNames": [],
+      "script": "Hang",
+      "altScripts": [],
+      "region": "KR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ko_kr"
+      },
+      "waveHint": "skip",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ky-KG": {
+      "code": "ky-KG",
+      "iso639_1": "ky",
+      "iso639_3": "kir",
+      "nameEn": "Kyrgyz",
+      "endonym": "кыргызча",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "KG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ky_kg"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "lb-LU": {
+      "code": "lb-LU",
+      "iso639_1": "lb",
+      "iso639_3": "ltz",
+      "nameEn": "Luxembourgish",
+      "endonym": "Lëtzebuergesch",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "LU",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "lb_lu"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "lg-UG": {
+      "code": "lg-UG",
+      "iso639_1": "lg",
+      "iso639_3": "lug",
+      "nameEn": "Ganda",
+      "endonym": "Luganda",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "UG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "lg_ug"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ln-CD": {
+      "code": "ln-CD",
+      "iso639_1": "ln",
+      "iso639_3": "lin",
+      "nameEn": "Lingala",
+      "endonym": "lingála",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "CD",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ln_cd"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "lo-LA": {
+      "code": "lo-LA",
+      "iso639_1": "lo",
+      "iso639_3": "lao",
+      "nameEn": "Lao",
+      "endonym": "ລາວ",
+      "altNames": [],
+      "script": "Laoo",
+      "altScripts": [],
+      "region": "LA",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "icu"
+      },
+      "fleurs": {
+        "config": "lo_la"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "lt-LT": {
+      "code": "lt-LT",
+      "iso639_1": "lt",
+      "iso639_3": "lit",
+      "nameEn": "Lithuanian",
+      "endonym": "lietuvių",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "LT",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "lt_lt"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "luo-KE": {
+      "code": "luo-KE",
+      "iso639_1": null,
+      "iso639_3": "luo",
+      "nameEn": "Luo",
+      "endonym": "Dholuo",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "KE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "luo_ke"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "lv-LV": {
+      "code": "lv-LV",
+      "iso639_1": "lv",
+      "iso639_3": "lav",
+      "nameEn": "Latvian",
+      "endonym": "latviešu",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "LV",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "lv_lv"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "mi-NZ": {
+      "code": "mi-NZ",
+      "iso639_1": "mi",
+      "iso639_3": "mri",
+      "nameEn": "Māori",
+      "endonym": "Māori",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NZ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "mi_nz"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "mk-MK": {
+      "code": "mk-MK",
+      "iso639_1": "mk",
+      "iso639_3": "mkd",
+      "nameEn": "Macedonian",
+      "endonym": "македонски",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "MK",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "„",
+            "“"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "mk_mk"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ml-IN": {
+      "code": "ml-IN",
+      "iso639_1": "ml",
+      "iso639_3": "mal",
+      "nameEn": "Malayalam",
+      "endonym": "മലയാളം",
+      "altNames": [],
+      "script": "Mlym",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ml_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "mn-MN": {
+      "code": "mn-MN",
+      "iso639_1": "mn",
+      "iso639_3": "mon",
+      "nameEn": "Mongolian",
+      "endonym": "монгол",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "MN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "mn_mn"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "mr-IN": {
+      "code": "mr-IN",
+      "iso639_1": "mr",
+      "iso639_3": "mar",
+      "nameEn": "Marathi",
+      "endonym": "मराठी",
+      "altNames": [],
+      "script": "Deva",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "mr_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ms-MY": {
+      "code": "ms-MY",
+      "iso639_1": "ms",
+      "iso639_3": "msa",
+      "nameEn": "Malay",
+      "endonym": "Melayu",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "MY",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ms_my"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "mt-MT": {
+      "code": "mt-MT",
+      "iso639_1": "mt",
+      "iso639_3": "mlt",
+      "nameEn": "Maltese",
+      "endonym": "Malti",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "MT",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "mt_mt"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "my-MM": {
+      "code": "my-MM",
+      "iso639_1": "my",
+      "iso639_3": "mya",
+      "nameEn": "Burmese",
+      "endonym": "မြန်မာ",
+      "altNames": [
+        "Myanmar"
+      ],
+      "script": "Mymr",
+      "altScripts": [],
+      "region": "MM",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": true,
+        "punctuation": {
+          "sentenceEnders": [
+            "။",
+            "၊"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "grapheme"
+      },
+      "fleurs": {
+        "config": "my_mm"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "verified",
+        "enabled": true,
+        "humanReviewed": true,
+        "notes": "Verified by operational use since 2026, not by the harness. CER to be measured in Phase 5. The harness can award beta and experimental on its own; it can never award verified."
+      }
+    },
+    "nb-NO": {
+      "code": "nb-NO",
+      "iso639_1": "nb",
+      "iso639_3": "nob",
+      "nameEn": "Norwegian Bokmål",
+      "endonym": "norsk bokmål",
+      "altNames": [
+        "no",
+        "nor",
+        "Norwegian"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NO",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "nb_no"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ne-NP": {
+      "code": "ne-NP",
+      "iso639_1": "ne",
+      "iso639_3": "nep",
+      "nameEn": "Nepali",
+      "endonym": "नेपाली",
+      "altNames": [],
+      "script": "Deva",
+      "altScripts": [],
+      "region": "NP",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ne_np"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "nl-NL": {
+      "code": "nl-NL",
+      "iso639_1": "nl",
+      "iso639_3": "nld",
+      "nameEn": "Dutch",
+      "endonym": "Nederlands",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NL",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "nl_nl"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "nso-ZA": {
+      "code": "nso-ZA",
+      "iso639_1": null,
+      "iso639_3": "nso",
+      "nameEn": "Northern Sotho",
+      "endonym": "Sesotho sa Leboa",
+      "altNames": [
+        "Sepedi",
+        "Pedi"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ZA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "nso_za"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ny-MW": {
+      "code": "ny-MW",
+      "iso639_1": "ny",
+      "iso639_3": "nya",
+      "nameEn": "Nyanja",
+      "endonym": "Nyanja",
+      "altNames": [
+        "Chichewa",
+        "Chewa"
+      ],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "MW",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ny_mw"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "oc-FR": {
+      "code": "oc-FR",
+      "iso639_1": "oc",
+      "iso639_3": "oci",
+      "nameEn": "Occitan",
+      "endonym": "occitan",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "FR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "oc_fr"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "om-ET": {
+      "code": "om-ET",
+      "iso639_1": "om",
+      "iso639_3": "orm",
+      "nameEn": "Oromo",
+      "endonym": "Oromoo",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ET",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "om_et"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "or-IN": {
+      "code": "or-IN",
+      "iso639_1": "or",
+      "iso639_3": "ori",
+      "nameEn": "Odia",
+      "endonym": "ଓଡ଼ିଆ",
+      "altNames": [
+        "Oriya"
+      ],
+      "script": "Orya",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "or_in"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "pa-Guru-IN": {
+      "code": "pa-Guru-IN",
+      "iso639_1": "pa",
+      "iso639_3": "pan",
+      "nameEn": "Punjabi",
+      "endonym": "ਪੰਜਾਬੀ",
+      "altNames": [
+        "pa-IN",
+        "Panjabi"
+      ],
+      "script": "Guru",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "pa_in"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "pl-PL": {
+      "code": "pl-PL",
+      "iso639_1": "pl",
+      "iso639_3": "pol",
+      "nameEn": "Polish",
+      "endonym": "polski",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "PL",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "pl_pl"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ps-AF": {
+      "code": "ps-AF",
+      "iso639_1": "ps",
+      "iso639_3": "pus",
+      "nameEn": "Pashto",
+      "endonym": "پښتو",
+      "altNames": [],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "AF",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ps_af"
+      },
+      "waveHint": "rtl",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "pt-BR": {
+      "code": "pt-BR",
+      "iso639_1": "pt",
+      "iso639_3": "por",
+      "nameEn": "Portuguese (Brazil)",
+      "endonym": "português",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "BR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "pt_br"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "pt-PT": {
+      "code": "pt-PT",
+      "iso639_1": "pt",
+      "iso639_3": "por",
+      "nameEn": "Portuguese (Portugal)",
+      "endonym": "português",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "PT",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ro-RO": {
+      "code": "ro-RO",
+      "iso639_1": "ro",
+      "iso639_3": "ron",
+      "nameEn": "Romanian",
+      "endonym": "română",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "RO",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ro_ro"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ru-RU": {
+      "code": "ru-RU",
+      "iso639_1": "ru",
+      "iso639_3": "rus",
+      "nameEn": "Russian",
+      "endonym": "русский",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "RU",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ru_ru"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "rup-BG": {
+      "code": "rup-BG",
+      "iso639_1": null,
+      "iso639_3": "rup",
+      "nameEn": "Aromanian",
+      "endonym": null,
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "BG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sd-IN": {
+      "code": "sd-IN",
+      "iso639_1": "sd",
+      "iso639_3": "snd",
+      "nameEn": "Sindhi",
+      "endonym": "سنڌي",
+      "altNames": [],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sd_in"
+      },
+      "waveHint": "rtl",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "si-LK": {
+      "code": "si-LK",
+      "iso639_1": "si",
+      "iso639_3": "sin",
+      "nameEn": "Sinhala",
+      "endonym": "සිංහල",
+      "altNames": [],
+      "script": "Sinh",
+      "altScripts": [],
+      "region": "LK",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sk-SK": {
+      "code": "sk-SK",
+      "iso639_1": "sk",
+      "iso639_3": "slk",
+      "nameEn": "Slovak",
+      "endonym": "slovenčina",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SK",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sk_sk"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sl-SI": {
+      "code": "sl-SI",
+      "iso639_1": "sl",
+      "iso639_3": "slv",
+      "nameEn": "Slovenian",
+      "endonym": "slovenščina",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SI",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sl_si"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sn-ZW": {
+      "code": "sn-ZW",
+      "iso639_1": "sn",
+      "iso639_3": "sna",
+      "nameEn": "Shona",
+      "endonym": "chiShona",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ZW",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sn_zw"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "so-SO": {
+      "code": "so-SO",
+      "iso639_1": "so",
+      "iso639_3": "som",
+      "nameEn": "Somali",
+      "endonym": "Soomaali",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SO",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "so_so"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sq-AL": {
+      "code": "sq-AL",
+      "iso639_1": "sq",
+      "iso639_3": "sqi",
+      "nameEn": "Albanian",
+      "endonym": "shqip",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "AL",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sr-RS": {
+      "code": "sr-RS",
+      "iso639_1": "sr",
+      "iso639_3": "srp",
+      "nameEn": "Serbian",
+      "endonym": "српски",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [
+        "Cyrl"
+      ],
+      "region": "RS",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "„",
+            "“"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sr_rs"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "su-ID": {
+      "code": "su-ID",
+      "iso639_1": "su",
+      "iso639_3": "sun",
+      "nameEn": "Sundanese",
+      "endonym": "Basa Sunda",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ID",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": null
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sv-SE": {
+      "code": "sv-SE",
+      "iso639_1": "sv",
+      "iso639_3": "swe",
+      "nameEn": "Swedish",
+      "endonym": "svenska",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sv_se"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "sw-KE": {
+      "code": "sw-KE",
+      "iso639_1": "sw",
+      "iso639_3": "swa",
+      "nameEn": "Swahili",
+      "endonym": "Kiswahili",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "KE",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "sw_ke"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ta-IN": {
+      "code": "ta-IN",
+      "iso639_1": "ta",
+      "iso639_3": "tam",
+      "nameEn": "Tamil",
+      "endonym": "தமிழ்",
+      "altNames": [],
+      "script": "Taml",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ta_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "te-IN": {
+      "code": "te-IN",
+      "iso639_1": "te",
+      "iso639_3": "tel",
+      "nameEn": "Telugu",
+      "endonym": "తెలుగు",
+      "altNames": [],
+      "script": "Telu",
+      "altScripts": [],
+      "region": "IN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "te_in"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "tg-TJ": {
+      "code": "tg-TJ",
+      "iso639_1": "tg",
+      "iso639_3": "tgk",
+      "nameEn": "Tajik",
+      "endonym": "тоҷикӣ",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "TJ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "tg_tj"
+      },
+      "waveHint": "asia-nonlatin",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "th-TH": {
+      "code": "th-TH",
+      "iso639_1": "th",
+      "iso639_3": "tha",
+      "nameEn": "Thai",
+      "endonym": "ไทย",
+      "altNames": [],
+      "script": "Thai",
+      "altScripts": [],
+      "region": "TH",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "icu"
+      },
+      "fleurs": {
+        "config": "th_th"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "tr-TR": {
+      "code": "tr-TR",
+      "iso639_1": "tr",
+      "iso639_3": "tur",
+      "nameEn": "Turkish",
+      "endonym": "Türkçe",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "TR",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "tr_tr"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "uk-UA": {
+      "code": "uk-UA",
+      "iso639_1": "uk",
+      "iso639_3": "ukr",
+      "nameEn": "Ukrainian",
+      "endonym": "українська",
+      "altNames": [],
+      "script": "Cyrl",
+      "altScripts": [],
+      "region": "UA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "«",
+            "»"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "uk_ua"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "umb-AO": {
+      "code": "umb-AO",
+      "iso639_1": null,
+      "iso639_3": "umb",
+      "nameEn": "Umbundu",
+      "endonym": null,
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "AO",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "umb_ao"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "ur-PK": {
+      "code": "ur-PK",
+      "iso639_1": "ur",
+      "iso639_3": "urd",
+      "nameEn": "Urdu",
+      "endonym": "اردو",
+      "altNames": [],
+      "script": "Arab",
+      "altScripts": [],
+      "region": "PK",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "۔",
+            "؟",
+            "!"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "ur_pk"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "uz-UZ": {
+      "code": "uz-UZ",
+      "iso639_1": "uz",
+      "iso639_3": "uzb",
+      "nameEn": "Uzbek",
+      "endonym": "o‘zbek",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "UZ",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "uz_uz"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "vi-VN": {
+      "code": "vi-VN",
+      "iso639_1": "vi",
+      "iso639_3": "vie",
+      "nameEn": "Vietnamese",
+      "endonym": "Tiếng Việt",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "VN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "vi_vn"
+      },
+      "waveHint": "covered-by-openai",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "wo-SN": {
+      "code": "wo-SN",
+      "iso639_1": "wo",
+      "iso639_3": "wol",
+      "nameEn": "Wolof",
+      "endonym": "Wolof",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "SN",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "wo_sn"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "xh-ZA": {
+      "code": "xh-ZA",
+      "iso639_1": "xh",
+      "iso639_3": "xho",
+      "nameEn": "Xhosa",
+      "endonym": "IsiXhosa",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ZA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "xh_za"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "yo-NG": {
+      "code": "yo-NG",
+      "iso639_1": "yo",
+      "iso639_3": "yor",
+      "nameEn": "Yoruba",
+      "endonym": "Èdè Yorùbá",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "NG",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "yo_ng"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "yue-Hant-HK": {
+      "code": "yue-Hant-HK",
+      "iso639_1": null,
+      "iso639_3": "yue",
+      "nameEn": "Cantonese",
+      "endonym": "粵語",
+      "altNames": [
+        "zh-HK",
+        "Yue"
+      ],
+      "script": "Hani",
+      "altScripts": [],
+      "region": "HK",
+      "text": {
+        "wordSegmentation": "none",
+        "wordJoin": "",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            "。",
+            "！",
+            "？"
+          ],
+          "quotes": [
+            "「",
+            "」"
+          ]
+        },
+        "cerStripsWhitespace": true,
+        "reportWer": false
+      },
+      "subtitle": {
+        "cpsMax": 12,
+        "charsPerLineMax": 24,
+        "maxLines": 2,
+        "lineBreak": "grapheme"
+      },
+      "fleurs": {
+        "config": "yue_hant_hk"
+      },
+      "waveHint": "skip",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    },
+    "zu-ZA": {
+      "code": "zu-ZA",
+      "iso639_1": "zu",
+      "iso639_3": "zul",
+      "nameEn": "Zulu",
+      "endonym": "isiZulu",
+      "altNames": [],
+      "script": "Latn",
+      "altScripts": [],
+      "region": "ZA",
+      "text": {
+        "wordSegmentation": "spaces",
+        "wordJoin": " ",
+        "normalizers": [
+          "nfc",
+          "zero-width",
+          "collapse-ws"
+        ],
+        "zawgyiApplies": false,
+        "punctuation": {
+          "sentenceEnders": [
+            ".",
+            "!",
+            "?"
+          ],
+          "quotes": [
+            "“",
+            "”"
+          ]
+        },
+        "cerStripsWhitespace": false,
+        "reportWer": true
+      },
+      "subtitle": {
+        "cpsMax": 17,
+        "charsPerLineMax": 42,
+        "maxLines": 2,
+        "lineBreak": "space"
+      },
+      "fleurs": {
+        "config": "zu_za"
+      },
+      "waveHint": "latin-exclusive",
+      "seed": {
+        "tier": "experimental",
+        "enabled": true,
+        "humanReviewed": false,
+        "notes": null
+      }
+    }
+  }
+}

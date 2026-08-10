@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "alternatives": [
+        {
+          "transcript": "first has words",
+          "confidence": 0.9,
+          "words": [
+            { "startOffset": "0.100s", "endOffset": "0.500s", "word": "first", "confidence": 0.9 },
+            { "startOffset": "0.500s", "endOffset": "0.900s", "word": "has", "confidence": 0.9 },
+            { "startOffset": "0.900s", "endOffset": "1.400s", "word": "words", "confidence": 0.9 }
+          ]
+        }
+      ],
+      "resultEndOffset": "1.400s"
+    },
+    {
+      "alternatives": [{ "transcript": "second does not", "confidence": 0.7 }],
+      "resultEndOffset": "3.000s"
+    }
+  ]
+}
