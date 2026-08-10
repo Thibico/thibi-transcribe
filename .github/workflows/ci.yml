@@ -17,6 +17,9 @@ jobs:
     # suite and the S3 half of the storage contract skip themselves — and those cover
     # exactly what a mock cannot: partial unique indexes, CHECK constraints, COPY escaping
     # and presigned URLs. A suite that silently skips is worse than one that is absent.
+    #
+    # MinIO is not here but in a step below, because a service container cannot override
+    # the image command and `minio/minio` needs `server /data`. See that step.
     services:
       postgres:
         image: postgres:17-alpine
@@ -28,16 +31,6 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U thibi -d thibi"
           --health-interval 3s --health-timeout 3s --health-retries 20
-      minio:
-        image: bitnami/minio:latest
-        env:
-          MINIO_ROOT_USER: thibi
-          MINIO_ROOT_PASSWORD: thibi-dev-secret
-          MINIO_DEFAULT_BUCKETS: thibi
-        ports: ['9000:9000']
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live"
-          --health-interval 3s --health-timeout 3s --health-retries 20
 
     env:
       TEST_DATABASE_URL: postgres://thibi:thibi@localhost:5433/thibi
@@ -48,6 +41,49 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      # `bitnami/minio:latest` was a service container until 2026-08-10, when every run
+      # began dying at container init with `manifest unknown` — before a single test ran.
+      # Not a flake: Bitnami emptied its free Docker Hub catalog in August 2025 and moved
+      # the images to `bitnamilegacy/`, frozen at 2025-08-19. That tag cannot come back.
+      #
+      # The replacement is the image infra/compose.dev.yml already uses, which also stops
+      # CI and dev drifting apart. It cannot be a service container: those accept `options`
+      # (docker run flags) but no command, and `minio/minio` exits printing help unless it
+      # is given `server /data`. Bitnami's image started a server unprompted, which is the
+      # only reason the service-container shape worked here in the first place.
+      - name: Start MinIO
+        run: |
+          docker network create thibi-ci
+          docker run -d --name minio --network thibi-ci -p 9000:9000 \
+            -e MINIO_ROOT_USER=thibi \
+            -e MINIO_ROOT_PASSWORD=thibi-dev-secret \
+            minio/minio:latest server /data
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:9000/minio/health/ready >/dev/null 2>&1; then
+              echo "minio ready after ${i} attempt(s)"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "::error::MinIO did not become ready in 60s."
+              docker logs minio
+              exit 1
+            fi
+            sleep 2
+          done
+
+          # TEST_S3_BUCKET has to exist before the storage contract runs: nothing in the
+          # suite creates it, and it used to arrive via bitnami's MINIO_DEFAULT_BUCKETS,
+          # which is a Bitnami extension the official image does not have. This mirrors
+          # the minio-init one-shot in infra/compose.dev.yml.
+          # Reached by container name on a user-defined network rather than via
+          # `--network host`, which is Linux-only — this way the same commands can be run
+          # on a laptop to check a change to this step before pushing it.
+          docker run --rm --network thibi-ci --entrypoint sh minio/mc:latest -c "
+            mc alias set local http://minio:9000 thibi thibi-dev-secret &&
+            mc mb --ignore-existing local/thibi
+          "
 
       - uses: pnpm/action-setup@v4
 
