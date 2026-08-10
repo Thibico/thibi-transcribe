@@ -611,7 +611,7 @@ Note the retry goes back to `pending`, not `ready` — the reconciler owns promo
 | `editorial` | `editorial.pass` | `worker` | LLM calls; network-bound |
 | `export` | `export` | `worker` | Pure CPU, fast |
 | `maintenance` | `maintenance.*` | `worker` | Cron |
-| `diarize` | `diarize` | **`worker-heavy`** | pyannote: 0.15–0.4× realtime on CPU |
+| `diarize` | `diarize` | **`worker-heavy`** | pyannote: **~0.6× realtime on CPU** (measured ×2, S6 2026-08-10; was an unmeasured 0.15–0.4×). Never gates the transcript — ASR completes in ~1 min where this takes ~1 h 40 m |
 | `asr.local` | `asr.chunk` (faster-whisper) | **`worker-heavy`** | Same GPU/RAM, same contention |
 
 The split exists so that a 2.5-hour pyannote job on a 1-hour interview cannot starve the

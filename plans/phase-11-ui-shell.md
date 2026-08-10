@@ -857,9 +857,12 @@ Three things this adds that the original could not:
    Disabled with a one-line reason when no staging bucket is configured, since that is a
    supported and *faster* setup rather than a missing feature. `planMode` throws rather than
    silently downgrading, so the dialog must not offer what it would refuse.
-2. **Diarization's cost is time, not money.** pyannote on CPU is 0.15–0.4× realtime — a 68-minute
-   file is 2.5–7 hours. The dialog says so, reading a measured realtime factor from settings when
-   one exists. Someone who starts a diarization at 5 pm expecting it at 5:10 pm is a support ticket
+2. **Diarization's cost is time, not money.** pyannote on CPU is **0.56–0.61× realtime** — a
+   68-minute file is about **1 h 55 m** *(measured, spike S6 2026-08-10; this read "0.15–0.4× realtime — 2.5–7
+   hours", inherited from a table nobody had run)*. The dialog says so, reading a measured realtime
+   factor from settings when one exists. Two riders from S6: the figure depends on **speaker count**
+   rather than duration, so a monologue finishes nearer 0.79×; and the transcript is never blocked
+   by this, so the dialog should say when speaker labels arrive, not when the transcript does. Someone who starts a diarization at 5 pm expecting it at 5:10 pm is a support ticket
    the dialog can prevent.
 3. **LLM estimates**, with the tokenizer trap handled:
 

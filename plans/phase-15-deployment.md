@@ -708,8 +708,8 @@ Both pyannote 3.1 and faster-whisper `large-v3` fit comfortably in 12 GB togethe
 | faster-whisper `large-v3` int8, CPU, 8 cores | 1–2× realtime | **30–60 minutes** |
 | faster-whisper `distil-large-v3` int8, CPU, 8 cores | ~2.5–4× realtime | 15–25 minutes |
 | faster-whisper `large-v3` float16, GPU | ~20–30× realtime | 2–4 minutes |
-| **pyannote 3.1, CPU** | **0.15–0.4× realtime** | **2.5 to 7 hours** |
-| pyannote 3.1, GPU | ~10–20× realtime | 3–6 minutes |
+| **pyannote 3.1, CPU** | **0.56–0.61× realtime** (measured ×2, S6) | **~1 h 40 m** |
+| pyannote 3.1, GPU | ~10–20× realtime *(inherited, **never measured** — do not publish until it is)* | 3–6 minutes |
 
 **The pyannote CPU number is the one that surprises people, and it is why several other
 decisions look the way they do:** `worker-heavy` runs at concurrency 1 with a global advisory
@@ -1008,7 +1008,7 @@ Sections that must exist in `README.md`:
 | Install | the `./thibi init` transcript from §4, verbatim |
 | Languages and tiers | what verified / beta / experimental mean, with the thresholds; **"a provider accepting a language code is not support"**, with the Groq romanized-Burmese example |
 | Costs | the rate table is yours, not an invoice; the \$48-vs-\$9 batch arithmetic; each run is charged again |
-| **Diarization takes hours on CPU** | 0.15–0.4× realtime; a 1-hour interview is 2.5–7 hours; use a GPU or a cloud diarizer if you have a deadline |
+| **Diarization is slower than realtime on CPU** | ~0.6× realtime (S6): a 1-hour interview is ~1 h 40 m, a 3-hour recording ~5 h. It runs in the background and never delays the transcript. Same-day work on long audio wants a GPU |
 | **Losing `APP_SECRET_KEY` is unrecoverable** | what is lost (provider credentials) and what is not (transcripts, audio, users); it is not in backups, by design |
 | **Presigned URLs are bearer tokens** | 15 minutes, no session required, do not paste them into chat |
 | **Encryption at rest does nothing against root on this host** | it protects a leaked `pg_dump`, which is the realistic failure; it does not protect you from someone with root |
@@ -1163,7 +1163,11 @@ On a **clean VPS** (2 vCPU / 4 GB, fresh Debian, Docker installed, DNS pointed a
    it refuses without a valid `HF_TOKEN` and links to the licence page. `hf-cache` ends up ~2 GB
    for distil + pyannote.
 9. Transcribe a 10-minute file with local models and time it. The realtime factors are within the
-   §5 ranges — **if pyannote on this box is not 0.15–0.4× realtime, fix the table, not the claim.**
+   §5 ranges — **if pyannote on this box is not ~0.6× realtime, fix the table, not the claim.**
+   *(This instruction did its job on 2026-08-10: the table said 0.15–0.4×, S6 measured 0.56–0.79×,
+   and the table was fixed. Expect this box to differ again — those numbers came off a 2018 laptop
+   CPU pinned to pyannote 3.3.2, and a Linux sidecar on pyannote 4.x should beat them. Measure
+   twice: run-to-run variance was 6–8%, enough to mislead a single sample.)*
 10. Kill `worker` mid-`batchRecognize`; `./thibi up -d`. ASR is **not** repeated (one
     `usage_records` row), the poll resumes, and the browser's SSE replays from `Last-Event-ID`.
 11. `./thibi backup`. Confirm order in the log: `pg_dump` before `mc mirror`. Confirm the
@@ -1237,7 +1241,8 @@ On a **clean VPS** (2 vCPU / 4 GB, fresh Debian, Docker installed, DNS pointed a
 - [ ] Presigned URLs expire in 15 minutes, every mint writes `media_access_log`, and
       `MEDIA_SERVING=proxy` serves Range requests correctly using the ported handler.
 - [ ] The README publishes the three resource tiers and the honest throughput numbers, including
-      **pyannote on CPU at 0.15–0.4× realtime**.
+      **pyannote on CPU at ~0.6× realtime** — measured, not inherited, and re-measured on the
+      deployment host rather than copied from S6's laptop.
 - [ ] `thibi models pull` verifies the HF token and licence acceptance before downloading, and
       `--dry-run` reports total bytes against free space.
 - [ ] Migrations are forward-only, guarded by an advisory lock, applied by a one-shot service, and

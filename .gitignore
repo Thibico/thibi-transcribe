@@ -55,3 +55,9 @@ next-env.d.ts
 # them are committed in spikes/RESULTS.md and plans/phase-00-spike-results.md; the
 # bytes are kept locally so a disputed number can be re-checked.
 /spikes/raw/
+
+# python — S6 runs pyannote through `uv run`, which needs no venv in-tree, but the
+# interpreter still writes bytecode next to the spike.
+__pycache__/
+*.py[cod]
+.venv/
