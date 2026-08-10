@@ -94,14 +94,22 @@ export class BatchFailedError extends Error {
   }
 }
 
-function assertBatchCapable(
+/**
+ * Each entry point asserts only the methods it actually calls.
+ *
+ * `pollToCompletion` needs `pollBatch` and nothing else, which matters because Phase 9's
+ * poll step calls it in isolation from a worker that has an operation and a config — there
+ * is no submit in scope and demanding one would be a false requirement.
+ */
+function assertCan<K extends 'submitBatch' | 'pollBatch' | 'fetchBatchResult'>(
   provider: TranscriptionProvider,
-): asserts provider is TranscriptionProvider &
-  Required<Pick<TranscriptionProvider, 'submitBatch' | 'pollBatch' | 'fetchBatchResult'>> {
-  if (!provider.submitBatch || !provider.pollBatch || !provider.fetchBatchResult) {
+  methods: readonly K[],
+): asserts provider is TranscriptionProvider & Required<Pick<TranscriptionProvider, K>> {
+  const missing = methods.filter((m) => !provider[m]);
+  if (missing.length > 0) {
     throw new Error(
       `Provider ${provider.id} declares 'batch' in its capabilities but does not implement ` +
-        `submitBatch/pollBatch/fetchBatchResult.`,
+        `${missing.join(', ')}.`,
     );
   }
 }
@@ -115,7 +123,7 @@ export async function runBatch(
   if (!staging) {
     throw new Error('runBatch needs ctx.staging. planMode should have refused before here.');
   }
-  assertBatchCapable(provider);
+  assertCan(provider, ['submitBatch', 'pollBatch', 'fetchBatchResult']);
 
   const warnings: Warning[] = [];
 
@@ -291,7 +299,7 @@ export async function pollToCompletion(
   op: BatchOp,
 ): Promise<BatchStatus> {
   const provider = input.provider;
-  assertBatchCapable(provider);
+  assertCan(provider, ['pollBatch']);
 
   const startedAt = ctx.clock.now().getTime();
   let delayMs = POLL_START_MS;
