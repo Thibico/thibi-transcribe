@@ -263,10 +263,21 @@ export async function persistResult(
     // A run with one bad chunk is `partial`, not `failed`: a three-hour transcript missing
     // 55 seconds is still valuable.
     const state = input.partial ? 'partial' : 'done';
+    /**
+     * `pipeline || $4` merges; it used to be `pipeline = $4`, which replaced.
+     *
+     * That was harmless while `transcribe.ts` was the only writer, and wrong the moment the
+     * batch path started recording things earlier in the run: `persistOperation` writes the
+     * whole `BatchOp` into `pipeline.batch` before the first poll, and a wholesale replace
+     * at the end deleted it — along with the `submittedAtMs → doneAtMs` latency that risk 2
+     * asks to be recorded on *every* batch run so Phase 9 has real p50/p90 to work from.
+     * Found by querying `pipeline->'batch'` after the first successful live run and getting
+     * null. A run's pipeline accumulates across stages, so merging is what it always meant.
+     */
     await client.query(
       `update runs
-          set state = $2, word_timing_quality = $3, pipeline = $4, cost_usd = $5,
-              progress = 1, finished_at = now()
+          set state = $2, word_timing_quality = $3, pipeline = pipeline || $4::jsonb,
+              cost_usd = $5, progress = 1, finished_at = now()
         where id = $1`,
       [
         input.runId,

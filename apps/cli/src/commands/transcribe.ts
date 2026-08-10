@@ -300,11 +300,9 @@ export function transcribeCommand(): Command {
               jobId,
               segments: batch.segments,
               wordTimingQuality: batch.wordTimingQuality,
-              pipeline: {
-                planReason: decision.reason,
-                warnings: batch.warnings,
-                batchLatencyMs: batch.latencyMs,
-              },
+              // Merged into whatever `persistOperation` already wrote, which is why
+              // `pipeline.batch` survives to the end of the run.
+              pipeline: { planReason: decision.reason, warnings: batch.warnings },
               costUsd: usage?.usd ?? 0,
               partial: false,
               failedChunks: new Set(),
@@ -528,8 +526,9 @@ async function printDryRun(
     model: string;
   },
 ): Promise<void> {
-  process.stdout.write(`plan: mode=${input.mode}  reason="${input.reason}"\n`);
-
+  // The plan line is already on stderr from the logger. Repeating it on stdout would put
+  // the same sentence in the file when someone redirects, which is how a `--dry-run` report
+  // ends up looking like it ran twice.
   if (input.durationMs === null) {
     process.stdout.write(
       'cost: unavailable — ffprobe could not determine the duration of this file.\n',
