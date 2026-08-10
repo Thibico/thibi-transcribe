@@ -560,12 +560,41 @@ guessing at it.
 
 ### 6. CPU versus GPU, and what it forces
 
-| Device | Realtime factor | 1-hour file | 3-hour file |
-|---|---|---|---|
-| CPU, 8 cores | 0.15–0.4× | **2.5–7 h** | 7.5–20 h |
-| One 12 GB GPU | 8–20× | 3–8 min | 9–25 min |
+| Device | Realtime factor | 1-hour file | 3-hour file | status |
+|---|---|---|---|---|
+| CPU, 6 threads (i9-8950HK) | **0.56–0.61×** | **~1 h 40 m** | **~5 h** | measured ×2, [S6](../spikes/RESULTS.md) 2026-08-10 |
+| CPU, single-speaker audio | 0.74–0.79× | ~1 h 20 m | ~4 h | measured ×2, S6 |
+| One 12 GB GPU | 8–20× | 3–8 min | 9–25 min | **still unmeasured** |
 
-These are design decisions, not caveats:
+*Amended 2026-08-10.* This table read `CPU, 8 cores | 0.15–0.4× | 2.5–7 h | 7.5–20 h` and had
+never been measured. S6 ran the real pipeline: **every measurement beat it by 1.5–4×**. Phase 15
+§9 had already written the instruction — *"if pyannote on this box is not 0.15–0.4× realtime,
+fix the table, not the claim"* — so this is that, and the same correction is applied in the
+overview, Phase 9's step table and Phase 15's tier and troubleshooting tables.
+
+Three things the measurement changed beyond the numbers:
+
+- **Speaker count drives the cost, not duration.** 4 speakers over 317 turns ran ~25% slower
+  than 1 speaker over 21. Plan with **~0.6×**; 0.74–0.79× is a single-speaker best case, and
+  single-speaker audio is the case least worth diarizing. Every clip was measured twice and
+  run-to-run variance is 6–8%, so two significant figures is the honest precision here.
+- **The GPU tier is no longer mandatory.** At 0.15× a 1-hour file was 6 h 40 m and the honest
+  answer for the small tier was to not offer diarization at all. At ~0.6× it is a slow
+  background job, so the GPU becomes a throughput choice rather than a precondition. The
+  8–20× row is still inherited and unmeasured — do not quote it in the deployment guide until
+  it is.
+- **This number is probably a floor.** It came off a 2018 six-core laptop chip, pinned to
+  pyannote 3.3.2 because x86 macOS has no torch wheel past 2.2.2. The sidecar runs Linux with
+  pyannote 4.x on torch ≥ 2.8. **Re-measure there** before treating ~0.6× as the deployment
+  figure, and note that S6's `use_auth_token` shim exists only because of that pin and must
+  not be carried into `services/sidecar/`.
+
+The routes to making it faster — profile the stages first, then GPU, ONNX int8, reusing ASR
+segment boundaries, thread count, and caching or skipping single-speaker files — are recorded
+with their evidence in [S6](../spikes/RESULTS.md#s6--how-slow-is-pyannote-diarization-on-a-cpu-actually).
+
+These are design decisions, not caveats. **None of them are relaxed by the faster number** —
+1.6× slower than realtime is still a background job:
 
 1. **Diarization is off by default.** `--diarize` is opt-in in the CLI; the UI checkbox shows the
    estimate — *"≈4 h 10 m on this machine"* — **before** the run starts, not after.
@@ -576,8 +605,18 @@ These are design decisions, not caveats:
 4. `worker-heavy` runs at concurrency 1, and the estimate shown to the user is computed from the
    **measured** `realtime_factor` of the last five `diarization_runs` on this instance, not a
    constant. The number gets more honest on its own.
-5. The docs say outright that the GPU tier is the difference between "overnight" and "coffee". This
-   belongs in the deployment guide's tier table, not in a footnote.
+5. The deployment guide's tier table carries the honest trade, in the deployment guide rather
+   than a footnote. *Amended 2026-08-10:* the line was "the GPU tier is the difference between
+   overnight and coffee", which overstates it now that CPU measures ~0.6×. Overnight starts at
+   roughly three hours of audio, not one, and a 30-minute interview is a 49-minute wait. The
+   GPU claim also cannot be written as a ratio until the 8–20× row is measured rather than
+   inherited.
+6. **Diarization must never gate the transcript.** ASR finishes a 1-hour file in about a minute
+   (S3: 43 s for 30 min via chunked sync) while diarization takes ~1 h 40 m, so a design where
+   speaker labels block the transcript would turn a one-minute product into a two-hour one for
+   no reason. `diarize` is its own `run_steps` row and the transcript is readable and editable
+   the moment ASR lands; speaker attribution appears when it appears. This was implicit in the
+   DAG and is written down here because the measurement is what makes it load-bearing.
 
 ## Porting notes
 

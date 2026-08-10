@@ -619,8 +619,10 @@ show the realtime factor in the model picker. Default to **`large-v3`**, not `di
 — distil-whisper is an English-only distillation and would be the worst possible default for a
 product built around 44 non-English languages. Use `distil-large-v3` for English only, and
 offer `large-v3-turbo` behind a "prefer speed" setting. **pyannote on
-CPU is 0.15-0.4× realtime — a 1-hour file is 2.5-7 hours.** That is why diarization is
-`worker-heavy` at concurrency 1 and why the UI must show an estimate before you start. GPU:
+CPU is 0.56–0.61× realtime — a 1-hour file is about 1 h 40 m** *(measured, spike S6 2026-08-10; this
+read "0.15-0.4× realtime — 2.5-7 hours" and had never been measured)*. That is why diarization
+is `worker-heavy` at concurrency 1, why it never gates the transcript, and why the UI must show
+an estimate before you start. GPU:
 both models fit comfortably in 12 GB. Tiers: small 2 vCPU/4 GB (cloud only), medium 8/16
 (CPU local models), fast 8/24 + one 12 GB GPU.
 
