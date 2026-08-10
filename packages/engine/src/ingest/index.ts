@@ -23,3 +23,20 @@ export {
   type IngestBatchInput,
   type IngestBatchResult,
 } from './batch.js';
+export {
+  assertUrlAllowed,
+  DEFAULT_URL_POLICY,
+  downloadUrl,
+  HARDENING,
+  matchFilter,
+  resolveUrl,
+  Semaphore,
+  signResolveToken,
+  verifyResolveToken,
+  type DownloadUrlInput,
+  type ResolveClaim,
+  type ResolvedMedia,
+  type UrlDownloadDeps,
+  type UrlPolicy,
+  type YtDlpPort,
+} from './url/index.js';

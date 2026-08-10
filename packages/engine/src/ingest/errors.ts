@@ -18,6 +18,12 @@ export type IngestErrorCode =
   | 'no_audio_stream'
   | 'unreadable_media'
   | 'empty_body'
+  // URL import, all the submitter's problem: a URL that cannot be imported, or that the
+  // instance declines to import.
+  | 'url_not_allowed'
+  | 'live_stream'
+  | 'unknown_duration'
+  | 'invalid_token'
   // The operator's problem — a 5xx, and the message must not blame the file.
   | 'ffprobe_missing'
   | 'store_failed';

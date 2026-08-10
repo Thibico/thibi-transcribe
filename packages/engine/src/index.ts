@@ -279,3 +279,20 @@ export {
   type IngestBatchInput,
   type IngestBatchResult,
 } from './ingest/batch.js';
+export {
+  assertUrlAllowed,
+  DEFAULT_URL_POLICY,
+  downloadUrl,
+  HARDENING,
+  matchFilter,
+  resolveUrl,
+  Semaphore,
+  signResolveToken,
+  verifyResolveToken,
+  type DownloadUrlInput,
+  type ResolveClaim,
+  type ResolvedMedia,
+  type UrlDownloadDeps,
+  type UrlPolicy,
+  type YtDlpPort,
+} from './ingest/url/index.js';
