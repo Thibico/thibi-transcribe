@@ -5,17 +5,26 @@ import { basename, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { Command } from 'commander';
 import {
+  AbortedError,
   createGoogleProvider,
   createRun,
   DEFAULT_OVERLAP_MS,
+  ModeUnavailableError,
   NotConfiguredError,
   persistChunks,
   persistResult,
+  planMode,
+  probe,
+  recordUsage,
+  requestCancel,
+  runBatch,
+  StagingRefusedError,
   transcribe,
   UnsupportedLanguageError,
   type GoogleConfig,
   type TranscriptionProvider,
 } from '@thibi/engine';
+import { resolveRate, unitForMode } from '@thibi/db';
 import { assetKey, extensionOf, rawResponseKey } from '@thibi/storage';
 import { stat } from 'node:fs/promises';
 import { buildContext, resolveServiceAccountJson, readEnvironment } from '../context.js';
@@ -37,7 +46,18 @@ export function transcribeCommand(): Command {
     .requiredOption('-l, --lang <code>', 'language code, e.g. my, my-MM or Burmese')
     .option('-p, --provider <id>', 'provider id', 'google')
     .option('-m, --model <id>', 'provider model')
-    .option('--mode <mode>', 'auto | sync | sync_chunked', 'auto')
+    .option(
+      '--mode <mode>',
+      'auto | sync | sync_chunked | batch. `batch` needs a GCS staging bucket and is never ' +
+        'chosen automatically: spike S3 measured it 3.6-7x slower than chunked sync at every ' +
+        'duration, and worth using only because it is 5.3x cheaper.',
+      'auto',
+    )
+    .option(
+      '--dry-run',
+      'Probe and plan, print the cost both ways from the rates table, and stop without ' +
+        'sending any audio to the provider.',
+    )
     .option('-o, --out <path>', 'output path, or - for stdout', '-')
     .option('-f, --format <format>', 'json | text', 'json')
     .option('--no-db', 'run without Postgres or MinIO; nothing is persisted')
@@ -59,9 +79,35 @@ export function transcribeCommand(): Command {
       const sourcePath = resolve(file);
       const filename = basename(sourcePath);
 
+      /**
+       * SIGINT has to reach the engine, not just kill the process.
+       *
+       * On the batch path a submitted operation keeps running — and keeps billing — after
+       * the CLI exits, so Ctrl-C must cancel it at Google and sweep the staged audio. The
+       * abort signal is how `pollToCompletion` learns to stop; the handler below is what
+       * does the cleanup.
+       */
+      const aborter = new AbortController();
+      let interrupted = false;
+      const onSigint = (): void => {
+        if (interrupted) {
+          // A second Ctrl-C means they want out now. Honour it, and say what is left behind.
+          process.stderr.write(
+            '\nInterrupted again — exiting without waiting for cleanup. Any submitted ' +
+              'operation may still be running.\n',
+          );
+          process.exit(EXIT.aborted);
+        }
+        interrupted = true;
+        process.stderr.write('\nCancelling…\n');
+        aborter.abort();
+      };
+      process.on('SIGINT', onSigint);
+
       const cli = await buildContext({
         noDb: opts.db === false,
         ...(opts.concurrency ? { concurrency: opts.concurrency as number } : {}),
+        signal: aborter.signal,
         engineVersion: ENGINE_VERSION,
       });
 
@@ -126,6 +172,34 @@ export function transcribeCommand(): Command {
           model,
         };
 
+        // ---- plan, and stop here on --dry-run ------------------------------------------
+        // Resolved before anything is uploaded or created, because `--mode batch` without a
+        // staging bucket must fail here rather than after a run row exists.
+        const capabilities = provider.capabilities(model);
+        const requestedMode = opts.mode as string;
+        const probed = await probe(cli.ctx, { path: sourcePath });
+        const bytes = (await stat(sourcePath)).size;
+
+        const decision = planMode({
+          durationMs: probed.durationMs,
+          bytes,
+          caps: capabilities,
+          stagingConfigured: cli.staging !== null,
+          ...(requestedMode !== 'auto' ? { force: requestedMode as 'sync' } : {}),
+        });
+        cli.ctx.logger.info({}, `plan: mode=${decision.mode}  reason="${decision.reason}"`);
+
+        if (opts.dryRun) {
+          await printDryRun(cli, {
+            mode: decision.mode,
+            reason: decision.reason,
+            durationMs: probed.durationMs,
+            providerId: provider.id,
+            model,
+          });
+          return;
+        }
+
         // ---- run ---------------------------------------------------------------------
         const rawDir = opts.rawDir as string | undefined;
         const persisting = cli.db !== null;
@@ -147,14 +221,18 @@ export function transcribeCommand(): Command {
             sha256,
             storageKey: key,
             filename,
-            bytes: (await stat(sourcePath)).size,
-            durationMs: null,
+            bytes,
+            durationMs: probed.durationMs,
             probeRaw: null,
             title: filename,
             languageCode: language.code,
             providerId: provider.id,
             model,
-            mode: 'sync_chunked',
+            // The planned mode, not a hardcoded guess. Phase 1 always wrote `sync_chunked`
+            // here and let the engine decide something else, which made `runs.mode` wrong
+            // for every single-request run. It also has to be right from the start on the
+            // batch path: `mode='batch'` is what makes an interrupted run findable.
+            mode: decision.mode,
           });
           runId = created.runId;
           jobId = created.jobId;
@@ -162,6 +240,128 @@ export function transcribeCommand(): Command {
           if (created.assetExisted) {
             cli.ctx.logger.info({ sha256: sha256.slice(0, 12) }, 'ingest: asset already stored');
           }
+        }
+
+        // ---- batch: a separate path, not a branch inside the sync one -------------------
+        if (decision.mode === 'batch') {
+          const batch = await runBatch(cli.ctx, {
+            sourcePath,
+            filename,
+            language,
+            provider,
+            providerConfig,
+            model,
+            runId,
+            region: providerConfig.region,
+            planReason: decision.reason,
+            ...(assetId ? { assetId } : {}),
+            ...(opts.maxDuration ? { maxDurationMs: (opts.maxDuration as number) * 1000 } : {}),
+            onSubmitted: (op) => {
+              // The word the crash test in the plan's verification looks for.
+              cli.ctx.logger.info({}, `op      ${op.name}  [persisted]`);
+            },
+            onPoll: (status, elapsedMs) => {
+              const pct =
+                status.progressPercent !== undefined ? `  ${status.progressPercent}%` : '';
+              cli.ctx.logger.info({}, `poll    ${Math.round(elapsedMs / 1000)}s${pct}`);
+            },
+          });
+
+          const wordCount = batch.segments.reduce((n, s) => n + s.words.length, 0);
+
+          // One `run_chunks` row, so segments join to a chunk on both paths rather than
+          // being nullable on one of them.
+          if (persisting) {
+            await persistChunks(cli.ctx, runId, [
+              {
+                idx: 0,
+                offsetMs: 0,
+                contentStartMs: 0,
+                endMs: batch.usage.audioMs,
+                overlapLeadMs: 0,
+              },
+            ]);
+          }
+
+          const usage = persisting
+            ? await recordUsage(cli.ctx, {
+                runId,
+                providerId: provider.id,
+                model,
+                mode: 'batch',
+                status: batch.status,
+                audioMs: batch.usage.audioMs,
+              })
+            : null;
+
+          if (persisting && jobId) {
+            const written = await persistResult(cli.ctx, {
+              runId,
+              jobId,
+              segments: batch.segments,
+              wordTimingQuality: batch.wordTimingQuality,
+              // Merged into whatever `persistOperation` already wrote, which is why
+              // `pipeline.batch` survives to the end of the run.
+              pipeline: { planReason: decision.reason, warnings: batch.warnings },
+              costUsd: usage?.usd ?? 0,
+              partial: false,
+              failedChunks: new Set(),
+            });
+            cli.ctx.logger.info(
+              { segments: written.segmentsInserted, words: written.wordsInserted },
+              'persist: written',
+            );
+          }
+
+          cli.ctx.logger.info(
+            {},
+            `done    ${formatDuration(batch.latencyMs)}   segments=${batch.segments.length}  ` +
+              `words=${wordCount}  wordTimingQuality=${batch.wordTimingQuality}`,
+          );
+          if (usage) {
+            const syncUsd = await estimateUsd(cli, provider.id, model, 'sync', usage.minutes);
+            cli.ctx.logger.info(
+              {},
+              `cost    $${usage.usd.toFixed(4)}` +
+                (syncUsd !== null ? `  (sync would have been $${syncUsd.toFixed(4)})` : '') +
+                (usage.reportedByProvider ? '' : '  [estimated: the provider reported no duration]'),
+            );
+          }
+          cli.ctx.logger.info({}, `staging deleted (${batch.stagingDeleted} objects)`);
+          for (const warning of batch.warnings) {
+            cli.ctx.logger.warn({ code: warning.code }, warning.message);
+          }
+
+          const batchTranscript: TranscriptJson = buildTranscript({
+            runId,
+            provider: provider.id,
+            model,
+            language: language.code,
+            mode: 'batch',
+            engineVersion: ENGINE_VERSION,
+            wordTimingQuality: batch.wordTimingQuality,
+            startedAt,
+            finishedAt: new Date(),
+            costUsd: usage?.usd ?? 0,
+            partial: false,
+            filename,
+            sha256,
+            durationMs: batch.probe.durationMs,
+            format: batch.probe.formatName,
+            plans: [],
+            failedChunks: new Set(),
+            seams: [],
+            segments: batch.segments,
+            warnings: batch.warnings,
+          });
+
+          const out =
+            opts.format === 'text'
+              ? formatText(batchTranscript)
+              : JSON.stringify(batchTranscript, null, 2);
+          if (opts.out === '-') process.stdout.write(out + '\n');
+          else await writeFile(resolve(opts.out as string), out + '\n');
+          return;
         }
 
         const result = await transcribe(cli.ctx, {
@@ -172,7 +372,7 @@ export function transcribeCommand(): Command {
           providerConfig,
           model,
           runId,
-          mode: opts.mode as 'auto',
+          mode: decision.mode,
           ...(assetId ? { assetId } : {}),
           overlapMs: opts.overlapMs as number,
           ...(opts.maxDuration ? { maxDurationMs: (opts.maxDuration as number) * 1000 } : {}),
@@ -274,13 +474,120 @@ export function transcribeCommand(): Command {
         if (opts.out === '-') process.stdout.write(rendered + '\n');
         else await writeFile(resolve(opts.out as string), rendered + '\n');
 
+        if (persisting) {
+          await recordUsage(cli.ctx, {
+            runId,
+            providerId: provider.id,
+            model,
+            mode: result.mode,
+            audioMs: result.usage.audioMs,
+          });
+        }
+
         // Exit 4 still prints the transcript: a three-hour transcript with one bad
         // 55-second chunk is still valuable.
         if (result.partial) process.exitCode = EXIT.partial;
+      } catch (err) {
+        // Three failures that are the operator's to fix, not stack traces to read. Each
+        // already carries its own remediation; printing it twice, wrapped in a trace, is
+        // how a good message gets ignored.
+        if (err instanceof ModeUnavailableError || err instanceof StagingRefusedError) {
+          process.stderr.write(`\n${err.message}\n`);
+          process.exitCode = EXIT.notConfigured;
+          return;
+        }
+        if (err instanceof AbortedError || aborter.signal.aborted) {
+          process.stderr.write('\nCancelled.\n');
+          process.exitCode = EXIT.aborted;
+          return;
+        }
+        throw err;
       } finally {
+        process.off('SIGINT', onSigint);
         await cli.close();
       }
     });
 }
 
-export { NotConfiguredError, UnsupportedLanguageError };
+/**
+ * `--dry-run`: what this would cost, both ways, before spending anything.
+ *
+ * Reads the `rates` table rather than a constant, so an admin who corrected a price sees
+ * their number. A missing rate prints "unknown" and never $0.00 — quoting zero for two hours
+ * of transcription is worse than admitting ignorance, because somebody will believe it.
+ */
+async function printDryRun(
+  cli: Awaited<ReturnType<typeof buildContext>>,
+  input: {
+    mode: 'sync' | 'sync_chunked' | 'batch';
+    reason: string;
+    durationMs: number | null;
+    providerId: string;
+    model: string;
+  },
+): Promise<void> {
+  // The plan line is already on stderr from the logger. Repeating it on stdout would put
+  // the same sentence in the file when someone redirects, which is how a `--dry-run` report
+  // ends up looking like it ran twice.
+  if (input.durationMs === null) {
+    process.stdout.write(
+      'cost: unavailable — ffprobe could not determine the duration of this file.\n',
+    );
+    return;
+  }
+
+  const minutes = input.durationMs / 60_000;
+  const chosen = await estimateUsd(cli, input.providerId, input.model, input.mode, minutes);
+  const other = await estimateUsd(
+    cli,
+    input.providerId,
+    input.model,
+    input.mode === 'batch' ? 'sync' : 'batch',
+    minutes,
+  );
+
+  if (chosen === null) {
+    process.stdout.write(
+      `cost: unknown — no rate configured for ${input.providerId}/${input.model}/` +
+        `${unitForMode(input.mode)}. Seed the rates table (\`thibi db seed\`).\n`,
+    );
+    return;
+  }
+
+  process.stdout.write(
+    `cost: ${minutes.toFixed(1)} min × $${(chosen / minutes).toFixed(5)} = ` +
+      `$${chosen.toFixed(4)}\n`,
+  );
+  if (other !== null) {
+    const label = input.mode === 'batch' ? 'sync' : 'batch';
+    process.stdout.write(
+      `      ${label} would be $${other.toFixed(4)}` +
+        (input.mode === 'batch'
+          ? ` — batch is slower (about 5.9x realtime) and ${(other / chosen).toFixed(1)}x cheaper\n`
+          : ` — batch is ${(chosen / other).toFixed(1)}x cheaper and 3.6-7x slower` +
+            (cli.staging === null ? ', and needs a GCS staging bucket you have not set\n' : '\n')),
+    );
+  }
+  process.stdout.write('\nNothing was sent to the provider.\n');
+}
+
+async function estimateUsd(
+  cli: Awaited<ReturnType<typeof buildContext>>,
+  providerId: string,
+  model: string,
+  mode: 'sync' | 'sync_chunked' | 'batch',
+  minutes: number,
+): Promise<number | null> {
+  if (!cli.db) return null;
+  const rate = await resolveRate(cli.db, { providerId, model, unit: unitForMode(mode) });
+  return rate ? minutes * rate.usdPerUnit : null;
+}
+
+function formatDuration(ms: number): string {
+  const total = Math.round(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m > 0 ? `${m}m${String(s).padStart(2, '0')}s` : `${s}s`;
+}
+
+export { NotConfiguredError, UnsupportedLanguageError, requestCancel };

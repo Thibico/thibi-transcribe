@@ -1,0 +1,496 @@
+{
+  "results": [
+    {
+      "alternatives": [
+        {
+          "transcript": "ကိုယ် နိုင်ငံရေး ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပ",
+          "confidence": 0.94385725,
+          "words": [
+            {
+              "startOffset": "0.040s",
+              "endOffset": "0.160s",
+              "word": "ကိုယ်",
+              "confidence": 0.5518416
+            },
+            {
+              "startOffset": "0.160s",
+              "endOffset": "0.720s",
+              "word": "နိုင်ငံရေး",
+              "confidence": 0.93165624
+            },
+            {
+              "startOffset": "0.720s",
+              "endOffset": "2.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.86341363
+            },
+            {
+              "startOffset": "2.080s",
+              "endOffset": "2.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9166563
+            },
+            {
+              "startOffset": "2.080s",
+              "endOffset": "3.520s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9327867
+            },
+            {
+              "startOffset": "3.520s",
+              "endOffset": "4.760s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.94915307
+            },
+            {
+              "startOffset": "4.760s",
+              "endOffset": "5.520s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9356205
+            },
+            {
+              "startOffset": "5.520s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9477087
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.93432444
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9472359
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9529949
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.94756126
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9527262
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.480s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9533164
+            },
+            {
+              "startOffset": "7.480s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9552456
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9635288
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.96734256
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.96541345
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9676261
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.96350783
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.600s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9657833
+            },
+            {
+              "startOffset": "7.600s",
+              "endOffset": "7.640s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9644441
+            },
+            {
+              "startOffset": "7.640s",
+              "endOffset": "7.640s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9644311
+            },
+            {
+              "startOffset": "7.640s",
+              "endOffset": "7.640s",
+              "word": "ကိုယ်စားပြုခွင့်မပ",
+              "confidence": 0.9879878
+            }
+          ]
+        }
+      ],
+      "resultEndOffset": "30s",
+      "languageCode": "my-MM"
+    },
+    {
+      "alternatives": [
+        {
+          "transcript": "ကိုယ် နိုင်ငံရေး ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့",
+          "confidence": 0.980812,
+          "words": [
+            {
+              "startOffset": "30.040s",
+              "endOffset": "30.160s",
+              "word": "ကိုယ်",
+              "confidence": 0.5529859
+            },
+            {
+              "startOffset": "30.160s",
+              "endOffset": "30.720s",
+              "word": "နိုင်ငံရေး",
+              "confidence": 0.93153703
+            },
+            {
+              "startOffset": "30.720s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.864475
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.953545
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9391004
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9948009
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99612117
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9971228
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99786377
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9982161
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.998884
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99895287
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9989045
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99876183
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9988138
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99885994
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.998711
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9979932
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9977554
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9975745
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99777305
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9977913
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99813944
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99828357
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.998363
+            },
+            {
+              "startOffset": "32.080s",
+              "endOffset": "32.080s",
+              "word": "ကိုယ်စားပြုခွင့",
+              "confidence": 0.9977557
+            }
+          ]
+        }
+      ],
+      "resultEndOffset": "60s",
+      "languageCode": "my-MM"
+    },
+    {
+      "alternatives": [
+        {
+          "transcript": "ကိုယ် နိုင်ငံရေး ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့်မပေးဘူး, ကိုယ်စားပြုခွင့",
+          "confidence": 0.9810824,
+          "words": [
+            {
+              "startOffset": "60.040s",
+              "endOffset": "60.160s",
+              "word": "ကိုယ်",
+              "confidence": 0.5586807
+            },
+            {
+              "startOffset": "60.160s",
+              "endOffset": "60.720s",
+              "word": "နိုင်ငံရေး",
+              "confidence": 0.931575
+            },
+            {
+              "startOffset": "60.720s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.86624414
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.95467937
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9396893
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99496096
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9962028
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9971638
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9979003
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99824
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9989012
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99897283
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9989244
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99878436
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9988358
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.998879
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99873716
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9980139
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9977786
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9975905
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9977809
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9977814
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.99813354
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9982801
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့်မပေးဘူး,",
+              "confidence": 0.9983529
+            },
+            {
+              "startOffset": "62.080s",
+              "endOffset": "62.080s",
+              "word": "ကိုယ်စားပြုခွင့",
+              "confidence": 0.99775153
+            }
+          ]
+        }
+      ],
+      "resultEndOffset": "90s",
+      "languageCode": "my-MM"
+    }
+  ]
+}

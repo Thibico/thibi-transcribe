@@ -1,0 +1,13 @@
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "COLDLINE"
+      },
+      "condition": {
+        "age": 1
+      }
+    }
+  ]
+}

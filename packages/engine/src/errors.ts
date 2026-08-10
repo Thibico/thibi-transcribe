@@ -87,6 +87,18 @@ export class FfmpegError extends EngineError {
   }
 }
 
+/**
+ * The staging bucket is not fit to stage into, and the operator has to change something.
+ *
+ * Its own class rather than a `NotConfiguredError` because the two lead somewhere different:
+ * `NotConfiguredError` means credentials, and this means a bucket's region, its storage
+ * class, or — the case §6 of the Phase 2 plan exists for — a lifecycle rule we cannot see or
+ * that does not exist. The message always carries the fix.
+ */
+export class StagingRefusedError extends EngineError {
+  readonly retryable = false;
+}
+
 /** The run was cancelled — by an operator, or by the process shutting down. */
 export class AbortedError extends EngineError {
   readonly retryable = false;

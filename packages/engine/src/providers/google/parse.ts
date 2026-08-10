@@ -24,13 +24,26 @@ interface RawAlternative {
   words?: RawWord[];
 }
 
-interface RawResult {
+export interface RawResult {
   alternatives?: RawAlternative[];
   resultEndOffset?: string | { seconds?: number | string; nanos?: number };
 }
 
 export interface RecognizeResponse {
   results?: RawResult[];
+}
+
+/**
+ * The batch output object Google writes into GCS.
+ *
+ * **`results[]` is the same shape as the sync response's**, which is the load-bearing fact of
+ * the whole batch path: one parser, two transports. `parseRecognizeResults` below is what
+ * both call, and an equivalence test asserts the claim over a recorded sync response and a
+ * recorded batch output rather than assuming it.
+ */
+export interface BatchRecognizeResults {
+  results?: RawResult[];
+  metadata?: { totalBilledDuration?: string };
 }
 
 /**
@@ -83,6 +96,25 @@ export function parseRecognizeResponse(
   body: RecognizeResponse,
   options: ParseOptions,
 ): TranscribeResult {
+  return { ...parseRecognizeResults(body.results ?? [], options), raw: body };
+}
+
+/**
+ * The parser itself, over a bare `results[]` array.
+ *
+ * Extracted from `parseRecognizeResponse` in Phase 2 for one reason: `batchRecognize` writes
+ * its transcript to a GCS object whose body is a `BatchRecognizeResults` message, and that
+ * message's `results[]` is the *same shape* as the sync response's. Sharing the array rather
+ * than the envelope is what makes "one parser, two transports" true rather than aspirational
+ * — `recognize` calls it with the chunk's `offsetMs`, `batch.ts` calls it with `offsetMs: 0`
+ * because batch is whole-file, and nothing else differs.
+ *
+ * Returns everything except `raw`, which only the caller knows the envelope of.
+ */
+export function parseRecognizeResults(
+  results: readonly RawResult[],
+  options: ParseOptions,
+): Omit<TranscribeResult, 'raw'> {
   const { offsetMs, durationMs } = options;
   const segments: ProviderSegment[] = [];
   const warnings: Array<{ code: string; message: string }> = [];
@@ -91,7 +123,7 @@ export function parseRecognizeResponse(
   let withoutWords = 0;
   let cursorMs = offsetMs;
 
-  for (const result of body.results ?? []) {
+  for (const result of results) {
     const alternative = result.alternatives?.[0];
     const text = (alternative?.transcript ?? '').trim();
     if (text.length === 0) continue;
@@ -173,7 +205,6 @@ export function parseRecognizeResponse(
     segments,
     wordTimingQuality,
     usage: { audioMs: durationMs, requests: 1 },
-    raw: body,
     warnings,
   };
 }

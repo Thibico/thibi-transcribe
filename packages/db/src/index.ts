@@ -17,6 +17,15 @@ export {
 } from './migrate.js';
 export { copyWords, wordRowToCopyLine, type WordRow } from './copy.js';
 export {
+  DEFAULT_RATES,
+  resolveRate,
+  seedRates,
+  unitForMode,
+  type RateSeed,
+  type ResolvedRate,
+  type SeedResult,
+} from './seed/rates.js';
+export {
   createTestDb,
   postgresReachable,
   DEFAULT_TEST_DATABASE_URL,

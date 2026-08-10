@@ -21,9 +21,36 @@ import type { EngineContext } from '../context.js';
  * timeline*, the precondition for reconciliation working at all.
  */
 
+/**
+ * **`loudnorm` resamples to 192 kHz, so it must not be the last filter.**
+ *
+ * Measured 2026-08-10, during Phase 2's first live batch run. The chain read
+ * `…,aresample=16000,loudnorm=…` and the output of that is **192 kHz**, not 16 kHz: ffmpeg's
+ * `loudnorm` runs internally at 192 kHz and emits at its own rate, silently discarding the
+ * `aresample` in front of it. The kind is called `norm_16k_mono_flac` and it had never once
+ * produced 16 kHz.
+ *
+ * Nothing failed, which is why it survived Phase 1 — Google accepts 192 kHz FLAC and
+ * transcribes it correctly. It was found by looking at a number that seemed too big: a
+ * 20-minute clip normalized to 136 MB when 16 kHz mono should be a fraction of that. With
+ * the trailing `aresample=16000` the same input produces **22.7 MB, exactly 6.0x smaller**
+ * (12x the sample rate compressing down to 6x the bytes), and the reduction applies to every
+ * path — every sync chunk, every staged batch upload, and every byte of Google's 10 MB
+ * per-request cap that the chunk planner budgets against. It also means the downmix finding
+ * quoted below, measured on real 16 kHz audio in the old app, was never actually in force
+ * here.
+ *
+ * The bit depth was never the problem, though it looked like it might be from outside the
+ * pipeline: FLAC negotiates s16 against `loudnorm`'s float output regardless of a 24-bit
+ * source, so both the broken and the fixed output are 16-bit. Only the rate was wrong.
+ *
+ * `RECIPE_VERSION` is derived from this string, so the fix invalidates every cached
+ * derivative automatically. That is the mechanism working as designed.
+ */
 export const NORMALIZE = {
   kind: 'norm_16k_mono_flac',
-  filter: 'aformat=channel_layouts=mono,aresample=16000,loudnorm=I=-16:TP=-1.5:LRA=11',
+  filter:
+    'aformat=channel_layouts=mono,aresample=16000,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=16000',
   codecArgs: ['-c:a', 'flac', '-compression_level', '8'],
 } as const;
 

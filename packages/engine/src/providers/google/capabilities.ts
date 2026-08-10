@@ -39,11 +39,28 @@ export const S2_WORD_CONFIDENCE = true as const;
 
 export const DEFAULT_MODEL = 'chirp_2';
 
+/**
+ * Spike S5, 2026-08-10 — the Dynamic Batch rate advantage is real, and it is the only reason
+ * `batch` exists in `modes` below.
+ *
+ * Read from the Cloud Billing Catalog rather than from documentation: `Cloud Speech-to-Text
+ * Recognition` $0.016/min against `Cloud Speech-to-Text Dynamic Batch Recognition`
+ * $0.003/min. **5.33×.** Spike S3 had already measured batch at a flat 5.9× realtime against
+ * chunked sync's 3.6–7× advantage, which removed latency as a reason to use it; had the rate
+ * not held, batch would have had no justification at all and this phase would not exist.
+ *
+ * These are provenance, not the operative numbers. Costing reads the `rates` table, because
+ * Google changes prices and an admin must be able to correct one without a deploy.
+ */
+export const S5_SYNC_USD_PER_MINUTE = 0.016;
+export const S5_BATCH_USD_PER_MINUTE = 0.003;
+
 export function googleCapabilities(_model: string = DEFAULT_MODEL): ProviderCapabilities {
   return {
-    // 'batch' arrives in Phase 2. Spike S3 measured batch at a flat 5.9× realtime against
-    // chunked sync's 3.6-7× advantage, so it is an admin cost choice, not the long path.
-    modes: ['sync'],
+    // `batch` is reachable only through an explicit `force` — nothing about a file's
+    // duration routes to it. S3 measured chunked sync faster at every size, so this is a
+    // cost choice a human makes, and `planMode` refuses to make it for them.
+    modes: ['sync', 'sync_chunked', 'batch'],
     wordTimestamps: true,
     wordConfidence: S2_WORD_CONFIDENCE,
     segmentConfidence: true,
@@ -61,6 +78,9 @@ export function googleCapabilities(_model: string = DEFAULT_MODEL): ProviderCapa
       maxConcurrentRequests: 8,
       rpm: 300,
     },
-    staging: 'none',
+    // The batch path needs a GCS bucket co-located with the recognizer. Declaring it here
+    // is what lets `planMode` say "this provider could batch if you gave it a bucket"
+    // without knowing anything about Google.
+    staging: 'gcs',
   };
 }

@@ -12,6 +12,7 @@ import { detectSilences } from '../audio/silences.js';
 import { normalizeSegments } from '../text/normalize.js';
 import type { ProviderConfig, TranscriptionProvider } from '../providers/types.js';
 import { runAsr, type SeamRecord } from './asr.js';
+import { planMode } from './plan.js';
 
 /**
  * The whole vertical slice: probe → normalize → plan → chunk → recognise → merge →
@@ -51,6 +52,8 @@ export interface TranscribeInput {
 export interface TranscribeOutput {
   probe: ProbeResult;
   mode: RunMode;
+  /** Stored in `runs.pipeline.planReason` and printed. Never a mystery. */
+  planReason: string;
   plans: ChunkPlan[];
   segments: Segment[];
   seams: SeamRecord[];
@@ -77,15 +80,6 @@ export async function transcribe(
   if (!probed.hasAudio) {
     throw new UnsupportedMediaError(`No audio stream in ${input.filename}`);
   }
-  if (probed.durationMs === null) {
-    // No browser fallback exists here, so an unknown duration routes conservatively.
-    warnings.push({
-      code: 'duration_unknown',
-      message:
-        'ffprobe could not determine the duration, so the file is chunked rather than sent ' +
-        'as a single request. Cost estimates for it are unavailable.',
-    });
-  }
   ctx.logger.info(
     { durationMs: probed.durationMs, format: probed.formatName },
     'probe: complete',
@@ -108,23 +102,26 @@ export async function transcribe(
   }
 
   // ---- plan --------------------------------------------------------------------------
-  // Measured 2026-08-09 (spike S3): chunked parallel sync beats batchRecognize at every
-  // duration, so there is no duration threshold. A single request is used only when the
-  // file genuinely fits one.
-  const fitsOneRequest =
-    probed.durationMs !== null &&
-    durationMs <= capabilities.limits.syncMaxSeconds * 1000 &&
-    normalized.bytes <= capabilities.limits.syncMaxBytes;
-
-  const mode: RunMode =
-    input.mode && input.mode !== 'auto'
-      ? (input.mode as RunMode)
-      : fitsOneRequest
-        ? 'sync'
-        : 'sync_chunked';
+  // The decision and its justification both come from `planMode`, so the CLI, the engine
+  // and Phase 11's dialog can never disagree about why a mode was chosen. Measured
+  // 2026-08-09 (spike S3): chunked parallel sync beats batchRecognize at every duration, so
+  // nothing here routes on duration to batch — `runBatch` is a separate entry point reached
+  // only by an explicit request.
+  const decision = planMode({
+    durationMs: probed.durationMs === null ? null : durationMs,
+    bytes: normalized.bytes,
+    caps: capabilities,
+    stagingConfigured: ctx.staging !== undefined,
+    ...(input.mode && input.mode !== 'auto' ? { force: input.mode } : {}),
+  });
+  const mode = decision.mode;
+  // `duration_unknown` is raised by the planner rather than here, because it is a statement
+  // about the routing decision and belongs beside the decision it explains.
+  warnings.push(...(decision.warnings as Warning[]));
+  ctx.logger.info({}, `plan: mode=${mode}  reason="${decision.reason}"`);
 
   let plans: ChunkPlan[];
-  if (mode === 'sync' && fitsOneRequest) {
+  if (mode === 'sync') {
     plans = [{ idx: 0, offsetMs: 0, contentStartMs: 0, endMs: durationMs, overlapLeadMs: 0 }];
   } else {
     const budgetMs = durationBudgetMs(normalized.bytes, durationMs, {
@@ -184,6 +181,7 @@ export async function transcribe(
   return {
     probe: probed,
     mode,
+    planReason: decision.reason,
     plans,
     segments,
     seams: asr.seams,

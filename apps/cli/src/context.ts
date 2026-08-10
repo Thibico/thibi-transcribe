@@ -12,13 +12,16 @@ import {
 } from '@thibi/storage';
 import {
   createFfmpegPort,
+  createGcsStaging,
   createMemorySettings,
   createSettings,
+  createTokenCache,
   systemClock,
   type EngineContext,
   type EventSink,
   type Logger,
   type SettingsPort,
+  type StagingStore,
 } from '@thibi/engine';
 import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from './config.js';
 
@@ -49,6 +52,9 @@ const ENV_KEYS = [
   'GOOGLE_PROJECT_ID',
   'GOOGLE_REGION',
   'GOOGLE_MODEL',
+  // Unset means long files use chunked parallel sync, which spike S3 measured faster than
+  // batchRecognize at every duration. Setting it opts into the cheaper, slower path.
+  'GOOGLE_GCS_STAGING_BUCKET',
   'THIBI_TMP_DIR',
   'LOG_LEVEL',
 ] as const;
@@ -117,7 +123,18 @@ export interface CliContext {
   db: Db | null;
   languages: LanguageRegistry;
   settings: SettingsPort;
+  /** Null when no staging bucket is configured — a supported and, since S3, faster setup. */
+  staging: StagingStore | null;
   close: () => Promise<void>;
+}
+
+/** The `client_email` from a service-account key, for IAM remediation messages. */
+export function serviceAccountEmailOf(serviceAccountJson: string): string | null {
+  try {
+    return (JSON.parse(serviceAccountJson) as { client_email?: string }).client_email ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function buildStore(env: Partial<Record<EnvKey, string>>, noDb: boolean): ObjectStore {
@@ -194,6 +211,7 @@ export async function buildContext(options: BuildContextOptions): Promise<CliCon
           'google.project_id': env.GOOGLE_PROJECT_ID,
           'google.region': env.GOOGLE_REGION,
           'google.model': env.GOOGLE_MODEL,
+          'google.gcs_staging_bucket': env.GOOGLE_GCS_STAGING_BUCKET,
         },
         defaults: {
           'google.region': DEFAULT_GOOGLE_REGION,
@@ -204,16 +222,52 @@ export async function buildContext(options: BuildContextOptions): Promise<CliCon
         ...(env.GOOGLE_PROJECT_ID ? { 'google.project_id': env.GOOGLE_PROJECT_ID } : {}),
         'google.region': env.GOOGLE_REGION ?? DEFAULT_GOOGLE_REGION,
         'google.model': env.GOOGLE_MODEL ?? DEFAULT_GOOGLE_MODEL,
+        ...(env.GOOGLE_GCS_STAGING_BUCKET
+          ? { 'google.gcs_staging_bucket': env.GOOGLE_GCS_STAGING_BUCKET }
+          : {}),
       });
 
   const languages = createRegistry();
   const concurrency = options.concurrency ?? 8;
+
+  /**
+   * The staging bucket, when one is configured.
+   *
+   * Built here and not in the engine for the usual reason — this is the only file that reads
+   * the environment — but also because the token it needs is the *same* Google credential
+   * the Speech provider uses. One credential, one token cache, one thing for an admin to get
+   * right. A second staging credential setting would be a second thing to get wrong.
+   */
+  const serviceAccountJson = await resolveServiceAccountJson(env);
+  const stagingBucket =
+    (await settings.get('google.gcs_staging_bucket')) ?? env.GOOGLE_GCS_STAGING_BUCKET ?? null;
+
+  let staging: StagingStore | undefined;
+  if (stagingBucket && serviceAccountJson) {
+    const tokens = createTokenCache({ clock: systemClock() });
+    staging = createGcsStaging({
+      bucket: stagingBucket,
+      getToken: () => tokens.get(serviceAccountJson),
+      clock: systemClock(),
+      ...(serviceAccountEmailOf(serviceAccountJson)
+        ? { serviceAccountEmail: serviceAccountEmailOf(serviceAccountJson)! }
+        : {}),
+      ...(options.signal ? { signal: options.signal } : {}),
+    });
+  } else if (stagingBucket && !serviceAccountJson) {
+    logger.warn(
+      {},
+      'GOOGLE_GCS_STAGING_BUCKET is set but there are no Google credentials, so --mode batch ' +
+        'is unavailable.',
+    );
+  }
 
   const ctx: EngineContext = {
     // A NullDb is not worth inventing: no stage in Phase 1 reads the database except
     // persist, which the caller simply does not run under --no-db.
     db: db as Db,
     store: buildStore(env, noDb),
+    ...(staging ? { staging } : {}),
     settings,
     ffmpeg: createFfmpegPort({
       ffmpeg: env.FFMPEG_PATH ?? 'ffmpeg',
@@ -234,6 +288,7 @@ export async function buildContext(options: BuildContextOptions): Promise<CliCon
     db,
     languages,
     settings,
+    staging: staging ?? null,
     async close() {
       if (db) await closeDb(db);
     },

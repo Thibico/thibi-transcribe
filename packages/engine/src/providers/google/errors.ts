@@ -30,6 +30,50 @@ function parseRetryAfter(header: string | null): number | undefined {
   return Number.isNaN(at) ? undefined : Math.max(0, at - Date.now());
 }
 
+/**
+ * Which permission problem is this?
+ *
+ * Three distinct principals can be the cause and they have three different fixes, so a
+ * single "check your credentials" hint sends two out of three operators to the wrong place.
+ *
+ * The service-agent branch is worded for the **cross-project** case specifically. The Phase 2
+ * draft called it the second-most-common first-run failure; measured 2026-08-10, that is
+ * wrong for the normal setup — enabling the Speech API creates a project-level
+ * `roles/speech.serviceAgent` binding that already covers every bucket in that project, which
+ * is why spike S3 worked with the agent absent from the bucket's own IAM policy. A newsroom
+ * only hits it with a staging bucket in a *different* project from the recognizer.
+ *
+ * The project number is not looked up: the app's service account gets a 403 on
+ * `cloudresourcemanager.projects.get`, measured the same day, so the hint prints the command
+ * that produces the number rather than making a call behind a permission we do not have.
+ */
+function permissionHint(detail: string): string {
+  if (/gcp-sa-speech|service-\d+@/i.test(detail)) {
+    return (
+      'This names the Speech service agent, which is a different principal from the ' +
+      'service account making the call. It needs read access to the staging bucket. For a ' +
+      'bucket in the same project as the recognizer nothing is needed — the project-level ' +
+      'roles/speech.serviceAgent binding covers it. For a bucket in another project:\n' +
+      '  PN=$(gcloud projects describe <RECOGNIZER_PROJECT> --format="value(projectNumber)")\n' +
+      '  gcloud storage buckets add-iam-policy-binding gs://<BUCKET> \\\n' +
+      '    --member=serviceAccount:service-$PN@gcp-sa-speech.iam.gserviceaccount.com \\\n' +
+      '    --role=roles/storage.objectViewer'
+    );
+  }
+
+  if (/storage\.objects|storage\.buckets|storage\.googleapis/i.test(detail)) {
+    return (
+      'This is a Cloud Storage permission on the staging bucket, not a Speech one. The ' +
+      'calling service account needs roles/storage.objectAdmin to stage and sweep, plus ' +
+      'roles/storage.legacyBucketReader to read the bucket region and lifecycle rule — ' +
+      'objectAdmin alone does not include storage.buckets.get. Run ' +
+      '`thibi settings set google_gcs_staging_bucket <name> --check` to see which checks fail.'
+    );
+  }
+
+  return 'Check the service account has roles/speech.client on this project.';
+}
+
 export async function toProviderError(response: Response): Promise<Error> {
   const body = await response.text().catch(() => '');
   let detail = body.slice(0, 500);
@@ -55,9 +99,7 @@ export async function toProviderError(response: Response): Promise<Error> {
     return new ProviderUnavailableError(message);
   }
   if (response.status === 401 || response.status === 403) {
-    return new NotConfiguredError(message, {
-      hint: 'Check the service account has roles/speech.client on this project.',
-    });
+    return new NotConfiguredError(message, { hint: permissionHint(detail) });
   }
   if (response.status === 413 || /too large|exceeds/i.test(detail)) {
     // Not retryable as-is, but the planner re-cuts this one chunk at half length and

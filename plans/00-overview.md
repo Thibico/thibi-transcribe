@@ -325,23 +325,44 @@ confirm cost with real numbers, then download. Guardrails: `--max-filesize`, dur
 domain allowlist, non-root, 2 concurrent max.
 
 **probe / normalize.** Port `lib/audio/probe.ts` including its graceful nulls-not-throws
-behaviour. `ffmpeg -ac 1 -ar 16000 -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:a flac`. Two changes
-from `chunk.ts:25-34`: loudnorm added, and normalization decoupled from chunking and cached in
-`media_derivatives`. Waveform peaks (20 buckets/s, min+max int8 = ~144 KB/hour) produced in the
-same pass.
+behaviour. Two changes from `chunk.ts:25-34`: loudnorm added, and normalization decoupled from
+chunking and cached in `media_derivatives`. Waveform peaks (20 buckets/s, min+max int8 =
+~144 KB/hour) produced in the same pass.
+
+**The resample must come after `loudnorm`, and this is not obvious.** `loudnorm` runs
+internally at 192 kHz and emits at its own rate, so any resample *before* it is silently
+discarded. Written as `-af ... -ar 16000` it happens to survive, because `-ar` is an output
+option and inserts a resampler after the graph; written inside a `filter_complex` — which the
+implementation needs, since peaks and FLAC come from one `asplit` — it does not. Phase 1 wrote
+the second form and shipped a `norm_16k_mono_flac` that produced 192 kHz for a month of runs
+before Phase 2 noticed the file size. The recipe is:
+
+```
+aformat=channel_layouts=mono,aresample=16000,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=16000
+```
+
+The trailing `aresample` is the fix and is worth 6× the bytes. See amendment 24.
 
 **plan.** Writes `run_chunks` before any network call.
 ```
 duration ≤ syncMaxSeconds && bytes ≤ syncMaxBytes  → sync
 admin opted into "cheaper, slower"                 → batch
-sync quota exhausted / sustained 429s              → batch
+sync quota exhausted / sustained 429s              → batch          ← NOT BUILT, see below
 otherwise                                          → sync_chunked   ← the default at ANY duration
 ```
+**Phase 2 implemented three of these four.** The quota-pressure fallback is not built and was
+not designed: `planMode` takes no quota input, and it would have to, since the decision would
+depend on live 429 rates rather than on anything about the file. It also cannot be a silent
+fallback — a run that quietly becomes 5× slower because a *different* run exhausted the quota
+is a support ticket, not a feature. It belongs with Phase 9's token bucket, which is the only
+place that knows the quota state, and it is listed there as unbuilt rather than assumed.
 **Amended 2026-08-09 by spike S3.** The original rule split on duration at 15 minutes and
 justified it on latency. That was wrong. `batchRecognize` runs at a flat **5.9× realtime**
 (305 s for 30 min, 1211 s for 2 h) while chunked parallel sync at concurrency 8 is **3.6–7×
 faster at every size measured**, with zero 429s across 136 requests. Batch's only
-justifications are cost — the Dynamic Batch SKU, whose rate advantage is still unverified — and
+justifications are cost — the Dynamic Batch SKU, **confirmed 2026-08-10 at 5.33x**
+($0.016/min against $0.003/min, from the Cloud Billing Catalog rather than from documentation;
+see amendment 21) — and
 sync-quota pressure. It is therefore an admin trade-off, not something the engine infers from
 duration. No staging bucket configured is now the normal case, not a degraded one. Full numbers
 in [phase-00-spike-results.md](./phase-00-spike-results.md).
@@ -800,7 +821,7 @@ its detailed execution plan.
 |---|---|---|
 | 0 | [Spikes S1-S3 + language & script registries](./phase-00-spikes-and-registries.md) | `thibi lang list --tier verified`; three answered questions |
 | 1 | [Engine core, Google sync, Postgres/MinIO ports, CLI](./phase-01-engine-core.md) | `thibi transcribe f.m4a --lang my` → JSON with word timings |
-| 2 | [**RISK** batchRecognize + GCS staging](./phase-02-batch-recognize.md) | `thibi transcribe 2hr.mp3 --mode batch`; duration threshold decided |
+| 2 | [**RISK** batchRecognize + GCS staging](./phase-02-batch-recognize.md) | `thibi transcribe 2hr.mp3 --mode batch`; **done** — there is no duration threshold, batch is opt-in only, and the 5.33x rate advantage that justifies it is confirmed |
 | 3 | [**RISK** pyannote sidecar + reconciliation](./phase-03-diarization.md) | `thibi transcribe interview.wav --diarize`; reconcile unit-tested on synthetic fixtures |
 | 4 | [**RISK** faster-whisper + OpenAI + Groq providers](./phase-04-whisper-providers.md) | `thibi transcribe --provider faster-whisper` |
 | 5 | [Eval harness](./phase-05-eval-harness.md) | `thibi eval asr/cleanup/translate`; `tiers.json`; CI gate on the cleanup control |
@@ -920,6 +941,13 @@ argued in full in the phase doc named.
 | 18 | **Every provider words a language rejection differently and none uses a distinguishing status code** — Google `Bad language code`, OpenAI `Language code 'ha' is not recognized`, Groq `unsupported language: xx`. A pattern that misses one degrades to `error`, which preserves the previous row: the safe direction. Phase 4's provider adapters inherit this table. | [00](./phase-00-spikes-and-registries.md) |
 | 19 | **Groq's on-demand tier allows 20 requests per minute**, and probing faster turned 55 of 116 languages into `unknown` rather than data. Any Groq path needs an outbound throttle and `Retry-After`, not just retries. | [00](./phase-00-spikes-and-registries.md), [04](./phase-04-whisper-providers.md) |
 | 20 | **Digraphia must be measured by whole sentences, not character share.** Latin runs at 2-5% of a Telugu, Lao, Nepali, Korean or Chinese corpus from acronyms alone; only Serbian has whole sentences in a second script (11 of 199 FLEURS rows). `LanguageEntry.altScripts` records it so the eval harness's script-integrity check cannot fail a correct Cyrillic Serbian transcript. | [00](./phase-00-spikes-and-registries.md), [05](./phase-05-eval-harness.md) |
+| 21 | **The Dynamic Batch rate advantage is real — 5.33×, confirmed from the Cloud Billing Catalog** (`Cloud Speech-to-Text Recognition` $0.016/min vs `Cloud Speech-to-Text Dynamic Batch Recognition` $0.003/min, read 2026-08-10). This was the last unverified premise of Phase 2 and, since S3 removed latency as a reason to use batch, its only remaining justification. Two riders: Recognition is *tiered* (0.010 above 500k min/month) so the ratio is a tier property rather than a constant, and there is a `(Logged)` SKU at 25% off that trades the discount for Google retaining the audio — never a default, never a silent cost optimisation, and not seeded. | [02](./phase-02-batch-recognize.md) |
+| 22 | **`roles/storage.objectAdmin` does not include `storage.buckets.get`.** Measured on the project's own staging bucket: the service account could write and delete objects (200/204) and got a 403 reading the bucket's location and lifecycle rule. The natural least-privilege grant for a staging bucket therefore fails Phase 2's validation on its first check and makes the retention guarantee unverifiable. The narrow remedy is `roles/storage.legacyBucketReader`; the phase doc's draft said `roles/storage.admin`, which is bad advice that would outlive the problem. Also measured: GCS returns `location` upper-cased (`ASIA-SOUTHEAST1`), so the comparison must fold case. | [02](./phase-02-batch-recognize.md) |
+| 23 | **The Speech service agent needs no grant for a same-project staging bucket.** Enabling the Speech API creates a project-level `roles/speech.serviceAgent` binding that already covers it — which is why spike S3 succeeded with the agent absent from the bucket's own IAM policy. Phase 2 predicted this as the second-most-common first-run failure; it is a cross-project hazard only, and the error hint is worded accordingly. | [02](./phase-02-batch-recognize.md), [15](./phase-15-deployment.md) |
+| 24 | **`norm_16k_mono_flac` had never produced 16 kHz.** `loudnorm` resamples internally to 192 kHz and emits at its own rate, so the `aresample=16000` in front of it was silently discarded. Nothing failed — Google accepts 192 kHz FLAC and transcribes it correctly — and it survived Phase 1 and every sync run since. Found in Phase 2 by a number that looked too big: 20 minutes normalizing to 136 MB. A trailing `aresample=16000` makes it 22.7 MB, **6.0× smaller**, which changes every sync chunk, every staged upload, and the byte budget the chunk planner works against. Downstream: the derivative is **~68 MB per audio-hour**, not the ~30 MB Phase 15 assumed and not the ~110 KB/s Phase 4 assumed (that figure is within 3% of the *buggy* output). | [01](./phase-01-engine-core.md), [03](./phase-03-diarization.md), [04](./phase-04-whisper-providers.md), [15](./phase-15-deployment.md) |
+| 25 | **`rates` and `usage_records` shipped in Phase 2, not Phase 14.** Phase 2's only justification is a price difference, so it needed the ledger. Phase 14 reconciles rather than rebuilds: migration `0001_spend.sql` is applied, the seed is `packages/db/src/seed/rates.ts`, the units are **`minute` and `batch_minute`** (two SKUs, not one `audio_minute`), there is a `*` model wildcard row per provider, and `resolveRate` returns **null** rather than 0 when nothing matches. | [02](./phase-02-batch-recognize.md), [08](./phase-08-ingest.md), [14](./phase-14-ui-settings-admin.md) |
+| 26 | **`metadata.progressPercent` is populated on batch operations** — 26/52/78 across thirteen polls, measured 2026-08-10. Phase 2's risk 3 assumed it might always be absent and designed an elapsed-time fallback; the UI can show a real bar. It is still only read when actually sent. Batch latency is **4.65× realtime** (258 s for 1200 s of audio), consistent with S3's 5.9×, and every batch run now records its own into `runs.pipeline.batch.latencyMs`. | [09](./phase-09-queue-and-worker.md), [11](./phase-11-ui-shell.md), [15](./phase-15-deployment.md) |
+| 27 | **`runs.pipeline` is no longer only a specification and every writer must merge.** Phase 2 added runtime keys beside the DAG spec (`planReason`, and `batch` holding the whole `BatchOp`, its latency and its poll count). `persistResult` did `SET pipeline = $4` and silently deleted all of it; found by querying `pipeline->'batch'` after the first successful live run and getting null. `||` to merge, `jsonb_set` for a nested key, never a bare assignment. | [09](./phase-09-queue-and-worker.md) |
 
 ### Open decisions, surfaced not assumed
 

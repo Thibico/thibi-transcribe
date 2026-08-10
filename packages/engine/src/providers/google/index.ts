@@ -11,7 +11,19 @@ import type {
   TranscriptionProvider,
 } from '../types.js';
 import { createTokenCache, type TokenCache } from './auth.js';
+import {
+  cancelBatch,
+  fetchBatchResult,
+  findOrphanOperation,
+  pollBatch,
+  submitBatch,
+  type BatchDeps,
+  type BatchOp,
+  type BatchRequest,
+  type BatchStatus,
+} from './batch.js';
 import { DEFAULT_MODEL, googleCapabilities } from './capabilities.js';
+import { recognizeUrl } from './endpoints.js';
 import { toProviderError } from './errors.js';
 import { parseRecognizeResponse, type RecognizeResponse } from './parse.js';
 
@@ -28,8 +40,13 @@ export interface GoogleConfig extends ProviderConfig {
 
 /**
  * Endpoint helper, ported verbatim from `lib/providers/google.ts:89-94`.
+ *
+ * Phase 2 moved the URL construction into `endpoints.ts`, which grew the batch and operation
+ * URLs it never needed. This stays as a thin wrapper: it is part of the package's published
+ * API and its call sites are fine.
  */
 export function speechEndpoint(config: GoogleConfig, verb: string): string {
+  if (verb === 'recognize') return recognizeUrl(config.region, config.projectId);
   return (
     `https://${config.region}-speech.googleapis.com/v2/projects/${config.projectId}` +
     `/locations/${config.region}/recognizers/_:${verb}`
@@ -43,11 +60,31 @@ export interface GoogleProviderOptions {
   tokenCache?: TokenCache;
   /** Injectable for tests; defaults to global fetch. */
   fetchImpl?: typeof fetch;
+  /** Cancellation for the batch surface, whose calls outlive a single request. */
+  signal?: AbortSignal;
 }
 
 export function createGoogleProvider(options: GoogleProviderOptions): TranscriptionProvider {
   const tokens = options.tokenCache ?? createTokenCache({ clock: options.clock });
   const doFetch = options.fetchImpl ?? fetch;
+
+  /**
+   * The batch functions take their dependencies explicitly rather than closing over the
+   * provider, so they stay callable from a test with a fake clock and a recorded fetch —
+   * and, in Phase 9, from a worker that rebuilt the config out of the database.
+   */
+  const batchDeps = (cfg: ProviderConfig, opts: { cancellable?: boolean } = {}): BatchDeps => {
+    const config = cfg as GoogleConfig;
+    const cancellable = opts.cancellable ?? true;
+    return {
+      region: config.region,
+      projectId: config.projectId,
+      getToken: () => tokens.get(config.serviceAccountJson),
+      fetchImpl: doFetch,
+      clock: options.clock,
+      ...(cancellable && options.signal ? { signal: options.signal } : {}),
+    };
+  };
 
   return {
     id: 'google',
@@ -153,5 +190,32 @@ export function createGoogleProvider(options: GoogleProviderOptions): Transcript
         durationMs: req.durationMs,
       });
     },
+
+    // ---- batch ------------------------------------------------------------------------
+    // Thin by design. Everything of substance is in `batch.ts` as free functions taking
+    // explicit dependencies, because Phase 9 calls them from a worker that has a `BatchOp`
+    // and a config and no provider instance in scope.
+
+    submitBatch(cfg, req) {
+      return submitBatch(batchDeps(cfg), req);
+    },
+
+    pollBatch(cfg, op) {
+      return pollBatch(batchDeps(cfg), op);
+    },
+
+    fetchBatchResult(cfg, op, args) {
+      return fetchBatchResult(batchDeps(cfg), op, args);
+    },
+
+    cancelBatch(cfg, op) {
+      // Deliberately not cancellable: a cancel triggered by SIGINT must not itself be
+      // aborted by the same signal it is responding to, or the operation stays running and
+      // keeps billing.
+      return cancelBatch(batchDeps(cfg, { cancellable: false }), op);
+    },
   };
 }
+
+export { findOrphanOperation };
+export type { BatchDeps, BatchOp, BatchRequest, BatchStatus };

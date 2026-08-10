@@ -8,7 +8,14 @@ import { beforeAll, describe, expect, it } from 'vitest';
  * document saying "the engine never reads process.env" is a wish; this file is what makes
  * it a fact, and it is the reason both rules were added in Phase 0 rather than after the
  * first violation.
+ *
+ * The first assertion pays for the whole file's setup: `lintText` lazily builds the flat
+ * config and loads typescript-eslint, which takes well over a second on its own and several
+ * under load. At vitest's 5 s default this suite passed alone and failed in a full `pnpm
+ * test` run, where it competes with the Postgres-backed suites — a flaky gate is worse than
+ * a slow one, so the timeout is explicit rather than inherited.
  */
+const LINT_TIMEOUT_MS = 30_000;
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -31,7 +38,7 @@ describe('dependency direction', () => {
     const restricted = messages.filter((m) => m.ruleId === 'no-restricted-imports');
     expect(restricted).toHaveLength(1);
     expect(restricted[0]?.message).toContain('packages/core may not import @thibi/db');
-  });
+  }, LINT_TIMEOUT_MS);
 
   it('rejects an app imported from a package', async () => {
     const messages = await messagesFor(
@@ -39,7 +46,7 @@ describe('dependency direction', () => {
       `import '@thibi/worker';\n`,
     );
     expect(messages.filter((m) => m.ruleId === 'no-restricted-imports')).toHaveLength(1);
-  });
+  }, LINT_TIMEOUT_MS);
 
   it('rejects a subpath import of a forbidden package', async () => {
     const messages = await messagesFor(
@@ -47,7 +54,7 @@ describe('dependency direction', () => {
       `import '@thibi/engine/pipeline';\n`,
     );
     expect(messages.filter((m) => m.ruleId === 'no-restricted-imports')).toHaveLength(1);
-  });
+  }, LINT_TIMEOUT_MS);
 
   it('allows the declared direction', async () => {
     for (const [pkg, dep] of [
@@ -66,7 +73,7 @@ describe('dependency direction', () => {
         `packages/${pkg} should be allowed to import @thibi/${dep}`,
       ).toHaveLength(0);
     }
-  });
+  }, LINT_TIMEOUT_MS);
 });
 
 describe('ambient configuration ban', () => {
@@ -76,10 +83,14 @@ describe('ambient configuration ban', () => {
     ['process.env', `export const x = process.env.GOOGLE_REGION;\n`, 'no-restricted-properties'],
     ['process.cwd()', `export const x = process.cwd();\n`, 'no-restricted-properties'],
     ['__dirname', `export const x = __dirname;\n`, 'no-restricted-globals'],
-  ])('rejects %s in engine source', async (_label, code, ruleId) => {
-    const messages = await messagesFor('packages/engine/src/probe.ts', code);
-    expect(messages.filter((m) => m.ruleId === ruleId).length).toBeGreaterThan(0);
-  });
+  ])(
+    'rejects %s in engine source',
+    async (_label, code, ruleId) => {
+      const messages = await messagesFor('packages/engine/src/probe.ts', code);
+      expect(messages.filter((m) => m.ruleId === ruleId).length).toBeGreaterThan(0);
+    },
+    LINT_TIMEOUT_MS,
+  );
 
   it('allows process.env in a package test', async () => {
     const messages = await messagesFor(
@@ -87,7 +98,7 @@ describe('ambient configuration ban', () => {
       `export const x = process.env.CI;\n`,
     );
     expect(messages.filter((m) => m.ruleId === 'no-restricted-properties')).toHaveLength(0);
-  });
+  }, LINT_TIMEOUT_MS);
 
   it('allows process.env in build tooling', async () => {
     const messages = await messagesFor(
@@ -95,5 +106,5 @@ describe('ambient configuration ban', () => {
       `export const x = process.env.HF_TOKEN;\n`,
     );
     expect(messages.filter((m) => m.ruleId === 'no-restricted-properties')).toHaveLength(0);
-  });
+  }, LINT_TIMEOUT_MS);
 });

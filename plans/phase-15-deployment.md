@@ -378,6 +378,21 @@ and no version skew between the CLI and the running engine.
 `./thibi doctor` runs the same probe functions as `/admin/system` from the shell — for the case
 where `web` will not start, which is exactly when you most need them.
 
+Its staging probe is `validateStagingBucket` (Phase 2), which already reports all five checks
+together rather than stopping at the first. Two things `doctor` should add on top of it, because
+they are the failures a probe against *our* credentials cannot see:
+
+- **The Speech service agent, for a cross-project bucket.** Measured 2026-08-10: a same-project
+  bucket needs no grant at all — the project-level `roles/speech.serviceAgent` binding created
+  with the API covers it, which is why spike S3 worked with the agent absent from the bucket
+  policy. When the bucket's project differs from the recognizer's, print the
+  `service-<PROJECT_NUMBER>@gcp-sa-speech.iam.gserviceaccount.com` grant. `doctor` cannot look
+  the number up — the app service account gets a 403 on `cloudresourcemanager.projects.get` —
+  so print the `gcloud projects describe` line that produces it.
+- **Runs stranded in `mode='batch'` with a non-null `staging_prefix`.** That is audio sitting in
+  someone else's bucket with nothing left to sweep it but the lifecycle rule. One query, and it
+  is the thing an operator would never think to look for.
+
 ---
 
 ### 2. Caddyfile
@@ -634,6 +649,28 @@ Then, in the browser, four steps and none of them is a file:
    local models (with §5's honest pyannote number and the `PROFILES=local-models` +
    `./thibi models pull` instructions).
 
+   **The GCS step must present the trade honestly, and it is not the one the overview assumed.**
+   Skipping it is the *faster* configuration, not a degraded one: spike S3 measured chunked
+   parallel sync 3.6–7× faster than `batchRecognize` at every duration, so the bucket buys 5.33×
+   less money at roughly 5× the wall-clock. Word it that way round. It should also reuse
+   `validateStagingBucket` rather than accepting a name — the same five checks
+   `thibi settings set … --check` runs, reported together — because the two failures a newsroom
+   will actually hit are both silent otherwise:
+
+   - **`roles/storage.objectAdmin` cannot read bucket metadata.** Measured 2026-08-10: write 200,
+     delete 204, `storage.buckets.get` **403**. It is the obvious grant and it leaves the region
+     and the lifecycle rule unverifiable. The remediation the wizard prints is
+     `roles/storage.legacyBucketReader` — **never `roles/storage.admin`**.
+   - **A bucket name that does not exist** must say so and refuse to save, with no IAM advice
+     attached. Answering a typo with "grant a role" is the same class of mistake as the region
+     doctrine this codebase deleted.
+
+   What the wizard does **not** need to mention: the Speech service agent. Measured the same day
+   — for a staging bucket in the same project as the recognizer, the project-level
+   `roles/speech.serviceAgent` binding created when the Speech API was enabled already covers it,
+   and nothing needs granting. It is a cross-project hazard only, and `thibi doctor` is the right
+   place for it (§below), not a step everyone walks through.
+
 Then: **Upload your first file.**
 
 #### The bar
@@ -667,7 +704,7 @@ Both pyannote 3.1 and faster-whisper `large-v3` fit comfortably in 12 GB togethe
 | Workload | Rate | 1 hour of audio takes |
 |---|---|---|
 | Cloud ASR, 8 parallel chunks | — | **2–4 minutes** (dominated by upload and provider queueing) |
-| Cloud ASR via `batchRecognize` | — | minutes of queue latency *before anything starts* — which is why the sync/batch threshold is 15 minutes |
+| Cloud ASR via `batchRecognize` | ~5–6× realtime, flat | **~10–13 minutes.** Corrected 2026-08-10: measured 258 s for a 20-minute file (4.65× realtime), and spike S3 measured 5.9× at both 30 minutes and 2 hours. There is **no sync/batch threshold** — that clause is deleted. Chunked sync is faster at every duration; batch is an opt-in choice that trades this row against the one above it for 5.33× less money |
 | faster-whisper `large-v3` int8, CPU, 8 cores | 1–2× realtime | **30–60 minutes** |
 | faster-whisper `distil-large-v3` int8, CPU, 8 cores | ~2.5–4× realtime | 15–25 minutes |
 | faster-whisper `large-v3` float16, GPU | ~20–30× realtime | 2–4 minutes |
@@ -689,7 +726,7 @@ from this table.
 | What | Size |
 |---|---|
 | `hf-cache` | **~10 GB** — pyannote 3.1 + segmentation + embedding ≈ 1 GB; `large-v3` int8 ≈ 1.5 GB (float16 ≈ 3 GB); `distil-large-v3` ≈ 0.8 GB; plus HF's blob/snapshot duplication. **Provision 15 GB.** |
-| Normalized derivative | ~30 MB per audio-hour (16 kHz mono FLAC), plus the original |
+| Normalized derivative | **~68 MB per audio-hour** (16 kHz mono FLAC, measured 2026-08-10: 22.7 MB for 20 minutes, 59% of raw 16-bit). The old ~30 MB figure was a guess and is low by 2.3×. One clip, so re-measure on the Phase 5 corpus; provision from 68 |
 | Waveform peaks | ~144 KB per hour |
 | Postgres | ~10k word rows per audio-hour → 1,000 hours ≈ 10M rows ≈ 2–3 GB with indexes |
 | Raw provider responses | ~1–3 MB per hour, kept under `runs/{id}/raw/` |

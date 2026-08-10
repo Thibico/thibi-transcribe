@@ -1,0 +1,38 @@
+{
+  "name": "projects/477538743654/locations/asia-southeast1/operations/v2-6b33deaf-0000-2e70-af8a-d4f547fe730c",
+  "metadata": {
+    "@type": "type.googleapis.com/google.cloud.speech.v2.OperationMetadata",
+    "createTime": "2026-08-10T04:03:01.768361Z",
+    "resource": "projects/myanmar-transcription/locations/asia-southeast1/recognizers/_",
+    "method": "google.cloud.speech.v2.Speech.BatchRecognize",
+    "batchRecognizeRequest": {
+      "recognizer": "projects/myanmar-transcription/locations/asia-southeast1/recognizers/_",
+      "files": [
+        {
+          "uri": "gs://thibi-stt-staging-asse1/thibi-staging/412d5945-f999-4a0a-8c49-7bad085e9f5d/audio.flac"
+        }
+      ],
+      "config": {
+        "features": {
+          "enableWordTimeOffsets": true,
+          "enableWordConfidence": true,
+          "enableAutomaticPunctuation": true
+        },
+        "autoDecodingConfig": {},
+        "model": "chirp_2",
+        "languageCodes": [
+          "my-MM"
+        ]
+      },
+      "recognitionOutputConfig": {
+        "gcsOutputConfig": {
+          "uri": "gs://thibi-stt-staging-asse1/thibi-staging/412d5945-f999-4a0a-8c49-7bad085e9f5d/out"
+        }
+      },
+      "processingStrategy": "DYNAMIC_BATCHING"
+    },
+    "progressPercent": 52,
+    "updateTime": "2026-08-10T04:05:28.470622Z"
+  },
+  "done": false
+}

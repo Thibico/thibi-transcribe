@@ -2,6 +2,7 @@ import type { Readable } from 'node:stream';
 import type { Db } from '@thibi/db';
 import type { LanguageRegistry } from '@thibi/languages';
 import type { ObjectStore, TempDir } from '@thibi/storage';
+import type { StagingStore } from './staging/types.js';
 
 /**
  * Everything the engine needs, supplied by its caller.
@@ -20,7 +21,13 @@ import type { ObjectStore, TempDir } from '@thibi/storage';
 export interface EngineContext {
   db: Db;
   store: ObjectStore;
-  /** Phase 2 (GCS staging for batchRecognize). Absent in Phase 1. */
+  /**
+   * GCS staging for `batchRecognize`.
+   *
+   * Optional, and its absence is a supported configuration rather than a degraded one:
+   * spike S3 measured chunked parallel sync 3.6-7x faster than batch at every size, so an
+   * instance with no staging bucket is the *faster* one and simply pays 5.3x more.
+   */
   staging?: StagingStore;
   settings: SettingsPort;
   /** Phase 6. */
@@ -103,12 +110,17 @@ export interface TempDirPort {
   dir(prefix: string): Promise<TempDir>;
 }
 
-/** Phase 2: the GCS prefix `batchRecognize` reads from. Not an object store — a wire format. */
-export interface StagingStore {
-  put(key: string, path: string): Promise<{ uri: string }>;
-  delete(prefix: string): Promise<void>;
-  assertLifecycleRule(): Promise<void>;
-}
+/**
+ * The GCS prefix `batchRecognize` reads from. Not an object store — a wire format.
+ *
+ * Phase 1 sketched a three-method stub here. The real port lives in `staging/types.ts`
+ * alongside its adapters, and this re-export is what keeps `EngineContext` from importing
+ * the implementation. The stub's `assertLifecycleRule(): Promise<void>` became
+ * `assertLifecycle(prefix): Promise<LifecycleCheck>`: a thrown error cannot carry the
+ * distinction between "no rule", "the rule is too slow" and "we are not allowed to look",
+ * and those three lead an operator to three different fixes.
+ */
+export type { StagingStore } from './staging/types.js';
 
 export class MissingCapabilityError extends Error {
   constructor(readonly capability: string) {

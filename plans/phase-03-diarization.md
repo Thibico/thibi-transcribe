@@ -18,7 +18,7 @@ builds the Python sidecar image and its task API, which Phase 4 fills the other 
 | From | What |
 |---|---|
 | Phase 1 | `EngineContext`, `ObjectStore`, presigned-GET minting, `segments` + `words` with timings, `run_steps` |
-| Phase 1 | `media_derivatives` `norm_16k_mono_flac` — ASR and diarization consume the *same* file |
+| Phase 1 | `media_derivatives` `norm_16k_mono_flac` — ASR and diarization consume the *same* file. **Note it only actually became 16 kHz on 2026-08-10:** `loudnorm` resamples internally to 192 kHz and emits at its own rate, so the `aresample=16000` in front of it was silently discarded and the derivative had always been 192 kHz. pyannote 3.1 expects 16 kHz and resamples anything else itself, so this would have cost decode time and nothing else — but the sidecar's throughput numbers in §5 assume a 16 kHz input, and any measured before that date were taken against a file 6× larger. `RECIPE_VERSION` is derived from the filter string, so every pre-fix derivative is already invalidated |
 | Phase 2 | `util/retry.ts` with full jitter; the submit/poll/JSON-only-handle pattern (`BatchOp`) to copy |
 | Phase 0 · S2 | Whether Google word confidence exists — affects nothing here, but `has_words` does |
 | Infra | A `sidecar` compose service and an `hf-cache` volume; an `HF_TOKEN` for the gated pyannote repo |
