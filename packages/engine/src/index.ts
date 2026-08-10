@@ -269,3 +269,13 @@ export {
   type NewAsset,
   type StoredAsset,
 } from './ingest/index.js';
+export {
+  estimateBatch,
+  ingestBatch,
+  type BatchDefaults,
+  type BatchEstimate,
+  type BatchEstimateItem,
+  type BatchItem,
+  type IngestBatchInput,
+  type IngestBatchResult,
+} from './ingest/batch.js';

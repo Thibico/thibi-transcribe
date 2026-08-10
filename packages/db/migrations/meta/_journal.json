@@ -15,6 +15,13 @@
       "when": 1786332330285,
       "tag": "0001_spend",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786370085610,
+      "tag": "0002_ingest_batch_key",
+      "breakpoints": true
     }
   ]
 }
