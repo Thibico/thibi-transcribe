@@ -253,7 +253,36 @@ function literal(value: unknown): string {
   return JSON.stringify(stable(value), null, 2);
 }
 
-const generatedAt = new Date().toISOString().slice(0, 10);
+// Derived from the inputs, not the clock. `stable()` above exists to make this script a
+// pure function of data/*.json so that "a re-run's diff is only real change" — and a
+// `new Date()` here was the one thing violating it. The CI drift check regenerates and
+// diffs, so from the day after the file was committed it compared a timestamp rather than
+// content and went red with no input change at all.
+//
+// The newest input date is also the more useful claim. What a caller wants from this
+// constant is how fresh the *data* is — the probedAt dates the provider matrix carries —
+// not when someone last ran the script over unchanged inputs.
+const ISO_DATE_PREFIX = /^\d{4}-\d{2}-\d{2}/;
+
+function collectDates(value: unknown, found: string[] = []): string[] {
+  if (typeof value === 'string') {
+    if (ISO_DATE_PREFIX.test(value)) found.push(value.slice(0, 10));
+  } else if (Array.isArray(value)) {
+    for (const item of value) collectDates(item, found);
+  } else if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) collectDates(item, found);
+  }
+  return found;
+}
+
+// ISO dates sort lexicographically, so max is the last after a plain sort. 'unknown' is
+// unreachable while languages.json carries _meta.seededAt, and is here so a stripped-down
+// data set degrades to an honest string rather than to today's date.
+const generatedAt =
+  [scriptsFile, languagesFile, matrix, overridesRaw]
+    .flatMap((file) => collectDates(file))
+    .sort()
+    .at(-1) ?? 'unknown';
 
 const source = `// GENERATED — DO NOT EDIT.
 //
