@@ -78,6 +78,17 @@ export async function ingestStream(
   const assetId = randomUUID();
   // No user-controlled byte reaches this key: a uuid and an allowlisted extension. That is
   // what makes filename sanitisation unnecessary rather than merely careful.
+  //
+  // Deliberately NOT `assetKey(sha256, ext)` from @thibi/storage, which Phase 1 uses for the
+  // same kind of object and which is content-addressed. The two schemes coexist for a reason
+  // that is easy to miss and expensive to "fix": a content-addressed key needs the hash
+  // *before* the write, and a streamed upload does not know it until the last byte. Phase 1
+  // hashes a local file first and can afford it; an HTTP request body cannot be rewound.
+  //
+  // The consequence is the `delete` on the dedupe path below. Under content-addressing the
+  // loser of a race writes the same bytes to the same key and there is nothing to clean up —
+  // under uuid keys it writes a second copy that nothing references. Anyone unifying these
+  // must move that delete at the same time, or it will delete the winner's object.
   const key = `media/${assetId}/source.${ext}`;
 
   let put;

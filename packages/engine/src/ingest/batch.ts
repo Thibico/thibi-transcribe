@@ -113,7 +113,12 @@ export async function estimateBatch(
     if (!asset) continue;
     const base: BatchEstimateItem = {
       assetId: item.assetId,
-      filename: asset.filename,
+      // The caller's name for this item, not the asset's stored one. Content dedupe means two
+      // uploads of the same recording share an asset row that keeps the *first* filename, so
+      // showing `asset.filename` renders one name twice and the user cannot tell which of
+      // their files each line is. Caught by ingesting a directory holding two copies of one
+      // recording under different names, which listed the same filename on both rows.
+      filename: item.title ?? asset.filename,
       durationMs: asset.durationMs,
       usd: null,
     };
