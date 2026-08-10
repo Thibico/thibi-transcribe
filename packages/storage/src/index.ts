@@ -7,6 +7,7 @@
 export {
   NotSupportedError,
   ObjectNotFoundError,
+  ObjectTooLargeError,
   StorageError,
   type HeadResult,
   type ObjectStore,

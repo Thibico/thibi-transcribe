@@ -254,3 +254,18 @@ export {
   type ResumeOptions,
   type ResumeOutcome,
 } from './pipeline/operation-reconcile.js';
+export {
+  ALLOWED_EXTENSIONS,
+  allowedExtension,
+  createOrReuseAsset,
+  findAssetBySha,
+  IngestError,
+  ingestStream,
+  validateFilename,
+  type CreateOrReuseResult,
+  type IngestedAsset,
+  type IngestErrorCode,
+  type IngestStreamInput,
+  type NewAsset,
+  type StoredAsset,
+} from './ingest/index.js';

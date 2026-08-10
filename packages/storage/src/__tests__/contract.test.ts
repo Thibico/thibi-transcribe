@@ -9,7 +9,12 @@ import { MemoryObjectStore } from '../memory.js';
 import { S3ObjectStore } from '../s3.js';
 import { createTempDirPort, toTempFile } from '../tempfile.js';
 import { assertSafeKey } from '../keys.js';
-import { NotSupportedError, ObjectNotFoundError, type ObjectStore } from '../types.js';
+import {
+  NotSupportedError,
+  ObjectNotFoundError,
+  ObjectTooLargeError,
+  type ObjectStore,
+} from '../types.js';
 
 function isSafeKey(key: string): boolean {
   try {
@@ -143,6 +148,30 @@ describe.each(adapters.filter((a) => !a.skip))('ObjectStore contract: $name', (a
     const buffered = await store.put('buffered.bin', body);
     expect(streamed.sha256).toBe(buffered.sha256);
     expect(streamed.bytes).toBe(100_000);
+  });
+
+  it('refuses a stream past maxBytes and leaves no object behind', async () => {
+    // Chunked deliberately: the cap has to fire mid-stream, which is the only case that
+    // matters. A single-chunk body would pass even if the check ran once at the end, and an
+    // untrusted upload is precisely the one that will not stop when asked.
+    const chunks = Array.from({ length: 8 }, () => Buffer.alloc(1024, 0x61));
+    await expect(
+      store.putStream('capped/too-big.bin', Readable.from(chunks), { maxBytes: 4096 }),
+    ).rejects.toThrow(ObjectTooLargeError);
+
+    // The point of the cap is that the bytes never land. A rejection that still wrote a
+    // partial object would leave the caller to clean up something it was told did not happen.
+    expect(await store.head('capped/too-big.bin')).toBeNull();
+  });
+
+  it('accepts a stream exactly at maxBytes', async () => {
+    // The boundary is `>`, not `>=`: a file at exactly the limit is within the limit, and
+    // getting this backwards rejects the one upload a user tuned to fit.
+    const put = await store.putStream('capped/exact.bin', Readable.from([Buffer.alloc(4096)]), {
+      maxBytes: 4096,
+    });
+    expect(put.bytes).toBe(4096);
+    expect((await store.head('capped/exact.bin'))?.bytes).toBe(4096);
   });
 
   it('serves a byte range', async () => {
