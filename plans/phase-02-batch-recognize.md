@@ -52,7 +52,7 @@ and leaves the step state machine alone.
 | Path | Purpose |
 |---|---|
 | `packages/engine/src/staging/types.ts` | `StagingStore` port, `LifecycleCheck`, `StagingLocation` |
-| `packages/engine/src/staging/gcs.ts` | GCS adapter over `@google-cloud/storage`, sharing the STT service-account credentials |
+| `packages/engine/src/staging/gcs.ts` | GCS adapter sharing the STT service-account credentials. **Built over the JSON API and `fetch`, not `@google-cloud/storage`** — a deviation from this table, argued in the file's header: Phase 1 already established `fetch` + `google-auth-library` for Google with a token cache that coalesces per credential, and the client library would give one credential two token lifetimes, two retry policies and two ways to fail, for six single-request operations. The cost is no resumable upload, which does not matter at the ~23 MB a normalized 20-minute FLAC weighs. |
 | `packages/engine/src/staging/memory.ts` | `FakeStagingStore` for tests — same port, in-memory, fake lifecycle metadata |
 | `packages/engine/src/staging/lifecycle.ts` | `assertLifecycle`, the acceptance rule, and the copy-pasteable fix command |
 | `packages/engine/src/staging/validate.ts` | Settings-time bucket validation: region match, storage class, write probe |
@@ -69,7 +69,10 @@ and leaves the step state machine alone.
 | `apps/cli/src/commands/transcribe.ts` | *(modified)* `--mode auto\|sync\|sync_chunked\|batch`, `--dry-run`, SIGINT → cancel |
 | `apps/cli/src/commands/settings.ts` | *(modified)* `thibi settings set google_gcs_staging_bucket … --check` |
 | `apps/cli/src/commands/runs.ts` | *(modified)* `thibi runs resume <id>` |
-| `packages/engine/src/providers/google/__fixtures__/batch-*.json` | Recorded submit / poll / output fixtures |
+| `packages/engine/src/providers/google/__tests__/__fixtures__/batch-*.json` | Submit / poll / output fixtures, recorded from the live 20-minute run rather than written from the documentation |
+| `packages/engine/src/staging/__tests__/__fixtures__/{bucket,lifecycle}-*.json` | Bucket-metadata and lifecycle variants, the first of each recorded from the real bucket |
+| `packages/engine/src/pipeline/batch-persist.ts` | *(not in the draft)* the ordering itself: claim the prefix, persist the operation, merge progress, record usage |
+| `apps/cli/src/commands/db.ts` | *(modified)* `thibi db seed` for the rate table |
 
 ## Design
 
@@ -720,19 +723,32 @@ service account and confirm the `no-permission` refusal names that role — the 
 1. **`processingStrategy: DYNAMIC_BATCHING` may not be accepted** for `chirp_2` in every region,
    or the field name may differ in the shipped v2 surface. Mitigation: fall back to plain batch,
    record `pipeline.dynamicBatching=false`, and trust `usage_records` over the estimate. The cost
-   argument weakens but batch is still the cheaper path. *Partly retired 2026-08-10: spike S3
-   submitted with the field in `asia-southeast1` on `chirp_2` and it was accepted. One region, one
-   model, one day — the fallback stays.*
+   argument weakens but batch is still the cheaper path. *Largely retired 2026-08-10: accepted on
+   `chirp_2` in `asia-southeast1` by spike S3 and again by the phase's own live runs, which record
+   `pipeline.batch.dynamicBatching = true` and echo `processingStrategy: "DYNAMIC_BATCHING"` back
+   in the operation metadata. One region and one model, so the fallback stays and has its own
+   test.*
 2. **Dynamic batching has no latency SLA.** Google may take hours. *Rewritten 2026-08-10: this
    risk no longer threatens a threshold, because §7 no longer has one.* What it threatens is the
    admin's expectation. S3 measured 5.9× realtime twice, but that is two samples on one day and
    the SKU makes no promise. Record `submittedAtMs → doneAtMs` in `runs.pipeline.batch` on **every**
    batch run from day one, so Phase 9 and Phase 11 can quote a real p50/p90 — "about 20 minutes,
-   based on your last 14 runs" — instead of a spinner. The measured latency of this phase's live
-   run goes in the work diary.
+   based on your last 14 runs" — instead of a spinner.
+
+   **Measured 2026-08-10, and now three samples on two days:** 1200 s of audio completed in
+   **258 s, 4.65× realtime** (a second run of the same file took 254 s). Slower than S3's 5.9× on
+   30-minute and 2-hour inputs but the same order, and the routing conclusion is untouched —
+   chunked sync would have finished this file in well under a minute. Latency is written to
+   `runs.pipeline.batch.latencyMs` on every batch run, so this stops being a two-sample argument
+   as soon as the product is used.
 3. **No partial results.** Batch is all-or-nothing, so a 2-hour run shows 0% until it does not.
-   `metadata.progressPercent` may always be absent — verify on the first live run. If it is, the UI
-   shows elapsed time plus an estimate from prior runs rather than a fake bar.
+
+   **`metadata.progressPercent` is populated — measured 2026-08-10, and this risk was wrong.**
+   The 20-minute run reported 26 % / 52 % / 78 % across thirteen polls, monotonically. Phase 11
+   can show a real progress bar rather than the elapsed-time-plus-estimate fallback this risk
+   planned for. The value is still only read when Google actually sends it and is never
+   fabricated, so a provider or a run that omits it degrades to the fallback rather than to a
+   lie.
 4. **Refusing multi-region buckets** will annoy an admin who already has one. The escape hatch
    exists; the default stays strict because the alternative failure is opaque.
 5. **The Speech service agent is a separate principal** from the calling service account.
@@ -761,35 +777,35 @@ service account and confirm the `no-permission` refusal names that role — the 
 
 Two items changed on 2026-08-10 to match the corrections above; both are marked.
 
-- [ ] `StagingStore` port with GCS and in-memory adapters; nothing outside `staging/gcs.ts`
+- [x] `StagingStore` port with GCS and in-memory adapters; nothing outside `staging/gcs.ts`
       imports `@google-cloud/storage`.
-- [ ] `thibi settings set google_gcs_staging_bucket … --check` runs region, storage-class,
+- [x] `thibi settings set google_gcs_staging_bucket … --check` runs region, storage-class,
       write-probe and lifecycle checks, reports all of them together rather than stopping at the
       first, and names **both** regions on a mismatch.
-- [ ] The engine refuses to stage without a verifiable ≤7-day Delete lifecycle rule covering
+- [x] The engine refuses to stage without a verifiable ≤7-day Delete lifecycle rule covering
       `thibi-staging/`, and prints a copy-pasteable `gsutil lifecycle set` command. A
       `no-permission` result is a refusal, and its message names
       `roles/storage.legacyBucketReader` — **not** `roles/storage.admin`, which is what the draft
       said and which grants far more than reading a metadata field needs.
-- [ ] `submitBatch` / `pollBatch` / `fetchBatchResult` / `cancelBatch` implemented on the Google
+- [x] `submitBatch` / `pollBatch` / `fetchBatchResult` / `cancelBatch` implemented on the Google
       provider; `BatchOp` is plain JSON and has a round-trip test.
-- [ ] `runs.operation_name` and `runs.pipeline.batch` are written in one transaction before any
+- [x] `runs.operation_name` and `runs.pipeline.batch` are written in one transaction before any
       poll, and `runs.mode='batch'` is set before the upload; `thibi runs resume` re-polls without
       re-submitting, proven by `kill -9`.
       *(Amended: the draft paired this with `run_steps.external_ref`, a column that does not
       exist until Phase 9.)*
-- [ ] `planMode` returns `batch` **only** when explicitly forced, never from duration; it throws
+- [x] `planMode` returns `batch` **only** when explicitly forced, never from duration; it throws
       when `force:'batch'` is given without a staging bucket; and it always returns a `reason`
       that the CLI prints.
       *(Amended: the draft required `batch` above 900 s, which spike S3 disproved.)*
-- [ ] Batch output is read from the URI in the LRO response, archived to MinIO before parsing, and
+- [x] Batch output is read from the URI in the LRO response, archived to MinIO before parsing, and
       parsed by the same `parseRecognizeResults` as the sync path — asserted by an equivalence test.
-- [ ] A per-file `results[uri].error` under `done:true` is classified as a failure, not a success.
+- [x] A per-file `results[uri].error` under `done:true` is classified as a failure, not a success.
       S3 hit it in 1 run of 5.
-- [ ] Staging prefix is deleted after a successful archive; the lifecycle rule is the backstop.
-- [ ] `--dry-run` prints the batch-vs-sync cost comparison from the `rates` table, and
+- [x] Staging prefix is deleted after a successful archive; the lifecycle rule is the backstop.
+- [x] `--dry-run` prints the batch-vs-sync cost comparison from the `rates` table, and
       `usage_records` records actual spend after the run.
-- [ ] `thibi transcribe --mode batch` completes end to end on real audio, and the measured batch
+- [x] `thibi transcribe --mode batch` completes end to end on real audio, and the measured batch
       latency is recorded for Phase 9 to use.
-- [ ] No file in the tree contains the stale region doctrine or the `DELETE FROM runs` sweep.
+- [x] No file in the tree contains the stale region doctrine or the `DELETE FROM runs` sweep.
 
