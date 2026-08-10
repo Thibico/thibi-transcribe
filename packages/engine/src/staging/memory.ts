@@ -25,6 +25,9 @@ import {
  * a bucket to misconfigure.
  */
 
+/** Not a real GCS region, on purpose. See the constructor. */
+export const FAKE_REGION = 'fake-region-1';
+
 export interface FakeStagingOptions {
   bucket?: string;
   location?: string;
@@ -55,7 +58,12 @@ export class FakeStagingStore implements StagingStore {
     this.bucket = options.bucket ?? 'fake-staging';
     this.options = {
       bucket: this.bucket,
-      location: options.location ?? 'asia-southeast1',
+      // Deliberately not a real region name. CI forbids naming one outside
+      // `apps/cli/src/config.ts`, and beyond obeying that rule an obviously-fake default is
+      // better here anyway: a test that passed only because the fake happened to default to
+      // the same region as the real configuration would be passing for the wrong reason.
+      // Tests that exercise the region comparison pass a recorded location explicitly.
+      location: options.location ?? FAKE_REGION,
       locationType: options.locationType ?? 'region',
       storageClass: options.storageClass ?? 'STANDARD',
       lifecycle:
