@@ -6,13 +6,18 @@ import { randomUUID } from 'node:crypto';
 import { Command } from 'commander';
 import {
   createGoogleProvider,
+  createRun,
   DEFAULT_OVERLAP_MS,
   NotConfiguredError,
+  persistChunks,
+  persistResult,
   transcribe,
   UnsupportedLanguageError,
   type GoogleConfig,
   type TranscriptionProvider,
 } from '@thibi/engine';
+import { assetKey, extensionOf, rawResponseKey } from '@thibi/storage';
+import { stat } from 'node:fs/promises';
 import { buildContext, resolveServiceAccountJson, readEnvironment } from '../context.js';
 import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from '../config.js';
 import { buildTranscript, EXIT, formatText, type TranscriptJson } from '../output.js';
@@ -122,8 +127,42 @@ export function transcribeCommand(): Command {
         };
 
         // ---- run ---------------------------------------------------------------------
-        const runId = randomUUID();
         const rawDir = opts.rawDir as string | undefined;
+        const persisting = cli.db !== null;
+
+        // The source is uploaded and the run row created before any work begins, so a
+        // crash leaves a record of what was attempted rather than nothing at all.
+        let runId: string = randomUUID();
+        let jobId: string | null = null;
+        let assetId: string | null = null;
+        let sha256: string | null = null;
+
+        if (persisting) {
+          sha256 = await sha256Of(sourcePath);
+          const key = assetKey(sha256, extensionOf(filename));
+          if (!(await cli.ctx.store.head(key))) {
+            await cli.ctx.store.putStream(key, createReadStream(sourcePath));
+          }
+          const created = await createRun(cli.ctx, {
+            sha256,
+            storageKey: key,
+            filename,
+            bytes: (await stat(sourcePath)).size,
+            durationMs: null,
+            probeRaw: null,
+            title: filename,
+            languageCode: language.code,
+            providerId: provider.id,
+            model,
+            mode: 'sync_chunked',
+          });
+          runId = created.runId;
+          jobId = created.jobId;
+          assetId = created.assetId;
+          if (created.assetExisted) {
+            cli.ctx.logger.info({ sha256: sha256.slice(0, 12) }, 'ingest: asset already stored');
+          }
+        }
 
         const result = await transcribe(cli.ctx, {
           sourcePath,
@@ -134,24 +173,30 @@ export function transcribeCommand(): Command {
           model,
           runId,
           mode: opts.mode as 'auto',
+          ...(assetId ? { assetId } : {}),
           overlapMs: opts.overlapMs as number,
           ...(opts.maxDuration ? { maxDurationMs: (opts.maxDuration as number) * 1000 } : {}),
-          onPlan: (plans) => {
+          onPlan: async (plans) => {
+            // Before any cutting and before any network request.
+            if (persisting) await persistChunks(cli.ctx, runId, plans);
             cli.ctx.logger.info(
               { chunks: plans.length, overlapMs: opts.overlapMs },
               'plan: chunks recorded before any provider request',
             );
           },
-          ...(rawDir
-            ? {
-                onRawResponse: async (idx: number, raw: unknown) => {
-                  await writeFile(
-                    resolve(rawDir, `${String(idx).padStart(3, '0')}.json`),
-                    JSON.stringify(raw, null, 2),
-                  );
-                },
-              }
-            : {}),
+          onRawResponse: async (idx: number, raw: unknown) => {
+            const body = JSON.stringify(raw, null, 2);
+            if (rawDir) {
+              await writeFile(resolve(rawDir, `${String(idx).padStart(3, '0')}.json`), body);
+            }
+            // Archive the untouched provider response, so a disputed transcript can always
+            // be checked against what the provider actually said.
+            if (persisting) {
+              await cli.ctx.store.put(rawResponseKey(runId, idx), Buffer.from(body), {
+                contentType: 'application/json',
+              });
+            }
+          },
         });
 
         // ---- report ------------------------------------------------------------------
@@ -179,6 +224,27 @@ export function transcribeCommand(): Command {
           cli.ctx.logger.warn({ code: warning.code }, warning.message);
         }
 
+        const failedChunks = new Set(
+          result.warnings.filter((w) => w.code === 'chunk_failed').map((w) => w.chunk!),
+        );
+
+        if (persisting && jobId) {
+          const written = await persistResult(cli.ctx, {
+            runId,
+            jobId,
+            segments: result.segments,
+            wordTimingQuality: result.wordTimingQuality,
+            pipeline: { seams: result.seams, warnings: result.warnings },
+            costUsd: result.costUsd,
+            partial: result.partial,
+            failedChunks,
+          });
+          cli.ctx.logger.info(
+            { segments: written.segmentsInserted, words: written.wordsInserted },
+            'persist: written',
+          );
+        }
+
         const transcript: TranscriptJson = buildTranscript({
           runId,
           provider: provider.id,
@@ -192,13 +258,11 @@ export function transcribeCommand(): Command {
           costUsd: result.costUsd,
           partial: result.partial,
           filename,
-          sha256: opts.db === false ? null : await sha256Of(sourcePath),
+          sha256,
           durationMs: result.probe.durationMs,
           format: result.probe.formatName,
           plans: result.plans,
-          failedChunks: new Set(
-            result.warnings.filter((w) => w.code === 'chunk_failed').map((w) => w.chunk!),
-          ),
+          failedChunks,
           seams: result.seams,
           segments: result.segments,
           warnings: result.warnings,

@@ -12,6 +12,40 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+
+    # Postgres and MinIO, matching infra/compose.dev.yml. Without them the constraint
+    # suite and the S3 half of the storage contract skip themselves — and those cover
+    # exactly what a mock cannot: partial unique indexes, CHECK constraints, COPY escaping
+    # and presigned URLs. A suite that silently skips is worse than one that is absent.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: thibi
+          POSTGRES_PASSWORD: thibi
+          POSTGRES_DB: thibi
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U thibi -d thibi"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ROOT_USER: thibi
+          MINIO_ROOT_PASSWORD: thibi-dev-secret
+          MINIO_DEFAULT_BUCKETS: thibi
+        ports: ['9000:9000']
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+
+    env:
+      TEST_DATABASE_URL: postgres://thibi:thibi@localhost:5433/thibi
+      TEST_S3_ENDPOINT: http://localhost:9000
+      TEST_S3_BUCKET: thibi
+      TEST_S3_ACCESS_KEY_ID: thibi
+      TEST_S3_SECRET_ACCESS_KEY: thibi-dev-secret
+
     steps:
       - uses: actions/checkout@v5
 
@@ -35,6 +69,16 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+
+      # The database-backed suites skip themselves when Postgres is unreachable, which is
+      # right for a laptop with no Docker and wrong for CI. Assert they actually ran.
+      - name: Database-backed tests were not skipped
+        run: |
+          if pnpm exec vitest run --project @thibi/db --reporter=json 2>/dev/null \
+             | grep -q '"status":"skipped"'; then
+            echo "::error::The @thibi/db suite skipped — Postgres was not reachable in CI."
+            exit 1
+          fi
 
       # Second line of defence behind the no-restricted-properties rule: an
       # `eslint-disable` comment would be enough to slip process.env back into the engine,

@@ -8,7 +8,17 @@ import { FsObjectStore } from '../fs.js';
 import { MemoryObjectStore } from '../memory.js';
 import { S3ObjectStore } from '../s3.js';
 import { createTempDirPort, toTempFile } from '../tempfile.js';
+import { assertSafeKey } from '../keys.js';
 import { NotSupportedError, ObjectNotFoundError, type ObjectStore } from '../types.js';
+
+function isSafeKey(key: string): boolean {
+  try {
+    assertSafeKey(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * One contract, every adapter.
@@ -90,7 +100,11 @@ const adapters: Adapter[] = [
           const value = Reflect.get(target, prop, receiver) as unknown;
           if (typeof value !== 'function') return value;
           return (...args: unknown[]) => {
-            if (typeof args[0] === 'string') args[0] = prefix + args[0];
+            // Only namespace keys that are already valid. Prefixing an unsafe key would
+            // sanitise it — `/absolute.txt` becomes `test-1/absolute.txt` — and the
+            // adapter would never get the chance to reject it, which is the one thing
+            // that test is checking.
+            if (typeof args[0] === 'string' && isSafeKey(args[0])) args[0] = prefix + args[0];
             return (value as (...a: unknown[]) => unknown).apply(target, args);
           };
         },

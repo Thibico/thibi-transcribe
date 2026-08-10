@@ -59,6 +59,11 @@ export {
 } from './audio/plan.js';
 export { cutChunk, cutChunks } from './audio/cut.js';
 export {
+  ensureNormalized,
+  normalizeUncached,
+  type NormalizedDerivative,
+} from './audio/derivative.js';
+export {
   NORMALIZE,
   PEAK_BUCKETS_PER_SECOND,
   RECIPE_VERSION,
@@ -132,6 +137,14 @@ export {
   type ChunkOutcome,
   type SeamRecord,
 } from './pipeline/asr.js';
+export {
+  createRun,
+  persistChunks,
+  persistResult,
+  type CreateRunInput,
+  type CreateRunResult,
+  type PersistResultInput,
+} from './pipeline/persist.js';
 export {
   transcribe,
   storeNormalized,

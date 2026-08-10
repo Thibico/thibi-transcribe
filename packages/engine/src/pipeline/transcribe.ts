@@ -1,12 +1,11 @@
 import { createReadStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
 import type { RunMode, Segment, Warning, WordTimingQuality } from '@thibi/core';
 import type { ResolvedLanguage } from '@thibi/languages';
 import { chunkKey, toTempFile } from '@thibi/storage';
 import type { EngineContext } from '../context.js';
 import { UnsupportedMediaError } from '../errors.js';
 import { cutChunks } from '../audio/cut.js';
-import { NORMALIZE, RECIPE_VERSION, runNormalize } from '../audio/normalize.js';
+import { ensureNormalized, normalizeUncached } from '../audio/derivative.js';
 import { durationBudgetMs, planChunks, type ChunkPlan } from '../audio/plan.js';
 import { probe, type ProbeResult } from '../audio/probe.js';
 import { detectSilences } from '../audio/silences.js';
@@ -38,6 +37,11 @@ export interface TranscribeInput {
   overlapMs?: number;
   /** The "Try 2 minutes first" affordance Phase 11 calls. */
   maxDurationMs?: number;
+  /**
+   * When present, the normalized derivative is cached against this asset and reused by
+   * every later run. Absent under `--no-db`, where normalization is recomputed each time.
+   */
+  assetId?: string;
   /** Called with each chunk plan before any network request touches it. */
   onPlan?: (plans: readonly ChunkPlan[]) => void | Promise<void>;
   /** Called with the raw provider response per chunk, for archiving. */
@@ -89,13 +93,14 @@ export async function transcribe(
 
   // ---- normalize ---------------------------------------------------------------------
   await using work = await ctx.tmp.dir('thibi-norm-');
-  const normalized = await runNormalize(ctx, input.sourcePath, work.path);
-  const normalizedStat = await stat(normalized.flacPath);
+  const normalized = input.assetId
+    ? await ensureNormalized(ctx, {
+        assetId: input.assetId,
+        sourcePath: input.sourcePath,
+        workDir: work.path,
+      })
+    : await normalizeUncached(ctx, { sourcePath: input.sourcePath, workDir: work.path });
   const normalizedProbe = await probe(ctx, { path: normalized.flacPath });
-  ctx.logger.info(
-    { recipe: RECIPE_VERSION, bytes: normalizedStat.size, kind: NORMALIZE.kind },
-    'normalize: computed',
-  );
 
   let durationMs = normalizedProbe.durationMs ?? probed.durationMs ?? 0;
   if (input.maxDurationMs !== undefined && durationMs > input.maxDurationMs) {
@@ -109,7 +114,7 @@ export async function transcribe(
   const fitsOneRequest =
     probed.durationMs !== null &&
     durationMs <= capabilities.limits.syncMaxSeconds * 1000 &&
-    normalizedStat.size <= capabilities.limits.syncMaxBytes;
+    normalized.bytes <= capabilities.limits.syncMaxBytes;
 
   const mode: RunMode =
     input.mode && input.mode !== 'auto'
@@ -122,7 +127,7 @@ export async function transcribe(
   if (mode === 'sync' && fitsOneRequest) {
     plans = [{ idx: 0, offsetMs: 0, contentStartMs: 0, endMs: durationMs, overlapLeadMs: 0 }];
   } else {
-    const budgetMs = durationBudgetMs(normalizedStat.size, durationMs, {
+    const budgetMs = durationBudgetMs(normalized.bytes, durationMs, {
       maxBytes: capabilities.limits.syncMaxBytes,
       maxMs: capabilities.limits.syncMaxSeconds * 1000,
     });
@@ -169,6 +174,9 @@ export async function transcribe(
   if (convertedCount > 0) {
     ctx.logger.info({ segments: convertedCount }, 'normalize-text: converted Zawgyi');
   }
+
+  // A cache hit downloaded the derivative to a temp file; release it now that chunks are cut.
+  await normalized.dispose?.();
 
   const partial = asr.outcomes.some((o) => o.error);
   const costUsd = (asr.usage.audioMs / 60_000) * provider.costModel(mode).usdPerMinute;

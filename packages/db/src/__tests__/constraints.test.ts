@@ -26,6 +26,30 @@ if (!reachable) {
   );
 }
 
+/**
+ * Assert that a statement was rejected by a specific database constraint.
+ *
+ * Drizzle wraps the driver error in a `DrizzleQueryError`, so the SQLSTATE lives on
+ * `.cause`. Asserting the *constraint name* as well as the code is deliberate: `23505`
+ * only says some unique index fired, and these tests exist to prove that the particular
+ * partial index — the one whose WHERE clause is easy to get wrong — is the one that did.
+ */
+async function expectViolation(
+  promise: Promise<unknown>,
+  code: '23505' | '23514',
+  constraint: string,
+): Promise<void> {
+  let raised: unknown;
+  try {
+    await promise;
+  } catch (err) {
+    raised = err;
+  }
+  expect(raised, 'expected the statement to be rejected, but it succeeded').toBeDefined();
+  const cause = (raised as { cause?: { code?: string; constraint?: string } }).cause ?? raised;
+  expect(cause).toMatchObject({ code, constraint });
+}
+
 describe.skipIf(!reachable)('schema constraints', () => {
   let t: TestDb;
   let runId: string;
@@ -68,7 +92,7 @@ describe.skipIf(!reachable)('schema constraints', () => {
 
   it('rejects a second live segment at the same (run, idx)', async () => {
     const seg = await makeSegment(100);
-    await expect(
+    await expectViolation(
       t.db.insert(segments).values({
         runId,
         idx: 100,
@@ -77,7 +101,9 @@ describe.skipIf(!reachable)('schema constraints', () => {
         text: 'dup',
         textRaw: 'dup',
       }),
-    ).rejects.toMatchObject({ code: '23505' });
+      '23505',
+      'segments_run_idx_live',
+    );
 
     // Superseding the first frees the slot: superseded rows are history, not conflicts.
     await t.db
@@ -92,11 +118,13 @@ describe.skipIf(!reachable)('schema constraints', () => {
   });
 
   it('rejects an inverted segment interval', async () => {
-    await expect(
+    await expectViolation(
       t.db
         .insert(segments)
         .values({ runId, idx: 200, startMs: 500, endMs: 100, text: 'x', textRaw: 'x' }),
-    ).rejects.toMatchObject({ code: '23514' });
+      '23514',
+      'segments_interval',
+    );
   });
 
   /**
@@ -112,11 +140,13 @@ describe.skipIf(!reachable)('schema constraints', () => {
       .insert(segmentTexts)
       .values({ segmentId: seg.id, runId, layer: 'verbatim', origin: 'asr', text: 'first' });
 
-    await expect(
+    await expectViolation(
       t.db
         .insert(segmentTexts)
         .values({ segmentId: seg.id, runId, layer: 'verbatim', origin: 'human', text: 'second' }),
-    ).rejects.toMatchObject({ code: '23505' });
+      '23505',
+      'segment_texts_live',
+    );
   });
 
   it('allows one row per target language and supersession for edits', async () => {
@@ -126,7 +156,7 @@ describe.skipIf(!reachable)('schema constraints', () => {
       { segmentId: seg.id, runId, layer: 'translated', targetLang: 'fr', origin: 'llm', text: 'fr' },
     ]);
     // N target languages = N rows, never new columns.
-    await expect(
+    await expectViolation(
       t.db.insert(segmentTexts).values({
         segmentId: seg.id,
         runId,
@@ -135,18 +165,22 @@ describe.skipIf(!reachable)('schema constraints', () => {
         origin: 'human',
         text: 'edited',
       }),
-    ).rejects.toMatchObject({ code: '23505' });
+      '23505',
+      'segment_texts_live',
+    );
   });
 
   it('requires a translation to name its target, and forbids others from naming one', async () => {
     const seg = await makeSegment(302);
-    await expect(
+    await expectViolation(
       t.db
         .insert(segmentTexts)
         .values({ segmentId: seg.id, runId, layer: 'translated', origin: 'llm', text: 'x' }),
-    ).rejects.toMatchObject({ code: '23514' });
+      '23514',
+      'segment_texts_lang',
+    );
 
-    await expect(
+    await expectViolation(
       t.db.insert(segmentTexts).values({
         segmentId: seg.id,
         runId,
@@ -155,16 +189,20 @@ describe.skipIf(!reachable)('schema constraints', () => {
         origin: 'llm',
         text: 'x',
       }),
-    ).rejects.toMatchObject({ code: '23514' });
+      '23514',
+      'segment_texts_lang',
+    );
   });
 
   it('rejects a chunk whose content start is outside its extracted range', async () => {
-    await expect(
+    await expectViolation(
       t.db.execute(sql`
         insert into run_chunks (run_id, idx, offset_ms, content_start_ms, end_ms)
         values (${runId}, 900, 5000, 1000, 9000)
       `),
-    ).rejects.toMatchObject({ code: '23514' });
+      '23514',
+      'run_chunks_interval',
+    );
   });
 
   describe('copyWords', () => {
@@ -195,7 +233,7 @@ describe.skipIf(!reachable)('schema constraints', () => {
       expect(rows[0]!.confidence).toBeCloseTo(0.9);
     });
 
-    it('inserts 30k rows and answers the low-confidence query from the partial index', async () => {
+    it('inserts 30k rows and answers the low-confidence query from the partial index', { timeout: 30_000 }, async () => {
       const seg = await makeSegment(401);
       const rows = Array.from({ length: 30_000 }, (_, i) => ({
         segmentId: seg.id,
