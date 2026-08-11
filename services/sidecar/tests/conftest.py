@@ -80,11 +80,18 @@ class CannedPipeline:
         delay_s: float = 0.0,
         steps: int = 4,
         on_call: Callable[[], None] | None = None,
+        wrap_output: bool = True,
     ) -> None:
         self.turns = turns if turns is not None else [(0.0, 4.0, "SPEAKER_00"), (4.5, 11.5, "SPEAKER_01")]
         self.delay_s = delay_s
         self.steps = steps
         self.on_call = on_call
+        # pyannote 4.x wraps the Annotation in a DiarizeOutput dataclass; 3.x returns it
+        # bare. Default to the 4.x shape because that is what the image installs, and keep
+        # the bare one reachable so the duck-typing in `run_diarization` is covered both
+        # ways. The first version of this fixture only produced the bare shape, and every
+        # test passed against a shape the real model does not return.
+        self.wrap_output = wrap_output
         self.calls = 0
 
     def to(self, _device: Any) -> "CannedPipeline":
@@ -101,7 +108,21 @@ class CannedPipeline:
                 time.sleep(self.delay_s)
         if hook:
             hook("segmentation", completed=self.steps, total=self.steps)
-        return _Annotation(self.turns)
+        annotation = _Annotation(self.turns)
+        return _DiarizeOutput(annotation) if self.wrap_output else annotation
+
+
+class _DiarizeOutput:
+    """pyannote 4.x's return shape: two Annotations plus embeddings.
+
+    `exclusive_speaker_diarization` is deliberately given *different* turns — the
+    overlap-free view — so a test would fail loudly if the code ever read the wrong field.
+    """
+
+    def __init__(self, annotation: "_Annotation") -> None:
+        self.speaker_diarization = annotation
+        self.exclusive_speaker_diarization = _Annotation([(0.0, 1.0, "WRONG_FIELD")])
+        self.speaker_embeddings = None
 
 
 class _Segment:

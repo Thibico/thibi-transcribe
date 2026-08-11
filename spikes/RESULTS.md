@@ -28,6 +28,12 @@ diarization means pyannote on our own hardware at ~0.6× realtime, and a hosted 
 ASR is a `DiarizationSource` that simply did not exist when that premise was formed. The
 handoff note said to probe it before committing to the sidecar. This is that probe.
 
+S8 ran **2026-08-11**, immediately after the user accepted the third Hugging Face gate,
+and is the first time this project has run its own diarizer on real audio. S6 measured how
+*fast* pyannote is and said in writing that it did not check whether the speakers were
+right; S7 built a reference with millisecond-exact boundaries in order to score a hosted
+model. S8 is those two halves put together.
+
 | id | date | region | model | verdict | evidence | raw |
 |----|------|--------|-------|---------|----------|-----|
 | S1 | 2026-08-09 | asia-southeast1 | chirp_2 | **FAIL — adaptation is inert on Chirp.** Boost 0/10/20 byte-identical; relevant keyterms produced zero lexical change and did not fix the targeted error; an *irrelevant* phrase set corrupted အာဆီယံ → အာစီယံ in all five occurrences. | Never send `config.adaptation` to Chirp. The glossary entity pass in Phase 6 is the *only* entity mechanism for the exclusive-language set, not a supplement. Nothing in the product may promise keyterm biasing on Google. | `raw/s1-*.json` |
@@ -36,6 +42,7 @@ handoff note said to probe it before committing to the sidecar. This is that pro
 | S4 | 2026-08-10 | asia-southeast1 | — | **FAIL then PASS — `roles/storage.objectAdmin` cannot read bucket metadata.** Write 200, delete 204, `storage.buckets.get` **403**, so region and lifecycle were unverifiable and Phase 2 would have refused a correctly configured bucket. After granting `roles/storage.legacyBucketReader`: `ASIA-SOUTHEAST1`, `region`, `STANDARD`, `Delete age=1`. | The remediation in the plan changes from `roles/storage.admin` to `roles/storage.legacyBucketReader`. Fold case before comparing `location`. The Speech service agent needed nothing — a same-project bucket is covered by the project's automatic `roles/speech.serviceAgent`. | — |
 | S5 | 2026-08-10 | — | — | **PASS — the Dynamic Batch rate advantage is real: 5.33×.** `Cloud Speech-to-Text Recognition` $0.016/min against `Cloud Speech-to-Text Dynamic Batch Recognition` $0.003/min, from the Cloud Billing Catalog rather than from documentation. | Batch's one surviving justification holds, so Phase 2 is worth building. Recognition is tiered and Dynamic Batch is flat, so the ratio belongs in the `rates` table, not in code. A `(Logged)` SKU is 25% cheaper in exchange for Google retaining the audio: never a default. | — |
 | S6 | 2026-08-10 | — | pyannote/speaker-diarization-3.1 | **The inherited CPU range was wrong, and diarization is 1.5–4× faster than planned — but still slower than realtime.** 0.56–0.61× over two runs of 25 min of 4-speaker audio (317 turns), and 0.74–0.79× on a 106 s monologue, against a planned 0.15–0.4×. Speaker count costs real time: the monologue is ~25% faster than the multi-speaker file, so **plan with ~0.6×** and treat 0.79× as a single-speaker best case. Run-to-run variance is 6–8%, so nothing here is worth more than two significant figures. | A 1-hour file is **~1 h 40 m**, not 2.5–7 h; a 3-hour file is **~5 h**, not 7.5–20 h. Diarization stays off by default and off the critical path, but it is a slow background job rather than an unusable one, and the GPU tier moves from mandatory to a throughput choice. Every `0.15–0.4×` in the plans is now wrong in the safe direction and is corrected. | `raw/s6-*.json` |
+| S8 | 2026-08-11 | — | pyannote/speaker-diarization-3.1 via pyannote.audio 4.0.7 | **PASS — and it out-scores the hosted model on the same reference.** First accuracy measurement of our own diarizer: **DER 0.4%**, 0.0% confusion, **44 ms median boundary error**, 2 of 2 speakers, 8 turns against 8 — where `gpt-4o-transcribe-diarize` scored 9.2% and 63 ms. On S6's Burmese clip it reproduced S6's segmentation **exactly**: 1 speaker, 21 turns. **But throughput in the container is ~1.5× worse than S6's native figure** — 0.51× against 0.74–0.79× on the identical file. | The S7 write-up's claim that the hosted model out-attributed us is deleted; it was true only because we had never measured. Diarization accuracy is no longer an open question for Phase 5 — thresholds still are. **Do not carry 0.51× into the deployment guide**: it is Docker Desktop on macOS, and the reference box is Linux where containers run natively. | `raw/s8-*.json` |
 | S7 | 2026-08-11 | — | gpt-4o-transcribe-diarize | **FAIL for this product, and the diarization is not why.** Speaker attribution on a constructed 2-speaker reference is good — DER 9.2%, **0% confusion**, 63 ms median boundary error. Everything around it disqualifies it: `language=my` is **rejected outright**; **39 of our 116 seeded locales** have no code the endpoint will accept; `mya` *is* accepted and over **20 identical requests returned 20 different transcripts, 0 in Myanmar script**; a hard **1400 s (23 m 20 s) duration ceiling**; and **no word timings at any granularity**. | Phase 3 proceeds with the pyannote sidecar exactly as planned; §6's "diarization must never gate the transcript" invariant is untouched. Not added as a `DiarizationSource`. The failure is specific to the long tail — for an English-only newsroom this model would be a serious option, which is precisely why the verdict had to be measured per language rather than in general. | `raw/s7-*.json` |
 
 ## S2 per language, over the sample most likely to be missing the word array
@@ -293,10 +300,20 @@ alternative was building a sidecar while a two-line API call might have replaced
 cost was one afternoon and about forty cents.
 
 **Do not read this as "hosted diarization does not work."** For a newsroom working in
-English, Spanish or Hindi, on recordings under 23 minutes, this model is a serious option
-and its speaker attribution is better than anything we have measured on our own hardware.
-The verdict is FAIL *for the 116-locale product*, which is why the language sweep is the
-part of this spike worth keeping.
+English, Spanish or Hindi, on recordings under 23 minutes, this model is a serious option.
+
+*Corrected 2026-08-11, later the same day.* This paragraph originally went on to say its
+speaker attribution was "better than anything we have measured on our own hardware." That
+was true only in the sense that we had never measured our own. Once the Hugging Face gates
+were accepted, pyannote 4.0.7 ran against **this same reference** and scored **DER 0.4%
+with a 44 ms median boundary error**, against the hosted model's 9.2% and 63 ms — better on
+both, by a wide margin on DER. The 9.2% was entirely *miss*: the hosted model clips speech
+at its segment edges, and pyannote does not. See the pyannote row below.
+
+The verdict on the hosted model is unchanged and rests on language coverage, the 1400 s
+ceiling and the absent word timings — not on attribution quality. But the sentence claiming
+it out-attributed us was an unmeasured comparison written into a spike whose entire subject
+is unmeasured comparisons, and it stood for about four hours.
 
 ### What this does not measure
 
@@ -318,6 +335,90 @@ part of this spike worth keeping.
   S6's pyannote run on the same podcast. Recorded as an unknown rather than estimated: a
   synchronous endpoint with no task handle that stops answering is a availability property
   worth knowing about, but three samples on one afternoon do not establish what it is.
+
+## S8 — is our own diarizer any good, and what does the container cost?
+
+Run on **2026-08-11** against the built sidecar image: `pyannote/speaker-diarization-3.1`
+loaded by **pyannote.audio 4.0.7** on **torch 2.13.0+cpu**, CPU, inside Docker Desktop on
+the same i9-8950HK that ran S6. Audio reached it the way the product delivers it — uploaded
+to MinIO, presigned, fetched by the sidecar over the compose network — rather than as a
+local path.
+
+### Accuracy, which S6 explicitly did not measure
+
+Scored by `s7-score.mjs` against `s7-make-2spk.mjs`'s constructed reference, so the number
+is directly comparable to S7's:
+
+| | pyannote 4.0.7 | gpt-4o-transcribe-diarize |
+|---|---|---|
+| speakers found | **2 of 2** | 2 of 2 |
+| turns | **8, against 8 in the reference** | 12 segments |
+| confusion | **0.0%** | 0.0% |
+| miss | **0.4%** | 9.2% |
+| **DER** (no collar, no overlap) | **0.4%** | 9.2% |
+| boundary error | **median 44 ms**, max 79 ms | median 63 ms, max 84 ms |
+
+The hosted model's entire error was *miss* — it clips speech at its own segment edges.
+pyannote's turns land on the reference almost exactly.
+
+**This is what corrects S7.** That write-up said the hosted model's attribution was "better
+than anything we have measured on our own hardware", which was true only in the sense that
+we had measured nothing. On the same clip, scored by the same script, ours is better.
+
+Two speakers of macOS TTS with silence between turns is a floor on difficulty, so this is
+not evidence about a real interview with crosstalk. It is enough to retire the question of
+whether the reconciler is being fed something sane.
+
+### Throughput, and why the number here is not a deployment number
+
+| clip | speakers · turns | S6, native, pyannote 3.3.2 | S8, container, pyannote 4.0.7 |
+|---|---|---|---|
+| `en-2spk.flac`, 33.6 s | 2 · 8 | — | **0.43×** |
+| `asean-myanmar`, 105.9 s | 1 · 21 | **0.74–0.79×** | **0.51×** |
+
+The Burmese clip is a controlled comparison — same file, same machine, same speaker and turn
+counts out — and the container is **~1.5× slower**. That is Docker Desktop's virtualisation
+on macOS, where every container runs inside a Linux VM. On the Linux reference box a
+container is native and this overhead does not exist.
+
+**So 0.51× must not be quoted anywhere.** S6's ~0.6× planning figure stands, and the honest
+statement remains the one S6 already made: re-measure on the deployment host. What S8 adds
+is that a developer running the sidecar on a Mac should expect roughly half the throughput
+of the eventual server, and should not read that as a regression.
+
+The 33.6 s clip's 0.43× is lower again, which is fixed overhead amortising over a short
+file rather than a separate effect. Neither figure is worth more than two significant
+digits; S6 measured 6–8% run-to-run variance and nothing here was run twice.
+
+### The two defects this found, both invisible to the test suite
+
+Both were caught by the first real run and neither could have been caught by the canned
+pipeline the pytest suite uses.
+
+- **`'DiarizeOutput' object has no attribute 'itertracks'`.** pyannote 3.x returns an
+  `Annotation`; **4.x returns a `DiarizeOutput` dataclass** holding two of them. The fixture
+  returned the 3.x shape, so 30 tests passed against a shape the installed model does not
+  produce. Now duck-typed, and the fixture returns the 4.x shape by default with the 3.x one
+  still reachable.
+  - The field to read is **`speaker_diarization`**, never `exclusive_speaker_diarization`.
+    The second is pyannote's overlap-free convenience view, and taking it would silently
+    discard what `reconcile.ts` is built around. The test fixture puts a sentinel speaker in
+    the wrong field so that reading it fails loudly.
+- **Progress ran 0% → 100% → 0% → 33% → 67% → 100%.** pyannote's `ProgressHook` reports
+  `completed`/`total` *per stage* and restarts the count at each one. A percentage that goes
+  backwards tells an operator the job restarted. There is no honest overall figure available
+  — the stage list and its relative costs are not known in advance — so `progress` is now
+  documented as within-step and `TaskStatus` carries a `step` name beside it.
+
+### What this still does not measure
+
+- **Accuracy on real multi-microphone audio, or in any long-tail language.** The reference
+  is TTS. Nothing has ever scored diarization on Burmese, and there is no RTTM to score
+  against — that is an open question for the user, not work that can be scheduled.
+- **Throughput on the deployment host.** See above.
+- **Anything above 106 s.** The 25-minute podcast S6 ran was not repeated here; at 0.51× it
+  would take about 50 minutes.
+- **GPU.** Still the inherited, unmeasured 8–20×.
 
 ## Reproducing
 
@@ -347,6 +448,12 @@ node spikes/s7-hosted-diarization.mjs OUTDIR [probe...]
 node spikes/s7-score.mjs OUTDIR/en-2spk.truth.json OUTDIR/s7-en-2spk.json
 node spikes/s7-language-sweep.mjs   OUTDIR      # 142 codes, one request each
 node spikes/s7-mya-stability.mjs    OUTDIR 10   # the 20-run distribution
+
+# S8 needs the sidecar up and its three Hugging Face gates accepted. Run from
+# packages/storage, whose node_modules carries the AWS SDK the script imports.
+docker compose --env-file .env -f infra/compose.dev.yml --profile diarize up -d sidecar
+(cd packages/storage && node ../../spikes/s8-run-sidecar.mjs OUTDIR en-2spk.flac a-key)
+node spikes/s7-score.mjs OUTDIR/en-2spk.truth.json OUTDIR/scored-pyannote.json
 ```
 
 S7's longer inputs are **not committed** — a 25-minute podcast and a 106 s Burmese news clip

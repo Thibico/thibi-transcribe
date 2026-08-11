@@ -326,6 +326,25 @@ class TestResult:
         assert len(turns) == 3
         assert [t["speaker"] for t in turns] == ["SPEAKER_00", "SPEAKER_01", "SPEAKER_00"]
 
+    def test_reads_speaker_diarization_and_not_the_overlap_free_view(
+        self, make_client: Any, audio_server: str
+    ) -> None:
+        # pyannote 4.x hands back both. `exclusive_speaker_diarization` has overlapping
+        # speech removed, and taking it would silently discard what reconcile is built
+        # around. The fixture puts a sentinel speaker in the wrong field.
+        client = make_client(CannedPipeline([(0.0, 4.0, "SPEAKER_00")]))
+        submitted = client.post("/v1/diarize", json=body(audio_server))
+        turns = wait_for(client, submitted.json()["task_id"], "succeeded")["result"]["turns"]
+        assert [t["speaker"] for t in turns] == ["SPEAKER_00"]
+
+    def test_accepts_the_bare_annotation_that_pyannote_3_returns(
+        self, make_client: Any, audio_server: str
+    ) -> None:
+        client = make_client(CannedPipeline([(0.0, 4.0, "SPEAKER_00")], wrap_output=False))
+        submitted = client.post("/v1/diarize", json=body(audio_server))
+        turns = wait_for(client, submitted.json()["task_id"], "succeeded")["result"]["turns"]
+        assert [t["speaker"] for t in turns] == ["SPEAKER_00"]
+
     def test_progress_is_reported_while_running(self, make_client: Any, audio_server: str) -> None:
         # Without this an operator watches nothing happen for an hour and forty minutes.
         client = make_client(CannedPipeline(delay_s=0.05, steps=20))

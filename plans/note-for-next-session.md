@@ -15,7 +15,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 0 — spikes, monorepo, language registry | done |
 | 1 — engine core, Google sync, CLI | done |
 | 2 — batchRecognize, GCS staging, rates | done |
-| **3 — diarization** | **everything buildable is built.** Two Definition-of-done items are open and both need a human: Scribe needs an ElevenLabs key, the contract test needs a Hugging Face gate accepted |
+| **3 — diarization** | **everything buildable is built, and the diarizer has now run on real audio** (S8: DER 0.4%). Two things remain: `scribe.ts` needs an ElevenLabs key, and the contract test needs the presign gap in amendment 43 closed first |
 | **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b unblocked** — the sidecar image it needed exists |
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
@@ -36,15 +36,21 @@ separately (see *Known debt*).
 
 Then, in preference order:
 
-1. **Answer open question 1 — accept the third Hugging Face gate.** It is a two-minute
-   click and it unblocks *four* separate things: the sidecar's loaded path, the contract
-   test, the first real diarization of real audio, and the only honest realtime-factor
-   number this project will ever have for its own hardware. Nothing else in the tree is
-   blocked on so little.
-2. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
+1. **Close the presign gap — amendment 43.** SigV4 signs the `Host` header, so a URL minted
+   by the CLI on a laptop against `localhost:9000` is rejected 403 when the sidecar fetches
+   it as `minio:9000`. Phase 3 §1 assumed the engine runs inside compose; the CLI does not.
+   `S3ObjectStore` takes a `signingClient`, but its doc and every caller point it at the
+   *public* URL for Phase 10, and `apps/cli/src/context.ts` sets neither. **Until this is
+   wired up, a local `thibi transcribe --diarize` cannot reach the audio** — which also
+   means the sidecar contract test cannot be written against a real run. Small, and it
+   blocks the last unfinished thing in the phase.
+2. **The sidecar contract test**, immediately after. `/v1/tasks/by-key/{key}` exists so the
+   deterministic-id claim is checkable from outside, and S8's `spikes/s8-run-sidecar.mjs`
+   already drives the whole path — it is most of the test with the assertions missing.
+3. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
    built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
    `asr.py` is a 501 stub waiting for exactly that.
-3. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
+4. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
    has *two* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, and
    S7's 68 accepted-but-unmeasured language codes. `thibi diarize score` also exists now, so
    Phase 5 can tune `reconcile.ts`'s five chosen-not-measured thresholds the moment somebody
@@ -149,26 +155,21 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 
 ## Open questions the user has to answer
 
-1. **Accept `pyannote/speaker-diarization-community-1` on Hugging Face** with the account that
-   owns `HF_TOKEN` — https://huggingface.co/pyannote/speaker-diarization-community-1. The
-   other two gates are already accepted; this third one is new in pyannote 4.x and its name
-   appears nowhere in the model id we configure. **The highest-value two minutes available in
-   this repo:** it unblocks the sidecar's loaded path, the contract test, the first real
-   diarization, and the realtime factor.
-2. **Typical recording length and deadline pressure** for the target newsrooms. Decides whether
+1. **Typical recording length and deadline pressure** for the target newsrooms. Decides whether
    a 1 h 38 m diarization wait is acceptable, and therefore whether the GPU tier is a
    requirement or an upsell. S7 removed the escape hatch, so this is unavoidable now.
-3. **Is there a real multi-speaker recording in one of the long-tail languages** we can use as
-   a diarization reference? `thibi diarize score` is built and needs an RTTM. S7 scored English
-   TTS with constructed boundaries, which is a floor on difficulty; nothing has ever measured
-   diarization *accuracy* on Burmese.
-4. **Is an ElevenLabs Scribe key worth getting?** It is the documented answer to "this box
+2. **Is there a real multi-speaker recording in one of the long-tail languages** we can use as
+   a diarization reference? Now the most valuable open question of the five. `thibi diarize
+   score` is built and needs an RTTM. S8 scored two macOS TTS voices with silence between
+   turns — a floor on difficulty, not evidence about an interview with crosstalk — and
+   nothing has ever measured diarization accuracy on Burmese or on real multi-mic audio.
+3. **Is an ElevenLabs Scribe key worth getting?** It is the documented answer to "this box
    cannot run pyannote", and `scribe.ts` is one of the two open Definition-of-done items. Its
    cost and duration cap are also unconfirmed (Phase 3 open question 7). If the answer is no,
    say so and the plan should stop promising it.
-5. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
+4. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
    against the Dynamic Batch SKU rather than Recognition. Needs a real invoice. Phase 14.
-6. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
+5. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
    audio-seconds/hour; the docs describe 300 RPM and 200k ASH. A Phase 5 sweep exhausts the
    measured budget long before the documented one.
 
@@ -177,16 +178,24 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 ## Known debt, recorded not hidden
 
 - **Phase 3's two open Definition-of-done items**: `scribe.ts` (no ElevenLabs key) and the
-  sidecar contract test (needs the gate). Both are recorded as unchecked in
-  [`phase-03-diarization.md`](./phase-03-diarization.md) rather than dropped.
-- **No real audio has ever been diarized.** The rename-survives-re-diarization demo was run
-  through the built CLI against a stand-in that speaks the sidecar's §1 HTTP contract, with a
-  seeded run in the dev database. Everything in that sequence is the real implementation
-  except the source of the turns.
+  sidecar contract test (blocked on amendment 43's presign gap, not on the gate any more).
+  Both are recorded as unchecked in [`phase-03-diarization.md`](./phase-03-diarization.md)
+  rather than dropped.
+- **The container's 0.51× realtime is a macOS artifact, not a deployment number.** Docker
+  Desktop runs every container inside a Linux VM; S6's native 0.74–0.79× on the identical
+  file is ~1.5× faster. On the Linux reference box a container is native. S6's ~0.6× planning
+  figure stands and still wants re-measuring on the deployment host.
+- **Real audio has now been diarized (S8), but not through the CLI.** Two macOS TTS voices
+  and one Burmese monologue, both under two minutes, driven straight at the sidecar's HTTP
+  API by `spikes/s8-run-sidecar.mjs`. The rename-survives-re-diarization demo is still the
+  one run against a stand-in speaking the §1 contract — everything in that sequence is the
+  real implementation except the source of the turns, and it stays that way until the
+  presign gap above is closed.
 - **The estimate shown before a diarization is still S6's 0.6× constant.** Phase 3 §6 item 4
   asks for the mean of the last five `diarization_runs.realtime_factor` on this instance. The
-  column is written on every successful run; averaging one stand-in's canned 0.6× would be a
-  fiction dressed as a measurement, so the constant stays until real runs exist.
+  sidecar now reports a real factor and `/health` medians it, but no run has reached the
+  `diarization_runs` table through the CLI yet, so the column the estimate reads is still
+  empty. Closing the presign gap closes this too.
 - **`persistDiarization` is not idempotent per run.** Calling it twice for the same run
   inserts a second `diarization_runs` row and re-attributes the same segments. That is honest
   — each call *was* an attempt — but nothing dedupes, and Phase 9's retry loop will need to

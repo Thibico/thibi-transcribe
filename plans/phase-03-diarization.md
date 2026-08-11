@@ -143,7 +143,16 @@ belt-and-braces because the failure mode is an OOM kill, not an error message.
 
 **Audio arrives as an internally-presigned MinIO URL.** Minted by the engine with the `s3` client
 at `http://minio:9000` — *not* `s3Public` through Caddy; the sidecar is on the compose network and
-has no business traversing the reverse proxy. TTL is `min(6 h, deadline + 30 min)`. The sidecar
+has no business traversing the reverse proxy.
+
+> *Amended 2026-08-11, measured.* This sentence assumes the engine also runs inside compose, and
+> the CLI does not. SigV4 signs the `Host` header, so a URL minted on a developer's laptop against
+> `localhost:9000` comes back **403 `audio_unreachable`** the moment the sidecar requests it as
+> `minio:9000` — which is exactly what happened on the first real run. There are **two** presign
+> audiences: the sidecar on the internal network, and (Phase 10) a browser through Caddy.
+> `S3ObjectStore` already takes a `signingClient` for the second; nothing supplies one for the
+> first, and `apps/cli/src/context.ts` sets neither. Overview amendment 43. Until it is wired up,
+> a local `thibi transcribe --diarize` cannot reach the sidecar's audio. TTL is `min(6 h, deadline + 30 min)`. The sidecar
 streams to `/tmp/<task_id>.flac`, checks `Content-Length` and the ffprobe duration against
 `expected_duration_ms` within ±1 s, and treats a mismatch as `bad_audio` rather than diarizing half
 a file in silence. The temp file is removed in a `finally`, on every path, asserted by a test.
@@ -763,9 +772,14 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 > *"diarization must never gate the transcript"* to be re-reasoned is not becoming a source.
 >
 > Read this as a verdict about **this product**, not about hosted diarization. For an
-> English-language newsroom on sub-23-minute recordings it would be a serious option, and its
-> attribution beats anything measured here on our own hardware. That is why the language sweep,
-> rather than the DER, is the part of S7 worth keeping.
+> English-language newsroom on sub-23-minute recordings it would be a serious option. That is
+> why the language sweep, rather than the DER, is the part of S7 worth keeping.
+>
+> *Corrected later the same day:* this originally added "and its attribution beats anything
+> measured here on our own hardware", which was true only because nothing had been measured
+> here. pyannote 4.0.7 against the same reference scores **DER 0.4% / 44 ms**, against the
+> hosted model's **9.2% / 63 ms**. The hosted model's error is all *miss* — it clips speech
+> at segment edges. Our own diarizer is the more accurate one.
 
 
 1. **pyannote 3.1 is a gated Hugging Face model.** Accepting the terms and supplying `HF_TOKEN` is a
