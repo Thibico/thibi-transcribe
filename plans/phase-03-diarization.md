@@ -522,16 +522,26 @@ create table speaker_turns (
 );
 create index on speaker_turns (diarization_run_id, start_ms);
 
+-- Amended 2026-08-11. These four columns already exist: Phase 1 created them in
+-- 0000_init.sql with a `-- FK added in Phase 3` note, so 0003_speakers.sql adds only the
+-- two foreign keys and the review index. `create index on words (segment_id, idx)` is
+-- likewise already there, as the UNIQUE index `words_segment_idx`.
 alter table segments
-  add column speaker_id           uuid references speakers(id),
-  add column speaker_purity       real,
-  add column needs_speaker_review boolean not null default false;
+  add constraint segments_speaker_id_speakers_id_fk
+  foreign key (speaker_id) references speakers(id) on delete set null;
 alter table words
-  add column speaker_id uuid references speakers(id);
+  add constraint words_speaker_id_speakers_id_fk
+  foreign key (speaker_id) references speakers(id) on delete set null;
 
-create index on segments (run_id) where needs_speaker_review;
-create index on words (segment_id, idx);
+create index segments_needs_speaker_review on segments (run_id, idx)
+  where needs_speaker_review;
 ```
+
+`on delete set null`, not `cascade`. Deleting a speaker must orphan the *attribution*,
+never the transcript — the text is what the user came for, and a cascade here would delete
+a segment because somebody tidied up a speaker list. The same applies to
+`speaker_turns.speaker_id`, where it additionally keeps `raw_key` readable after the
+mapping is gone.
 
 `speakers.job_id`, not `run_id`, is the decision worth defending. A re-run creates a new `runs` row
 and a new `diarization_runs` row, but *"Speaker 01 is Daw Khin"* is a fact about the recording, not
