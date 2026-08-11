@@ -1,0 +1,23 @@
+{
+  "name": "gap-no-turn",
+  "why": "Two words in the silence between turns, on either side of the 500 ms nearestGapMs threshold. w0 is 200 ms past A's turn and is attached by proximity with margin 0 — a guess, marked as one. w1 is 1000 ms from A and 600 ms from B, beyond reach of both, and gets a NULL speaker rather than the closer of two bad answers. Never silently attribute.",
+  "turns": [
+    { "startMs": 0, "endMs": 4000, "speakerKey": "SPEAKER_00" },
+    { "startMs": 6100, "endMs": 8000, "speakerKey": "SPEAKER_01" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 4200, "endMs": 5500, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 4200, "endMs": 4400, "text": "mm" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 5000, "endMs": 5500, "text": "[inaudible]" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w0", "speakerKey": "SPEAKER_00", "margin": 0, "source": "nearest" },
+      { "wordId": "w1", "speakerKey": null, "margin": 0, "source": "none" }
+    ],
+    "unassigned": 1,
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purityApprox": 0.2857, "needsReview": true, "source": "words" }
+    ]
+  }
+}

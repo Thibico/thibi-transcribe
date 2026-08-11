@@ -22,6 +22,13 @@
       "when": 1786370085610,
       "tag": "0002_ingest_batch_key",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786449045237,
+      "tag": "0003_speakers",
+      "breakpoints": true
     }
   ]
 }

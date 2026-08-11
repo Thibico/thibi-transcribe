@@ -1,0 +1,21 @@
+{
+  "name": "interjection-long-but-uncertain",
+  "why": "Isolates the DURATION guard. Margin is 0.20, far below the 0.6 margin guard, so only the 700 ms duration stands between a real utterance and a flip. Delete `if (words[i].endMs - words[i].startMs >= o.medianDurationMaxMs) continue` and this is the fixture that fails.",
+  "turns": [
+    { "startMs": 0, "endMs": 2280, "speakerKey": "SPEAKER_00" },
+    { "startMs": 2280, "endMs": 3000, "speakerKey": "SPEAKER_01" },
+    { "startMs": 3000, "endMs": 5000, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1400, "endMs": 3600, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1400, "endMs": 1900, "text": "when?" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 2000, "endMs": 2700, "text": "Nineteen-eighty-eight." },
+    { "id": "w2", "segmentId": "s0", "idx": 2, "startMs": 3100, "endMs": 3600, "text": "Right" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w1", "speakerKey": "SPEAKER_01", "margin": 0.2, "source": "overlap" }
+    ],
+    "medianFlips": 0
+  }
+}

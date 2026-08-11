@@ -14,6 +14,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { runChunks, runs } from './runs.js';
+import { speakers } from './speakers.js';
 
 export const segments = pgTable(
   'segments',
@@ -46,7 +47,12 @@ export const segments = pgTable(
     /** false ⇒ every consumer must use the interpolation fallback, and say that it did. */
     hasWords: boolean('has_words').notNull().default(false),
 
-    speakerId: uuid('speaker_id'), // FK added in Phase 3
+    /**
+     * `set null` rather than `cascade`: deleting a speaker must orphan the attribution,
+     * never the transcript. The text is what the user came for.
+     */
+    speakerId: uuid('speaker_id').references(() => speakers.id, { onDelete: 'set null' }),
+    /** Fraction of the segment's word-duration belonging to `speaker_id`. See reconcile §3. */
     speakerPurity: doublePrecision('speaker_purity'),
     needsSpeakerReview: boolean('needs_speaker_review').notNull().default(false),
 
@@ -67,6 +73,15 @@ export const segments = pgTable(
       .on(t.runId, t.idx)
       .where(sql`${t.supersededAt} is null`),
     index('segments_run_start').on(t.runId, t.startMs),
+    /**
+     * The editor's review queue. Partial, because on a good run almost nothing is flagged
+     * and a full index would be mostly `false`. Every `has_words = false` segment lands
+     * here unconditionally, so on a Chirp long-tail run this is *most* of the table — which
+     * is the honest shape of that path, not a bug in it.
+     */
+    index('segments_needs_speaker_review')
+      .on(t.runId, t.idx)
+      .where(sql`${t.needsSpeakerReview}`),
     check('segments_interval', sql`${t.startMs} <= ${t.endMs}`),
   ],
 );
@@ -101,7 +116,8 @@ export const words = pgTable(
      * (spike S2): Google chirp_2 does populate this, with genuine per-word variance.
      */
     confidence: doublePrecision('confidence'),
-    speakerId: uuid('speaker_id'),
+    /** Written for every word, not just the segment — see Phase 3 open question 6. */
+    speakerId: uuid('speaker_id').references(() => speakers.id, { onDelete: 'set null' }),
 
     /**
      * True only when a provider gave coarse real timings we refined (Phase 4). Phase 1

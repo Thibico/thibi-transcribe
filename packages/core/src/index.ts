@@ -59,3 +59,5 @@ export {
   type ScriptIntegrity,
   type ScriptRanges,
 } from './metrics/script.js';
+
+export { assignmentCost, hungarian, type Assignment } from './algo/hungarian.js';

@@ -1,0 +1,28 @@
+{
+  "name": "flicker-single-word",
+  "why": "The artefact the median filter exists for. A 180 ms token sits across a turn edge and picks up the wrong speaker by 117 ms to 63 ms — margin 0.30 — with a confident A on either side. Both guards pass, so it flips.",
+  "turns": [
+    { "startMs": 0, "endMs": 2063, "speakerKey": "SPEAKER_00" },
+    { "startMs": 2063, "endMs": 2400, "speakerKey": "SPEAKER_01" },
+    { "startMs": 2400, "endMs": 5000, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1500, "endMs": 2900, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1500, "endMs": 1900, "text": "the" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 2000, "endMs": 2180, "text": "of" },
+    { "id": "w2", "segmentId": "s0", "idx": 2, "startMs": 2500, "endMs": 2900, "text": "river" }
+  ],
+  "expect": {
+    "beforeSmoothing": [
+      { "wordId": "w1", "speakerKey": "SPEAKER_01", "margin": 0.3, "source": "overlap" }
+    ],
+    "words": [
+      { "wordId": "w0", "speakerKey": "SPEAKER_00", "source": "overlap" },
+      { "wordId": "w1", "speakerKey": "SPEAKER_00", "source": "median" },
+      { "wordId": "w2", "speakerKey": "SPEAKER_00", "source": "overlap" }
+    ],
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": false, "source": "words" }
+    ]
+  }
+}

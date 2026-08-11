@@ -522,16 +522,26 @@ create table speaker_turns (
 );
 create index on speaker_turns (diarization_run_id, start_ms);
 
+-- Amended 2026-08-11. These four columns already exist: Phase 1 created them in
+-- 0000_init.sql with a `-- FK added in Phase 3` note, so 0003_speakers.sql adds only the
+-- two foreign keys and the review index. `create index on words (segment_id, idx)` is
+-- likewise already there, as the UNIQUE index `words_segment_idx`.
 alter table segments
-  add column speaker_id           uuid references speakers(id),
-  add column speaker_purity       real,
-  add column needs_speaker_review boolean not null default false;
+  add constraint segments_speaker_id_speakers_id_fk
+  foreign key (speaker_id) references speakers(id) on delete set null;
 alter table words
-  add column speaker_id uuid references speakers(id);
+  add constraint words_speaker_id_speakers_id_fk
+  foreign key (speaker_id) references speakers(id) on delete set null;
 
-create index on segments (run_id) where needs_speaker_review;
-create index on words (segment_id, idx);
+create index segments_needs_speaker_review on segments (run_id, idx)
+  where needs_speaker_review;
 ```
+
+`on delete set null`, not `cascade`. Deleting a speaker must orphan the *attribution*,
+never the transcript — the text is what the user came for, and a cascade here would delete
+a segment because somebody tidied up a speaker list. The same applies to
+`speaker_turns.speaker_id`, where it additionally keeps `raw_key` readable after the
+mapping is gone.
 
 `speakers.job_id`, not `run_id`, is the decision worth defending. A re-run creates a new `runs` row
 and a new `diarization_runs` row, but *"Speaker 01 is Daw Khin"* is a fact about the recording, not
@@ -712,17 +722,36 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 
 ## Risks and open questions
 
-> **Added 2026-08-11, from Phase 4a — probe `gpt-4o-transcribe-diarize` before committing to the
-> sidecar as the only path.** OpenAI's speech-to-text docs (read 2026-08-11) describe a
-> `gpt-4o-transcribe-diarize` model returning a `diarized_json` format. This document is built on
-> the premise that diarization means pyannote on our own hardware at ~1 h 40 m per audio-hour on
-> CPU — spike S6 measured that — and a hosted diarizing ASR is a `DiarizationSource` that simply
-> did not exist when the premise was formed. Nothing about it is measured yet: no language
-> coverage, no quality, no price, and in particular no evidence either way for the 44-language set
-> that is the whole product. It is one probe run, and it is cheap relative to building the wrong
-> thing. Note also that it would not satisfy §6's invariant for free — a diarizing ASR replaces
-> the transcript rather than annotating one, so "diarization must never gate the transcript" needs
-> re-reasoning if it becomes a source.
+> **Settled 2026-08-11 by spike [S7](../spikes/RESULTS.md#s7--is-a-hosted-diarizing-asr-an-alternative-to-running-pyannote-ourselves)
+> — `gpt-4o-transcribe-diarize` is not being added, and nothing in this document changes.**
+>
+> Phase 4a spotted the model in OpenAI's docs and wrote the probe here as a day-one decision,
+> because if it worked most of this phase would have been unnecessary. It was run before any
+> Phase 3 code was written. The result splits cleanly in two, and the split is the point.
+>
+> **The diarization is good.** Against a constructed two-speaker reference with
+> millisecond-exact boundaries: 2 of 2 speakers, **0.0% confusion**, DER 9.2% (all of it miss),
+> **63 ms median boundary error**. The model is not the problem.
+>
+> **Everything around it lands on the long tail.** `language=my` is HTTP 400,
+> *"Language code 'my' is not recognized"*. A 142-code sweep found **39 of our 116 seeded
+> locales have no code the endpoint will accept at all** — Khmer, Lao, Pashto, Punjabi,
+> Sinhala, Uzbek, Cebuano, Sorani and most of the African set among them. `mya` *is* accepted,
+> and 20 identical requests on the 2 s Burmese clip returned **20 distinct transcripts, none in
+> Myanmar script** — one earlier single request had come back in correct Myanmar script, which
+> is exactly the trap a one-shot probe falls into. There is a hard **1400 s (23 m 20 s)
+> duration ceiling**, so a one-hour interview cannot go through it in any language. And it
+> returns **no word timings at any granularity** — `timestamp_granularities[]=word` is accepted
+> and silently ignored — so it would live permanently on §3 step 4's `intervalFallback` path,
+> which is flagged for human review unconditionally.
+>
+> §6's invariant is therefore untouched: the diarizing ASR that would have forced
+> *"diarization must never gate the transcript"* to be re-reasoned is not becoming a source.
+>
+> Read this as a verdict about **this product**, not about hosted diarization. For an
+> English-language newsroom on sub-23-minute recordings it would be a serious option, and its
+> attribution beats anything measured here on our own hardware. That is why the language sweep,
+> rather than the DER, is the part of S7 worth keeping.
 
 
 1. **pyannote 3.1 is a gated Hugging Face model.** Accepting the terms and supplying `HF_TOKEN` is a

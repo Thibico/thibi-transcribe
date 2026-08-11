@@ -1,0 +1,21 @@
+{
+  "name": "interjection-short-but-certain",
+  "why": "Isolates the MARGIN guard. The word is 200 ms, well under the 400 ms duration guard, so only the margin of 0.95 stands between a genuine short interjection and being eaten. Delete `if (cur.margin >= o.medianMarginMax) continue` and this fixture is the one that fails.",
+  "turns": [
+    { "startMs": 0, "endMs": 2005, "speakerKey": "SPEAKER_00" },
+    { "startMs": 2005, "endMs": 2400, "speakerKey": "SPEAKER_01" },
+    { "startMs": 2400, "endMs": 5000, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1500, "endMs": 3000, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1500, "endMs": 1900, "text": "agree?" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 2000, "endMs": 2200, "text": "No." },
+    { "id": "w2", "segmentId": "s0", "idx": 2, "startMs": 2600, "endMs": 3000, "text": "Then" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w1", "speakerKey": "SPEAKER_01", "margin": 0.95, "source": "overlap" }
+    ],
+    "medianFlips": 0
+  }
+}

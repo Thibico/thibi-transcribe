@@ -1,0 +1,24 @@
+{
+  "name": "rediarize-new-speaker",
+  "why": "A fourth voice appears in the re-run — someone who was not diarized out the first time — and it happens to share 1200 ms with a named prior speaker. That is below the 2000 ms identity floor, so it must mint a NEW speaker rather than inherit the name. A wrong identity carry-over is worse than an extra speaker row: a human already put a real name on the old one, and from the transcript the mistake is invisible.",
+  "prior": [
+    { "speakerId": "spk-daw-khin", "key": "speaker-00", "intervals": [[0, 30000]] },
+    { "speakerId": "spk-u-maung", "key": "speaker-01", "intervals": [[30000, 60000]] },
+    { "speakerId": "spk-interviewer", "key": "speaker-02", "intervals": [[60000, 90000]] }
+  ],
+  "fresh": [
+    { "key": "SPEAKER_00", "intervals": [[0, 29000]] },
+    { "key": "SPEAKER_01", "intervals": [[30500, 60000]] },
+    { "key": "SPEAKER_02", "intervals": [[60000, 89000]] },
+    { "key": "SPEAKER_03", "intervals": [[89000, 90200]] }
+  ],
+  "expect": {
+    "mapping": {
+      "SPEAKER_00": "spk-daw-khin",
+      "SPEAKER_01": "spk-u-maung",
+      "SPEAKER_02": "spk-interviewer"
+    },
+    "unmatchedFresh": ["SPEAKER_03"],
+    "note": "SPEAKER_03 overlaps spk-interviewer by 1200 ms, under the max(2000 ms, 0.2 x min) floor."
+  }
+}

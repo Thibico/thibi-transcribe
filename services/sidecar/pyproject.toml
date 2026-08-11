@@ -1,0 +1,26 @@
+[project]
+name = "thibi-sidecar"
+version = "0.1.0"
+description = "Diarization (Phase 3) and faster-whisper ASR (Phase 4b) for thibi-transcribe"
+requires-python = ">=3.11"
+
+# pyannote and torch are NOT here. They are installed in the Dockerfile, because the test
+# suite must run without them: the routes, the registry, the idempotency, the single slot
+# and the temp-file cleanup are all testable against a canned pipeline, and requiring a
+# 2 GB dependency plus a gated model download to assert that a second key gets a 429 would
+# mean nobody runs the tests.
+dependencies = [
+    "fastapi>=0.115",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+    "uvicorn[standard]>=0.31",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.3", "httpx>=0.27"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The suite shells out to ffmpeg and binds a real socket; both are deliberate. See
+# tests/conftest.py.
+addopts = "-q"

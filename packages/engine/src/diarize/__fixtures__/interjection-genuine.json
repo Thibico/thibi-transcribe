@@ -1,0 +1,26 @@
+{
+  "name": "interjection-genuine",
+  "why": "The regression test that matters most. B genuinely interjects for 620 ms inside A's turn — in an interview a one-word answer is very often the most quotable thing in the file. Margin 0.90 and duration 620 ms, so BOTH guards independently refuse the flip. Fixtures interjection-short-but-certain and interjection-long-but-uncertain isolate them one at a time. The segment purity lands at 1100/1720 = 0.64, just ABOVE the 0.6 review threshold, so this segment is NOT flagged even though a second speaker genuinely spoke inside it: 0.6 was chosen, not measured, and this is the first concrete case showing what it lets through. Phase 5 tunes it against RTTM; recorded here so the number is visible rather than assumed.",
+  "turns": [
+    { "startMs": 0, "endMs": 2031, "speakerKey": "SPEAKER_00" },
+    { "startMs": 2031, "endMs": 2650, "speakerKey": "SPEAKER_01" },
+    { "startMs": 2650, "endMs": 5000, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1400, "endMs": 3400, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1400, "endMs": 1900, "text": "correct?" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 2000, "endMs": 2620, "text": "Yes." },
+    { "id": "w2", "segmentId": "s0", "idx": 2, "startMs": 2800, "endMs": 3400, "text": "And" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w0", "speakerKey": "SPEAKER_00", "source": "overlap" },
+      { "wordId": "w1", "speakerKey": "SPEAKER_01", "margin": 0.9, "source": "overlap" },
+      { "wordId": "w2", "speakerKey": "SPEAKER_00", "source": "overlap" }
+    ],
+    "medianFlips": 0,
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purityApprox": 0.6395, "needsReview": false, "source": "words" }
+    ]
+  }
+}

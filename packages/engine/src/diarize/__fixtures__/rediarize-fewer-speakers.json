@@ -1,0 +1,21 @@
+{
+  "name": "rediarize-fewer-speakers",
+  "why": "The re-run finds two speakers where the last found three — a quieter participant clustered away. The third prior speaker keeps its row and its name, unmatched, rather than being deleted. Unmatched prior speakers are never removed: the name is a fact about the recording, and a diarizer having a worse day is not evidence that the person was not there.",
+  "prior": [
+    { "speakerId": "spk-daw-khin", "key": "speaker-00", "intervals": [[0, 30000]] },
+    { "speakerId": "spk-u-maung", "key": "speaker-01", "intervals": [[30000, 60000]] },
+    { "speakerId": "spk-quiet", "key": "speaker-02", "intervals": [[60000, 64000]] }
+  ],
+  "fresh": [
+    { "key": "SPEAKER_00", "intervals": [[0, 29500]] },
+    { "key": "SPEAKER_01", "intervals": [[30000, 64000]] }
+  ],
+  "expect": {
+    "mapping": {
+      "SPEAKER_00": "spk-daw-khin",
+      "SPEAKER_01": "spk-u-maung"
+    },
+    "unmatchedPrior": ["spk-quiet"],
+    "note": "SPEAKER_01 overlaps spk-u-maung by 30000 ms and spk-quiet by 4000 ms; the assignment must not hand it to spk-quiet, and spk-quiet's row survives regardless."
+  }
+}
