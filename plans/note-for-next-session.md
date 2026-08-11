@@ -64,11 +64,20 @@ builds its own database from a migrated template, so the one database nobody mig
 one a human uses. Run `thibi db migrate` before believing a CLI failure.
 
 **A timing assertion nobody deliberately chose is a test of the machine.** Three times now:
-the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`, and this sitting's
+the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`, and
 `speakers.test.ts > answers the review query from the partial index` — 2.0 s standalone, over
-5 s inside the 40-file run once a sixth suite also held a database. `vitest.config.ts` now
-carries both `hookTimeout: 60_000` and `testTimeout: 30_000` with the reasoning at the point of
-enforcement. If you see a red suite under a green assertion count, check what else is running.
+5 s inside the 40-file run once a sixth suite also held a database. If you see a red suite
+under a green assertion count, check what else is running.
+
+**`hookTimeout` and `testTimeout` in `vitest.config.ts` do nothing.** Root-level `test`
+options are silently ignored once `test.projects` is used. Both were set there anyway, twice,
+by two different sessions — the second beside the first, because a wrong precedent invites
+copying. Proved inert on 2026-08-11 by setting both to 1 ms and watching every suite pass.
+The tell was in the message: `Hook timed out in 10000ms` is vitest's *default*, so a raised
+timeout that fires at the old number was never raised. **Put the timeout on the individual
+`beforeAll`/`afterAll`/`it`**, which is where these six suites already put their `beforeAll`
+budget. `vitest.config.ts` carries a comment saying so, because the next person to hit a slow
+teardown will reach for exactly the line that has now failed twice.
 
 **One probe is not a measurement, and S7 is the proof.** `gpt-4o-transcribe-diarize` on
 `language=mya` returned correct Myanmar script once and then twenty distinct wrong-script
