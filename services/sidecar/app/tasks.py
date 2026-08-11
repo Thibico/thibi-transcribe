@@ -53,7 +53,10 @@ class Task:
     task_id: str
     idempotency_key: str
     state: TaskState = "queued"
+    #: Fraction through `step`, not through the whole run. See `diarize.run_diarization`.
     progress: Optional[float] = None
+    #: The pyannote stage currently running — 'segmentation', 'embeddings', 'clustering'.
+    step: Optional[str] = None
     accepted_at: float = field(default_factory=time.time)
     started_at: Optional[float] = None
     finished_at: Optional[float] = None

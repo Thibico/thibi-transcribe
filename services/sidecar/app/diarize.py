@@ -113,6 +113,15 @@ def run_diarization(
         pipeline yields control. The client always wins the deadline race by construction —
         it sets `deadline_s` to its own deadline plus 120 s — so a breach here means the
         client is gone and this exists only to free the slot without a container restart.
+
+        **`progress` is within the current step, not overall**, and `step` says which one.
+        pyannote reports `completed`/`total` per stage and restarts the count at each new
+        one, so a naive `completed / total` runs 0 to 100% and then drops back to 0 —
+        measured on a real run: 0%, 100%, 0%, 33%, 67%, 100%. An operator watching a
+        percentage go backwards concludes the job restarted. There is no honest overall
+        figure available here because the stage list and its relative costs are not known in
+        advance, so the contract reports what is actually known and names the step, which is
+        the signal that says "still moving".
         """
         if task.cancel.is_set():
             raise Cancelled(f"cancelled during {step_name}")
@@ -122,12 +131,27 @@ def run_diarization(
                 f"server-side deadline of {request.deadline_s:.0f}s fired during {step_name}",
                 retryable=False,
             )
+        if step_name != task.step:
+            task.step = step_name
+            task.progress = None
         completed = kwargs.get("completed")
         total = kwargs.get("total")
         if isinstance(completed, int) and isinstance(total, int) and total > 0:
             task.progress = round(min(1.0, completed / total), 4)
 
-    annotation = pipeline(str(audio), hook=hook, **_speaker_hints(request))
+    output = pipeline(str(audio), hook=hook, **_speaker_hints(request))
+
+    # pyannote 3.x returns an `Annotation`; 4.x returns a `DiarizeOutput` dataclass holding
+    # two of them. Duck-typed rather than version-gated, for the same reason `load_pipeline`
+    # inspects the token keyword: neither a backport nor a pin can make this wrong.
+    #
+    # **`speaker_diarization`, never `exclusive_speaker_diarization`.** The second one is
+    # pyannote's own convenience view with overlapping speech removed, and taking it would
+    # silently discard the thing `reconcile.ts` is built around — same-speaker overlapping
+    # turns accumulate rather than compete, and `overlapAware: true` in the TypeScript
+    # capabilities would become a lie. Overlap is information about contested audio; it
+    # surfaces downstream as low margin and low purity, which is the honest representation.
+    annotation = getattr(output, "speaker_diarization", output)
 
     turns = [
         Turn(

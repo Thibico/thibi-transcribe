@@ -216,6 +216,7 @@ def get_task(task_id: str) -> Response:
             task_id=task.task_id,
             state=task.state,
             progress=task.progress,
+            step=task.step,
             started_at=task.started_at,
             finished_at=task.finished_at,
             result=task.result,

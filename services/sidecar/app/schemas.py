@@ -115,9 +115,13 @@ class TaskAccepted(BaseModel):
 class TaskStatus(BaseModel):
     task_id: str
     state: TaskState
-    #: 0-1 from pyannote's ProgressHook. Absent is not zero — without it an operator watches
-    #: nothing happen for an hour and concludes the job has hung.
+    #: 0-1 from pyannote's ProgressHook, **within `step` rather than overall**. Absent is
+    #: not zero — without it an operator watches nothing happen for an hour and concludes
+    #: the job has hung. pyannote restarts the count at each stage, so there is no honest
+    #: overall figure to report; `step` is what tells a watcher it is still moving.
     progress: Optional[float] = None
+    #: The pyannote stage currently running.
+    step: Optional[str] = None
     started_at: Optional[float] = None
     finished_at: Optional[float] = None
     result: Optional[DiarizeResult] = None
