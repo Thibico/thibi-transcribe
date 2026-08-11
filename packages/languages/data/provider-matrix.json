@@ -43,6 +43,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "af",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "am-ET": {
@@ -82,6 +95,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "am",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ar-EG": {
@@ -123,6 +149,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ar",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "as-IN": {
@@ -162,6 +201,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "as",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ast-ES": {
@@ -240,6 +292,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "az",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "be-BY": {
@@ -281,6 +346,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "be",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "bg-BG": {
@@ -322,6 +400,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "bg",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "bn-BD": {
@@ -363,6 +454,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "bn",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "bn-IN": {
@@ -404,6 +508,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "bn",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "bs-BA": {
@@ -445,6 +562,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "bs",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ca-ES": {
@@ -486,6 +616,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ca",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ceb-PH": {
@@ -601,6 +744,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "zh",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "cmn-Hant-TW": {
@@ -642,6 +798,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "zh",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "cs-CZ": {
@@ -683,6 +852,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "cs",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "cy-GB": {
@@ -724,6 +906,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "cy",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "da-DK": {
@@ -765,6 +960,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "da",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "de-DE": {
@@ -806,6 +1014,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "de",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "el-GR": {
@@ -847,6 +1068,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "el",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "en-AU": {
@@ -888,6 +1122,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "en",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "en-GB": {
@@ -929,6 +1176,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "en",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "en-IN": {
@@ -970,6 +1230,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "en",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "en-US": {
@@ -1011,6 +1284,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "en",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "es-419": {
@@ -1052,6 +1338,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "es",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "es-ES": {
@@ -1093,6 +1392,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "es",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "es-US": {
@@ -1134,6 +1446,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "es",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "et-EE": {
@@ -1175,6 +1500,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "et",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "eu-ES": {
@@ -1214,6 +1552,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "eu",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "fa-IR": {
@@ -1255,6 +1606,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "fa",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ff-SN": {
@@ -1333,6 +1697,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "fi",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "fil-PH": {
@@ -1374,6 +1751,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "tl",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "fr-CA": {
@@ -1415,6 +1805,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "fr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "fr-FR": {
@@ -1456,6 +1859,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "fr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ga-IE": {
@@ -1534,6 +1950,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "gl",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "gu-IN": {
@@ -1575,6 +2004,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "gu",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ha-NG": {
@@ -1614,6 +2056,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ha",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "he-IL": {
@@ -1655,6 +2110,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "he",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "hi-IN": {
@@ -1696,6 +2164,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "hi",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "hr-HR": {
@@ -1737,6 +2218,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "hr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "hu-HU": {
@@ -1778,6 +2272,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "hu",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "hy-AM": {
@@ -1819,6 +2326,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "hy",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "id-ID": {
@@ -1860,6 +2380,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "id",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ig-NG": {
@@ -1938,6 +2471,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "is",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "it-IT": {
@@ -1979,6 +2525,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "it",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ja-JP": {
@@ -2020,6 +2579,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ja",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "jv-ID": {
@@ -2100,6 +2672,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ka",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "kam-KE": {
@@ -2215,6 +2800,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "kk",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "km-KH": {
@@ -2254,6 +2852,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "km",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "kn-IN": {
@@ -2295,6 +2906,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "kn",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ko-KR": {
@@ -2336,6 +2960,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ko",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ky-KG": {
@@ -2412,6 +3049,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "lb",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "lg-UG": {
@@ -2488,6 +3138,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ln",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "lo-LA": {
@@ -2527,6 +3190,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "lo",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "lt-LT": {
@@ -2568,6 +3244,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "lt",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "luo-KE": {
@@ -2646,6 +3335,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "lv",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "mi-NZ": {
@@ -2687,6 +3389,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "mi",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "mk-MK": {
@@ -2728,6 +3443,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "mk",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ml-IN": {
@@ -2769,6 +3497,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ml",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "mn-MN": {
@@ -2808,6 +3549,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "mn",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "mr-IN": {
@@ -2849,6 +3603,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "mr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ms-MY": {
@@ -2890,6 +3657,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ms",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "mt-MT": {
@@ -2929,6 +3709,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "mt",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "my-MM": {
@@ -2968,6 +3761,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "my",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "nb-NO": {
@@ -3009,6 +3815,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "no",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ne-NP": {
@@ -3050,6 +3869,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ne",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "nl-NL": {
@@ -3091,6 +3923,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "nl",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "nso-ZA": {
@@ -3204,6 +4049,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "oc",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "om-ET": {
@@ -3317,6 +4175,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "pa",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "pl-PL": {
@@ -3358,6 +4229,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "pl",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ps-AF": {
@@ -3397,6 +4281,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ps",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "pt-BR": {
@@ -3438,6 +4335,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "pt",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "pt-PT": {
@@ -3479,6 +4389,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "pt",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ro-RO": {
@@ -3520,6 +4443,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ro",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ru-RU": {
@@ -3561,6 +4497,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ru",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "rup-BG": {
@@ -3637,6 +4586,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sd",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "si-LK": {
@@ -3676,6 +4638,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "si",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sk-SK": {
@@ -3717,6 +4692,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sk",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sl-SI": {
@@ -3758,6 +4746,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sl",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sn-ZW": {
@@ -3797,6 +4798,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sn",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "so-SO": {
@@ -3836,6 +4850,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "so",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sq-AL": {
@@ -3875,6 +4902,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sq",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sr-RS": {
@@ -3916,6 +4956,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "su-ID": {
@@ -3955,6 +5008,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "su",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sv-SE": {
@@ -3996,6 +5062,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sv",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "sw-KE": {
@@ -4037,6 +5116,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "sw",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "ta-IN": {
@@ -4078,6 +5170,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ta",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "te-IN": {
@@ -4119,6 +5224,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "te",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "tg-TJ": {
@@ -4158,6 +5276,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "tg",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "th-TH": {
@@ -4199,6 +5330,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "th",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "tr-TR": {
@@ -4240,6 +5384,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "tr",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "uk-UA": {
@@ -4281,6 +5438,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "uk",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "umb-AO": {
@@ -4359,6 +5529,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "ur",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "uz-UZ": {
@@ -4398,6 +5581,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "uz",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "vi-VN": {
@@ -4439,6 +5635,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": true
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "vi",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "wo-SN": {
@@ -4552,6 +5761,19 @@
         "supported": false,
         "verdict": "measured-failure",
         "wordTimestamps": null
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "yo",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "yue-Hant-HK": {
@@ -4593,6 +5815,19 @@
         "supported": true,
         "verdict": "probe-only",
         "wordTimestamps": false
+      },
+      "faster-whisper": {
+        "status": "accepted",
+        "supported": true,
+        "verdict": "probe-only",
+        "providerCode": "yue",
+        "models": [
+          "large-v3"
+        ],
+        "wordTimestamps": true,
+        "adaptation": "prompt",
+        "probedAt": "2026-08-12",
+        "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured"
       }
     },
     "zu-ZA": {
@@ -4671,6 +5906,19 @@
       "probedAt": "2026-08-09",
       "rejected": 44,
       "unknown": 0
+    },
+    "faster-whisper": {
+      "accepted": 95,
+      "codesTried": 116,
+      "errored": 0,
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "rejected": 0,
+      "unknown": 21,
+      "source": "services/sidecar image, faster-whisper 1.2.1 / ctranslate2 4.8.1, tokenizer table read 2026-08-12",
+      "note": "Derived from the Whisper tokenizer rather than probed over HTTP — see scripts/gen-faster-whisper-column.ts. Acceptance is certain and quality is unmeasured."
     }
   }
 }

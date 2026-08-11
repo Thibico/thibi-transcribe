@@ -198,10 +198,16 @@ export interface LanguageFilter {
   /**
    * Supported by this provider and by no other at all.
    *
-   * Measured 2026-08-09: `exclusiveTo: 'google'` is 21 — the 20 languages every
-   * Whisper-family endpoint rejects, plus Burmese, which Groq *accepts* and mangles and
-   * which `matrix-overrides.json` therefore marks unsupported. This is not the "44"; see
-   * `notSupportedBy`.
+   * Measured 2026-08-09 as 21 — the 20 languages every Whisper-family endpoint rejects,
+   * plus Burmese. **20 since 2026-08-12** (overview amendment 51): Phase 4b's
+   * faster-whisper column is derived from the Whisper tokenizer, `my` has a token, and a
+   * `suspected` verdict leaves `supported: true`. Burmese therefore has a claimant again,
+   * on no evidence.
+   *
+   * The distinction this filter cannot make is the one that now matters: it asks *who
+   * supports this* and the interesting question is *what has been measured*. Phase 5
+   * measuring faster-whisper on Burmese is expected to send it back to 21 — those weights
+   * are the ones Groq was measured mangling. This is not the "44"; see `notSupportedBy`.
    */
   exclusiveTo?: ProviderId;
   /**

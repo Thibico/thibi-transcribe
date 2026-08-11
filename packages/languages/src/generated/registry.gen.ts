@@ -11,7 +11,7 @@
 
 import type { LanguageEntry, ProviderLanguageCapability, ProviderId, ScriptEntry } from '../types.js';
 
-export const GENERATED_AT = "2026-08-09";
+export const GENERATED_AT = "2026-08-12";
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -8366,6 +8366,19 @@ export const PROVIDER_MATRIX: Readonly<
 > = deepFreeze(
   {
   "af-ZA": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "af",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8407,6 +8420,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "am-ET": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "am",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as km-KH",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8447,6 +8473,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ar-EG": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ar",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8488,6 +8527,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "as-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "as",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and Groq accepts this code and no OpenAI model does — the set the one measured failure came out of. Unverified on Groq; Phase 5 measures it.",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8565,6 +8617,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "az-AZ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "az",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8606,6 +8671,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "be-BY": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "be",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8647,6 +8725,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "bg-BG": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "bg",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8688,6 +8779,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "bn-BD": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "bn",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8729,6 +8833,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "bn-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "bn",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8770,6 +8887,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "bs-BA": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "bs",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8811,6 +8941,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ca-ES": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ca",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8926,6 +9069,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "cmn-Hans-CN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "zh",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -8967,6 +9123,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "cmn-Hant-TW": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "zh",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9008,6 +9177,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "cs-CZ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "cs",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9049,6 +9231,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "cy-GB": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "cy",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9090,6 +9285,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "da-DK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "da",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9131,6 +9339,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "de-DE": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "de",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9172,6 +9393,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "el-GR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "el",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9213,6 +9447,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "en-AU": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "en",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9254,6 +9501,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "en-GB": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "en",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9295,6 +9555,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "en-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "en",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9336,6 +9609,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "en-US": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "en",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9377,6 +9663,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "es-419": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "es",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9418,6 +9717,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "es-ES": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "es",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9459,6 +9771,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "es-US": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "es",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9500,6 +9825,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "et-EE": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "et",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9541,6 +9879,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "eu-ES": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "eu",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9581,6 +9932,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "fa-IR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "fa",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9659,6 +10023,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "fi-FI": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "fi",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9700,6 +10077,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "fil-PH": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "tl",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9741,6 +10131,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "fr-CA": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "fr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9782,6 +10185,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "fr-FR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "fr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9860,6 +10276,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "gl-ES": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "gl",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9901,6 +10330,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "gu-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "gu",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9942,6 +10384,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ha-NG": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ha",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -9982,6 +10437,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "he-IL": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "he",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10023,6 +10491,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "hi-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "hi",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10064,6 +10545,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "hr-HR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "hr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10105,6 +10599,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "hu-HU": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "hu",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10146,6 +10653,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "hy-AM": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "hy",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10187,6 +10707,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "id-ID": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "id",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10265,6 +10798,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "is-IS": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "is",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10306,6 +10852,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "it-IT": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "it",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10347,6 +10906,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ja-JP": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ja",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10428,6 +11000,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ka-GE": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ka",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10543,6 +11128,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "kk-KZ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "kk",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10584,6 +11182,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "km-KH": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "km",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support. Note that Khmer is the script Groq produced when asked for Burmese on 2026-08-11, so this row is not hypothetical caution.",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10624,6 +11235,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "kn-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "kn",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10665,6 +11289,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ko-KR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ko",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10743,6 +11380,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "lb-LU": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "lb",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10820,6 +11470,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ln-CD": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ln",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10860,6 +11523,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "lo-LA": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "lo",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as km-KH",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10900,6 +11576,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "lt-LT": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "lt",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -10978,6 +11667,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "lv-LV": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "lv",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11019,6 +11721,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "mi-NZ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "mi",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11060,6 +11775,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "mk-MK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "mk",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11101,6 +11829,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ml-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ml",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11142,6 +11883,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "mn-MN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "mn",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11182,6 +11936,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "mr-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "mr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11223,6 +11990,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ms-MY": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ms",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11264,6 +12044,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "mt-MT": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "mt",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11304,6 +12097,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "my-MM": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "my",
+      "reason": "Groq's whisper-large-v3 was measured returning Myanmar-script non-words for language=my (2026-07-30), Khmer on a re-measure (2026-08-11) and romanised Vietnamese on autodetect. faster-whisper runs the *same weights* behind a different transport, so this is not an open question inherited from a family resemblance — it is the same model. Not measured-failure only because nobody has run this transport yet; Phase 5 does that first.",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11345,6 +12151,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "nb-NO": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "no",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11386,6 +12205,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ne-NP": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ne",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11427,6 +12259,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "nl-NL": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "nl",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11542,6 +12387,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "oc-FR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "oc",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11656,6 +12514,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "pa-Guru-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "pa",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11696,6 +12567,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "pl-PL": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "pl",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11737,6 +12621,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ps-AF": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ps",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as km-KH",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11777,6 +12674,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "pt-BR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "pt",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11818,6 +12728,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "pt-PT": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "pt",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11859,6 +12782,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ro-RO": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ro",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11900,6 +12836,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ru-RU": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ru",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -11978,6 +12927,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sd-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sd",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12018,6 +12980,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "si-LK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "si",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as km-KH",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12058,6 +13033,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sk-SK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sk",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12099,6 +13087,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sl-SI": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sl",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12140,6 +13141,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sn-ZW": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sn",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12180,6 +13194,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "so-SO": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "so",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12220,6 +13247,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sq-AL": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sq",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12260,6 +13300,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sr-RS": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12301,6 +13354,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "su-ID": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "su",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12341,6 +13407,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sv-SE": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sv",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12382,6 +13461,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "sw-KE": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "sw",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12423,6 +13515,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ta-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ta",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12464,6 +13569,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "te-IN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "te",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12505,6 +13623,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "tg-TJ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "tg",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12545,6 +13676,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "th-TH": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "th",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12586,6 +13730,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "tr-TR": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "tr",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12627,6 +13784,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "uk-UA": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "uk",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12705,6 +13875,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "ur-PK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "ur",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12746,6 +13929,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "uz-UZ": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "uz",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12786,6 +13982,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "vi-VN": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "vi",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12901,6 +14110,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "yo-NG": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "yo",
+      "reason": "as my-MM: unmeasured on this transport, but faster-whisper runs the same whisper-large-v3 weights Groq serves, and as as-IN",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "suspected",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,
@@ -12941,6 +14163,19 @@ export const PROVIDER_MATRIX: Readonly<
     }
   },
   "yue-Hant-HK": {
+    "faster-whisper": {
+      "adaptation": "prompt",
+      "models": [
+        "large-v3"
+      ],
+      "probedAt": "2026-08-12",
+      "providerCode": "yue",
+      "reason": "the Whisper tokenizer has a token for this language; quality is unmeasured",
+      "status": "accepted",
+      "supported": true,
+      "verdict": "probe-only",
+      "wordTimestamps": true
+    },
     "google": {
       "adaptation": "none",
       "httpStatus": 200,

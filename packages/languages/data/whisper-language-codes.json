@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "source": "faster_whisper.tokenizer._LANGUAGE_CODES",
+    "extractedFrom": "services/sidecar image, faster-whisper 1.2.1 / ctranslate2 4.8.1",
+    "extractedAt": "2026-08-12",
+    "command": "docker run --rm --entrypoint python <sidecar-image> -c \"from faster_whisper.tokenizer import _LANGUAGE_CODES; import json; print(json.dumps(sorted(_LANGUAGE_CODES)))\"",
+    "note": "The set of language codes the Whisper tokenizer has tokens for. This is a fact about the model rather than a probe result, and it is *stronger* evidence than an HTTP 200: a code outside this list cannot be conditioned on at all, while a code inside it is guaranteed to be accepted. It says nothing whatsoever about output quality, which is the whole point of the project and is Phase 5's work. `yue` is present alongside `zh` in large-v3."
+  },
+  "codes": [
+    "af", "am", "ar", "as", "az", "ba", "be", "bg", "bn", "bo",
+    "br", "bs", "ca", "cs", "cy", "da", "de", "el", "en", "es",
+    "et", "eu", "fa", "fi", "fo", "fr", "gl", "gu", "ha", "haw",
+    "he", "hi", "hr", "ht", "hu", "hy", "id", "is", "it", "ja",
+    "jw", "ka", "kk", "km", "kn", "ko", "la", "lb", "ln", "lo",
+    "lt", "lv", "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt",
+    "my", "ne", "nl", "nn", "no", "oc", "pa", "pl", "ps", "pt",
+    "ro", "ru", "sa", "sd", "si", "sk", "sl", "sn", "so", "sq",
+    "sr", "su", "sv", "sw", "ta", "te", "tg", "th", "tk", "tl",
+    "tr", "tt", "uk", "ur", "uz", "vi", "yi", "yo", "yue", "zh"
+  ]
+}
