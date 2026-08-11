@@ -23,19 +23,15 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 Phases 8 and 4a were both taken out of build order deliberately, for the same reason: each needs
 only Phases 0–2 and fits one session, while Phase 3 does not.
 
-**On the branch `phase-4/whisper-http`, four commits, not yet pushed or merged.** CI has not run
-on it. Locally: `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at 543 tests
-with nothing skipped, and `pnpm gen` is idempotent.
+`main` is at the merge of PR #8. Everything above is merged, not in flight. Locally at that
+commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at 543 tests with
+nothing skipped, and `pnpm gen` is idempotent.
 
 ---
 
 ## Do this next
 
-**First, five minutes of housekeeping:** push `phase-4/whisper-http`, open the PR, and ask the
-user to merge it — the permission classifier usually blocks `gh pr merge`, so hand them the
-command rather than retrying.
-
-**Then, recommended: Phase 3 — diarization.** Budget two sessions. It is now the only thing
+**Recommended: Phase 3 — diarization.** Budget two sessions. It is now the only thing
 blocking Phase 4b, and S6 already answered the hardware question, so the sessions go on the
 sidecar image and the reconciliation algorithm rather than on discovering a product constraint.
 
