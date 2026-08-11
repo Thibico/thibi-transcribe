@@ -6,7 +6,6 @@ import { randomUUID } from 'node:crypto';
 import { Command } from 'commander';
 import {
   AbortedError,
-  createGoogleProvider,
   createRun,
   DEFAULT_OVERLAP_MS,
   ModeUnavailableError,
@@ -27,8 +26,8 @@ import {
 import { resolveRate, unitForMode } from '@thibi/db';
 import { assetKey, extensionOf, rawResponseKey } from '@thibi/storage';
 import { stat } from 'node:fs/promises';
-import { buildContext, resolveServiceAccountJson, readEnvironment } from '../context.js';
-import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from '../config.js';
+import { buildContext, readEnvironment } from '../context.js';
+import { buildProvider, isProviderId, PROVIDER_IDS } from '../providers.js';
 import { buildTranscript, EXIT, formatText, type TranscriptJson } from '../output.js';
 
 const ENGINE_VERSION = '0.1.0';
@@ -44,8 +43,18 @@ export function transcribeCommand(): Command {
     .description('Transcribe an audio or video file')
     .argument('<file>', 'path to the media file')
     .requiredOption('-l, --lang <code>', 'language code, e.g. my, my-MM or Burmese')
-    .option('-p, --provider <id>', 'provider id', 'google')
+    .option('-p, --provider <id>', 'provider id: google | openai | groq', 'google')
     .option('-m, --model <id>', 'provider model')
+    .option(
+      '--force-unsupported',
+      'Run a provider the matrix marks unsupported for this language. Prints a loud warning ' +
+        'and marks the run. Exists so the Groq Burmese failure can be reproduced on demand.',
+    )
+    .option(
+      '--no-word-timestamps',
+      "Accept a model that returns no timestamps. Needed for OpenAI's gpt-4o-transcribe-only " +
+        'languages; every word timing in the run is then interpolated.',
+    )
     .option(
       '--mode <mode>',
       'auto | sync | sync_chunked | batch. `batch` needs a GCS staging bucket and is never ' +
@@ -124,53 +133,69 @@ export function transcribeCommand(): Command {
         }
 
         // ---- build the provider ------------------------------------------------------
-        if (opts.provider !== 'google') {
+        const env = readEnvironment();
+        if (!isProviderId(opts.provider as string)) {
           process.stderr.write(
-            `Provider '${opts.provider}' is not available yet. Whisper providers land in ` +
-              `Phase 4; only 'google' works today.\n`,
+            `Unknown provider '${opts.provider}'. Expected one of ${PROVIDER_IDS.join(', ')}.\n`,
           );
           process.exitCode = EXIT.usage;
           return;
         }
 
-        const env = readEnvironment();
-        const serviceAccountJson = await resolveServiceAccountJson(env);
-        if (!serviceAccountJson) {
-          throw new NotConfiguredError(
-            'No Google credentials. Set GOOGLE_APPLICATION_CREDENTIALS to a service-account ' +
-              'JSON with roles/speech.client, or GOOGLE_SA_JSON to its contents.',
-          );
-        }
+        const requireWordTimestamps = opts.wordTimestamps !== false;
+        const built = await buildProvider({
+          id: opts.provider as string,
+          env,
+          settings: cli.settings,
+          languageCode: language.code,
+          model: opts.model as string | undefined,
+          requireWordTimestamps,
+        });
+        const provider: TranscriptionProvider = built.provider;
+        const providerConfig = built.config;
+        const model = built.model;
 
-        const projectId =
-          (await cli.settings.get('google.project_id')) ??
-          (JSON.parse(serviceAccountJson) as { project_id?: string }).project_id;
-        if (!projectId) {
-          throw new NotConfiguredError('No Google project id: set GOOGLE_PROJECT_ID.');
-        }
-
-        const provider: TranscriptionProvider = createGoogleProvider({ clock: cli.ctx.clock });
+        /**
+         * The support gate, and the flag that deliberately walks through it.
+         *
+         * `supported: false` covers two different situations and the message has to
+         * distinguish them, because only one of them is a dead end. `status: 'rejected'`
+         * means the API refuses the code and forcing it just buys a 400. `status: 'accepted'`
+         * with `supported: false` means the API will take it and hand back garbage — Groq's
+         * Burmese — and reproducing that on demand is genuinely useful, which is what
+         * `--force-unsupported` is for.
+         */
         const capability = provider.supportsLanguage(language.code);
-        if (!capability?.supported) {
+        const forcedUnsupported = Boolean(opts.forceUnsupported) && !capability?.supported;
+        if (!capability?.supported && !opts.forceUnsupported) {
+          const detail = capability?.reason ? `\n${capability.reason}\n` : '\n';
           process.stderr.write(
-            `${provider.label} does not support ${language.code} (${language.nameEn}).\n` +
-              `Run \`thibi lang show ${language.code}\` to see which providers do.\n`,
+            `${provider.label} does not support ${language.code} (${language.nameEn}).${detail}` +
+              (capability?.status === 'accepted'
+                ? `The API accepts the code — it is the output that is wrong (probed ` +
+                  `${capability.probedAt}). Re-run with --force-unsupported to see it.\n`
+                : '') +
+              `Run \`thibi providers list --language ${language.code}\` to see which providers do.\n`,
           );
           process.exitCode = EXIT.languageRejected;
           return;
         }
-
-        const model =
-          (opts.model as string | undefined) ??
-          (await cli.settings.get('google.model')) ??
-          DEFAULT_GOOGLE_MODEL;
-
-        const providerConfig: GoogleConfig = {
-          serviceAccountJson,
-          projectId,
-          region: (await cli.settings.get('google.region')) ?? DEFAULT_GOOGLE_REGION,
-          model,
-        };
+        if (forcedUnsupported) {
+          cli.ctx.logger.warn(
+            {},
+            `warning: ${provider.id} is marked unsupported for ${language.code} — ` +
+              `${capability?.reason ?? 'no reason recorded'} (probed ${capability?.probedAt}). ` +
+              `Running anyway because --force-unsupported was given. Do not publish this output.`,
+          );
+        }
+        if (!requireWordTimestamps) {
+          cli.ctx.logger.warn(
+            {},
+            '--no-word-timestamps: every word timing in this run is interpolated from segment ' +
+              'bounds. Subtitles will drift within a segment.',
+          );
+        }
+        cli.ctx.logger.info({}, `model   ${model} — ${built.modelReason}`);
 
         // ---- plan, and stop here on --dry-run ------------------------------------------
         // Resolved before anything is uploaded or created, because `--mode batch` without a
@@ -252,7 +277,10 @@ export function transcribeCommand(): Command {
             providerConfig,
             model,
             runId,
-            region: providerConfig.region,
+            // Google is the only provider that declares `batch` in its modes, so `planMode`
+            // has already refused this branch for everyone else — an openai/groq run reaches
+            // ModeUnavailableError before here. The cast is that guarantee written down.
+            region: (providerConfig as GoogleConfig).region,
             planReason: decision.reason,
             ...(assetId ? { assetId } : {}),
             ...(opts.maxDuration ? { maxDurationMs: (opts.maxDuration as number) * 1000 } : {}),
@@ -302,7 +330,14 @@ export function transcribeCommand(): Command {
               wordTimingQuality: batch.wordTimingQuality,
               // Merged into whatever `persistOperation` already wrote, which is why
               // `pipeline.batch` survives to the end of the run.
-              pipeline: { planReason: decision.reason, warnings: batch.warnings },
+              pipeline: {
+                planReason: decision.reason,
+                warnings: batch.warnings,
+                // Marked on the run, not only warned about on stderr. Six months later the
+                // only way to tell a bad transcript from a deliberately-reproduced failure
+                // is whether the run says which it was.
+                ...(forcedUnsupported ? { forcedUnsupported: true } : {}),
+              },
               costUsd: usage?.usd ?? 0,
               partial: false,
               failedChunks: new Set(),
@@ -434,7 +469,11 @@ export function transcribeCommand(): Command {
             jobId,
             segments: result.segments,
             wordTimingQuality: result.wordTimingQuality,
-            pipeline: { seams: result.seams, warnings: result.warnings },
+            pipeline: {
+              seams: result.seams,
+              warnings: result.warnings,
+              ...(forcedUnsupported ? { forcedUnsupported: true } : {}),
+            },
             costUsd: result.costUsd,
             partial: result.partial,
             failedChunks,
@@ -491,6 +530,14 @@ export function transcribeCommand(): Command {
         // Three failures that are the operator's to fix, not stack traces to read. Each
         // already carries its own remediation; printing it twice, wrapped in a trace, is
         // how a good message gets ignored.
+        // Operator-facing, and it carries its own remediation: OpenAI cannot do this
+        // language with timestamps, or a key is missing. A stack trace over the top of a
+        // sentence that already says what to do is how a good message gets ignored.
+        if (err instanceof NotConfiguredError) {
+          process.stderr.write(`\n${err.message}\n${err.hint ? `${err.hint}\n` : ''}`);
+          process.exitCode = EXIT.notConfigured;
+          return;
+        }
         if (err instanceof ModeUnavailableError || err instanceof StagingRefusedError) {
           process.stderr.write(`\n${err.message}\n`);
           process.exitCode = EXIT.notConfigured;

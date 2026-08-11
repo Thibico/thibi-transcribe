@@ -55,6 +55,13 @@ const ENV_KEYS = [
   // Unset means long files use chunked parallel sync, which spike S3 measured faster than
   // batchRecognize at every duration. Setting it opts into the cheaper, slower path.
   'GOOGLE_GCS_STAGING_BUCKET',
+  'OPENAI_API_KEY',
+  'OPENAI_ORGANIZATION',
+  'GROQ_API_KEY',
+  // 'free' (default) or 'dev'. The only thing it changes is the request byte cap — 25 MB
+  // against 100 MB — and it defaults pessimistic: a free key that assumed 100 MB fails every
+  // chunk, while a dev key that assumed 25 MB just sends more chunks than it had to.
+  'GROQ_TIER',
   'THIBI_TMP_DIR',
   'LOG_LEVEL',
 ] as const;

@@ -77,11 +77,16 @@ export function dbCommand(): Command {
         );
         // The numbers came from a dated catalog read, and a stale price is the kind of
         // wrong that nobody notices. Say where they are from every time.
+        // Width from the data rather than a constant: the Phase 4 rows are longer than any
+        // Google row and a hardcoded 34 ran the price into the model name.
+        const label = (rate: (typeof DEFAULT_RATES)[number]): string =>
+          `  ${rate.providerId}/${rate.model}/${rate.unit}`;
+        const width = Math.max(...DEFAULT_RATES.map((rate) => label(rate).length)) + 2;
         for (const rate of DEFAULT_RATES) {
-          process.stdout.write(
-            `  ${rate.providerId}/${rate.model}/${rate.unit}`.padEnd(34) +
-              `$${rate.usdPerUnit}\n`,
-          );
+          // Groq's $0.111/hour is $0.00185/minute and its turbo model is a repeating decimal.
+          // Six places, so a sub-cent per-minute rate is legible instead of printing
+          // 0.0006666666666666666 next to a column of two-decimal numbers.
+          process.stdout.write(`${label(rate).padEnd(width)}$${rate.usdPerUnit.toFixed(6)}\n`);
         }
       } finally {
         await closeDb(client);
