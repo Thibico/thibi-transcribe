@@ -1,0 +1,22 @@
+{
+  "name": "no-words-oromo",
+  "why": "The path that matters most for the long tail. Chirp returns empty word arrays for exactly the languages this product exists to serve, so hasWords=false is a main path and not an edge case. Every segment falls back to interval overlap and EVERY segment is flagged — including s0, which sits wholly inside one speaker's turn at purity 1.0. Without words we cannot see a mid-segment speaker change at all, so a high interval overlap is evidence about the segment's SPAN, not about who spoke each part of it.",
+  "turns": [
+    { "startMs": 0, "endMs": 5000, "speakerKey": "SPEAKER_00" },
+    { "startMs": 5000, "endMs": 12000, "speakerKey": "SPEAKER_01" }
+  ],
+  "segments": [
+    { "id": "s0", "idx": 0, "startMs": 500, "endMs": 4500, "hasWords": false },
+    { "id": "s1", "idx": 1, "startMs": 4000, "endMs": 8000, "hasWords": false },
+    { "id": "s2", "idx": 2, "startMs": 13000, "endMs": 14000, "hasWords": false }
+  ],
+  "words": [],
+  "expect": {
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": true, "source": "interval" },
+      { "segmentId": "s1", "speakerKey": "SPEAKER_01", "purityApprox": 0.75, "needsReview": true, "source": "interval" },
+      { "segmentId": "s2", "speakerKey": null, "purity": 0, "needsReview": true, "source": "none" }
+    ],
+    "everySegmentFlagged": true
+  }
+}

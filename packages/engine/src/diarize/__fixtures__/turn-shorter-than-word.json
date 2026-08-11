@@ -1,0 +1,21 @@
+{
+  "name": "turn-shorter-than-word",
+  "why": "A 120 ms turn from B lands entirely inside a 900 ms word from A. The dominant speaker wins on accumulated overlap — 900 ms against 120 ms — but the margin drops from 1.0 to 0.76, which is the whole reason margin exists as a separate signal from the label. Nothing is flipped: the word is far too long for the duration guard.",
+  "turns": [
+    { "startMs": 0, "endMs": 3000, "speakerKey": "SPEAKER_00" },
+    { "startMs": 1400, "endMs": 1520, "speakerKey": "SPEAKER_01" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1000, "endMs": 1900, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1000, "endMs": 1900, "text": "understand" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w0", "speakerKey": "SPEAKER_00", "marginApprox": 0.7647, "source": "overlap" }
+    ],
+    "medianFlips": 0,
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": false, "source": "words" }
+    ]
+  }
+}

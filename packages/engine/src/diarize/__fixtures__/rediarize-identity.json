@@ -1,0 +1,23 @@
+{
+  "name": "rediarize-identity",
+  "why": "The headline behaviour. A human named three speakers on the first run; the second run returns the same three people under permuted anonymous keys, because clustering numbers them in whatever order it happens to produce. Every name must land back on the right person. Greedy matching also happens to get this one right — rediarize-new-speaker is where the two diverge.",
+  "prior": [
+    { "speakerId": "spk-daw-khin", "key": "speaker-00", "intervals": [[0, 20000], [40000, 60000]] },
+    { "speakerId": "spk-u-maung", "key": "speaker-01", "intervals": [[20000, 40000]] },
+    { "speakerId": "spk-interviewer", "key": "speaker-02", "intervals": [[60000, 90000]] }
+  ],
+  "fresh": [
+    { "key": "SPEAKER_02", "intervals": [[100, 19800], [40200, 59500]] },
+    { "key": "SPEAKER_00", "intervals": [[20100, 39900]] },
+    { "key": "SPEAKER_01", "intervals": [[60200, 89000]] }
+  ],
+  "expect": {
+    "mapping": {
+      "SPEAKER_02": "spk-daw-khin",
+      "SPEAKER_00": "spk-u-maung",
+      "SPEAKER_01": "spk-interviewer"
+    },
+    "unmatchedFresh": [],
+    "unmatchedPrior": []
+  }
+}

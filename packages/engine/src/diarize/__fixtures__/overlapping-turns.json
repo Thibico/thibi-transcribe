@@ -1,0 +1,22 @@
+{
+  "name": "overlapping-turns",
+  "why": "pyannote 3.1 emits overlapping speech, and two of the overlapping turns can be the SAME speaker. This fixture is built so accumulation is decisive rather than cosmetic: A's two turns overlap the word by 600 ms and 400 ms, B's single turn by 750 ms. Take the best single turn per speaker and B wins with 750 over 600; accumulate per speaker as the code does and A wins with 1000. The resulting margin of 0.14 is correctly low — this is genuinely contested audio.",
+  "turns": [
+    { "startMs": 800, "endMs": 1600, "speakerKey": "SPEAKER_00" },
+    { "startMs": 1000, "endMs": 1750, "speakerKey": "SPEAKER_01" },
+    { "startMs": 1500, "endMs": 1900, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [{ "id": "s0", "idx": 0, "startMs": 1000, "endMs": 2000, "hasWords": true }],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 1000, "endMs": 2000, "text": "simultaneously" }
+  ],
+  "expect": {
+    "words": [
+      { "wordId": "w0", "speakerKey": "SPEAKER_00", "marginApprox": 0.1429, "source": "overlap" }
+    ],
+    "marginBelow": 0.6,
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": false, "source": "words" }
+    ]
+  }
+}

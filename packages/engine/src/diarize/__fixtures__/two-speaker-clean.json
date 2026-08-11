@@ -1,0 +1,36 @@
+{
+  "name": "two-speaker-clean",
+  "why": "The baseline. Alternating 5 s turns with every word wholly inside one of them. Purity 1.0 everywhere, nothing flagged, no median flips. If this fixture ever fails, the failure is in the plumbing rather than in a threshold.",
+  "turns": [
+    { "startMs": 0, "endMs": 5000, "speakerKey": "SPEAKER_00" },
+    { "startMs": 5000, "endMs": 10000, "speakerKey": "SPEAKER_01" },
+    { "startMs": 10000, "endMs": 15000, "speakerKey": "SPEAKER_00" }
+  ],
+  "segments": [
+    { "id": "s0", "idx": 0, "startMs": 200, "endMs": 4800, "hasWords": true },
+    { "id": "s1", "idx": 1, "startMs": 5200, "endMs": 9800, "hasWords": true },
+    { "id": "s2", "idx": 2, "startMs": 10200, "endMs": 14800, "hasWords": true }
+  ],
+  "words": [
+    { "id": "w0", "segmentId": "s0", "idx": 0, "startMs": 200, "endMs": 1200, "text": "when" },
+    { "id": "w1", "segmentId": "s0", "idx": 1, "startMs": 1300, "endMs": 2400, "text": "did" },
+    { "id": "w2", "segmentId": "s0", "idx": 2, "startMs": 2500, "endMs": 3600, "text": "flooding" },
+    { "id": "w3", "segmentId": "s0", "idx": 3, "startMs": 3700, "endMs": 4800, "text": "start" },
+    { "id": "w4", "segmentId": "s1", "idx": 0, "startMs": 5200, "endMs": 6200, "text": "around" },
+    { "id": "w5", "segmentId": "s1", "idx": 1, "startMs": 6300, "endMs": 7400, "text": "two" },
+    { "id": "w6", "segmentId": "s1", "idx": 2, "startMs": 7500, "endMs": 8600, "text": "thousand" },
+    { "id": "w7", "segmentId": "s1", "idx": 3, "startMs": 8700, "endMs": 9800, "text": "nineteen" },
+    { "id": "w8", "segmentId": "s2", "idx": 0, "startMs": 10200, "endMs": 11200, "text": "every" },
+    { "id": "w9", "segmentId": "s2", "idx": 1, "startMs": 11300, "endMs": 12400, "text": "year" },
+    { "id": "w10", "segmentId": "s2", "idx": 2, "startMs": 12500, "endMs": 13600, "text": "since" },
+    { "id": "w11", "segmentId": "s2", "idx": 3, "startMs": 13700, "endMs": 14800, "text": "then" }
+  ],
+  "expect": {
+    "words": { "allSources": "overlap", "allMargins": 1, "unassigned": 0, "medianFlips": 0 },
+    "segments": [
+      { "segmentId": "s0", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": false, "source": "words" },
+      { "segmentId": "s1", "speakerKey": "SPEAKER_01", "purity": 1, "needsReview": false, "source": "words" },
+      { "segmentId": "s2", "speakerKey": "SPEAKER_00", "purity": 1, "needsReview": false, "source": "words" }
+    ]
+  }
+}
