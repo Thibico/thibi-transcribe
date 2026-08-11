@@ -38,7 +38,7 @@ builds the Python sidecar image and its task API, which Phase 4 fills the other 
 | `services/sidecar/tests/` | pytest suite with a canned pipeline |
 | `packages/engine/src/diarize/types.ts` | `DiarizationSource`, `Turn`, `DiarizeRequest/Handle/Status/Result` |
 | `packages/engine/src/diarize/pyannote.ts` | Sidecar-backed source |
-| `packages/engine/src/diarize/scribe.ts` | ElevenLabs Scribe source + `wordsToTurns` |
+| ~~`packages/engine/src/diarize/scribe.ts`~~ | ~~ElevenLabs Scribe source + `wordsToTurns`~~ — **not built, 2026-08-12**: the user decided against ElevenLabs for now. Design retained in §2, open question 7 |
 | `packages/engine/src/diarize/reconcile.ts` | **The centrepiece** — assignment, smoothing, voting, fallback |
 | `packages/engine/src/diarize/identity.ts` | Prior-speaker matching via Hungarian assignment |
 | `packages/engine/src/diarize/persist.ts` | Writes `diarization_runs`, `speaker_turns`, `speakers`, segment/word updates |
@@ -50,6 +50,9 @@ builds the Python sidecar image and its task API, which Phase 4 fills the other 
 | `packages/engine/src/diarize/run.ts` | *(added 2026-08-11)* the stage itself: submit, poll, reconcile, persist. Not in the original table — the plan described the pieces and not the thing that calls them in order |
 | `packages/engine/src/diarize/speakers.ts` | *(added 2026-08-11)* `listSpeakers` / `renameSpeaker` / `mergeSpeakers`, so the CLI holds no SQL |
 | `packages/engine/src/diarize/score.ts` | *(added 2026-08-11)* RTTM parsing and DER/JER, so the scorer is testable without a CLI |
+| `packages/engine/src/diarize/__tests__/pyannote.contract.test.ts` | *(added 2026-08-12)* the contract test, `PyannoteSource` against the running container |
+| `packages/engine/src/diarize/__fixtures__/en-2spk-short.flac` + `.truth.json` | *(added 2026-08-12)* 11 s, four alternating TTS turns, and the reference the fixture's own generator emitted |
+| `packages/engine/scripts/make-2spk-fixture.mjs` | *(added 2026-08-12)* regenerates both, so a committed binary is a fact somebody can re-derive |
 
 ## Design
 
@@ -175,6 +178,11 @@ must not assume they are disjoint, and the fixtures include an overlapping case 
 reason.
 
 ### 2. `DiarizationSource` — an interface, so Scribe is an alternate and not a special case
+
+> **Scribe is not built (2026-08-12, open question 7).** Everything below is retained as the
+> specification a second source would be written against, not as a description of the tree.
+> The interface itself is built and still justified with one implementation: it is what keeps
+> "turns or diarized words?" out of `reconcile.ts`.
 
 ```ts
 export interface Turn { startMs: number; endMs: number; speakerKey: string }
@@ -587,9 +595,12 @@ problem whole-file diarization removes; stitch quality depends on the overlap co
 from every speaker, which it frequently does not; and errors compound window over window, so a
 single bad stitch corrupts everything downstream of it. The correct fix is memory: pyannote 3.1 on
 a three-hour 16 kHz mono file peaks around 6–8 GB, so give the sidecar 16 GB and the problem
-disappears. If a newsroom genuinely cannot, the supported answer is ElevenLabs Scribe — somebody
-else's memory. Measure and document the actual OOM ceiling on the reference box rather than
-guessing at it.
+disappears. If a newsroom genuinely cannot, the supported answer **was** ElevenLabs Scribe —
+somebody else's memory — and as of 2026-08-12 it is not: see open question 7. What is left is
+the GPU tier, or that instance doing no diarization, which `SIDECAR_URL` unset already
+supports without pretending otherwise. Measure and document the actual OOM ceiling on the
+reference box rather than guessing at it — that number now decides a deployment rather than
+selecting between two options.
 
 ### 6. CPU versus GPU, and what it forces
 
@@ -694,14 +705,35 @@ the server deadline fires and releases the slot; a 0-byte download is `bad_audio
 mismatch beyond 1 s is `bad_audio`; and the temp file is absent after **every** path including
 cancel and exception.
 
-Contract test in CI: the TypeScript `PyannoteSource` runs against the real container
-(`docker compose run --rm sidecar`) with the canned pipeline, so the JSON schema cannot drift
-between the two languages without a red build.
+Contract test: the TypeScript `PyannoteSource` runs against the real container, so the JSON
+schema cannot drift between the two languages without a red build. Built 2026-08-12 as
+`packages/engine/src/diarize/__tests__/pyannote.contract.test.ts` — six assertions, none of
+which duplicates the fake-source suite above: the task id matches what `/v1/tasks/by-key`
+derives from the step key, a resubmit of the same key lands on the same task, a *different*
+key is refused as a `DiarizerBusyError` carrying `retryAfterMs`, an unknown id polls back as
+retryable rather than throwing, a real run's snake_case result maps field-for-field into
+`DiarizationResult`, and a cancelled task refuses to yield one.
+
+**Against the real model, not the canned pipeline this plan first specified** — overview
+amendment 47. The canned pipeline is monkeypatched *in-process* by pytest, which nothing
+outside the process can do, and the shape most likely to drift is the real pipeline's output
+(amendment 42). The cost is ~40 s of CPU for 11 s of audio; the test skips itself unless
+`/health` reports the model loaded, and its idempotency key is fresh on every run so the
+sidecar cannot answer from cache.
+
+The audio is `__fixtures__/en-2spk-short.flac` — four alternating macOS-TTS turns separated
+by 400 ms of silence, regenerated by `packages/engine/scripts/make-2spk-fixture.mjs`, the
+method of `spikes/s7-make-2spk.mjs` at a third the length. The assertion is the A-B-A-B
+*pattern* at each reference turn's midpoint, never which label pyannote chose: `SPEAKER_00`
+is meaningless across runs, and stating it as a pattern also survives a turn being split in
+two. This is a contract test, not a measurement — two synthetic voices with no crosstalk are
+a floor on difficulty, and an accuracy claim still needs `thibi diarize score` against real
+audio (open question 2).
 
 ## Verification
 
 ```
-$ docker compose --profile local up -d sidecar
+$ docker compose --env-file .env -f infra/compose.dev.yml --profile diarize up -d sidecar
 $ curl -s localhost:8081/health | jq '{status, models, device, slots, realtime_factor_estimate}'
 
 $ thibi transcribe fixtures/interview-2spk-6min.wav --lang my --diarize -v
@@ -769,6 +801,12 @@ in 60s"* and eventually succeeds. It must never surface as an error.
 **Tuning hook:** `thibi diarize score <runId> --reference fixtures/interview.rttm` prints DER and
 JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 
+**The contract holds against the container:** with Postgres, MinIO and the sidecar up,
+`pnpm test` reports 646 tests and includes six under *"PyannoteSource against the real
+sidecar"*, one of which is a genuine 11-second diarization. Stop the sidecar and the same
+six are reported as skipped, with a line saying which service is missing — a clone with no
+Docker must not read as a failure.
+
 ## Risks and open questions
 
 > **Settled 2026-08-11 by spike [S7](../spikes/RESULTS.md#s7--is-a-hosted-diarizing-asr-an-alternative-to-running-pyannote-ourselves)
@@ -814,8 +852,11 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
    (Phase 15) must check it before a user discovers it four hours into a job. Check the licence
    before assuming weights can be baked into an image variant.
 2. **The CPU realtime factor makes diarization close to unusable on the small tier.** The honest
-   mitigations are the GPU tier and Scribe. The docs must not imply otherwise, and the UI estimate
-   must be shown before the run, not in a tooltip.
+   mitigation is the GPU tier — *singular*, since 2026-08-12 removed Scribe (open question 7).
+   The docs must not imply otherwise, and the UI estimate must be shown before the run, not in
+   a tooltip. This risk got worse when the second mitigation went away, and it is now the main
+   argument for answering open question 1 (typical recording length and deadline pressure)
+   before Phase 15 prices the tiers.
 3. **Reconcile is only as good as the word timings.** With `wordTimingQuality: 'none'` the feature
    degrades to interval fallback with everything flagged. Per the overview's risk 2, **build and
    test that path first**, not last — the `no-words-oromo` fixture is a Phase-3 deliverable, not a
@@ -831,13 +872,22 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 6. **Open — do we write `words.speaker_id` for all ~40k words, or only the segment?** Write both.
    Word rows are what export-time splitting and the "two speakers in one segment" affordance need,
    and 40k `COPY`-batched updates are cheap. Revisit only with a measurement.
-7. **Open — Scribe's cost and duration cap** are not yet confirmed against the live API, so its
-   `capabilities().maxDurationMs` is a placeholder. Confirm before offering it as the documented
-   fallback for the small tier.
+7. **~~Open~~ — Closed 2026-08-12 by the user: ElevenLabs is not being used, for now.** Scribe's
+   cost and duration cap were never confirmed against the live API, and now will not be —
+   `scribe.ts` is not built, and this phase stops promising it. Overview amendment 48 carries
+   the consequences, of which the load-bearing one is that **the small tier has exactly one
+   mitigation left, the GPU tier**, and the honest answer for a box that can run neither is
+   that it does no diarization. That is already a supported configuration: `SIDECAR_URL`
+   unset prints a remediation rather than a stack trace.
+
+   Reopen this if a newsroom turns up that cannot host pyannote and wants diarization anyway.
+   Nothing in the code has to change to accept a second source — `DiarizationSource` and
+   `wordsToTurns`'s design survive in §2 precisely so the answer is an adapter and not a
+   refactor.
 
 ## Definition of done
 
-*Checked 2026-08-11. `[x]` means run, not read.*
+*Checked 2026-08-12. `[x]` means run, not read.*
 
 - [x] `services/sidecar` builds one image and serves `/health`, `POST /v1/diarize`,
       `GET /v1/tasks/{id}`, `DELETE /v1/tasks/{id}` with the exact schemas above.
@@ -852,19 +902,23 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
       temp audio file is deleted on every path.
 - [x] Audio reaches the sidecar only as an internally-presigned MinIO URL; the sidecar holds no
       credentials and no database connection.
-- [ ] `DiarizationSource` implemented twice — pyannote and Scribe — with Scribe collapsing diarized
-      words into turns via `wordsToTurns`, and reconcile seeing only `Turn[]`. **Scribe is not
-      built**: it needs an ElevenLabs key nobody has, and its cost and duration cap (open
-      question 7) are unconfirmed. pyannote alone is implemented behind the interface.
+- [x] *(descoped 2026-08-12)* `DiarizationSource` implemented **once**, by pyannote, with
+      reconcile seeing only `Turn[]`. Scribe was the second implementation and the user has
+      decided against ElevenLabs for now — open question 7, overview amendment 48. The
+      interface stays, and it still earns its place with one implementation: it is what keeps
+      the `Turn[]`/diarized-words distinction out of `reconcile.ts`, which is the hardest
+      correctness problem in the product. `wordsToTurns` remains specified in §2, unbuilt.
 - [x] `reconcile.ts` implements all five steps; `margin` is defined in exactly one place.
 - [x] Both median-filter guards are covered by separate fixtures, so dropping either one fails CI.
 - [x] `has_words = false` segments are **always** flagged, including at purity 1.0.
 - [x] Hungarian assignment lives in `packages/core/src/algo/hungarian.ts` with no dependency, is
       brute-force verified, and refuses above 64 speakers.
 - [x] Speaker rename survives a re-diarization, demonstrated by the CLI sequence in Verification.
-      *(Demonstrated against a stand-in that speaks the §1 contract, not against pyannote, which
-      cannot load until open question 1 is answered. The rename, the Hungarian match on
-      attributed time, the persistence and the CLI are all the real ones.)*
+      *(Against the real pyannote sidecar, 2026-08-12, twice: `thibi diarize run <runId>` in
+      place, and `thibi transcribe --job <id>` with a **different provider** — OpenAI then
+      Groq into one job, both speakers `carried across`, "Daw Khin" still holding 9 segments
+      and 124 words. Getting here needed amendments 45 and 46; the sequence this plan
+      originally gave proved nothing.)*
 - [x] `speakers` is scoped to `job_id`; `speaker_turns` keeps `raw_key`; `segments` carries
       `speaker_id`, `speaker_purity`, `needs_speaker_review`.
 - [x] Diarization runs whole-file; no chunk-boundary speaker logic exists anywhere in the tree.
@@ -873,11 +927,15 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
       estimate printed before a run is still S6's 0.6x constant, because no instance has five
       real runs to average yet and averaging one stand-in's canned 0.6x would be a fiction
       dressed as a measurement.
-- [ ] `thibi transcribe interview.wav --diarize` works end to end on real audio, and
-      `thibi diarize score` reports DER against an RTTM reference. **`score` is done** —
-      verified against two hand-written RTTMs, 0.0% on an exact match and 16.7% on one that
-      disagrees for 2.5 s of 15 s. The end-to-end run on real audio is blocked on open
-      question 1.
-- [ ] *(added 2026-08-11)* The contract test — `PyannoteSource` against the real container —
-      is not written. It is the check that stops the Python and TypeScript halves drifting,
-      and it needs the container to load a model.
+- [x] `thibi transcribe interview.wav --diarize` works end to end on real audio, and
+      `thibi diarize score` reports DER against an RTTM reference. Run 2026-08-12 through the
+      built CLI: OpenAI `whisper-1` for ASR, the real pyannote 4.0.7 sidecar, reconcile at
+      mean purity 1.00 with nothing flagged. `score` was verified against two hand-written
+      RTTMs — 0.0% on an exact match, 16.7% on one disagreeing for 2.5 s of 15 s — and S8
+      scored the container at DER 0.4%. **What has never been exercised** is anything longer
+      than 34 s, any long-tail language, any audio with real overlap or crosstalk, and
+      `--speakers`/`--min-speakers`/`--max-speakers`.
+- [x] *(added 2026-08-11, done 2026-08-12)* The contract test — `PyannoteSource` against the
+      real container, running the real model on committed two-speaker audio. Six assertions,
+      ~40 s, skipped unless `/health` reports the model loaded. See *Tests* and overview
+      amendment 47 for why it is not the canned pipeline this plan first asked for.

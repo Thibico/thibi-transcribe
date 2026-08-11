@@ -147,6 +147,10 @@ importers:
       rabbit-node:
         specifier: ^1.0.4
         version: 1.0.4
+    devDependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1106.0
+        version: 3.1106.0
 
   packages/eval:
     dependencies:

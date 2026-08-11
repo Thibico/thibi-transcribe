@@ -1,0 +1,37 @@
+{
+  "audio": "en-2spk-short.flac",
+  "generator": "packages/engine/scripts/make-2spk-fixture.mjs",
+  "durationMs": 11062,
+  "gapMs": 400,
+  "speakers": 2,
+  "turns": [
+    {
+      "startMs": 0,
+      "endMs": 1987,
+      "speakerKey": "A",
+      "voice": "Samantha",
+      "text": "When did the flooding start getting worse?"
+    },
+    {
+      "startMs": 2387,
+      "endMs": 6280,
+      "speakerKey": "B",
+      "voice": "Daniel",
+      "text": "Around two thousand nineteen. Before that, once a decade."
+    },
+    {
+      "startMs": 6680,
+      "endMs": 7222,
+      "speakerKey": "A",
+      "voice": "Samantha",
+      "text": "And now?"
+    },
+    {
+      "startMs": 7622,
+      "endMs": 11062,
+      "speakerKey": "B",
+      "voice": "Daniel",
+      "text": "Every single year. Eleven families have already left."
+    }
+  ]
+}
