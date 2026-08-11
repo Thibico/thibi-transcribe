@@ -291,8 +291,14 @@ volumes:
 
 `worker-heavy` only subscribes to `diarize.local` and `asr.local`, both of which are sidecar
 calls. With no sidecar it would idle forever holding ~80 MB, which matters on the 4 GB tier.
-Cloud diarization (ElevenLabs Scribe) is `diarize.cloud` and runs on the normal `worker`, so a
-small install still has a diarization path without the profile.
+
+> **Amended 2026-08-12 — overview amendment 48.** This paragraph used to end "cloud
+> diarization (ElevenLabs Scribe) is `diarize.cloud` and runs on the normal `worker`, so a
+> small install still has a diarization path without the profile." **It does not.** Scribe is
+> dropped, `diarize.cloud` has no implementation, and a small install without the profile has
+> **no diarization at all**. That is a supported configuration and must be stated as one — an
+> unset `SIDECAR_URL` already prints a remediation rather than a stack trace — but the
+> install docs may not imply a cloud path exists.
 
 Consequence, stated in the README: **a default install does cloud ASR only.** Set
 `PROFILES=local-models` to get pyannote and faster-whisper, and read §5 first.
@@ -715,8 +721,10 @@ Both pyannote 3.1 and faster-whisper `large-v3` fit comfortably in 12 GB togethe
 decisions look the way they do:** `worker-heavy` runs at concurrency 1 with a global advisory
 slot; the UI shows an estimate before you start; diarization polls rather than holding a worker
 slot; and the sidecar is behind a profile so a small install cannot accidentally queue a job
-that will still be running tomorrow. A newsroom that needs diarization against a deadline should
-use a GPU or configure ElevenLabs Scribe.
+that will still be running tomorrow. A newsroom that needs diarization against a deadline
+**needs a GPU** — that is the whole list since 2026-08-12 dropped Scribe (amendment 48), and
+it is the reason overview open question 1 (typical recording length and deadline pressure) has
+to be answered before this phase prices a tier.
 
 Print the realtime factor in the model picker, measured on this host after the first run, not
 from this table.

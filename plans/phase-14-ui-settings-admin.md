@@ -150,7 +150,7 @@ sentence that determines whether an admin trusts the box:
 | Groq | api key 🔒 | `GET /openai/v1/models` |
 | OpenRouter | api key 🔒 | `GET /api/v1/key` — returns remaining credit; show it |
 | Anthropic | api key 🔒 | `GET /v1/models` — ported from `test/route.ts:75-79` |
-| ElevenLabs | api key 🔒 | `GET /v1/user` (diarization fallback) |
+| ~~ElevenLabs~~ | — | **Dropped 2026-08-12**, overview amendment 48. No card, no key, and no "diarization fallback" copy anywhere in Settings |
 | faster-whisper / sidecar | base URL, shared token 🔒 | `GET /healthz` → render device, torch version, models loaded |
 | yt-dlp ingest | domain allowlist, max filesize, max duration | none (local) |
 
@@ -730,8 +730,9 @@ tested against the real string).
 
 ## Risks and open questions
 
-1. **Nine provider cards is a long page.** Group them: ASR (Google, OpenAI, Groq,
-   faster-whisper), Diarization (sidecar, ElevenLabs), LLM (Anthropic, OpenAI, OpenRouter),
+1. **Eight provider cards is a long page** — nine until ElevenLabs was dropped (amendment 48).
+   Group them: ASR (Google, OpenAI, Groq,
+   faster-whisper), Diarization (sidecar), LLM (Anthropic, OpenAI, OpenRouter),
    Storage (GCS staging), Ingest (yt-dlp) — with configured ones collapsed to a one-line summary.
    If it still sprawls, split into `/settings/providers/{asr,llm,other}` and keep the anchors.
 2. **Probe latency blocks page load.** `/admin/system` runs ten network probes. They are

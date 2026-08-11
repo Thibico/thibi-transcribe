@@ -38,7 +38,7 @@ builds the Python sidecar image and its task API, which Phase 4 fills the other 
 | `services/sidecar/tests/` | pytest suite with a canned pipeline |
 | `packages/engine/src/diarize/types.ts` | `DiarizationSource`, `Turn`, `DiarizeRequest/Handle/Status/Result` |
 | `packages/engine/src/diarize/pyannote.ts` | Sidecar-backed source |
-| `packages/engine/src/diarize/scribe.ts` | ElevenLabs Scribe source + `wordsToTurns` |
+| ~~`packages/engine/src/diarize/scribe.ts`~~ | ~~ElevenLabs Scribe source + `wordsToTurns`~~ — **not built, 2026-08-12**: the user decided against ElevenLabs for now. Design retained in §2, open question 7 |
 | `packages/engine/src/diarize/reconcile.ts` | **The centrepiece** — assignment, smoothing, voting, fallback |
 | `packages/engine/src/diarize/identity.ts` | Prior-speaker matching via Hungarian assignment |
 | `packages/engine/src/diarize/persist.ts` | Writes `diarization_runs`, `speaker_turns`, `speakers`, segment/word updates |
@@ -178,6 +178,11 @@ must not assume they are disjoint, and the fixtures include an overlapping case 
 reason.
 
 ### 2. `DiarizationSource` — an interface, so Scribe is an alternate and not a special case
+
+> **Scribe is not built (2026-08-12, open question 7).** Everything below is retained as the
+> specification a second source would be written against, not as a description of the tree.
+> The interface itself is built and still justified with one implementation: it is what keeps
+> "turns or diarized words?" out of `reconcile.ts`.
 
 ```ts
 export interface Turn { startMs: number; endMs: number; speakerKey: string }
@@ -590,9 +595,12 @@ problem whole-file diarization removes; stitch quality depends on the overlap co
 from every speaker, which it frequently does not; and errors compound window over window, so a
 single bad stitch corrupts everything downstream of it. The correct fix is memory: pyannote 3.1 on
 a three-hour 16 kHz mono file peaks around 6–8 GB, so give the sidecar 16 GB and the problem
-disappears. If a newsroom genuinely cannot, the supported answer is ElevenLabs Scribe — somebody
-else's memory. Measure and document the actual OOM ceiling on the reference box rather than
-guessing at it.
+disappears. If a newsroom genuinely cannot, the supported answer **was** ElevenLabs Scribe —
+somebody else's memory — and as of 2026-08-12 it is not: see open question 7. What is left is
+the GPU tier, or that instance doing no diarization, which `SIDECAR_URL` unset already
+supports without pretending otherwise. Measure and document the actual OOM ceiling on the
+reference box rather than guessing at it — that number now decides a deployment rather than
+selecting between two options.
 
 ### 6. CPU versus GPU, and what it forces
 
@@ -844,8 +852,11 @@ Docker must not read as a failure.
    (Phase 15) must check it before a user discovers it four hours into a job. Check the licence
    before assuming weights can be baked into an image variant.
 2. **The CPU realtime factor makes diarization close to unusable on the small tier.** The honest
-   mitigations are the GPU tier and Scribe. The docs must not imply otherwise, and the UI estimate
-   must be shown before the run, not in a tooltip.
+   mitigation is the GPU tier — *singular*, since 2026-08-12 removed Scribe (open question 7).
+   The docs must not imply otherwise, and the UI estimate must be shown before the run, not in
+   a tooltip. This risk got worse when the second mitigation went away, and it is now the main
+   argument for answering open question 1 (typical recording length and deadline pressure)
+   before Phase 15 prices the tiers.
 3. **Reconcile is only as good as the word timings.** With `wordTimingQuality: 'none'` the feature
    degrades to interval fallback with everything flagged. Per the overview's risk 2, **build and
    test that path first**, not last — the `no-words-oromo` fixture is a Phase-3 deliverable, not a
@@ -861,9 +872,18 @@ Docker must not read as a failure.
 6. **Open — do we write `words.speaker_id` for all ~40k words, or only the segment?** Write both.
    Word rows are what export-time splitting and the "two speakers in one segment" affordance need,
    and 40k `COPY`-batched updates are cheap. Revisit only with a measurement.
-7. **Open — Scribe's cost and duration cap** are not yet confirmed against the live API, so its
-   `capabilities().maxDurationMs` is a placeholder. Confirm before offering it as the documented
-   fallback for the small tier.
+7. **~~Open~~ — Closed 2026-08-12 by the user: ElevenLabs is not being used, for now.** Scribe's
+   cost and duration cap were never confirmed against the live API, and now will not be —
+   `scribe.ts` is not built, and this phase stops promising it. Overview amendment 48 carries
+   the consequences, of which the load-bearing one is that **the small tier has exactly one
+   mitigation left, the GPU tier**, and the honest answer for a box that can run neither is
+   that it does no diarization. That is already a supported configuration: `SIDECAR_URL`
+   unset prints a remediation rather than a stack trace.
+
+   Reopen this if a newsroom turns up that cannot host pyannote and wants diarization anyway.
+   Nothing in the code has to change to accept a second source — `DiarizationSource` and
+   `wordsToTurns`'s design survive in §2 precisely so the answer is an adapter and not a
+   refactor.
 
 ## Definition of done
 
@@ -882,10 +902,12 @@ Docker must not read as a failure.
       temp audio file is deleted on every path.
 - [x] Audio reaches the sidecar only as an internally-presigned MinIO URL; the sidecar holds no
       credentials and no database connection.
-- [ ] `DiarizationSource` implemented twice — pyannote and Scribe — with Scribe collapsing diarized
-      words into turns via `wordsToTurns`, and reconcile seeing only `Turn[]`. **Scribe is not
-      built**: it needs an ElevenLabs key nobody has, and its cost and duration cap (open
-      question 7) are unconfirmed. pyannote alone is implemented behind the interface.
+- [x] *(descoped 2026-08-12)* `DiarizationSource` implemented **once**, by pyannote, with
+      reconcile seeing only `Turn[]`. Scribe was the second implementation and the user has
+      decided against ElevenLabs for now — open question 7, overview amendment 48. The
+      interface stays, and it still earns its place with one implementation: it is what keeps
+      the `Turn[]`/diarized-words distinction out of `reconcile.ts`, which is the hardest
+      correctness problem in the product. `wordsToTurns` remains specified in §2, unbuilt.
 - [x] `reconcile.ts` implements all five steps; `margin` is defined in exactly one place.
 - [x] Both median-filter guards are covered by separate fixtures, so dropping either one fails CI.
 - [x] `has_words = false` segments are **always** flagged, including at purity 1.0.

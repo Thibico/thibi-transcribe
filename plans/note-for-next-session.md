@@ -15,7 +15,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 0 — spikes, monorepo, language registry | done |
 | 1 — engine core, Google sync, CLI | done |
 | 2 — batchRecognize, GCS staging, rates | done |
-| **3 — diarization** | **done but for one item.** The full path has run on real audio, the rename survives a re-diarization *and* a re-transcription with a different provider, and the contract test now runs `PyannoteSource` against the real container. Only `scribe.ts` remains, and it needs an ElevenLabs key nobody has |
+| **3 — diarization** | **done.** The full path has run on real audio, the rename survives a re-diarization *and* a re-transcription with a different provider, and the contract test runs `PyannoteSource` against the real container. `scribe.ts` was the last item and is **descoped** — the user decided against ElevenLabs on 2026-08-12 (amendment 48), so pyannote is the only diarization source |
 | **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b unblocked** — the sidecar image it needed exists |
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
@@ -33,18 +33,19 @@ separately (see *Known debt*).
 
 **Merge PR #16 first**, then choose. The branch is green and self-contained.
 
-**Phase 3 is finished** except `scribe.ts`, which is a *decision*, not a task — open question
-3 below. Everything the last three sittings listed as next is done: the presign gap
-(amendment 43), `--job` (46), the identity-matching defect (45), and the contract test (47).
+**Phase 3 is finished.** The presign gap (amendment 43), `--job` (46), the identity-matching
+defect (45) and the contract test (47) are all done, and `scribe.ts` — the last item — is
+descoped by the user's decision against ElevenLabs (48).
 
-So the fork is real now, and it is between two things:
+**Phase 4b is the phase in progress**, chosen 2026-08-12 because the build order puts 4 before
+5 and 4b is the unfinished half of a started phase.
 
 1. **Phase 4b.** The short hop: the image, the task registry and the single slot are already
    built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
    `asr.py` is a 501 stub waiting for exactly that. It is also the only route to **per-word
    confidence from something that is not Google**, which every downstream quality feature
    assumes.
-2. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It has
+2. **Phase 5, the eval harness**, is what follows it. It has
    *three* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, S7's 68
    accepted-but-unmeasured language codes, and `reconcile.ts`'s five chosen-not-measured
    thresholds — `purityReviewBelow: 0.6` in particular, which is known to let a real second
@@ -182,11 +183,13 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
    score` is built and needs an RTTM. S8 scored two macOS TTS voices with silence between
    turns — a floor on difficulty, not evidence about an interview with crosstalk — and
    nothing has ever measured diarization accuracy on Burmese or on real multi-mic audio.
-3. **Is an ElevenLabs Scribe key worth getting?** It is the documented answer to "this box
-   cannot run pyannote", and `scribe.ts` is now the **last** open Definition-of-done item in
-   Phase 3 — the phase closes on this answer. Its
-   cost and duration cap are also unconfirmed (Phase 3 open question 7). If the answer is no,
-   say so and the plan should stop promising it.
+3. **~~Is an ElevenLabs Scribe key worth getting?~~ Answered 2026-08-12: no, not for now.**
+   `scribe.ts` is not built and every document that promised a hosted diarization fallback is
+   corrected — amendment 48, Phase 3 open question 7, Phase 14's provider table, Phase 15
+   §"Why `sidecar` and `worker-heavy` share a profile" and its tier note. **The consequence
+   is question 1's, and it got sharper**: pyannote's CPU realtime factor had two honest
+   mitigations and now has one, the GPU tier. A newsroom that can run neither does no
+   diarization, which is supported and must never be described as a fallback.
 4. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
    against the Dynamic Batch SKU rather than Recognition. Needs a real invoice. Phase 14.
 5. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
@@ -197,9 +200,11 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 
 ## Known debt, recorded not hidden
 
-- **Phase 3's one open Definition-of-done item**: `scribe.ts`, which needs an ElevenLabs key
-  nobody has. Recorded as unchecked in [`phase-03-diarization.md`](./phase-03-diarization.md)
-  rather than dropped. The contract test is done.
+- **Phase 3 has no open Definition-of-done items.** `scribe.ts` was the last and is descoped,
+  not forgotten: the design survives in Phase 3 §2 and amendment 48 says what has to be true
+  for it to come back. **The debt it leaves is in the docs, not the code** — every place that
+  described a hosted diarization fallback has been corrected, and nothing written from here
+  on may reintroduce one.
 - **The contract test costs ~40 s** of the suite whenever the sidecar is up, because it runs
   a genuine 11-second diarization (see amendment 47 for why it is not a canned pipeline). It
   skips itself, naming the missing service, when the sidecar is unreachable or its model is
