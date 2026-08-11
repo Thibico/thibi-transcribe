@@ -1,12 +1,17 @@
-# Development services only — Postgres and MinIO.
+# Development services — Postgres, MinIO, and the diarization sidecar.
 #
-# The full stack (caddy, web, worker, worker-heavy, sidecar, migrate, backup) is Phase 15.
-# This file exists so Phase 1 can be developed and tested against the real datastores rather
-# than mocks, because the things most likely to be wrong — partial unique indexes, CHECK
+# The full stack (caddy, web, worker, worker-heavy, migrate, backup) is Phase 15. This file
+# exists so Phase 1 can be developed and tested against the real datastores rather than
+# mocks, because the things most likely to be wrong — partial unique indexes, CHECK
 # constraints, COPY, presigned URLs — are exactly the things a mock cannot tell you about.
 #
 #   docker compose -f infra/compose.dev.yml up -d
 #   docker compose -f infra/compose.dev.yml down -v     # -v also drops the data
+#
+# The sidecar is behind a profile because it is a ~4 GB image nobody needs to pull to run
+# the test suite:
+#
+#   docker compose -f infra/compose.dev.yml --profile diarize up -d sidecar
 
 name: thibi-dev
 
@@ -59,6 +64,36 @@ services:
         echo 'bucket ready'
       "
 
+  sidecar:
+    profiles: ['diarize']
+    build:
+      context: ../services/sidecar
+      # Swap for https://download.pytorch.org/whl/cu124 to build the CUDA variant.
+      args:
+        TORCH_INDEX: https://download.pytorch.org/whl/cpu
+    restart: unless-stopped
+    environment:
+      SIDECAR_DEVICE: cpu
+      # A gated Hugging Face model. Accepting the terms is a manual step and the most
+      # common first-run failure; /health names both gate URLs when this is missing or the
+      # terms are unaccepted, rather than the container exiting with nothing to read.
+      SIDECAR_HF_TOKEN: ${HF_TOKEN:-}
+    ports:
+      - '8081:8081'
+    volumes:
+      # Keeps the weight download off every cold start: 26.4 s cold against 5.7 s warm (S6).
+      - hf-cache:/cache/hf
+      - sidecar-tasks:/data/tasks
+    # pyannote 3.1 on a three-hour 16 kHz mono file peaks around 6-8 GB. 16 GB is the
+    # answer to an OOM here — windowed diarization is not, because it reintroduces exactly
+    # the identity problem whole-file diarization removes. See phase-03 §5.
+    mem_limit: 16g
+    depends_on:
+      minio:
+        condition: service_healthy
+
 volumes:
   pgdata:
   miniodata:
+  hf-cache:
+  sidecar-tasks:

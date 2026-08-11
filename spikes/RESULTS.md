@@ -14,19 +14,19 @@ two things unsettled that Phase 2 rests on entirely — whether the credentials 
 a staging bucket, and whether batch is actually cheaper — and building on either
 unmeasured would have been the exact mistake this project exists to avoid.
 
-S7 ran **2026-08-11** at the top of Phase 3, and exists because Phase 4a noticed something
-that could have made the whole phase unnecessary: OpenAI ships a `gpt-4o-transcribe-diarize`
-model with a `diarized_json` response format. Phase 3 is built on the premise that
-diarization means pyannote on our own hardware at ~0.6× realtime, and a hosted diarizing
-ASR is a `DiarizationSource` that simply did not exist when that premise was formed. The
-handoff note said to probe it before committing to the sidecar. This is that probe.
-
 S6 ran **2026-08-10** ahead of Phase 3, and is the first spike that is not about a paid API.
 Phase 3's plan carried a CPU throughput range it had never measured, and every product
 decision in that phase — diarization off by default, the estimate shown before the run, the
 12× deadline, the GPU tier in the deployment guide — hangs off it. Phase 15 §9 had already
 written down what to do about that: *"if pyannote on this box is not 0.15–0.4× realtime, fix
 the table, not the claim."* This is that.
+
+S7 ran **2026-08-11** at the top of Phase 3, and exists because Phase 4a noticed something
+that could have made the whole phase unnecessary: OpenAI ships a `gpt-4o-transcribe-diarize`
+model with a `diarized_json` response format. Phase 3 is built on the premise that
+diarization means pyannote on our own hardware at ~0.6× realtime, and a hosted diarizing
+ASR is a `DiarizationSource` that simply did not exist when that premise was formed. The
+handoff note said to probe it before committing to the sidecar. This is that probe.
 
 | id | date | region | model | verdict | evidence | raw |
 |----|------|--------|-------|---------|----------|-----|
@@ -36,7 +36,6 @@ the table, not the claim."* This is that.
 | S4 | 2026-08-10 | asia-southeast1 | — | **FAIL then PASS — `roles/storage.objectAdmin` cannot read bucket metadata.** Write 200, delete 204, `storage.buckets.get` **403**, so region and lifecycle were unverifiable and Phase 2 would have refused a correctly configured bucket. After granting `roles/storage.legacyBucketReader`: `ASIA-SOUTHEAST1`, `region`, `STANDARD`, `Delete age=1`. | The remediation in the plan changes from `roles/storage.admin` to `roles/storage.legacyBucketReader`. Fold case before comparing `location`. The Speech service agent needed nothing — a same-project bucket is covered by the project's automatic `roles/speech.serviceAgent`. | — |
 | S5 | 2026-08-10 | — | — | **PASS — the Dynamic Batch rate advantage is real: 5.33×.** `Cloud Speech-to-Text Recognition` $0.016/min against `Cloud Speech-to-Text Dynamic Batch Recognition` $0.003/min, from the Cloud Billing Catalog rather than from documentation. | Batch's one surviving justification holds, so Phase 2 is worth building. Recognition is tiered and Dynamic Batch is flat, so the ratio belongs in the `rates` table, not in code. A `(Logged)` SKU is 25% cheaper in exchange for Google retaining the audio: never a default. | — |
 | S6 | 2026-08-10 | — | pyannote/speaker-diarization-3.1 | **The inherited CPU range was wrong, and diarization is 1.5–4× faster than planned — but still slower than realtime.** 0.56–0.61× over two runs of 25 min of 4-speaker audio (317 turns), and 0.74–0.79× on a 106 s monologue, against a planned 0.15–0.4×. Speaker count costs real time: the monologue is ~25% faster than the multi-speaker file, so **plan with ~0.6×** and treat 0.79× as a single-speaker best case. Run-to-run variance is 6–8%, so nothing here is worth more than two significant figures. | A 1-hour file is **~1 h 40 m**, not 2.5–7 h; a 3-hour file is **~5 h**, not 7.5–20 h. Diarization stays off by default and off the critical path, but it is a slow background job rather than an unusable one, and the GPU tier moves from mandatory to a throughput choice. Every `0.15–0.4×` in the plans is now wrong in the safe direction and is corrected. | `raw/s6-*.json` |
-
 | S7 | 2026-08-11 | — | gpt-4o-transcribe-diarize | **FAIL for this product, and the diarization is not why.** Speaker attribution on a constructed 2-speaker reference is good — DER 9.2%, **0% confusion**, 63 ms median boundary error. Everything around it disqualifies it: `language=my` is **rejected outright**; **39 of our 116 seeded locales** have no code the endpoint will accept; `mya` *is* accepted and over **20 identical requests returned 20 different transcripts, 0 in Myanmar script**; a hard **1400 s (23 m 20 s) duration ceiling**; and **no word timings at any granularity**. | Phase 3 proceeds with the pyannote sidecar exactly as planned; §6's "diarization must never gate the transcript" invariant is untouched. Not added as a `DiarizationSource`. The failure is specific to the long tail — for an English-only newsroom this model would be a serious option, which is precisely why the verdict had to be measured per language rather than in general. | `raw/s7-*.json` |
 
 ## S2 per language, over the sample most likely to be missing the word array
@@ -309,6 +308,16 @@ part of this spike worth keeping.
 - **Burmese with a working `language` code**, because there is no such thing to test.
 - **`known_speaker_names[]` / `known_speaker_references[]`.** Documented, up to four
   speakers with 2–10 s reference clips. Untested — the language result made it moot.
+- **Throughput at length. Three attempts, no result.** The 33.6 s clip ran at 2.3–2.6×
+  realtime and the 105.9 s Burmese clip at 3.0×, which would put a 23-minute file around
+  ten minutes. It was submitted three times — once as a 43 MB FLAC, twice as a 7.6 MB
+  Opus — and **never returned**, the last attempt abandoned after 38 minutes against 23
+  minutes of audio. The first two deaths were ours (undici's headers timeout); the third
+  was over `node:https` with no timeout at all and simply never produced a response.
+  So the short-clip rate does **not** extrapolate, and there is no head-to-head against
+  S6's pyannote run on the same podcast. Recorded as an unknown rather than estimated: a
+  synchronous endpoint with no task handle that stops answering is a availability property
+  worth knowing about, but three samples on one afternoon do not establish what it is.
 
 ## Reproducing
 

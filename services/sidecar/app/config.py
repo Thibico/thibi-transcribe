@@ -1,0 +1,71 @@
+"""Sidecar configuration.
+
+Read from the environment exactly once, here. The engine packages are forbidden ambient
+configuration by an ESLint rule and a CI grep; this service is the Python equivalent of
+`apps/cli/src/context.ts` — the one module allowed to look at `os.environ`, with an
+exhaustive list of what it may look at.
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import Literal, Optional
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="SIDECAR_", extra="ignore")
+
+    #: 'cpu' | 'cuda'. S6 measured ~0.6x realtime on six CPU cores; the 8-20x GPU figure in
+    #: the plans is inherited and still unmeasured, and must not be quoted until it is.
+    device: Literal["cpu", "cuda"] = "cpu"
+
+    #: **One.** pyannote and faster-whisper both saturate every core and both allocate
+    #: GB-scale tensors, so two concurrent tasks are *slower* than running them in sequence
+    #: and can OOM the container. The 429 this produces is what makes the single slot
+    #: visible to the caller instead of turning into a mysterious timeout.
+    max_concurrent_tasks: int = 1
+
+    #: A completed task's result stays fetchable this long, so a re-POST after a lost
+    #: response returns the cached answer instead of re-running an hour of compute.
+    task_ttl_s: int = 86_400
+
+    diarization_model: str = "pyannote/speaker-diarization-3.1"
+    hf_token: Optional[str] = None
+    hf_home: str = "/cache/hf"
+
+    #: Where the task journal lives. Survives a container restart so a known id resolves to
+    #: `lost` rather than 404 — see `tasks.py` for why that distinction is load-bearing.
+    data_dir: str = "/data/tasks"
+
+    #: Seeds `/health.realtime_factor_estimate` until this instance has measured its own.
+    #: S6, 2026-08-10, multi-speaker CPU. Deliberately the pessimistic end of 0.56-0.61.
+    default_realtime_factor: float = 0.56
+
+    #: ffprobe duration must agree with the client's `expected_duration_ms` within this.
+    duration_tolerance_ms: int = 1000
+
+    #: torch thread count. None leaves torch's own choice, which picked 6 on a 12-thread
+    #: box in S6; `--threads 12` was never tried and might help or thrash.
+    torch_threads: Optional[int] = None
+
+    @property
+    def gate_urls(self) -> list[str]:
+        """The two gates a human has to accept, in the order they fail.
+
+        `pyannote/speaker-diarization-3.1` and `pyannote/segmentation-3.0` are gated
+        **separately** (S6): accepting only the first still fails at pipeline load, with an
+        error that does not name the second. Anything reporting `model_unavailable` prints
+        both, because a newsroom that accepts one and stops is the likeliest first-run
+        failure this service has.
+        """
+        return [
+            "https://huggingface.co/pyannote/speaker-diarization-3.1",
+            "https://huggingface.co/pyannote/segmentation-3.0",
+        ]
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()
