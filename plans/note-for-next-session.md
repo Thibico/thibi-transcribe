@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #12. Everything above is merged, nothing in flight.
+`main` is at the merge of PR #13. Everything above is merged, nothing in flight.
 
 At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
 tests, nothing skipped**, with Postgres and MinIO up — checked three consecutive times with
@@ -36,7 +36,11 @@ separately (see *Known debt*).
 
 Then, in preference order:
 
-1. **Close the presign gap — amendment 43.** SigV4 signs the `Host` header, so a URL minted
+1. **Decide whether `thibi transcribe` should take `--job <id>` — amendment 46.** It mints a
+   fresh job for a byte-identical file, so "re-transcribe and watch the name survive" needs
+   `thibi diarize run <runId>` instead. That works and is now the documented demo, but a
+   newsroom re-transcribing a file with a better provider will expect the names to follow.
+2. **~~Close the presign gap~~ — done.** `S3_INTERNAL_ENDPOINT` (amendment 43). SigV4 signs the `Host` header, so a URL minted
    by the CLI on a laptop against `localhost:9000` is rejected 403 when the sidecar fetches
    it as `minio:9000`. Phase 3 §1 assumed the engine runs inside compose; the CLI does not.
    `S3ObjectStore` takes a `signingClient`, but its doc and every caller point it at the
@@ -44,13 +48,13 @@ Then, in preference order:
    wired up, a local `thibi transcribe --diarize` cannot reach the audio** — which also
    means the sidecar contract test cannot be written against a real run. Small, and it
    blocks the last unfinished thing in the phase.
-2. **The sidecar contract test**, immediately after. `/v1/tasks/by-key/{key}` exists so the
+3. **The sidecar contract test.** `/v1/tasks/by-key/{key}` exists so the
    deterministic-id claim is checkable from outside, and S8's `spikes/s8-run-sidecar.mjs`
    already drives the whole path — it is most of the test with the assertions missing.
-3. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
+4. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
    built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
    `asr.py` is a 501 stub waiting for exactly that.
-4. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
+5. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
    has *two* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, and
    S7's 68 accepted-but-unmeasured language codes. `thibi diarize score` also exists now, so
    Phase 5 can tune `reconcile.ts`'s five chosen-not-measured thresholds the moment somebody
@@ -185,17 +189,15 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   Desktop runs every container inside a Linux VM; S6's native 0.74–0.79× on the identical
   file is ~1.5× faster. On the Linux reference box a container is native. S6's ~0.6× planning
   figure stands and still wants re-measuring on the deployment host.
-- **Real audio has now been diarized (S8), but not through the CLI.** Two macOS TTS voices
-  and one Burmese monologue, both under two minutes, driven straight at the sidecar's HTTP
-  API by `spikes/s8-run-sidecar.mjs`. The rename-survives-re-diarization demo is still the
-  one run against a stand-in speaking the §1 contract — everything in that sequence is the
-  real implementation except the source of the turns, and it stays that way until the
-  presign gap above is closed.
-- **The estimate shown before a diarization is still S6's 0.6× constant.** Phase 3 §6 item 4
-  asks for the mean of the last five `diarization_runs.realtime_factor` on this instance. The
-  sidecar now reports a real factor and `/health` medians it, but no run has reached the
-  `diarization_runs` table through the CLI yet, so the column the estimate reads is still
-  empty. Closing the presign gap closes this too.
+- **The full pipeline has now run end to end on real audio, through the CLI**: OpenAI ASR,
+  the real pyannote sidecar, reconcile at mean purity 1.00, and the rename-survives
+  demo carrying "Daw Khin" across a re-diarization with 5 segments and 62 words still under
+  it. What has *not* been exercised: anything longer than 34 s, any long-tail language, any
+  audio with genuine overlap or crosstalk, and `--speakers`/`--min-speakers`/`--max-speakers`.
+- **The estimate shown before a diarization is still S6's 0.6× constant**, even though
+  `diarization_runs.realtime_factor` now holds real numbers (0.36-0.51× on this box). Phase 3
+  §6 item 4 asks for the mean of the last five on this instance; nothing reads the column
+  yet. Small, and now unblocked.
 - **`persistDiarization` is not idempotent per run.** Calling it twice for the same run
   inserts a second `diarization_runs` row and re-attributes the same segments. That is honest
   — each call *was* an attempt — but nothing dedupes, and Phase 9's retry loop will need to

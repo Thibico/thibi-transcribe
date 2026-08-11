@@ -721,15 +721,26 @@ $ thibi export <runId> --format txt --speakers | head -3
 Speaker 00: …
 ```
 
-**The headline demo — identity survives re-transcription:**
+**The headline demo — identity survives re-diarization:**
 
 ```
 $ thibi speakers rename <jobId> speaker-01 "Daw Khin"
-$ thibi transcribe fixtures/interview-2spk-6min.wav --lang my --diarize      # new run
-$ thibi runs show <newRunId> --speakers
-speaker-00  (unnamed)  61%
-speaker-01  Daw Khin   39%          ← carried across, via Hungarian on attributed time
+$ thibi diarize run <runId>                       # re-diarize the SAME run, in place
+done       0.48x realtime  speakers=2
+           speaker-00  (unnamed)  carried across  (SPEAKER_01)
+           speaker-01  Daw Khin   carried across  (SPEAKER_00)
+
+$ thibi speakers list <jobId>
+speaker-00  (unnamed)   34%   4 segments   39 words
+speaker-01  Daw Khin    66%   5 segments   62 words
 ```
+
+> *Amended 2026-08-12, measured.* This sequence used to re-run `thibi transcribe … --diarize`
+> and call it "# new run". **It is a new *job*.** The `media_assets` row is content-addressed
+> and deduped, the `jobs` row is not, so a second `transcribe` of the identical file lands
+> its speakers on a job the rename never touched — and the demo appears to pass while
+> proving nothing. `thibi diarize run <runId>` is the sequence that exercises the matcher.
+> Whether `transcribe` should accept `--job <id>` is open. Overview amendments 45 and 46.
 
 **Restart resilience:** `docker compose restart sidecar` mid-task → engine polls, sees `lost`,
 counts an attempt, resubmits once, completes.
