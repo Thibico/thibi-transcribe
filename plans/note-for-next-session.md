@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-12, end of the Phase 4b sitting.
+**Last updated:** 2026-08-12, end of the S9 sitting.
 
 ---
 
@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #18**. Everything below is merged and **nothing is in flight**: the sidecar contract test, the ElevenLabs decision, and the whole of Phase 4b.
+`main` is at the merge of **PR #18**. **PR #19 — spike S9 and the two defects it found — is open and green.**
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
 skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
@@ -39,21 +39,26 @@ distinction matters more than usual here:
 So the next phase is **Phase 5, the eval harness**, and it now arrives with an unusually
 sharp first task rather than a menu.
 
-1. **Measure faster-whisper on Burmese, before anything else.** Amendment 51:
-   `exclusiveTo: 'google'` dropped from 21 to 20 today because faster-whisper's matrix column
-   claims `my` on no evidence. The product's sentence is currently "only Google is *known* to
-   work for Burmese", and one measurement settles whether it goes back to "only Google
-   works". These are the same `whisper-large-v3` weights Groq was measured returning
-   Myanmar-script non-words from, so the expected answer is a demotion to
-   `measured-failure` — but expecting is not measuring, and this project exists because of
-   that difference.
+1. **~~Measure faster-whisper on Burmese~~ — done, 2026-08-12, spike S9.** The answer is no:
+   `language=my` returns Khmer script or nothing at all, autodetect returns Vietnamese YouTube
+   boilerplate at mean word probability 0.892. `my-MM` is `measured-failure`, and
+   `exclusiveTo: 'google'` is **21** again. Amendment 52.
+
+   **The finding that outlives Burmese is amendment 53**: genuine per-word confidence was
+   *high* on invented words. It measures the decoder's certainty about its own next token, not
+   whether the audio contains any of it — so everything Phase 12 builds on it is a guide to
+   where the model hesitated, never evidence that the rest is right. Write the UI copy
+   accordingly, and note that only Phase 5's CER can make the stronger claim.
 2. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
    same 23 now mirrored onto faster-whisper, S7's 68 accepted-but-unmeasured codes, and
    `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
    particular, which is known to let a real second speaker through.
-3. **Somewhere in there, run `large-v3` once on this box** and put a real number beside the
-   plan's inherited "1-2x realtime". `thibi models pull large-v3` exists to make that a
-   deliberate three-gigabyte wait rather than a run that looks hung.
+3. **Do not try to benchmark `large-v3` on this machine.** S9 tried: it needs ~6.7 GB, the
+   Docker Desktop VM has 7.65 GB total, and with pyannote also resident the container is
+   killed mid-transcription. Even alone it thrashes — a 2-second clip took minutes. A real
+   throughput number for this model needs a bigger box, and amendment 54 is the reason the
+   deployment memory requirement is pyannote **plus** the ASR model rather than the larger of
+   the two.
 
 **Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
 out: it reintroduces exactly the identity problem whole-file diarization removes. The answer
@@ -62,6 +67,18 @@ to memory is memory.
 ---
 
 ## What you would otherwise rediscover
+
+**A high per-word confidence is not evidence the words are real.** S9's Vietnamese
+hallucination — fabricated YouTube boilerplate over Burmese audio — scored a mean word
+probability of **0.892**, from the one provider whose genuine per-word confidence is its
+reason for being here. The number is the decoder's certainty about its own next token.
+Amendment 53, and it constrains every confidence-shaped feature in Phase 12.
+
+**A `mem_limit` larger than the host's memory is not headroom, it is a disabled limit.**
+`mem_limit: 16g` on a 7.65 GB Docker Desktop VM means the cgroup never fires, the VM's kernel
+does the killing instead, and Docker reports `exit 0, OOMKilled: false` — a clean exit for an
+OOM. If a container dies mid-work with exit 0, compare the limit against
+`docker info --format '{{.MemTotal}}'` before believing anything else.
 
 **A comment is not an install line.** The sidecar Dockerfile's header said "one image for both
 halves ... pyannote and faster-whisper" from the day it was written, and the `pip install`

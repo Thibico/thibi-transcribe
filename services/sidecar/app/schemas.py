@@ -219,7 +219,11 @@ class TaskStatus(BaseModel):
 
 class ModelStatus(BaseModel):
     diarization: Literal["loaded", "not_loaded", "unavailable"]
-    asr: Literal["loaded", "not_loaded", "unavailable"]
+    #: `loading` exists because a cold `large-v3` is a three-gigabyte download that takes
+    #: minutes, and an operator watching a container do nothing needs to be told which of
+    #: "working" and "wedged" it is. It is also what `/health` reports *without waiting on the
+    #: load*, which the first version of this endpoint did — see `asr._loading`.
+    asr: Literal["loaded", "loading", "not_loaded", "unavailable"]
 
 
 class Slots(BaseModel):
