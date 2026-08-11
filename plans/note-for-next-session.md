@@ -20,12 +20,13 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #10. **Phase 3's last two commits are in flight**, on branch
-`phase-3/persist-and-cli` with an open PR — not merged. Everything else above is merged.
+`main` is at the merge of PR #11. Everything above is merged, nothing in flight.
 
-On that branch, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
-tests, nothing skipped**, with Postgres and MinIO up. `pnpm gen` is idempotent. The sidecar's
-own suite is **30 pytest tests**, still run separately (see *Known debt*).
+At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
+tests, nothing skipped**, with Postgres and MinIO up — checked three consecutive times with
+the sidecar container also running, because the failure it replaced was intermittent.
+`pnpm gen` is idempotent. The sidecar's own suite is **30 pytest tests**, still run
+separately (see *Known debt*).
 
 ---
 
