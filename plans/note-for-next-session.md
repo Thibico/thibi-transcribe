@@ -51,10 +51,10 @@ Then, in preference order:
 3. **The sidecar contract test.** `/v1/tasks/by-key/{key}` exists so the
    deterministic-id claim is checkable from outside, and S8's `spikes/s8-run-sidecar.mjs`
    already drives the whole path — it is most of the test with the assertions missing.
-4. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
+2. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
    built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
    `asr.py` is a 501 stub waiting for exactly that.
-5. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
+3. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
    has *two* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, and
    S7's 68 accepted-but-unmeasured language codes. `thibi diarize score` also exists now, so
    Phase 5 can tune `reconcile.ts`'s five chosen-not-measured thresholds the moment somebody

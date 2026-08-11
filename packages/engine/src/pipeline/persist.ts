@@ -32,6 +32,48 @@ export interface CreateRunInput {
   model: string;
   mode: 'sync' | 'sync_chunked' | 'batch';
   projectId?: string | null;
+  /**
+   * Attach this run to an existing job instead of minting one.
+   *
+   * Why it exists: `speakers` is scoped to `job_id`, so *"Speaker 01 is Daw Khin"* only
+   * carries forward within a job. Without this, re-transcribing a recording with a better
+   * provider produced a second job and a fresh set of unnamed speakers — the identity
+   * matcher never saw a prior at all. Overview amendment 46.
+   *
+   * The job's asset must be the same recording, and `createRun` refuses otherwise. That
+   * check is the whole safety of this parameter: a speaker name is a fact about *a
+   * recording*, so attaching a different one would hand a human's names to a timeline they
+   * never listened to, and the Hungarian matcher would place them by coincidental overlap
+   * without complaining.
+   */
+  jobId?: string | null;
+}
+
+export class JobNotFoundError extends Error {
+  constructor(jobId: string) {
+    super(`No job ${jobId}.`);
+    this.name = 'JobNotFoundError';
+  }
+}
+
+/**
+ * `--job` named a job holding a different recording.
+ *
+ * Its own class rather than a generic failure because the remedy is specific and the
+ * mistake is easy: two files, one job id, and a paste. A speaker name is a fact about a
+ * *recording*, so letting this through would hand a human's names to a timeline they never
+ * listened to — and the Hungarian matcher would place them by coincidental overlap without
+ * complaining once.
+ */
+export class JobAssetMismatchError extends Error {
+  constructor(jobId: string, jobAssetId: string, fileAssetId: string) {
+    super(
+      `Job ${jobId} is a different recording: its audio is asset ${jobAssetId}, and this ` +
+        `file hashes to ${fileAssetId}. Speaker names belong to a recording, so attaching ` +
+        `another one to this job would mis-attribute them. Drop --job to start a new job.`,
+    );
+    this.name = 'JobAssetMismatchError';
+  }
 }
 
 export interface CreateRunResult {
@@ -78,12 +120,32 @@ export async function createRun(
       assetId = inserted.rows[0]!.id;
     }
 
-    const job = await client.query<{ id: string }>(
-      `insert into jobs (project_id, asset_id, title, language_code, status)
-       values ($1,$2,$3,$4,'running') returning id`,
-      [input.projectId ?? null, assetId, input.title, input.languageCode],
-    );
-    const jobId = job.rows[0]!.id;
+    let jobId: string;
+    if (input.jobId) {
+      const target = await client.query<{ id: string; asset_id: string }>(
+        'select id, asset_id from jobs where id = $1',
+        [input.jobId],
+      );
+      const row = target.rows[0];
+      if (!row) throw new JobNotFoundError(input.jobId);
+      // Refused rather than warned. The failure it prevents is silent: the run would
+      // succeed, the speaker names would attach to a recording nobody checked them
+      // against, and the only symptom is a transcript quoting the wrong person.
+      if (row.asset_id !== assetId) throw new JobAssetMismatchError(input.jobId, row.asset_id, assetId);
+      jobId = row.id;
+      await client.query(
+        `update jobs set status = 'running', language_code = $2, updated_at = now()
+          where id = $1`,
+        [jobId, input.languageCode],
+      );
+    } else {
+      const job = await client.query<{ id: string }>(
+        `insert into jobs (project_id, asset_id, title, language_code, status)
+         values ($1,$2,$3,$4,'running') returning id`,
+        [input.projectId ?? null, assetId, input.title, input.languageCode],
+      );
+      jobId = job.rows[0]!.id;
+    }
 
     const run = await client.query<{ id: string }>(
       `insert into runs

@@ -71,6 +71,13 @@ export function transcribeCommand(): Command {
     .option('-o, --out <path>', 'output path, or - for stdout', '-')
     .option('-f, --format <format>', 'json | text', 'json')
     .option('--no-db', 'run without Postgres or MinIO; nothing is persisted')
+    .option(
+      '--job <id>',
+      'attach this run to an existing job instead of starting a new one. Speakers are ' +
+        'scoped to the job, so this is what carries a name like "Daw Khin" across a ' +
+        're-transcription with a different provider. Refuses if the job holds a ' +
+        'different recording.',
+    )
     .option('--max-duration <seconds>', 'transcribe only the first N seconds', Number)
     .option(
       '-c, --concurrency <n>',
@@ -269,6 +276,10 @@ export function transcribeCommand(): Command {
             // for every single-request run. It also has to be right from the start on the
             // batch path: `mode='batch'` is what makes an interrupted run findable.
             mode: decision.mode,
+            // Without this, re-transcribing a recording mints a second job and a fresh set
+            // of unnamed speakers, because `speakers` is scoped to `job_id` — the identity
+            // matcher never sees a prior at all. Overview amendment 46.
+            ...(opts.job ? { jobId: String(opts.job) } : {}),
           });
           runId = created.runId;
           jobId = created.jobId;
