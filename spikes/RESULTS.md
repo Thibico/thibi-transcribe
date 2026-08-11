@@ -14,6 +14,13 @@ two things unsettled that Phase 2 rests on entirely — whether the credentials 
 a staging bucket, and whether batch is actually cheaper — and building on either
 unmeasured would have been the exact mistake this project exists to avoid.
 
+S7 ran **2026-08-11** at the top of Phase 3, and exists because Phase 4a noticed something
+that could have made the whole phase unnecessary: OpenAI ships a `gpt-4o-transcribe-diarize`
+model with a `diarized_json` response format. Phase 3 is built on the premise that
+diarization means pyannote on our own hardware at ~0.6× realtime, and a hosted diarizing
+ASR is a `DiarizationSource` that simply did not exist when that premise was formed. The
+handoff note said to probe it before committing to the sidecar. This is that probe.
+
 S6 ran **2026-08-10** ahead of Phase 3, and is the first spike that is not about a paid API.
 Phase 3's plan carried a CPU throughput range it had never measured, and every product
 decision in that phase — diarization off by default, the estimate shown before the run, the
@@ -29,6 +36,8 @@ the table, not the claim."* This is that.
 | S4 | 2026-08-10 | asia-southeast1 | — | **FAIL then PASS — `roles/storage.objectAdmin` cannot read bucket metadata.** Write 200, delete 204, `storage.buckets.get` **403**, so region and lifecycle were unverifiable and Phase 2 would have refused a correctly configured bucket. After granting `roles/storage.legacyBucketReader`: `ASIA-SOUTHEAST1`, `region`, `STANDARD`, `Delete age=1`. | The remediation in the plan changes from `roles/storage.admin` to `roles/storage.legacyBucketReader`. Fold case before comparing `location`. The Speech service agent needed nothing — a same-project bucket is covered by the project's automatic `roles/speech.serviceAgent`. | — |
 | S5 | 2026-08-10 | — | — | **PASS — the Dynamic Batch rate advantage is real: 5.33×.** `Cloud Speech-to-Text Recognition` $0.016/min against `Cloud Speech-to-Text Dynamic Batch Recognition` $0.003/min, from the Cloud Billing Catalog rather than from documentation. | Batch's one surviving justification holds, so Phase 2 is worth building. Recognition is tiered and Dynamic Batch is flat, so the ratio belongs in the `rates` table, not in code. A `(Logged)` SKU is 25% cheaper in exchange for Google retaining the audio: never a default. | — |
 | S6 | 2026-08-10 | — | pyannote/speaker-diarization-3.1 | **The inherited CPU range was wrong, and diarization is 1.5–4× faster than planned — but still slower than realtime.** 0.56–0.61× over two runs of 25 min of 4-speaker audio (317 turns), and 0.74–0.79× on a 106 s monologue, against a planned 0.15–0.4×. Speaker count costs real time: the monologue is ~25% faster than the multi-speaker file, so **plan with ~0.6×** and treat 0.79× as a single-speaker best case. Run-to-run variance is 6–8%, so nothing here is worth more than two significant figures. | A 1-hour file is **~1 h 40 m**, not 2.5–7 h; a 3-hour file is **~5 h**, not 7.5–20 h. Diarization stays off by default and off the critical path, but it is a slow background job rather than an unusable one, and the GPU tier moves from mandatory to a throughput choice. Every `0.15–0.4×` in the plans is now wrong in the safe direction and is corrected. | `raw/s6-*.json` |
+
+| S7 | 2026-08-11 | — | gpt-4o-transcribe-diarize | **FAIL for this product, and the diarization is not why.** Speaker attribution on a constructed 2-speaker reference is good — DER 9.2%, **0% confusion**, 63 ms median boundary error. Everything around it disqualifies it: `language=my` is **rejected outright**; **39 of our 116 seeded locales** have no code the endpoint will accept; `mya` *is* accepted and over **20 identical requests returned 20 different transcripts, 0 in Myanmar script**; a hard **1400 s (23 m 20 s) duration ceiling**; and **no word timings at any granularity**. | Phase 3 proceeds with the pyannote sidecar exactly as planned; §6's "diarization must never gate the transcript" invariant is untouched. Not added as a `DiarizationSource`. The failure is specific to the long tail — for an English-only newsroom this model would be a serious option, which is precisely why the verdict had to be measured per language rather than in general. | `raw/s7-*.json` |
 
 ## S2 per language, over the sample most likely to be missing the word array
 
@@ -185,6 +194,122 @@ numbers is the thing this spike exists to correct.
    way normalize does; and single-speaker files could be detected cheaply and skipped, since
    they are simultaneously the fastest to process and the least useful to diarize.
 
+## S7 — is a hosted diarizing ASR an alternative to running pyannote ourselves?
+
+Run on **2026-08-11** against `gpt-4o-transcribe-diarize` at
+`POST /v1/audio/transcriptions`, `response_format=diarized_json`. Phase 4a read OpenAI's
+docs, saw the model, and wrote the probe into Phase 3's Risks section as a day-one
+decision — because if it worked, most of Phase 3 would be unnecessary.
+
+**It diarizes well and is still the wrong tool for this product.** Those are separate
+findings and it matters that they are kept separate: the failure is not that the model is
+bad, it is that every one of its constraints lands on the part of the product that is the
+reason the product exists.
+
+### The diarization is genuinely good
+
+Scored against a constructed reference — eight alternating turns of two macOS TTS voices
+with 400 ms of silence between, so the boundaries are known to the millisecond rather than
+hand-labelled (`s7-make-2spk.mjs`, `s7-score.mjs`):
+
+| | |
+|---|---|
+| speakers found | **2 of 2**, no invented third |
+| confusion | **0.0%** — not one frame of reference speech given to the wrong speaker |
+| miss | 9.2% — speech clipped at segment edges |
+| DER | **9.2%**, no collar, no overlap handling |
+| boundary error | **median 63 ms**, max 84 ms, over 7 reference speaker changes |
+
+Two TTS voices are far more separable than two people on one microphone, so this is a floor
+on difficulty, not evidence of field accuracy. It is enough to say the model is not the
+problem.
+
+### Five things that are
+
+**1. Burmese cannot be pinned at all.** `language=my` is HTTP 400: *"Language code 'my' is
+not recognized."* Not a silent degradation — an outright refusal, from the model that would
+have to serve the product's primary language.
+
+**2. 39 of our 116 seeded locales have no code the endpoint accepts.** Measured, not read:
+142 codes probed one request each against the committed 2 s clip — 95 ISO-639-1 and, because
+`my` is rejected while `mya` is accepted, a second pass of 47 ISO-639-3 codes for everything
+the first pass missed. 68 accepted, 74 rejected. The endpoint's vocabulary is a list, not a
+standard: `zh-CN` is accepted while `pt-BR` is rejected, `mya` accepted while `bur` is not.
+The 39 without any accepted code include Khmer, Lao, Pashto, Punjabi, Sinhala, Uzbek,
+Cebuano, Sorani Kurdish, and most of the African set.
+
+**3. Acceptance is not support, and this is the sharpest case of it yet.** `mya` is
+accepted. Over **20 identical requests** — 10 pinned to `mya`, 10 on autodetect, same 2 s
+clip, `temperature` not settable on this model — the endpoint returned **20 distinct
+transcripts and not one in Myanmar script**. The output wandered across Vietnamese
+orthography, Thai, Chinese, and twice into fluent English about nothing (*"I'm not going to
+say anything."*). All HTTP 200.
+
+The trap is worth naming precisely. The language sweep's single `mya` request returned
+`ကုန်နံ့ရည်ကုသ ုစာပျောက်ခွဲမပီဘူး` — 31 of 32 characters in Myanmar script. **One probe would
+have concluded that Burmese works.** It was 1 in 21. Phase 4a's finding was that a wrong
+transcript can look healthy; this is worse, because the *same request* is right occasionally,
+so a single sample is not weak evidence — it is a coin flip presented as a measurement.
+
+**4. A hard 1400-second ceiling.** *"audio duration 1523.2 seconds is longer than 1400
+seconds which is the maximum for this model"* — 23 m 20 s. A one-hour interview cannot go
+through this model at all, in any language. `chunking_strategy` is separately **mandatory**
+above 30 s.
+
+**5. No word timings, at any granularity.** `diarized_json` returns
+`{type, text, speaker, start, end, id}` per segment and nothing below it.
+`timestamp_granularities[]=word` is accepted and **silently ignored** — the response is
+byte-shaped identically. Phase 3 §3 reconciles *words* against turns; per-word speakers are
+what export-time splitting and the editor's "two speakers in this segment" affordance are
+built on. A source with no words is permanently on the `intervalFallback` path, which is
+flagged for human review unconditionally and by design.
+
+### Smaller things, recorded because they cost time
+
+- **Speaker labels are `A`, `B`, … and occasionally `@`.** The 2 s Burmese clip came back
+  split between speaker `A` and speaker `@` — a single voice, 2 seconds, two speakers. The
+  label alphabet is undocumented and is not just letters.
+- **Timestamps are not bounded by the audio.** That same 2.000 s file returned a segment
+  ending at 2.45 s.
+- **`verbose_json` is refused**, exactly as `gpt-4o-transcribe` refuses it, and the error
+  leaks the real model id: `gpt-4o-transcribe-diarize-api-ev3`.
+- **The endpoint is synchronous** — one HTTP request held open for the whole transcription,
+  no task handle to poll. Node's `fetch` kills a 23-minute request at undici's 300 s headers
+  timeout with `UND_ERR_HEADERS_TIMEOUT`, which reads exactly like a provider failure and is
+  not one. `s7-hosted-diarization.mjs` posts over `node:https` for that reason.
+- **Cost is roughly $1.00–1.25 per audio hour**, from the returned `usage` rather than from
+  a price page: 33.6 s of English cost $0.0117 ($1.25/h) and 105.9 s of Burmese $0.0302
+  ($1.03/h), at $2.50/1M input and $10/1M output tokens. Output tokens dominate and scale
+  with transcript length, so the rate is content-dependent. For comparison, Google
+  Recognition is $0.96/h and Dynamic Batch $0.18/h (S5).
+
+### What this changes
+
+**Nothing.** Phase 3 proceeds with the pyannote sidecar as planned, and §6's invariant —
+diarization must never gate the transcript — is untouched, because the diarizing ASR that
+would have complicated it is not being added.
+
+That is the correct outcome for a probe like this and it was still worth running: the
+alternative was building a sidecar while a two-line API call might have replaced it. The
+cost was one afternoon and about forty cents.
+
+**Do not read this as "hosted diarization does not work."** For a newsroom working in
+English, Spanish or Hindi, on recordings under 23 minutes, this model is a serious option
+and its speaker attribution is better than anything we have measured on our own hardware.
+The verdict is FAIL *for the 116-locale product*, which is why the language sweep is the
+part of this spike worth keeping.
+
+### What this does not measure
+
+- **Quality against a reference, in any accepted language.** Script integrity catches the
+  Burmese failure; it says nothing about whether the English transcript is *correct*. Phase
+  5 owns CER.
+- **Diarization on real multi-microphone audio**, or on any audio with genuine overlap.
+  The reference is TTS with silence between turns.
+- **Burmese with a working `language` code**, because there is no such thing to test.
+- **`known_speaker_names[]` / `known_speaker_references[]`.** Documented, up to four
+  speakers with 2–10 s reference clips. Untested — the language result made it moot.
+
 ## Reproducing
 
 The scripts are committed so a disputed number can be re-measured rather than argued about.
@@ -206,7 +331,21 @@ node spikes/s5-rates.mjs                                       # the billing cat
 # tensor-to-array conversion, i.e. mid-measurement.
 HF_TOKEN=hf_... uv run --with "pyannote.audio==3.3.2" --with "numpy<2" --python 3.11 \
     spikes/s6-diarization.py clip.m4a [more.m4a ...] [--threads N] [--device cpu|cuda]
+
+# S7 reads OPENAI_API_KEY from .env. OUTDIR holds both the prepared audio and the results.
+node spikes/s7-make-2spk.mjs        OUTDIR      # the reference: audio + exact turn boundaries
+node spikes/s7-hosted-diarization.mjs OUTDIR [probe...]
+node spikes/s7-score.mjs OUTDIR/en-2spk.truth.json OUTDIR/s7-en-2spk.json
+node spikes/s7-language-sweep.mjs   OUTDIR      # 142 codes, one request each
+node spikes/s7-mya-stability.mjs    OUTDIR 10   # the 20-run distribution
 ```
+
+S7's longer inputs are **not committed** — a 25-minute podcast and a 106 s Burmese news clip
+are somebody else's copyright. The two-speaker reference is regenerable from
+`s7-make-2spk.mjs` on any macOS box, and its script is in the file; the Burmese probe clip
+is the one already committed at `packages/languages/fixtures/probe-2s.flac`. Its recorded
+responses live in `raw/` with everything else, which is to say locally — see the note in
+`.gitignore`.
 
 `pyannote/speaker-diarization-3.1` and `pyannote/segmentation-3.0` are gated **separately**;
 accepting only the first still fails at pipeline load. The gate is accepted per Hugging Face
