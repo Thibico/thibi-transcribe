@@ -18,6 +18,17 @@ export interface ProbeResult {
   streams: ProbeStream[];
   /** Stored whole in `media_assets.probe_raw`, so a later question needs no re-probe. */
   raw: unknown;
+  /**
+   * Why the probe degraded, or null when it succeeded.
+   *
+   * Without this, the degraded return below is indistinguishable from a file that genuinely
+   * has no audio, and ingest answers "this file has no audio stream" when the real problem is
+   * that nobody installed ffprobe. Those need opposite responses: one is a 400 the uploader
+   * can act on, the other a 500 only an operator can. Added in Phase 8 for that reason —
+   * `ffprobe_missing` is an ENOENT from the spawn, `unreadable` is ffprobe running and
+   * failing, which is a genuine problem with the bytes.
+   */
+  failure: { reason: 'ffprobe_missing' | 'unreadable'; detail: string } | null;
 }
 
 /**
@@ -64,7 +75,13 @@ export async function probe(
   } catch (err) {
     // ffprobe missing or the file unreadable. Degrade rather than crash the ingest, but
     // say so — an unknown duration changes routing and cost estimation downstream.
-    ctx.logger.warn({ err, path: input.path }, 'probe: ffprobe failed');
+    //
+    // Which of the two it was is now recorded rather than flattened. ENOENT means the binary
+    // is absent, which is the operator's problem and must never be reported as a defect in
+    // the user's file; anything else means ffprobe ran and refused the bytes.
+    const code = (err as NodeJS.ErrnoException | undefined)?.code;
+    const reason = code === 'ENOENT' ? 'ffprobe_missing' : 'unreadable';
+    ctx.logger.warn({ err, path: input.path, reason }, 'probe: ffprobe failed');
     return {
       durationMs: null,
       formatName: null,
@@ -73,6 +90,7 @@ export async function probe(
       hasAudio: false,
       streams: [],
       raw: null,
+      failure: { reason, detail: err instanceof Error ? err.message : String(err) },
     };
   }
 
@@ -105,5 +123,6 @@ export async function probe(
     hasAudio,
     streams,
     raw: parsed,
+    failure: null,
   };
 }

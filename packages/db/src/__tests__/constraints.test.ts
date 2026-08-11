@@ -233,7 +233,13 @@ describe.skipIf(!reachable)('schema constraints', () => {
       expect(rows[0]!.confidence).toBeCloseTo(0.9);
     });
 
-    it('inserts 30k rows and answers the low-confidence query from the partial index', { timeout: 30_000 }, async () => {
+    // 90 s, not 30 s. This test measured 25.2 s and 28.9 s in full runs on 2026-08-10 — inside
+    // the old limit, but only just, and it shares a Postgres with every other DB-backed suite.
+    // Phase 8 added one more and that was enough to tip it over. The number is a guard against a
+    // hang, not a performance assertion: a COPY that has genuinely regressed shows up as a
+    // timing change in CI, whereas a limit set a few seconds above the observed cost fails for
+    // whoever next adds a test, on a machine that is simply busier.
+    it('inserts 30k rows and answers the low-confidence query from the partial index', { timeout: 90_000 }, async () => {
       const seg = await makeSegment(401);
       const rows = Array.from({ length: 30_000 }, (_, i) => ({
         segmentId: seg.id,

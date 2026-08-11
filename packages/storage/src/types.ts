@@ -10,6 +10,21 @@ export interface PutOpts {
   contentType?: string;
   /** Advisory metadata. S3 stores it; fs and memory keep it in a sidecar. */
   metadata?: Record<string, string>;
+  /**
+   * Refuse the write once the body exceeds this many bytes, throwing `ObjectTooLargeError`
+   * and leaving no object behind.
+   *
+   * This lives on the port rather than in a transform the caller supplies because every
+   * adapter already runs a counting transform to compute `sha256`, so the cap costs one
+   * comparison per chunk on a stream that is being walked anyway. The Phase 8 plan specified
+   * a `HashingPassThrough` in the engine instead — written before Phase 1 put the hashing in
+   * the store — which would have hashed every uploaded byte a second time to learn a number
+   * `putStream` already returns.
+   *
+   * It is a cap, not a content-length check: an untrusted stream that lies about its size, or
+   * declares none at all, is the case this exists for.
+   */
+  maxBytes?: number;
 }
 
 export interface PutResult {
@@ -79,6 +94,21 @@ export class ObjectNotFoundError extends StorageError {
   constructor(key: string) {
     super(`No such object: ${key}`, key);
     this.name = 'ObjectNotFoundError';
+  }
+}
+
+/**
+ * Thrown when `PutOpts.maxBytes` is exceeded. Distinct from a generic write failure because
+ * the caller's response differs: this is the uploader's problem and names a limit, where a
+ * failed write is the operator's. Ingest maps it to `file_too_large`.
+ */
+export class ObjectTooLargeError extends StorageError {
+  constructor(
+    key: string,
+    readonly maxBytes: number,
+  ) {
+    super(`Object exceeds the ${maxBytes}-byte limit: ${key}`, key);
+    this.name = 'ObjectTooLargeError';
   }
 }
 

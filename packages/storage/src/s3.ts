@@ -17,6 +17,7 @@ import {
   type ObjectStore,
   type PutOpts,
   type PutResult,
+  ObjectTooLargeError,
 } from './types.js';
 
 export interface S3ObjectStoreOptions {
@@ -60,10 +61,17 @@ export class S3ObjectStore implements ObjectStore {
     // Hash on the way past rather than by re-reading the object afterwards: the sha256 is
     // the content-address used for dedupe, and a second full read of a 2 GB upload to
     // compute it would double the I/O.
+    const { maxBytes } = opts;
     const counting = new Transform({
       transform(chunk: Buffer, _encoding, callback) {
-        hash.update(chunk);
         bytes += chunk.byteLength;
+        // Erroring the transform fails `upload.done()`, which aborts the multipart upload
+        // rather than leaving parts behind — see leavePartsOnError below.
+        if (maxBytes !== undefined && bytes > maxBytes) {
+          callback(new ObjectTooLargeError(key, maxBytes));
+          return;
+        }
+        hash.update(chunk);
         callback(null, chunk);
       },
     });
@@ -82,6 +90,11 @@ export class S3ObjectStore implements ObjectStore {
       // small enough that a retry of one part is cheap.
       partSize: 8 * 1024 * 1024,
       queueSize: 4,
+      // Explicit rather than inherited: this is lib-storage's default, but it is the thing
+      // that stops an aborted or oversized upload leaving paid-for parts in the bucket, and a
+      // silent dependency on a default is how that regresses. Phase 15's bucket also carries
+      // an AbortIncompleteMultipartUpload lifecycle rule as a backstop.
+      leavePartsOnError: false,
     });
     await upload.done();
 

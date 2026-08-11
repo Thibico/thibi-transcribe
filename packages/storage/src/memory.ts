@@ -8,6 +8,7 @@ import {
   type ObjectStore,
   type PutOpts,
   type PutResult,
+  ObjectTooLargeError,
 } from './types.js';
 
 interface Entry {
@@ -40,7 +41,18 @@ export class MemoryObjectStore implements ObjectStore {
 
   async putStream(key: string, body: Readable, opts: PutOpts = {}): Promise<PutResult> {
     const chunks: Buffer[] = [];
-    for await (const chunk of body) chunks.push(Buffer.from(chunk as Buffer));
+    let bytes = 0;
+    for await (const chunk of body) {
+      const buf = Buffer.from(chunk as Buffer);
+      bytes += buf.byteLength;
+      // Checked per chunk rather than after the loop: this adapter's whole body is the
+      // process heap, so accumulating an oversized upload before rejecting it would be the
+      // failure the cap exists to prevent.
+      if (opts.maxBytes !== undefined && bytes > opts.maxBytes) {
+        throw new ObjectTooLargeError(key, opts.maxBytes);
+      }
+      chunks.push(buf);
+    }
     return this.put(key, Buffer.concat(chunks), opts);
   }
 

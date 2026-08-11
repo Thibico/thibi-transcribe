@@ -13,6 +13,7 @@ import {
   type ObjectStore,
   type PutOpts,
   type PutResult,
+  ObjectTooLargeError,
 } from './types.js';
 
 /**
@@ -62,10 +63,17 @@ export class FsObjectStore implements ObjectStore {
 
     // A Transform rather than a 'data' listener: this preserves backpressure, so a 2 GB
     // upload does not buffer in memory when the disk is slower than the source.
+    const { maxBytes } = opts;
     const counting = new Transform({
       transform(chunk: Buffer, _encoding, callback) {
-        hash.update(chunk);
         bytes += chunk.byteLength;
+        // The throw lands in the catch below, which removes the `.partial` file, so an
+        // oversized upload leaves nothing behind — the same guarantee as a failed write.
+        if (maxBytes !== undefined && bytes > maxBytes) {
+          callback(new ObjectTooLargeError(key, maxBytes));
+          return;
+        }
+        hash.update(chunk);
         callback(null, chunk);
       },
     });

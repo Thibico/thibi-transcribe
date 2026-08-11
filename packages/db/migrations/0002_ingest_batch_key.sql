@@ -1,0 +1,2 @@
+ALTER TABLE "jobs" ADD COLUMN "source_batch_key" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "jobs_batch_uniq" ON "jobs" USING btree ("project_id","source_batch_key","asset_id") WHERE "jobs"."source_batch_key" is not null;
