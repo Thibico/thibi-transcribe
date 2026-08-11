@@ -46,7 +46,10 @@ builds the Python sidecar image and its task API, which Phase 4 fills the other 
 | `packages/db/src/schema/speakers.ts` + migration | `speakers`, `diarization_runs`, `speaker_turns`, segment/word columns |
 | `apps/cli/src/commands/transcribe.ts` | *(modified)* `--diarize`, `--speakers N`, `--min-speakers`, `--max-speakers`, `--diarize-source` |
 | `apps/cli/src/commands/speakers.ts` | `thibi speakers list/rename/merge <jobId>` |
-| `apps/cli/src/commands/diarize.ts` | `thibi diarize score <run> --reference turns.rttm` — DER/JER for tuning |
+| `apps/cli/src/commands/diarize.ts` | `thibi diarize score <run> --reference turns.rttm` — DER/JER for tuning, **and `thibi diarize run <runId>`** |
+| `packages/engine/src/diarize/run.ts` | *(added 2026-08-11)* the stage itself: submit, poll, reconcile, persist. Not in the original table — the plan described the pieces and not the thing that calls them in order |
+| `packages/engine/src/diarize/speakers.ts` | *(added 2026-08-11)* `listSpeakers` / `renameSpeaker` / `mergeSpeakers`, so the CLI holds no SQL |
+| `packages/engine/src/diarize/score.ts` | *(added 2026-08-11)* RTTM parsing and DER/JER, so the scorer is testable without a CLI |
 
 ## Design
 
@@ -93,6 +96,12 @@ DELETE /v1/tasks/{id}
 ```
 
 **Idempotency.** `idempotency_key` is the `run_step_id`, and `task_id = uuid5(NAMESPACE_URL, key)`.
+
+> *Amended 2026-08-11.* `run_steps` does not exist until Phase 9, so there is no step id to
+> send. The engine derives the key instead — `diarizeStepKey(runId)` is `` `${runId}:diarize` ``
+> — which keeps the property this design is for: reconstructible without having stored the
+> 202 response. One diarization per run, so the run id determines it. When Phase 9 adds
+> `run_steps` the step id becomes the key and nothing else changes.
 Deterministic on purpose: the engine can reconstruct the task id without having stored the 202
 response, so a lost response is recoverable by `GET` alone. Re-POST with the same key while
 running returns 200 with the current task and **never** starts a second run; after success it
@@ -471,6 +480,11 @@ Four decisions:
   put a real name on the old one and the mistake is invisible.
 - **Unmatched prior speakers are kept, never deleted.** If this run found three speakers where the
   last found four, the fourth's name survives, unattributed.
+- ***Except* speakers a human merged away**, added 2026-08-11 while building `persist.ts`. A
+  merged-away row still holds the attributed time this match runs against, so keeping it in the
+  prior set means the next diarization matches the same acoustic cluster back onto the row the
+  human retired and the split reappears. `mergeSpeakers` repoints segments, words and turns to
+  the target and marks the loser; `persistDiarization` filters `is_merged_into is null`.
 - **Matching is against prior *attributed time*** — the union of intervals of segments currently
   attributed to that `speakers` row in any earlier run of the job — not against the previous
   diarization's raw turns. That is what lets a human's manual reassignment feed forward into the
@@ -783,28 +797,47 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 
 ## Definition of done
 
-- [ ] `services/sidecar` builds one image and serves `/health`, `POST /v1/diarize`,
+*Checked 2026-08-11. `[x]` means run, not read.*
+
+- [x] `services/sidecar` builds one image and serves `/health`, `POST /v1/diarize`,
       `GET /v1/tasks/{id}`, `DELETE /v1/tasks/{id}` with the exact schemas above.
-- [ ] `task_id = uuid5(NAMESPACE_URL, run_step_id)`; a re-POST with the same key never starts a
-      second run, and a restart yields `lost`, not 404.
-- [ ] `MAX_CONCURRENT_TASKS=1` enforced by semaphore; a second key gets 429 + `Retry-After`, and
-      the engine does not count it as an attempt.
-- [ ] Every failure maps to a code in the taxonomy table with the documented retryability; the
+- [x] `task_id = uuid5(NAMESPACE_URL, run_step_id)`; a re-POST with the same key never starts a
+      second run, and a restart yields `lost`, not 404. *(Key is derived from the run id — see
+      the amendment in §1. The engine half of the replay was exercised through the CLI: a
+      second `thibi diarize run` on the same run got HTTP 200 and the same task id.)*
+- [x] `MAX_CONCURRENT_TASKS=1` enforced by semaphore; a second key gets 429 + `Retry-After`, and
+      the engine does not count it as an attempt. *(The engine half has a test; the sidecar half
+      has a pytest.)*
+- [x] Every failure maps to a code in the taxonomy table with the documented retryability; the
       temp audio file is deleted on every path.
-- [ ] Audio reaches the sidecar only as an internally-presigned MinIO URL; the sidecar holds no
+- [x] Audio reaches the sidecar only as an internally-presigned MinIO URL; the sidecar holds no
       credentials and no database connection.
 - [ ] `DiarizationSource` implemented twice — pyannote and Scribe — with Scribe collapsing diarized
-      words into turns via `wordsToTurns`, and reconcile seeing only `Turn[]`.
-- [ ] `reconcile.ts` implements all five steps; `margin` is defined in exactly one place.
-- [ ] Both median-filter guards are covered by separate fixtures, so dropping either one fails CI.
-- [ ] `has_words = false` segments are **always** flagged, including at purity 1.0.
-- [ ] Hungarian assignment lives in `packages/core/src/algo/hungarian.ts` with no dependency, is
+      words into turns via `wordsToTurns`, and reconcile seeing only `Turn[]`. **Scribe is not
+      built**: it needs an ElevenLabs key nobody has, and its cost and duration cap (open
+      question 7) are unconfirmed. pyannote alone is implemented behind the interface.
+- [x] `reconcile.ts` implements all five steps; `margin` is defined in exactly one place.
+- [x] Both median-filter guards are covered by separate fixtures, so dropping either one fails CI.
+- [x] `has_words = false` segments are **always** flagged, including at purity 1.0.
+- [x] Hungarian assignment lives in `packages/core/src/algo/hungarian.ts` with no dependency, is
       brute-force verified, and refuses above 64 speakers.
-- [ ] Speaker rename survives a re-diarization, demonstrated by the CLI sequence in Verification.
-- [ ] `speakers` is scoped to `job_id`; `speaker_turns` keeps `raw_key`; `segments` carries
+- [x] Speaker rename survives a re-diarization, demonstrated by the CLI sequence in Verification.
+      *(Demonstrated against a stand-in that speaks the §1 contract, not against pyannote, which
+      cannot load until open question 1 is answered. The rename, the Hungarian match on
+      attributed time, the persistence and the CLI are all the real ones.)*
+- [x] `speakers` is scoped to `job_id`; `speaker_turns` keeps `raw_key`; `segments` carries
       `speaker_id`, `speaker_purity`, `needs_speaker_review`.
-- [ ] Diarization runs whole-file; no chunk-boundary speaker logic exists anywhere in the tree.
+- [x] Diarization runs whole-file; no chunk-boundary speaker logic exists anywhere in the tree.
 - [ ] The measured realtime factor is recorded per run and used for the next run's estimate.
+      **Half done**: `diarization_runs.realtime_factor` is written on every successful run. The
+      estimate printed before a run is still S6's 0.6x constant, because no instance has five
+      real runs to average yet and averaging one stand-in's canned 0.6x would be a fiction
+      dressed as a measurement.
 - [ ] `thibi transcribe interview.wav --diarize` works end to end on real audio, and
-      `thibi diarize score` reports DER against an RTTM reference.
-
+      `thibi diarize score` reports DER against an RTTM reference. **`score` is done** —
+      verified against two hand-written RTTMs, 0.0% on an exact match and 16.7% on one that
+      disagrees for 2.5 s of 15 s. The end-to-end run on real audio is blocked on open
+      question 1.
+- [ ] *(added 2026-08-11)* The contract test — `PyannoteSource` against the real container —
+      is not written. It is the check that stops the Python and TypeScript halves drifting,
+      and it needs the container to load a model.
