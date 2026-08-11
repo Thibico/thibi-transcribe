@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #15. **Two PRs are open and green: #16 (the contract test, plus the ElevenLabs decision) and the Phase 4b branch, which is stacked on it.** Merge #16 first; the second is a descendant and needs no rebase.
+`main` is at the merge of **PR #16** — the sidecar contract test and the ElevenLabs decision. **Phase 4b is in PR #18, against `main`, open and green.**
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
 skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
@@ -30,7 +30,7 @@ own suite is **41 pytest tests**, still run separately (see *Known debt*).
 
 ## Do this next
 
-**Merge PR #16, then the Phase 4b branch.** Both are green; the second descends from the first.
+**Merge PR #18.** It is green and it is the whole of Phase 4b.
 
 **Phase 3 and Phase 4 are both built.** What is left in Phase 4 is not construction, and the
 distinction matters more than usual here:
@@ -315,6 +315,12 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   a zero-byte file timestamped at the *previous* successful command. If a commit refuses
   with "Another git process seems to be running", run `ps aux | grep "[g]it"` — the bracket
   matters, or you match your own grep — and remove the lock when nothing is there.
+- **A stacked PR merges into its base, not into `main`, and GitHub only retargets it if the
+  base branch is deleted.** Cost 2026-08-12: PR #17 was opened with `--base
+  phase-3/sidecar-contract-test`, #16 was merged without deleting that branch, and #17 then
+  merged Phase 4b *into the already-merged feature branch* while `main` stayed behind. It
+  looked like both had landed. Either avoid stacking, or check
+  `gh pr view <n> --json baseRefName` before merging the second one.
 - Merging PRs is frequently blocked by the permission classifier. Push and open the PR, then
   ask the user to run `! gh pr merge <n> --merge` themselves — and do not re-check afterwards.
 - This machine is x86 macOS: torch stops at 2.2.2, so pyannote 4.x cannot be installed here.
