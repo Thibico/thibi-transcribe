@@ -25,6 +25,14 @@ export {
 } from './normalizers/index.js';
 
 export {
+  chooseProvider,
+  providerRows,
+  type ChooseOptions,
+  type ProviderChoice,
+  type ProviderRow,
+} from './choose.js';
+
+export {
   GENERATED_AT,
   LANGUAGES,
   PROVIDER_MATRIX,

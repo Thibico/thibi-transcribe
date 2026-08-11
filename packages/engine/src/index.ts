@@ -195,6 +195,74 @@ export {
   type BatchDeps,
 } from './providers/google/batch.js';
 
+// ---- the Whisper HTTP providers: one transport, two configuration modules ---------------
+export {
+  paramsHash,
+  transcribeWhisperHttp,
+  REQUEST_TIMEOUT_MS as WHISPER_REQUEST_TIMEOUT_MS,
+  type WhisperCall,
+  type WhisperHttpConfig,
+  type WhisperTransport,
+} from './providers/whisper-http.js';
+export {
+  createOpenAiProvider,
+  openAiCapabilities,
+  resolveModelWithReason,
+  DEFAULT_MODEL as OPENAI_DEFAULT_MODEL,
+  GPT4O_ONLY_CODES,
+  OPENAI_TRANSPORT,
+  SYNC_MAX_SECONDS as WHISPER_SYNC_MAX_SECONDS,
+  TIMESTAMPED_MODEL as OPENAI_TIMESTAMPED_MODEL,
+  USD_PER_MINUTE as OPENAI_USD_PER_MINUTE,
+  type OpenAiConfig,
+  type ResolvedModel,
+} from './providers/openai.js';
+export {
+  createGroqProvider,
+  groqCapabilities,
+  DEFAULT_MODEL as GROQ_DEFAULT_MODEL,
+  GROQ_TRANSPORT,
+  MODELS as GROQ_MODELS,
+  RPM_MEASURED as GROQ_RPM_MEASURED,
+  SYNC_MAX_BYTES_DEV as GROQ_SYNC_MAX_BYTES_DEV,
+  SYNC_MAX_BYTES_FREE as GROQ_SYNC_MAX_BYTES_FREE,
+  USD_PER_MINUTE as GROQ_USD_PER_MINUTE,
+  type GroqConfig,
+} from './providers/groq.js';
+export {
+  attachWords,
+  DEFAULT_EPS_MS,
+  type AttachResult,
+  type TimedSegment,
+  type TimedWord,
+} from './providers/whisper/attach-words.js';
+export {
+  buildWhisperPrompt,
+  stripPromptEcho,
+  MAX_EST_TOKENS,
+  MIN_ECHO_CHARS,
+  type BuiltPrompt,
+  type PromptTerm,
+} from './providers/whisper/prompt.js';
+export {
+  parseWhisperResponse,
+  parseWhisperResults,
+  segmentConfidence,
+  HALLUCINATION_WARN_FRACTION,
+  NO_SPEECH_THRESHOLD,
+  type WhisperVerboseJson,
+} from './providers/whisper/parse.js';
+export {
+  readRateLimitHeaders,
+  toWhisperError,
+  type RateLimitSnapshot,
+} from './providers/whisper/errors.js';
+export {
+  lacksIso639_1,
+  whisperLanguageCode,
+  NO_ISO_639_1,
+} from './providers/whisper/language.js';
+
 export {
   runAsr,
   stitch,

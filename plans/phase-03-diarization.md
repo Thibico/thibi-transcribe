@@ -712,6 +712,19 @@ JER, so the thresholds in §3 can be moved on evidence in Phase 5.
 
 ## Risks and open questions
 
+> **Added 2026-08-11, from Phase 4a — probe `gpt-4o-transcribe-diarize` before committing to the
+> sidecar as the only path.** OpenAI's speech-to-text docs (read 2026-08-11) describe a
+> `gpt-4o-transcribe-diarize` model returning a `diarized_json` format. This document is built on
+> the premise that diarization means pyannote on our own hardware at ~1 h 40 m per audio-hour on
+> CPU — spike S6 measured that — and a hosted diarizing ASR is a `DiarizationSource` that simply
+> did not exist when the premise was formed. Nothing about it is measured yet: no language
+> coverage, no quality, no price, and in particular no evidence either way for the 44-language set
+> that is the whole product. It is one probe run, and it is cheap relative to building the wrong
+> thing. Note also that it would not satisfy §6's invariant for free — a diarizing ASR replaces
+> the transcript rather than annotating one, so "diarization must never gate the transcript" needs
+> re-reasoning if it becomes a source.
+
+
 1. **pyannote 3.1 is a gated Hugging Face model.** Accepting the terms and supplying `HF_TOKEN` is a
    manual step, and it will be the most common first-run failure for a self-hosting newsroom.
    `/health` must report `model_unavailable` with the exact gate URL, and `./thibi doctor`

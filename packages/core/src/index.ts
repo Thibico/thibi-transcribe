@@ -52,3 +52,10 @@ export {
   type LayerRequest,
   type ResolvedText,
 } from './layers/resolve.js';
+
+export {
+  formatScriptIntegrity,
+  scriptIntegrity,
+  type ScriptIntegrity,
+  type ScriptRanges,
+} from './metrics/script.js';

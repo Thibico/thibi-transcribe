@@ -50,7 +50,13 @@ export interface TranscribeResult {
   segments: ProviderSegment[];
   /** Computed from the response, never assumed. */
   wordTimingQuality: WordTimingQuality;
-  usage: { audioMs: number; requests: number };
+  /**
+   * `wordsUnattached` is Whisper-specific and optional: `verbose_json` returns words in a
+   * flat array that has to be re-joined to segments by timestamp, and a word that matches no
+   * segment is counted here rather than silently dropped. Google nests its words and can
+   * never produce one.
+   */
+  usage: { audioMs: number; requests: number; wordsUnattached?: number };
   /** The untouched provider response, archived to `runs/{id}/raw/{idx}.json`. */
   raw: unknown;
   /** Non-fatal oddities worth surfacing, e.g. a segment with no timing at all. */

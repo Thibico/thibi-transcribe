@@ -1,0 +1,22 @@
+{
+  "status": 200,
+  "ms": 1438,
+  "headers": {
+    "x-ratelimit-limit-requests": "5000",
+    "x-ratelimit-remaining-requests": "4999",
+    "x-ratelimit-reset-requests": "12ms"
+  },
+  "body": {
+    "text": "The ASEAN summit concluded on Tuesday, Naypyidaw responded to the decision within hours, and the foreign ministry issued a short statement. Reporters were not permitted inside the building.",
+    "usage": {
+      "type": "tokens",
+      "total_tokens": 141,
+      "input_tokens": 103,
+      "input_token_details": {
+        "text_tokens": 0,
+        "audio_tokens": 103
+      },
+      "output_tokens": 38
+    }
+  }
+}

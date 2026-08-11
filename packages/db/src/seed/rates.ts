@@ -36,6 +36,8 @@ export interface RateSeed {
 }
 
 const CATALOG = 'Cloud Billing Catalog, service 63DE-82AB-F564, read 2026-08-10';
+const OPENAI_PRICING = 'OpenAI API pricing, transcription models, read 2026-08-11';
+const GROQ_PRICING = 'GroqCloud model docs, read 2026-08-11';
 
 export const DEFAULT_RATES: readonly RateSeed[] = [
   {
@@ -67,6 +69,67 @@ export const DEFAULT_RATES: readonly RateSeed[] = [
     unit: 'batch_minute',
     usdPerUnit: 0.003,
     note: `Cloud Speech-to-Text Dynamic Batch Recognition, any v2 model. ${CATALOG}.`,
+  },
+
+  // ---- Phase 4: the Whisper HTTP providers ----------------------------------------------
+  // Read from each vendor's own pricing page on 2026-08-11 rather than from memory. Neither
+  // has a billing-catalogue API to instrument the way spike S5 instruments Google's, so the
+  // provenance is a page and a date and these rows have to be re-checked by hand.
+  //
+  // Note what the prices say about why these providers exist. Groq large-v3 is $0.00185/min
+  // against Google's $0.016 — 8.6x cheaper — and it returns non-words for Burmese. Cheap is
+  // not the axis this product competes on, and the rate table is where that becomes concrete
+  // rather than rhetorical.
+  {
+    providerId: 'openai',
+    model: 'whisper-1',
+    unit: 'minute',
+    usdPerUnit: 0.006,
+    note: `${OPENAI_PRICING}. The only OpenAI model returning word or segment timestamps.`,
+  },
+  {
+    providerId: 'openai',
+    model: 'gpt-4o-transcribe',
+    unit: 'minute',
+    usdPerUnit: 0.006,
+    note: `${OPENAI_PRICING}. Returns no timestamps at all.`,
+  },
+  {
+    providerId: 'openai',
+    model: 'gpt-4o-mini-transcribe',
+    unit: 'minute',
+    usdPerUnit: 0.003,
+    note: `${OPENAI_PRICING}. Returns no timestamps at all.`,
+  },
+  {
+    providerId: 'openai',
+    model: '*',
+    unit: 'minute',
+    usdPerUnit: 0.006,
+    // The wildcard takes the *higher* of the two prices on purpose: an unrecognised model
+    // should over-estimate a bill, never under-estimate it.
+    note: `${OPENAI_PRICING}. Fallback for an unlisted model; the higher of the two rates.`,
+  },
+  {
+    providerId: 'groq',
+    model: 'whisper-large-v3',
+    unit: 'minute',
+    usdPerUnit: 0.111 / 60,
+    note: `${GROQ_PRICING}, $0.111 per hour of audio. Minimum billed length 10 s per request.`,
+  },
+  {
+    providerId: 'groq',
+    model: 'whisper-large-v3-turbo',
+    unit: 'minute',
+    usdPerUnit: 0.04 / 60,
+    note: `${GROQ_PRICING}, $0.04 per hour of audio. Minimum billed length 10 s per request.`,
+  },
+  {
+    providerId: 'groq',
+    model: '*',
+    unit: 'minute',
+    usdPerUnit: 0.111 / 60,
+    note: `${GROQ_PRICING}. Fallback for an unlisted model; the higher of the two rates.`,
   },
 ];
 

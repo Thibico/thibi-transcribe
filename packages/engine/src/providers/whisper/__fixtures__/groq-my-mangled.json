@@ -1,0 +1,193 @@
+{
+  "status": 200,
+  "ms": 1684,
+  "headers": {
+    "x-ratelimit-limit-audio-seconds": "7200",
+    "x-ratelimit-limit-requests": "2000",
+    "x-ratelimit-remaining-audio-seconds": "7198",
+    "x-ratelimit-remaining-requests": "1999",
+    "x-ratelimit-reset-audio-seconds": "1s",
+    "x-ratelimit-reset-requests": "43.2s"
+  },
+  "body": {
+    "task": "transcribe",
+    "language": "Burmese",
+    "duration": 2,
+    "text": " ប្យទៅទៅក្ម។ ផ្្ទៅក៏់។",
+    "words": [
+      {
+        "word": " ប",
+        "start": 0,
+        "end": 0.16
+      },
+      {
+        "word": "្",
+        "start": 0.16,
+        "end": 0.32
+      },
+      {
+        "word": "យ",
+        "start": 0.32,
+        "end": 0.34
+      },
+      {
+        "word": "ទ",
+        "start": 0.34,
+        "end": 0.36
+      },
+      {
+        "word": "ៅ",
+        "start": 0.36,
+        "end": 0.38
+      },
+      {
+        "word": "ទ",
+        "start": 0.38,
+        "end": 0.4
+      },
+      {
+        "word": "ៅ",
+        "start": 0.4,
+        "end": 0.56
+      },
+      {
+        "word": "ក",
+        "start": 0.56,
+        "end": 0.64
+      },
+      {
+        "word": "្",
+        "start": 0.64,
+        "end": 0.66
+      },
+      {
+        "word": "ម",
+        "start": 0.66,
+        "end": 0.68
+      },
+      {
+        "word": "។",
+        "start": 0.68,
+        "end": 0.7
+      },
+      {
+        "word": " ផ",
+        "start": 0.7,
+        "end": 0.84
+      },
+      {
+        "word": "្",
+        "start": 0.84,
+        "end": 1.06
+      },
+      {
+        "word": "្",
+        "start": 1.06,
+        "end": 1.08
+      },
+      {
+        "word": "ទ",
+        "start": 1.08,
+        "end": 1.1
+      },
+      {
+        "word": "ៅ",
+        "start": 1.1,
+        "end": 1.12
+      },
+      {
+        "word": "ក",
+        "start": 1.12,
+        "end": 1.7
+      },
+      {
+        "word": "៏",
+        "start": 1.7,
+        "end": 1.72
+      },
+      {
+        "word": "់",
+        "start": 1.72,
+        "end": 1.96
+      },
+      {
+        "word": "។",
+        "start": 1.96,
+        "end": 1.98
+      }
+    ],
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2,
+        "text": " ប្យទៅទៅក្ម។ ផ្្ទៅក៏់។",
+        "tokens": [
+          50365,
+          21879,
+          252,
+          242,
+          157,
+          253,
+          240,
+          157,
+          34284,
+          157,
+          9143,
+          157,
+          253,
+          227,
+          157,
+          9143,
+          157,
+          253,
+          227,
+          157,
+          18781,
+          157,
+          253,
+          240,
+          157,
+          4241,
+          157,
+          253,
+          242,
+          21879,
+          252,
+          243,
+          157,
+          253,
+          240,
+          157,
+          253,
+          240,
+          157,
+          9143,
+          157,
+          253,
+          227,
+          157,
+          18781,
+          157,
+          253,
+          237,
+          157,
+          253,
+          233,
+          157,
+          253,
+          242,
+          50465
+        ],
+        "temperature": 0.6,
+        "avg_logprob": -0.60292786,
+        "compression_ratio": 1.24,
+        "no_speech_prob": 0.050750732
+      }
+    ],
+    "x_groq": {
+      "id": "req_01kzqy4f8sevfvprr26s95qqan"
+    }
+  }
+}

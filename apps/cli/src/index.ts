@@ -8,6 +8,7 @@ import { transcribeCommand } from './commands/transcribe.js';
 import { dbCommand } from './commands/db.js';
 import { runsCommand } from './commands/runs.js';
 import { ingestCommand } from './commands/ingest.js';
+import { providersCommand } from './commands/providers.js';
 import { settingsCommand } from './commands/settings.js';
 import { ProbeAbort } from './probe/types.js';
 
@@ -23,6 +24,7 @@ program.addCommand(langCommand());
 program.addCommand(transcribeCommand());
 program.addCommand(runsCommand());
 program.addCommand(ingestCommand());
+program.addCommand(providersCommand());
 program.addCommand(settingsCommand());
 program.addCommand(new Command('probe').description('Measure provider capabilities').addCommand(probeLanguagesCommand()));
 

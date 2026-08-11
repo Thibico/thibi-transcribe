@@ -1,0 +1,263 @@
+{
+  "status": 200,
+  "ms": 496,
+  "headers": {
+    "x-ratelimit-limit-audio-seconds": "7200",
+    "x-ratelimit-limit-requests": "2000",
+    "x-ratelimit-remaining-audio-seconds": "7190",
+    "x-ratelimit-remaining-requests": "1997",
+    "x-ratelimit-reset-audio-seconds": "5s",
+    "x-ratelimit-reset-requests": "2m9.6s"
+  },
+  "body": {
+    "task": "transcribe",
+    "language": "English",
+    "duration": 10.354688,
+    "text": " The ASEAN summit concluded on Tuesday. Naypyidaw responded to the decision within hours, and the foreign ministry issued a short statement. Reporters were not permitted inside the building.",
+    "words": [
+      {
+        "word": "The",
+        "start": 0,
+        "end": 0.16
+      },
+      {
+        "word": "ASEAN",
+        "start": 0.16,
+        "end": 0.64
+      },
+      {
+        "word": "summit",
+        "start": 0.64,
+        "end": 0.94
+      },
+      {
+        "word": "concluded",
+        "start": 0.94,
+        "end": 1.46
+      },
+      {
+        "word": "on",
+        "start": 1.46,
+        "end": 1.68
+      },
+      {
+        "word": "Tuesday.",
+        "start": 1.68,
+        "end": 2.68
+      },
+      {
+        "word": "Naypyidaw",
+        "start": 2.56,
+        "end": 3.08
+      },
+      {
+        "word": "responded",
+        "start": 3.08,
+        "end": 3.5
+      },
+      {
+        "word": "to",
+        "start": 3.5,
+        "end": 3.8
+      },
+      {
+        "word": "the",
+        "start": 3.8,
+        "end": 3.92
+      },
+      {
+        "word": "decision",
+        "start": 3.92,
+        "end": 4.38
+      },
+      {
+        "word": "within",
+        "start": 4.38,
+        "end": 4.72
+      },
+      {
+        "word": "hours,",
+        "start": 4.72,
+        "end": 5.4
+      },
+      {
+        "word": "and",
+        "start": 5.4,
+        "end": 5.52
+      },
+      {
+        "word": "the",
+        "start": 5.52,
+        "end": 5.68
+      },
+      {
+        "word": "foreign",
+        "start": 5.68,
+        "end": 6
+      },
+      {
+        "word": "ministry",
+        "start": 6,
+        "end": 6.4
+      },
+      {
+        "word": "issued",
+        "start": 6.4,
+        "end": 6.7
+      },
+      {
+        "word": "a",
+        "start": 6.7,
+        "end": 6.9
+      },
+      {
+        "word": "short",
+        "start": 6.9,
+        "end": 7.18
+      },
+      {
+        "word": "statement.",
+        "start": 7.18,
+        "end": 7.58
+      },
+      {
+        "word": "Reporters",
+        "start": 8.16,
+        "end": 8.44
+      },
+      {
+        "word": "were",
+        "start": 8.44,
+        "end": 8.68
+      },
+      {
+        "word": "not",
+        "start": 8.68,
+        "end": 8.88
+      },
+      {
+        "word": "permitted",
+        "start": 8.88,
+        "end": 9.24
+      },
+      {
+        "word": "inside",
+        "start": 9.24,
+        "end": 9.68
+      },
+      {
+        "word": "the",
+        "start": 9.68,
+        "end": 9.84
+      },
+      {
+        "word": "building.",
+        "start": 9.84,
+        "end": 10.66
+      }
+    ],
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2.2,
+        "text": " The ASEAN summit concluded on Tuesday.",
+        "tokens": [
+          50365,
+          440,
+          316,
+          5879,
+          1770,
+          21564,
+          22960,
+          322,
+          10017,
+          13,
+          50475
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16851836,
+        "compression_ratio": 1.3103448,
+        "no_speech_prob": 0.0005660057
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.56,
+        "end": 5.14,
+        "text": " Naypyidaw responded to the decision within hours,",
+        "tokens": [
+          50493,
+          42019,
+          8200,
+          327,
+          1607,
+          15806,
+          281,
+          264,
+          3537,
+          1951,
+          2496,
+          11,
+          50622
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16851836,
+        "compression_ratio": 1.3103448,
+        "no_speech_prob": 0.0005660057
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 5.42,
+        "end": 7.62,
+        "text": " and the foreign ministry issued a short statement.",
+        "tokens": [
+          50636,
+          293,
+          264,
+          5329,
+          15024,
+          14379,
+          257,
+          2099,
+          5629,
+          13,
+          50746
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16851836,
+        "compression_ratio": 1.3103448,
+        "no_speech_prob": 0.0005660057
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 8.0199995,
+        "end": 10.179999,
+        "text": " Reporters were not permitted inside the building.",
+        "tokens": [
+          50766,
+          3696,
+          12168,
+          645,
+          406,
+          28658,
+          1854,
+          264,
+          2390,
+          13,
+          50874
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16851836,
+        "compression_ratio": 1.3103448,
+        "no_speech_prob": 0.0005660057
+      }
+    ],
+    "x_groq": {
+      "id": "req_01kzqy4r1qe4etr8zaz35ta890"
+    }
+  }
+}
