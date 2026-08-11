@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-11, end of Phase 3's build.
+**Last updated:** 2026-08-12, end of the contract-test sitting.
 
 ---
 
@@ -15,50 +15,40 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 0 — spikes, monorepo, language registry | done |
 | 1 — engine core, Google sync, CLI | done |
 | 2 — batchRecognize, GCS staging, rates | done |
-| **3 — diarization** | **everything buildable is built, and the diarizer has now run on real audio** (S8: DER 0.4%). Two things remain: `scribe.ts` needs an ElevenLabs key, and the contract test needs the presign gap in amendment 43 closed first |
+| **3 — diarization** | **done but for one item.** The full path has run on real audio, the rename survives a re-diarization *and* a re-transcription with a different provider, and the contract test now runs `PyannoteSource` against the real container. Only `scribe.ts` remains, and it needs an ElevenLabs key nobody has |
 | **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b unblocked** — the sidecar image it needed exists |
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #15. Everything above is merged, nothing in flight.
+`main` is at the merge of PR #15. **PR #16 — the contract test — is open and green.**
 
-At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
-tests, nothing skipped**, with Postgres and MinIO up — checked three consecutive times with
-the sidecar container also running, because the failure it replaced was intermittent.
-`pnpm gen` is idempotent. The sidecar's own suite is **30 pytest tests**, still run
+On that branch, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646
+tests, nothing skipped**, with Postgres, MinIO and the sidecar up — run twice consecutively.
+`pnpm gen` is idempotent. The sidecar's own suite is **32 pytest tests**, still run
 separately (see *Known debt*).
 
 ---
 
 ## Do this next
 
-**Merge the open PR first**, then choose. The branch is green and self-contained.
+**Merge PR #16 first**, then choose. The branch is green and self-contained.
 
-Then, in preference order:
+**Phase 3 is finished** except `scribe.ts`, which is a *decision*, not a task — open question
+3 below. Everything the last three sittings listed as next is done: the presign gap
+(amendment 43), `--job` (46), the identity-matching defect (45), and the contract test (47).
 
-1. **Decide whether `thibi transcribe` should take `--job <id>` — amendment 46.** It mints a
-   fresh job for a byte-identical file, so "re-transcribe and watch the name survive" needs
-   `thibi diarize run <runId>` instead. That works and is now the documented demo, but a
-   newsroom re-transcribing a file with a better provider will expect the names to follow.
-2. **~~Close the presign gap~~ — done.** `S3_INTERNAL_ENDPOINT` (amendment 43). SigV4 signs the `Host` header, so a URL minted
-   by the CLI on a laptop against `localhost:9000` is rejected 403 when the sidecar fetches
-   it as `minio:9000`. Phase 3 §1 assumed the engine runs inside compose; the CLI does not.
-   `S3ObjectStore` takes a `signingClient`, but its doc and every caller point it at the
-   *public* URL for Phase 10, and `apps/cli/src/context.ts` sets neither. **Until this is
-   wired up, a local `thibi transcribe --diarize` cannot reach the audio** — which also
-   means the sidecar contract test cannot be written against a real run. Small, and it
-   blocks the last unfinished thing in the phase.
-3. **The sidecar contract test.** `/v1/tasks/by-key/{key}` exists so the
-   deterministic-id claim is checkable from outside, and S8's `spikes/s8-run-sidecar.mjs`
-   already drives the whole path — it is most of the test with the assertions missing.
-2. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
+So the fork is real now, and it is between two things:
+
+1. **Phase 4b.** The short hop: the image, the task registry and the single slot are already
    built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
-   `asr.py` is a 501 stub waiting for exactly that.
-3. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
-   has *two* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, and
-   S7's 68 accepted-but-unmeasured language codes. `thibi diarize score` also exists now, so
-   Phase 5 can tune `reconcile.ts`'s five chosen-not-measured thresholds the moment somebody
-   produces an RTTM — which is open question 3.
+   `asr.py` is a 501 stub waiting for exactly that. It is also the only route to **per-word
+   confidence from something that is not Google**, which every downstream quality feature
+   assumes.
+2. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It has
+   *three* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, S7's 68
+   accepted-but-unmeasured language codes, and `reconcile.ts`'s five chosen-not-measured
+   thresholds — `purityReviewBelow: 0.6` in particular, which is known to let a real second
+   speaker through. `thibi diarize score` exists and needs an RTTM, which is open question 2.
 
 **Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
 out: it reintroduces exactly the identity problem whole-file diarization removes. The answer
@@ -73,6 +63,31 @@ none from re-reading code. In this sitting: the dev database was two migrations 
 first real `thibi diarize run` died on `relation "speakers" does not exist` — every DB *test*
 builds its own database from a migrated template, so the one database nobody migrates is the
 one a human uses. Run `thibi db migrate` before believing a CLI failure.
+
+**Ask what shape the real caller passes, not what shape is convenient to construct.** The
+2026-08-12 lesson, promised to this note and now in it. `persist.test.ts` built a *new run*
+for every pass because that is the easy fixture to write; the caller that actually reaches
+identity matching, `thibi diarize run`, re-diarizes **in place**. The whole feature — the
+Hungarian solver, the overlap floor, the property tests — had never once run against a
+non-empty prior, and the suite was green throughout.
+
+**A test that the system can answer from cache is not a test.** The sidecar is built so a key
+it has already seen returns from its journal in milliseconds. The contract test therefore
+mints a **fresh idempotency key on every run**: a stable one makes the test forty seconds
+faster and worthless, still passing long after the model stops loading. The same shape will
+appear in Phase 9's retry loop and in anything touching `batchRecognize`.
+
+**A race-sensitive assertion belongs in `beforeAll`, not in a test body.** The "second key
+gets 429" check is only meaningful while the slot is held. From an `it` it races a
+forty-second diarization, and losing the race does not fail loudly — it quietly starts a
+second real run. Submitting inside `beforeAll` and asserting on the captured error later
+makes the ordering a fact rather than a hope.
+
+**A `spikes/*.mjs` that imports `@thibi/*` cannot be run from anywhere.** ESM resolves bare
+specifiers from the importing *file's* directory, not the cwd, so no amount of `cd` helps —
+and only `packages/engine` and `apps/cli` have the `@thibi/storage` symlink at all. The file
+has to be copied into one of them. `spikes/s8-run-sidecar.mjs`'s header says "run it from
+`packages/storage`", which is wrong on both counts.
 
 **A timing assertion nobody deliberately chose is a test of the machine.** Three times now:
 the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`, and
@@ -168,7 +183,8 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
    turns — a floor on difficulty, not evidence about an interview with crosstalk — and
    nothing has ever measured diarization accuracy on Burmese or on real multi-mic audio.
 3. **Is an ElevenLabs Scribe key worth getting?** It is the documented answer to "this box
-   cannot run pyannote", and `scribe.ts` is one of the two open Definition-of-done items. Its
+   cannot run pyannote", and `scribe.ts` is now the **last** open Definition-of-done item in
+   Phase 3 — the phase closes on this answer. Its
    cost and duration cap are also unconfirmed (Phase 3 open question 7). If the answer is no,
    say so and the plan should stop promising it.
 4. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
@@ -181,19 +197,26 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 
 ## Known debt, recorded not hidden
 
-- **Phase 3's two open Definition-of-done items**: `scribe.ts` (no ElevenLabs key) and the
-  sidecar contract test (blocked on amendment 43's presign gap, not on the gate any more).
-  Both are recorded as unchecked in [`phase-03-diarization.md`](./phase-03-diarization.md)
-  rather than dropped.
+- **Phase 3's one open Definition-of-done item**: `scribe.ts`, which needs an ElevenLabs key
+  nobody has. Recorded as unchecked in [`phase-03-diarization.md`](./phase-03-diarization.md)
+  rather than dropped. The contract test is done.
+- **The contract test costs ~40 s** of the suite whenever the sidecar is up, because it runs
+  a genuine 11-second diarization (see amendment 47 for why it is not a canned pipeline). It
+  skips itself, naming the missing service, when the sidecar is unreachable or its model is
+  not loaded — so a clone with no Docker reads as skipped, not failed. If it ever needs to be
+  cheaper, the honest lever is a shorter fixture, not a stable idempotency key.
 - **The container's 0.51× realtime is a macOS artifact, not a deployment number.** Docker
   Desktop runs every container inside a Linux VM; S6's native 0.74–0.79× on the identical
   file is ~1.5× faster. On the Linux reference box a container is native. S6's ~0.6× planning
   figure stands and still wants re-measuring on the deployment host.
 - **The full pipeline has now run end to end on real audio, through the CLI**: OpenAI ASR,
-  the real pyannote sidecar, reconcile at mean purity 1.00, and the rename-survives
-  demo carrying "Daw Khin" across a re-diarization with 5 segments and 62 words still under
-  it. What has *not* been exercised: anything longer than 34 s, any long-tail language, any
-  audio with genuine overlap or crosstalk, and `--speakers`/`--min-speakers`/`--max-speakers`.
+  the real pyannote sidecar, reconcile at mean purity 1.00, and the rename-survives demo
+  carrying "Daw Khin" across a re-diarization *and* across a re-transcription into the same
+  job with a different provider (9 segments, 124 words). What has *not* been exercised:
+  anything longer than 34 s, any long-tail language, any audio with genuine overlap or
+  crosstalk, and `--speakers`/`--min-speakers`/`--max-speakers`. **The contract test's
+  fixture is 11 s of macOS TTS with no crosstalk** — a contract check, deliberately not an
+  accuracy measurement.
 - **The estimate shown before a diarization is still S6's 0.6× constant**, even though
   `diarization_runs.realtime_factor` now holds real numbers (0.36-0.51× on this box). Phase 3
   §6 item 4 asks for the mean of the last five on this instance; nothing reads the column
