@@ -13,7 +13,8 @@
  * to be reconstructible without having stored the submit response, which is exactly what
  * `diarizeStepKey` is.
  */
-import { AbortedError, ProviderError } from '../errors.js';
+import { AbortedError, NotConfiguredError, ProviderError } from '../errors.js';
+import { NORMALIZE, RECIPE_VERSION } from '../audio/normalize.js';
 import type { EngineContext } from '../context.js';
 import { DiarizerBusyError } from './pyannote.js';
 import { loadReconcileInput, persistDiarization, persistDiarizationFailure } from './persist.js';
@@ -250,4 +251,49 @@ export async function runDiarization(
     persisted,
     elapsedMs: ctx.clock.now().getTime() - startedAt,
   };
+}
+
+/**
+ * The audio a diarization of this run must consume.
+ *
+ * **The same normalized derivative ASR saw**, not the source file and not a fresh
+ * normalization. Reconciliation aligns word timings against turn timings, and the only
+ * thing that makes those two comparable is that both were measured on the same bytes on the
+ * same timeline. `RECIPE_VERSION` is in the lookup because it is derived from the ffmpeg
+ * filter string: a derivative produced under different parameters is a different timeline,
+ * and matching it by `kind` alone would silently reconcile against the wrong one.
+ */
+export async function diarizeAudioForRun(
+  ctx: EngineContext,
+  runId: string,
+): Promise<{ jobId: string; key: string; durationMs: number }> {
+  const { rows } = await ctx.db.$client.query<{
+    job_id: string;
+    storage_key: string | null;
+    duration_ms: number | null;
+  }>(
+    `select r.job_id, d.storage_key, a.duration_ms
+       from runs r
+       join jobs j on j.id = r.job_id
+       join media_assets a on a.id = j.asset_id
+       left join media_derivatives d
+         on d.asset_id = a.id and d.kind = $2 and d.recipe_version = $3
+      where r.id = $1`,
+    [runId, NORMALIZE.kind, RECIPE_VERSION],
+  );
+  const row = rows[0];
+  if (!row) throw new ProviderError(`No run ${runId}.`);
+  if (!row.storage_key) {
+    throw new NotConfiguredError(
+      `Run ${runId} has no ${NORMALIZE.kind} derivative at recipe ${RECIPE_VERSION}, so there ` +
+        `is nothing for the diarizer to read.`,
+      {
+        hint:
+          `Re-run the transcription with a database and object store configured. A run made ` +
+          `with --no-db normalizes to a temp file and uploads nothing, and a derivative made ` +
+          `before the 2026-08-10 resample fix is under a different recipe version.`,
+      },
+    );
+  }
+  return { jobId: row.job_id, key: row.storage_key, durationMs: row.duration_ms ?? 0 };
 }

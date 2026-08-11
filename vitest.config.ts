@@ -22,6 +22,21 @@ export default defineConfig({
      * just not because something else was compiling.
      */
     hookTimeout: 60_000,
+    /**
+     * 30 s, up from the 5 s default, and for the same reason as `hookTimeout` above.
+     *
+     * Measured 2026-08-11, adding Phase 3's `diarize/persist.test.ts`: that made a **sixth**
+     * suite hold a real database, and the extra contention pushed `speakers.test.ts >
+     * answers the review query from the partial index` from 2.0 s standalone to over 5 s
+     * inside the 40-file run. It inserts 2,000 segment rows and then plans a query; none of
+     * that is the thing under test, and the assertion is about the *plan*, not the clock.
+     *
+     * The trap this repo already paid for once is the 64x64 Hungarian timing bound, which
+     * passed alone and failed in parallel because it was measuring machine load. A default
+     * timeout does the same thing silently to any DB suite. Raising it is the honest fix: a
+     * genuinely hung test still fails, just not because something else was compiling.
+     */
+    testTimeout: 30_000,
     projects: [
       'packages/*',
       'apps/*',

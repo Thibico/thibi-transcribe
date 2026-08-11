@@ -410,6 +410,7 @@ export {
 export {
   DIARIZE_POLL_INTERVAL_MS,
   deadlineForDuration,
+  diarizeAudioForRun,
   diarizeStepKey,
   runDiarization,
   type DiarizationSource,
