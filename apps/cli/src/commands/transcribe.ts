@@ -27,6 +27,7 @@ import { resolveRate, unitForMode } from '@thibi/db';
 import { assetKey, extensionOf, rawResponseKey } from '@thibi/storage';
 import { stat } from 'node:fs/promises';
 import { buildContext, readEnvironment } from '../context.js';
+import { diarizeRun, resolveSource } from './diarize.js';
 import { buildProvider, isProviderId, PROVIDER_IDS } from '../providers.js';
 import { buildTranscript, EXIT, formatText, type TranscriptJson } from '../output.js';
 
@@ -83,6 +84,16 @@ export function transcribeCommand(): Command {
       DEFAULT_OVERLAP_MS,
     )
     .option('--raw-dir <path>', 'write each provider response here, for debugging')
+    .option(
+      '--diarize',
+      'Also attribute speakers. Off by default and deliberately so: pyannote measured ~0.6x ' +
+        'realtime on CPU (S6), so a 30-minute interview is a 49-minute wait after a ' +
+        'one-minute transcript. Runs after the transcript is persisted and never gates it.',
+    )
+    .option('--speakers <n>', 'exact number of speakers, if you know it', Number)
+    .option('--min-speakers <n>', 'lower bound on the speaker count', Number)
+    .option('--max-speakers <n>', 'upper bound on the speaker count', Number)
+    .option('--diarize-source <id>', 'pyannote', 'pyannote')
     .action(async (file: string, opts) => {
       const startedAt = new Date();
       const sourcePath = resolve(file);
@@ -521,6 +532,37 @@ export function transcribeCommand(): Command {
             mode: result.mode,
             audioMs: result.usage.audioMs,
           });
+        }
+
+        /**
+         * Diarization runs last, after the transcript is written *and* after it has been
+         * printed to stdout or the output file.
+         *
+         * That ordering is Phase 3 §6 as code rather than as a paragraph. The transcript is
+         * a one-minute product and diarization is an hour-and-a-half one; a user who Ctrl-Cs
+         * during the wait keeps everything they came for, and a diarizer that is down costs
+         * them speaker labels and nothing else.
+         */
+        if (opts.diarize) {
+          if (!persisting) {
+            process.stderr.write(
+              '--diarize needs a database: speakers are rows, and --no-db writes none.\n',
+            );
+            process.exitCode = EXIT.notConfigured;
+          } else {
+            const source = resolveSource(cli, opts.diarizeSource as string);
+            if (source) {
+              await diarizeRun(cli, runId, source, {
+                ...(opts.speakers !== undefined ? { speakers: opts.speakers as number } : {}),
+                ...(opts.minSpeakers !== undefined
+                  ? { minSpeakers: opts.minSpeakers as number }
+                  : {}),
+                ...(opts.maxSpeakers !== undefined
+                  ? { maxSpeakers: opts.maxSpeakers as number }
+                  : {}),
+              });
+            }
+          }
         }
 
         // Exit 4 still prints the transcript: a three-hour transcript with one bad

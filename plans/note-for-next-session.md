@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-11, mid-Phase-3.
+**Last updated:** 2026-08-11, end of Phase 3's build.
 
 ---
 
@@ -15,128 +15,131 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 0 — spikes, monorepo, language registry | done |
 | 1 — engine core, Google sync, CLI | done |
 | 2 — batchRecognize, GCS staging, rates | done |
-| **3 — diarization** | **about two-thirds.** Reconciler, identity matcher, schema and sidecar built and tested; `scribe.ts`, `persist.ts`, the CLI and the contract test are not |
-| **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b now unblocked** — the sidecar image it needed exists |
+| **3 — diarization** | **everything buildable is built.** Two Definition-of-done items are open and both need a human: Scribe needs an ElevenLabs key, the contract test needs a Hugging Face gate accepted |
+| **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b unblocked** — the sidecar image it needed exists |
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #10. Everything above is merged, not in flight.
+`main` is at the merge of PR #10. **Phase 3's last two commits are in flight**, on branch
+`phase-3/persist-and-cli` with an open PR — not merged. Everything else above is merged.
 
-At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **605
+On that branch, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
 tests, nothing skipped**, with Postgres and MinIO up. `pnpm gen` is idempotent. The sidecar's
-own suite is **30 pytest tests**, run separately (see below).
+own suite is **30 pytest tests**, still run separately (see *Known debt*).
 
 ---
 
 ## Do this next
 
-**Finish Phase 3.** In this order, because each unblocks the next:
+**Merge the open PR first**, then choose. The branch is green and self-contained.
 
-1. **Ask the user to accept the third Hugging Face gate** — see *Open questions* below. It
-   blocks every remaining end-to-end check, so raise it first even though nothing else waits
-   on it.
-2. **`persist.ts`** — write `diarization_runs`, `speaker_turns`, `speakers`, and the
-   segment/word updates. The tables and the reconciler both exist; this is the seam between
-   them and it is the last piece of pure logic.
-3. **The CLI**: `thibi transcribe --diarize/--speakers/--min-speakers/--max-speakers/
-   --diarize-source`, `thibi speakers list|rename|merge <jobId>`, `thibi diarize score <run>
-   --reference turns.rttm`. The headline demo in the plan's Verification section — rename a
-   speaker, re-transcribe, watch the name survive — is what proves the whole feature and
-   nothing exercises `identity.ts` end to end until it exists.
-4. **The contract test**: run `PyannoteSource` against the real container so the Python and
-   TypeScript halves cannot drift. `/v1/tasks/by-key/{key}` exists specifically so the
-   deterministic-id claim is checkable from outside.
-5. **`scribe.ts`** last. It is the "this box cannot run pyannote" answer, not a default, and
-   its cost and duration cap are still unconfirmed against the live API.
+Then, in preference order:
 
-**Then Phase 4b** is a short hop: the image, the task registry and the single slot are all
-built, so faster-whisper is `asr.py` plus `thibi models pull`.
+1. **Answer open question 1 — accept the third Hugging Face gate.** It is a two-minute
+   click and it unblocks *four* separate things: the sidecar's loaded path, the contract
+   test, the first real diarization of real audio, and the only honest realtime-factor
+   number this project will ever have for its own hardware. Nothing else in the tree is
+   blocked on so little.
+2. **Phase 4b.** Now a short hop: the image, the task registry and the single slot are
+   built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
+   `asr.py` is a 501 stub waiting for exactly that.
+3. **Phase 5, the eval harness.** The alternative, and still reasonable to prefer. It now
+   has *two* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, and
+   S7's 68 accepted-but-unmeasured language codes. `thibi diarize score` also exists now, so
+   Phase 5 can tune `reconcile.ts`'s five chosen-not-measured thresholds the moment somebody
+   produces an RTTM — which is open question 3.
 
-**Alternative: Phase 5, the eval harness.** Still reasonable to prefer. Phase 4a left it 24
-Groq codes marked `suspected`, and S7 has now added a second, larger work queue —
-see *Open questions*.
+**Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
+out: it reintroduces exactly the identity problem whole-file diarization removes. The answer
+to memory is memory.
 
 ---
 
 ## What you would otherwise rediscover
 
-**Run it. Build it. Start it.** Every single defect this session came from doing that, and
-none from re-reading code. Two in the sidecar image alone: `torchcodec` resolved from the
-default index and linked CUDA (`libnvrtc.so.13`), in a Dockerfile whose comment explained
-that exact hazard *for torch* one line above; and a **third** gated Hugging Face repo that
-only appeared once the token was valid enough to get a 403 instead of a 401.
+**Run it. Build it. Start it.** Every defect in the last two sittings came from doing that and
+none from re-reading code. In this sitting: the dev database was two migrations behind and the
+first real `thibi diarize run` died on `relation "speakers" does not exist` — every DB *test*
+builds its own database from a migrated template, so the one database nobody migrates is the
+one a human uses. Run `thibi db migrate` before believing a CLI failure.
+
+**A timing assertion nobody deliberately chose is a test of the machine.** Three times now:
+the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`, and
+`speakers.test.ts > answers the review query from the partial index` — 2.0 s standalone, over
+5 s inside the 40-file run once a sixth suite also held a database. If you see a red suite
+under a green assertion count, check what else is running.
+
+**`hookTimeout` and `testTimeout` in `vitest.config.ts` do nothing.** Root-level `test`
+options are silently ignored once `test.projects` is used. Both were set there anyway, twice,
+by two different sessions — the second beside the first, because a wrong precedent invites
+copying. Proved inert on 2026-08-11 by setting both to 1 ms and watching every suite pass.
+The tell was in the message: `Hook timed out in 10000ms` is vitest's *default*, so a raised
+timeout that fires at the old number was never raised. **Put the timeout on the individual
+`beforeAll`/`afterAll`/`it`**, which is where these six suites already put their `beforeAll`
+budget. `vitest.config.ts` carries a comment saying so, because the next person to hit a slow
+teardown will reach for exactly the line that has now failed twice.
 
 **One probe is not a measurement, and S7 is the proof.** `gpt-4o-transcribe-diarize` on
-`language=mya` returned correct Myanmar script once — and then twenty distinct wrong-script
-transcripts over twenty identical requests. **It was 1 in 21.** Phase 4a's lesson was that a
-wrong answer can look healthy; this is worse, because the same request is right occasionally,
-so a single sample is a coin flip presented as a measurement.
+`language=mya` returned correct Myanmar script once and then twenty distinct wrong-script
+transcripts over twenty identical requests. **1 in 21.**
 [`spikes/s7-mya-stability.mjs`](../spikes/s7-mya-stability.mjs) is the shape any language
 claim has to take from now on.
 
-**A plan's SQL is the fourth one to predate the code.** Phase 3 §4 said to add five columns
-that Phase 1 had already shipped in `0000_init.sql`. Check the deliverables table against the
-tree before implementing it; it has been worth the two minutes every time. Amendments 28–37
-in [`00-overview.md`](./00-overview.md) are the running record.
+**Plans predate the code — check the deliverables table against the tree first.** Four phases
+running. Phase 3 §4 asked for five columns Phase 1 had already shipped; Phase 3's deliverables
+table had no entry for the stage that calls the pieces in order, and `run_steps` — which §1's
+contract names as the idempotency key — does not exist until Phase 9. Amendments 28–41 in
+[`00-overview.md`](./00-overview.md) are the running record. It has been worth the two minutes
+every single time.
 
-**Two of my own test bugs looked like source bugs.** The brute-force Hungarian reference
-pruned on `total >= best`, which is invalid with negative costs — and the identity matcher
-passes `-overlapMs` deliberately — so it reported the solver wrong when the solver had found a
-*better* answer. Then removing the prune left `best = total` unguarded. When a hand-written
-reference disagrees with an implementation, suspect the reference.
+**A merge must retire a speaker from identity matching.** The non-obvious one from this
+sitting. `is_merged_into` plus "unmatched prior speakers are kept, never deleted" are fine
+apart and a trap together: a merged-away row still holds the attributed time the next Hungarian
+match runs against, so the next diarization matches the same cluster back onto the row a human
+retired. `persistDiarization` filters `is_merged_into is null`; a test fails if you drop it.
 
-**Don't put a wall-clock assertion in a test.** The 64×64 Hungarian timing bound passed alone
-and failed inside the 36-file parallel run. It was measuring machine load.
+**Speaker keys never reuse a gap.** `allocateSpeakerKeys` continues past the job's highest
+`speaker-NN`. The key appears in exports and in `thibi speakers rename`, so it must not denote
+two different people across two runs of one recording.
 
-**A red suite with a green test count is the DB teardown, not a bug.** Five suites create a
-real Postgres database in `beforeAll` and drop it in `afterAll`, and vitest's 10 s default
-hook timeout is not enough under load. With the sidecar container running, four suites failed
-`Hook timed out in 10000ms` while all 605 assertions passed; stopping it made the same run
-green in 20 s. `hookTimeout` is now 60 s in `vitest.config.ts`. If you see this again, check
-what else is running before suspecting the database.
+**Diarization must never gate the transcript.** ASR finishes a 1-hour file in about a minute;
+pyannote takes ~1 h 40 m. In `transcribe.ts` the `--diarize` block sits *after* the transcript
+is persisted **and** after it is written to stdout or the output file. Keep it there. §6 is an
+invariant, not a preference.
+
+**Reconcile sorts words itself, and must.** The moving cursor in `assignWords` and "neighbour"
+in `medianSmooth` both mean *temporal* order. Database order is `(segment idx, word idx)`,
+which is usually the same and is not guaranteed to be across a merged chunk seam — and the
+failure is a wrong answer, not an error.
 
 **`interjection-genuine` cannot protect the median filter's guards on its own.** Both guards
 refuse that case, so deleting either still passes. The `-short-but-certain` /
-`-long-but-uncertain` pair isolates them, and a separate test moves each threshold to prove
-the flip *does* happen — otherwise the fixtures are green by accident.
+`-long-but-uncertain` pair isolates them.
 
-**`purityReviewBelow: 0.6` lets a real second speaker through.** `interjection-genuine`
-scores 0.64, just above the threshold, with a genuine interjection inside it. The number was
-chosen, not measured. Recorded in the fixture; Phase 5 tunes it.
-
-**Reconcile sorts words itself, and must.** The moving cursor in `assignWords` and
-"neighbour" in `medianSmooth` both mean *temporal* order. Database order is `(segment idx,
-word idx)`, which is usually the same and is not guaranteed to be across a merged chunk seam
-— and the failure is a wrong answer, not an error.
+**`purityReviewBelow: 0.6` lets a real second speaker through.** `interjection-genuine` scores
+0.64, just above the threshold. The number was chosen, not measured. Phase 5 tunes it.
 
 **`exactOptionalPropertyTypes` is on**, so `{ progress: x ?? undefined }` does not type-check
-against `progress?: number`. Build the object and assign conditionally. `noUncheckedIndexedAccess`
-is on too and the house pattern is `!` — see `timing/interpolate.ts`.
+against `progress?: number`. Build the object and assign conditionally.
+`noUncheckedIndexedAccess` is on too and the house pattern is `!`.
 
 **Nothing in a Whisper response envelope distinguishes a correct transcript from a confident
 wrong-language one.** Groq on Burmese returned Khmer for `language=my` and Vietnamese on
 autodetect, both HTTP 200, `avg_logprob` ≈ −0.6 — the same numbers as a correct English
-control. Do not treat those fields as a quality signal.
+control.
 
 **Script integrity is a screen, not a guarantee.** `packages/core/src/metrics/script.ts`
-catches wrong-*alphabet* output. It scores Myanmar-script non-words 1.00, identically to a
-correct transcript. Phase 5 still needs CER.
+catches wrong-*alphabet* output and scores Myanmar-script non-words 1.00. Phase 5 needs CER.
 
 **`resolveJsonModule` is off repo-wide.** A JSON `import` type-checks under vitest's esbuild
 and then fails `tsc -b`. Read fixtures with `readFileSync`.
 
-**`SettingsPort` is a flat key/value port.** Any plan reading `ctx.settings.<ns>.<key>` is
-wrong.
+**`SettingsPort` is a flat key/value port.** Any plan reading `ctx.settings.<ns>.<key>` is wrong.
 
 **Two storage key schemes coexist deliberately.** Phase 1 writes content-addressed
 `assets/{sha[0:2]}/{sha}/source.{ext}`; Phase 8 writes `media/{uuid}/source.{ext}`, because a
 streamed upload does not know its hash until the last byte. Do not unify them without moving
 the `delete` on the dedupe path in `ingest/upload.ts`.
-
-**Diarization must never gate the transcript.** ASR finishes a 1-hour file in about a minute;
-pyannote takes ~1 h 40 m. `diarize` is its own `run_steps` row —
-[`phase-03-diarization.md`](./phase-03-diarization.md) §6, an invariant. S7 did not disturb it,
-because the hosted diarizing ASR that would have is not being added.
 
 **Test-DB templates are per process.** `packages/db/src/testing.ts` names them
 `thibi_test_template_${pid}`. Adding a DB-backed suite is safe; sharing a template name is not.
@@ -147,20 +150,24 @@ because the hosted diarizing ASR that would have is not being added.
 
 1. **Accept `pyannote/speaker-diarization-community-1` on Hugging Face** with the account that
    owns `HF_TOKEN` — https://huggingface.co/pyannote/speaker-diarization-community-1. The
-   other two gates (`speaker-diarization-3.1`, `segmentation-3.0`) are already accepted; this
-   third one is new in pyannote 4.x and its name appears nowhere in the model id we configure.
-   **Everything end-to-end in Phase 3 is blocked on it.**
+   other two gates are already accepted; this third one is new in pyannote 4.x and its name
+   appears nowhere in the model id we configure. **The highest-value two minutes available in
+   this repo:** it unblocks the sidecar's loaded path, the contract test, the first real
+   diarization, and the realtime factor.
 2. **Typical recording length and deadline pressure** for the target newsrooms. Decides whether
    a 1 h 38 m diarization wait is acceptable, and therefore whether the GPU tier is a
-   requirement or an upsell. S7 removed the tempting escape hatch, so this question is now
-   unavoidable rather than deferrable.
+   requirement or an upsell. S7 removed the escape hatch, so this is unavoidable now.
 3. **Is there a real multi-speaker recording in one of the long-tail languages** we can use as
-   a diarization reference? S7 scored English TTS with constructed boundaries, which is a floor
-   on difficulty, and S6 measured throughput on an English podcast. Nothing has ever measured
-   diarization *accuracy* on Burmese, and `thibi diarize score` needs an RTTM.
-4. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
+   a diarization reference? `thibi diarize score` is built and needs an RTTM. S7 scored English
+   TTS with constructed boundaries, which is a floor on difficulty; nothing has ever measured
+   diarization *accuracy* on Burmese.
+4. **Is an ElevenLabs Scribe key worth getting?** It is the documented answer to "this box
+   cannot run pyannote", and `scribe.ts` is one of the two open Definition-of-done items. Its
+   cost and duration cap are also unconfirmed (Phase 3 open question 7). If the answer is no,
+   say so and the plan should stop promising it.
+5. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
    against the Dynamic Batch SKU rather than Recognition. Needs a real invoice. Phase 14.
-5. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
+6. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
    audio-seconds/hour; the docs describe 300 RPM and 200k ASH. A Phase 5 sweep exhausts the
    measured budget long before the documented one.
 
@@ -168,35 +175,41 @@ because the hosted diarizing ASR that would have is not being added.
 
 ## Known debt, recorded not hidden
 
-- **Phase 3 is unfinished**: `scribe.ts`, `persist.ts`, all three CLI commands, and the
-  contract test. `PyannoteSource` exists but nothing calls it — no pipeline stage, no
-  `run_steps` row, no wiring into `ctx.sidecar` (still typed `unknown`).
-- **The sidecar's *loaded* path is unverified.** Blocked on open question 1. Everything up to
-  the gate is measured: image builds, container starts, `/health` answers with real torch
-  2.13.0+cpu / pyannote 4.0.7 / torchcodec 0.15.0+cpu versions and the three gate URLs.
+- **Phase 3's two open Definition-of-done items**: `scribe.ts` (no ElevenLabs key) and the
+  sidecar contract test (needs the gate). Both are recorded as unchecked in
+  [`phase-03-diarization.md`](./phase-03-diarization.md) rather than dropped.
+- **No real audio has ever been diarized.** The rename-survives-re-diarization demo was run
+  through the built CLI against a stand-in that speaks the sidecar's §1 HTTP contract, with a
+  seeded run in the dev database. Everything in that sequence is the real implementation
+  except the source of the turns.
+- **The estimate shown before a diarization is still S6's 0.6× constant.** Phase 3 §6 item 4
+  asks for the mean of the last five `diarization_runs.realtime_factor` on this instance. The
+  column is written on every successful run; averaging one stand-in's canned 0.6× would be a
+  fiction dressed as a measurement, so the constant stays until real runs exist.
+- **`persistDiarization` is not idempotent per run.** Calling it twice for the same run
+  inserts a second `diarization_runs` row and re-attributes the same segments. That is honest
+  — each call *was* an attempt — but nothing dedupes, and Phase 9's retry loop will need to
+  decide whether it should.
+- **`thibi speakers merge` has no unmerge.** The lineage is kept precisely so it is
+  reversible; the command to reverse it is not written.
 - **The sidecar suite is not in `pnpm test`.** Run it by hand:
   `cd services/sidecar && uv run --python 3.11 --with 'fastapi>=0.115' --with
   'pydantic-settings>=2.5' --with 'pytest>=8.3' --with 'httpx>=0.27' python -m pytest`.
-  Wiring it into CI is unclaimed work.
-- **S7 has no throughput number at length.** The 23-minute head-to-head against S6's podcast
-  was submitted three times and never returned, the last abandoned after 38 minutes. The
-  short-clip rate of 2.3–3.0× realtime does not extrapolate and the spike says so rather than
-  estimating.
+- **S7 has no throughput number at length.** The 23-minute head-to-head was submitted three
+  times and never returned. The short-clip rate of 2.3–3.0× realtime does not extrapolate.
 - **S7's language sweep is a Phase 5 work queue.** 68 codes accepted, and acceptance proved
-  nothing for `mya`. Every accepted code is an unmeasured claim.
+  nothing for `mya`.
 - **Phase 4b is unbuilt**: `services/sidecar/app/asr.py` is a 501 stub, `thibi models pull`
-  does not exist. **No provider returns genuine per-word confidence except Google**, whose S2
-  measurement stands.
-- **`GENERATED_AT` is misnamed.** It means "the date of the freshest input". The honest name is
-  `DATA_AS_OF`, but it is exported from `@thibi/languages`, mirrored in
+  does not exist. **No provider returns genuine per-word confidence except Google.**
+- **`GENERATED_AT` is misnamed.** It means "the date of the freshest input". The honest name
+  is `DATA_AS_OF`, but it is exported from `@thibi/languages`, mirrored in
   `ResolvedRegistry.generatedAt` and printed by `thibi --version`.
 - **`ProviderCapabilities.limits.rpm` cannot express Groq's limits** — a daily request bucket
-  and an hourly audio-seconds bucket. Both recorded as constants in `groq.ts`, unused, waiting
-  for Phase 9's token bucket. `limits.rpm` is unread by anything today.
+  and an hourly audio-seconds bucket. Both recorded as constants in `groq.ts`, unused.
 - **`transcribe` logs `plan: mode=…` twice**, the second time claiming the user passed
   `--mode sync` when they passed nothing. Pre-existing since Phase 1, cosmetic.
-- **`research/language-support-whisper-vs-google.md` is cited in four places and is not in this
-  repo.** Either import it or stop citing it.
+- **`research/language-support-whisper-vs-google.md` is cited in four places and is not in
+  this repo.** Either import it or stop citing it.
 - **Phase 8's web routes are not built.** `/api/uploads`, `/api/ingest/batch`, `/api/imports`
   wait on Phase 10's auth and Phase 11's UI.
 - **A live URL *download* has never been run** end to end — only `--resolve-only`.
@@ -217,21 +230,24 @@ because the hosted diarizing ASR that would have is not being added.
 - On macOS prefix docker commands with
   `PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"` — the credential helper is not
   on a minimal PATH.
-- `.env` carries `DATABASE_URL`, the `S3_*` keys, `APP_SECRET_KEY`, `HF_TOKEN`, `OPENAI_API_KEY`
-  and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
-- **Run `pnpm test` with the services up.** With them down, suites skip themselves and one file
-  reports as failed rather than skipped, which reads like a real failure.
-- **The full run is ~20 s idle and ~65 s with the sidecar container up**, and the DB suites'
-  teardown is what stretches. `hookTimeout: 60_000` covers it; the container is worth stopping
-  anyway when you are iterating on tests.
-- **`git` left a stale `.git/index.lock` twice this session**, both times after a `git mv` that
-  failed. If a commit refuses with "Another git process seems to be running", check
-  `ps aux | grep git` first and then remove it.
+- **`SIDECAR_URL` is new** in `apps/cli/src/context.ts`'s exhaustive env list, e.g.
+  `http://localhost:8081`. Unset means this box does no diarization, which is a supported
+  configuration and prints a remediation rather than a stack trace.
+- **Run `thibi db migrate` against the dev database after pulling.** The test suites migrate
+  their own databases and will not tell you the dev one is stale.
+- `.env` carries `DATABASE_URL`, the `S3_*` keys, `APP_SECRET_KEY`, `HF_TOKEN`,
+  `OPENAI_API_KEY` and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
+- **Run `pnpm test` with the services up.** With them down, suites skip themselves and one
+  file reports as failed rather than skipped, which reads like a real failure.
+- **The full run is ~35 s idle and ~65 s with the sidecar container up.** The DB suites'
+  teardown is what stretches; the container is worth stopping when iterating on tests.
+- **`git` left a stale `.git/index.lock` twice**, both times after a `git mv` that failed. If a
+  commit refuses with "Another git process seems to be running", check `ps aux | grep git`
+  first and then remove it.
 - Merging PRs is frequently blocked by the permission classifier. Push and open the PR, then
   ask the user to run `! gh pr merge <n> --merge` themselves — and do not re-check afterwards.
 - This machine is x86 macOS: torch stops at 2.2.2, so pyannote 4.x cannot be installed here.
   The Linux sidecar image is not subject to that and runs torch 2.13.0 / pyannote 4.0.7.
 - `say -v Samantha -o out.aiff "…"` plus ffmpeg makes English test audio.
   [`spikes/s7-make-2spk.mjs`](../spikes/s7-make-2spk.mjs) turns that into a two-speaker clip
-  with millisecond-exact reference boundaries, which is the cheapest honest way to score a
-  diarizer.
+  with millisecond-exact reference boundaries.

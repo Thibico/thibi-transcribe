@@ -4,24 +4,21 @@ import { defineConfig } from 'vitest/config';
 // Each package is its own project so `--project @thibi/languages` works and so a
 // package that later needs a different environment (jsdom for apps/web) can declare
 // it locally without touching this file.
+/**
+ * **Root-level `test` options do not reach projects.** Setting `hookTimeout` or
+ * `testTimeout` here has no effect at all once `test.projects` is used — verified
+ * 2026-08-11 by setting both to 1 ms and watching every suite pass unchanged.
+ *
+ * That matters because it fails in the direction of a false negative. Two separate
+ * attempts to fix DB-teardown timeouts by raising these here were inert, and one of them
+ * was reported as verified after a run that happened to be fast enough. The timeouts now
+ * live on the individual `beforeAll`/`afterAll`/`it` calls that need them, which is where
+ * the six database-backed suites already put their `beforeAll` budget.
+ *
+ * If a shared default is ever genuinely wanted, it has to go inside each project entry.
+ */
 export default defineConfig({
   test: {
-    /**
-     * 60 s, up from the 10 s default, because of the teardown and not the tests.
-     *
-     * Five suites create a real Postgres database from a template in `beforeAll` and
-     * `drop database … with (force)` it in `afterAll`. Both are slow under load and neither
-     * is the thing under test. Measured 2026-08-11: with the Phase 3 sidecar container
-     * running alongside, the full 37-file run took 60-70 s and **four** suites failed on
-     * `Hook timed out in 10000ms` — with every one of their 605 assertions passing. With
-     * the container stopped the same run is 20 s and green.
-     *
-     * A teardown that fails only when the machine is busy is a test of the machine, and
-     * this one reads as a database bug: the suite reports FAIL directly under a green test
-     * count. Raising the ceiling is the honest fix; a genuinely wedged `drop` still fails,
-     * just not because something else was compiling.
-     */
-    hookTimeout: 60_000,
     projects: [
       'packages/*',
       'apps/*',

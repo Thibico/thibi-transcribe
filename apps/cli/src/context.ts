@@ -62,6 +62,10 @@ const ENV_KEYS = [
   // against 100 MB — and it defaults pessimistic: a free key that assumed 100 MB fails every
   // chunk, while a dev key that assumed 25 MB just sends more chunks than it had to.
   'GROQ_TIER',
+  // Where the Python sidecar listens, e.g. http://localhost:8081. Unset means this box
+  // does no diarization, which is a supported configuration and not a broken one — the
+  // compose service is behind a profile.
+  'SIDECAR_URL',
   'THIBI_TMP_DIR',
   'LOG_LEVEL',
 ] as const;
@@ -132,6 +136,8 @@ export interface CliContext {
   settings: SettingsPort;
   /** Null when no staging bucket is configured — a supported and, since S3, faster setup. */
   staging: StagingStore | null;
+  /** Null when `SIDECAR_URL` is unset: this box cannot diarize, and says so rather than hanging. */
+  sidecarUrl: string | null;
   close: () => Promise<void>;
 }
 
@@ -296,6 +302,7 @@ export async function buildContext(options: BuildContextOptions): Promise<CliCon
     languages,
     settings,
     staging: staging ?? null,
+    sidecarUrl: env.SIDECAR_URL ?? null,
     async close() {
       if (db) await closeDb(db);
     },
