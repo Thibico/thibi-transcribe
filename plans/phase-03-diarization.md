@@ -740,7 +740,22 @@ speaker-01  Daw Khin    66%   5 segments   62 words
 > and deduped, the `jobs` row is not, so a second `transcribe` of the identical file lands
 > its speakers on a job the rename never touched — and the demo appears to pass while
 > proving nothing. `thibi diarize run <runId>` is the sequence that exercises the matcher.
-> Whether `transcribe` should accept `--job <id>` is open. Overview amendments 45 and 46.
+> Overview amendments 45 and 46.
+>
+> *Resolved 2026-08-12:* `thibi transcribe --job <id>` now attaches a run to an existing
+> job, which is the workflow a newsroom actually wants — re-transcribe with a better
+> provider and keep the names. Verified end to end across **two different providers**:
+>
+> ```
+> $ thibi transcribe interview.flac --provider openai --diarize
+> $ thibi speakers rename <jobId> speaker-01 "Daw Khin"
+> $ thibi transcribe interview.flac --provider groq --job <jobId> --diarize
+>            speaker-01  Daw Khin  carried across  (SPEAKER_00)
+> ```
+>
+> It refuses a job holding a different recording, because a speaker name is a fact about a
+> recording and the Hungarian matcher would otherwise place a human's names onto a timeline
+> they never heard, by coincidental overlap, without complaining.
 
 **Restart resilience:** `docker compose restart sidecar` mid-task → engine polls, sees `lost`,
 counts an attempt, resubmits once, completes.

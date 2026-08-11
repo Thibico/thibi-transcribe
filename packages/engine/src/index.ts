@@ -273,6 +273,8 @@ export {
 } from './pipeline/asr.js';
 export {
   createRun,
+  JobAssetMismatchError,
+  JobNotFoundError,
   persistChunks,
   persistResult,
   type CreateRunInput,

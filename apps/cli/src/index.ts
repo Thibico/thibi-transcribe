@@ -13,6 +13,7 @@ import { ingestCommand } from './commands/ingest.js';
 import { providersCommand } from './commands/providers.js';
 import { settingsCommand } from './commands/settings.js';
 import { ProbeAbort } from './probe/types.js';
+import { JobAssetMismatchError, JobNotFoundError } from '@thibi/engine';
 
 loadDotEnv();
 
@@ -35,8 +36,17 @@ program.addCommand(new Command('probe').description('Measure provider capabiliti
 try {
   await program.parseAsync(process.argv);
 } catch (err) {
-  if (err instanceof ProbeAbort) {
-    // A configuration or credentials failure. Nothing has been written.
+  if (
+    err instanceof ProbeAbort ||
+    err instanceof JobNotFoundError ||
+    err instanceof JobAssetMismatchError
+  ) {
+    // The user got something wrong and the message says what. A stack trace here is noise
+    // in front of the one line that helps — `--job` pointed at another recording, or at a
+    // job that does not exist. Nothing has been written in any of these cases.
+    //
+    // Three of these now. A fourth should become a shared marker rather than a longer
+    // condition.
     process.stderr.write(`\n${err.message}\n`);
     process.exitCode = 2;
   } else {
