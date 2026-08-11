@@ -364,3 +364,64 @@ export {
   type UrlPolicy,
   type YtDlpPort,
 } from './ingest/url/index.js';
+
+// ---- diarization: turns in, speaker attribution out ------------------------------------
+export type {
+  DiarizationCapabilities,
+  DiarizationResult,
+  DiarizeHandle,
+  DiarizeRequest,
+  DiarizeStatus,
+  Turn,
+} from './diarize/types.js';
+export {
+  DEFAULTS as RECONCILE_DEFAULTS,
+  assignWords,
+  medianSmooth,
+  reconcile,
+  voteSegments,
+  type RSegment,
+  type RWord,
+  type ReconcileOptions,
+  type ReconcileResult,
+  type ReconcileStats,
+  type SegmentAssignment,
+  type WordAssignment,
+} from './diarize/reconcile.js';
+export {
+  intervalOverlapMs,
+  matchSpeakers,
+  totalMs,
+  type FreshSpeaker,
+  type Intervals,
+  type PriorSpeaker,
+} from './diarize/identity.js';
+export { DiarizerBusyError, PyannoteSource, type SidecarConfig } from './diarize/pyannote.js';
+export {
+  allocateSpeakerKeys,
+  freshSpeakersFromTurns,
+  loadReconcileInput,
+  persistDiarization,
+  persistDiarizationFailure,
+  type PersistDiarizationInput,
+  type PersistDiarizationOutput,
+  type PersistedSpeaker,
+} from './diarize/persist.js';
+export {
+  DIARIZE_POLL_INTERVAL_MS,
+  deadlineForDuration,
+  diarizeStepKey,
+  runDiarization,
+  type DiarizationSource,
+  type RunDiarizationInput,
+  type RunDiarizationOutcome,
+} from './diarize/run.js';
+export {
+  SpeakerNotFoundError,
+  listSpeakers,
+  mergeSpeakers,
+  renameSpeaker,
+  type MergeResult,
+  type SpeakerSummary,
+} from './diarize/speakers.js';
+export { parseRttm, scoreDiarization, type DerScore, type RttmTurn } from './diarize/score.js';

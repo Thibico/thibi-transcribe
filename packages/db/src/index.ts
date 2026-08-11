@@ -15,7 +15,7 @@ export {
   type MigrationResult,
   type MigrationStatus,
 } from './migrate.js';
-export { copyWords, wordRowToCopyLine, type WordRow } from './copy.js';
+export { copyField, copyInto, copyWords, wordRowToCopyLine, type WordRow } from './copy.js';
 export {
   DEFAULT_RATES,
   resolveRate,
