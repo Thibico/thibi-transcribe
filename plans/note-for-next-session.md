@@ -89,6 +89,13 @@ reference disagrees with an implementation, suspect the reference.
 **Don't put a wall-clock assertion in a test.** The 64×64 Hungarian timing bound passed alone
 and failed inside the 36-file parallel run. It was measuring machine load.
 
+**A red suite with a green test count is the DB teardown, not a bug.** Five suites create a
+real Postgres database in `beforeAll` and drop it in `afterAll`, and vitest's 10 s default
+hook timeout is not enough under load. With the sidecar container running, four suites failed
+`Hook timed out in 10000ms` while all 605 assertions passed; stopping it made the same run
+green in 20 s. `hookTimeout` is now 60 s in `vitest.config.ts`. If you see this again, check
+what else is running before suspecting the database.
+
 **`interjection-genuine` cannot protect the median filter's guards on its own.** Both guards
 refuse that case, so deleting either still passes. The `-short-but-certain` /
 `-long-but-uncertain` pair isolates them, and a separate test moves each threshold to prove
@@ -215,6 +222,9 @@ because the hosted diarizing ASR that would have is not being added.
   and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
 - **Run `pnpm test` with the services up.** With them down, suites skip themselves and one file
   reports as failed rather than skipped, which reads like a real failure.
+- **The full run is ~20 s idle and ~65 s with the sidecar container up**, and the DB suites'
+  teardown is what stretches. `hookTimeout: 60_000` covers it; the container is worth stopping
+  anyway when you are iterating on tests.
 - **`git` left a stale `.git/index.lock` twice this session**, both times after a `git mv` that
   failed. If a commit refuses with "Another git process seems to be running", check
   `ps aux | grep git` first and then remove it.
