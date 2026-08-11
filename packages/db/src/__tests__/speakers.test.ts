@@ -76,9 +76,13 @@ describe.skipIf(!reachable)('speaker schema', () => {
     secondRunId = await makeRun();
   });
 
+  // 60 s, matching the `beforeAll` above. `drop database … with (force)` is slow when the
+  // machine is busy and is not the thing under test. It must be set HERE rather than in
+  // vitest.config.ts: root-level `test.hookTimeout` is silently ignored when `test.projects`
+  // is used — verified 2026-08-11 by setting it to 1 ms and watching every suite still pass.
   afterAll(async () => {
     await t?.drop();
-  });
+  }, 60_000);
 
   it('scopes a speaker key to the job, not the run', async () => {
     // The decision the whole feature rests on. A re-transcription is a new `runs` row, and
@@ -248,5 +252,8 @@ describe.skipIf(!reachable)('speaker schema', () => {
       .from(segments)
       .where(sql`${segments.runId} = ${secondRunId}::uuid and ${segments.needsSpeakerReview}`);
     expect(flagged).toHaveLength(8);
-  });
+    // 30 s: this inserts 2,000 segment rows before it can plan anything, and the assertion
+    // is about the query *plan*, not the clock. Set here for the same reason as the
+    // teardown above — `test.testTimeout` in vitest.config.ts does not reach projects.
+  }, 30_000);
 });

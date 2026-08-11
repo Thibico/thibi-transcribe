@@ -57,9 +57,13 @@ describe.skipIf(!reachable)('batch persistence', () => {
     } as unknown as EngineContext;
   }, 60_000);
 
+  // 60 s, matching the `beforeAll` above. `drop database … with (force)` is slow when the
+  // machine is busy and is not the thing under test. It must be set HERE rather than in
+  // vitest.config.ts: root-level `test.hookTimeout` is silently ignored when `test.projects`
+  // is used — verified 2026-08-11 by setting it to 1 ms and watching every suite still pass.
   afterAll(async () => {
     await test?.drop();
-  });
+  }, 60_000);
 
   /** A minimal asset → job → run chain, since `runs` is the table under test. */
   async function makeRun(mode = 'batch'): Promise<string> {
