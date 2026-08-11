@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #16** — the sidecar contract test and the ElevenLabs decision. **Phase 4b is in PR #18, against `main`, open and green.**
+`main` is at the merge of **PR #18**. Everything below is merged and **nothing is in flight**: the sidecar contract test, the ElevenLabs decision, and the whole of Phase 4b.
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
 skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
@@ -29,8 +29,6 @@ own suite is **41 pytest tests**, still run separately (see *Known debt*).
 ---
 
 ## Do this next
-
-**Merge PR #18.** It is green and it is the whole of Phase 4b.
 
 **Phase 3 and Phase 4 are both built.** What is left in Phase 4 is not construction, and the
 distinction matters more than usual here:
