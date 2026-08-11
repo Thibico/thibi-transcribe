@@ -276,9 +276,12 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   file reports as failed rather than skipped, which reads like a real failure.
 - **The full run is ~35 s idle and ~65 s with the sidecar container up.** The DB suites'
   teardown is what stretches; the container is worth stopping when iterating on tests.
-- **`git` left a stale `.git/index.lock` twice**, both times after a `git mv` that failed. If a
-  commit refuses with "Another git process seems to be running", check `ps aux | grep git`
-  first and then remove it.
+- **`git` leaves a stale `.git/index.lock`, and it is now routine** — four times, and the
+  2026-08-12 pair followed ordinary `git add`/`git commit` rather than the failed `git mv`
+  the first two did, so the earlier theory about `git mv` is wrong. Both times the lock was
+  a zero-byte file timestamped at the *previous* successful command. If a commit refuses
+  with "Another git process seems to be running", run `ps aux | grep "[g]it"` — the bracket
+  matters, or you match your own grep — and remove the lock when nothing is there.
 - Merging PRs is frequently blocked by the permission classifier. Push and open the PR, then
   ask the user to run `! gh pr merge <n> --merge` themselves — and do not re-check afterwards.
 - This machine is x86 macOS: torch stops at 2.2.2, so pyannote 4.x cannot be installed here.
