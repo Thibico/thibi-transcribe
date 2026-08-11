@@ -253,6 +253,58 @@ describe.skipIf(!reachable)('persistDiarization', () => {
     expect(Number(total.rows[0]!.n), 'a re-run must not mint a parallel speaker set').toBe(2);
   });
 
+  it('carries a name across a re-diarization of the SAME run', async () => {
+    // The case the CLI actually produces, and the one the first version got wrong.
+    // `thibi diarize run <runId>` re-diarizes in place; `thibi transcribe` mints a fresh
+    // job every time, even for a byte-identical file. So this is the *only* path that
+    // exercises identity matching in real use, and the test above — which builds a new run
+    // each time — was green while the feature was broken through every door a user has.
+    //
+    // Found by running it end to end on 2026-08-12: "Daw Khin" survived on `speaker-01`
+    // with 0 segments and 0 words while fresh `speaker-02` and `speaker-03` took all the
+    // audio. A name orphaned in place is worse than one lost, because the speakers list
+    // still shows it.
+    await renameSpeaker(ctx, jobId, 'speaker-01', 'Daw Khin');
+
+    const { runId, segments, words } = await makeRun();
+    const first = turnsFor('SPEAKER_00', 'SPEAKER_01');
+    await persistDiarization(ctx, {
+      runId,
+      jobId,
+      source: 'pyannote',
+      model: 'pyannote/speaker-diarization-3.1',
+      turns: first,
+      reconciled: reconcile(segments, words, first),
+    });
+
+    // Same run, diarized again, labels permuted the way a second pyannote pass emits them.
+    const again = turnsFor('SPEAKER_01', 'SPEAKER_00');
+    const out = await persistDiarization(ctx, {
+      runId,
+      jobId,
+      source: 'pyannote',
+      model: 'pyannote/speaker-diarization-3.1',
+      turns: again,
+      reconciled: reconcile(segments, words, again),
+    });
+
+    expect(out.speakers.every((s) => !s.isNew), 'no row may be re-minted').toBe(true);
+    const total = await t.db.$client.query<{ n: string }>(
+      'select count(*) as n from speakers where job_id = $1',
+      [jobId],
+    );
+    expect(Number(total.rows[0]!.n), 'a re-diarization must not mint a parallel set').toBe(2);
+
+    // And the name must still be carrying real audio, not sitting on an empty row.
+    const attributed = await t.db.$client.query<{ n: string }>(
+      `select count(*) as n from segments s
+         join speakers sp on sp.id = s.speaker_id
+        where sp.job_id = $1 and sp.display_name = 'Daw Khin'`,
+      [jobId],
+    );
+    expect(Number(attributed.rows[0]!.n), '"Daw Khin" must still hold segments').toBeGreaterThan(0);
+  });
+
   it('keeps an unmatched prior speaker rather than deleting it', async () => {
     const { runId, segments, words } = await makeRun();
     // One speaker this time. The other prior speaker matches nothing.

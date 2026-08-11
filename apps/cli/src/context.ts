@@ -40,6 +40,12 @@ const ENV_KEYS = [
   'DATABASE_URL',
   'STORAGE_DRIVER',
   'S3_ENDPOINT',
+  // The endpoint the *sidecar* reaches MinIO on, when it differs from ours. SigV4 signs the
+  // Host header, so a presigned URL minted against `http://localhost:9000` by a CLI on a
+  // laptop is rejected 403 the moment a container fetches it as `http://minio:9000`.
+  // Unset is correct whenever both sides see the same host — an engine running inside
+  // compose, or an S3 with one real address. See `buildStore`.
+  'S3_INTERNAL_ENDPOINT',
   'S3_BUCKET',
   'S3_REGION',
   'S3_ACCESS_KEY_ID',
@@ -160,10 +166,9 @@ function buildStore(env: Partial<Record<EnvKey, string>>, noDb: boolean): Object
   if (!env.S3_BUCKET) {
     throw new Error('STORAGE_DRIVER=s3 needs S3_BUCKET. See .env.example.');
   }
-  return new S3ObjectStore({
-    bucket: env.S3_BUCKET,
-    client: new S3Client({
-      ...(env.S3_ENDPOINT ? { endpoint: env.S3_ENDPOINT } : {}),
+  const client = (endpoint: string | undefined): S3Client =>
+    new S3Client({
+      ...(endpoint ? { endpoint } : {}),
       region: env.S3_REGION ?? 'us-east-1',
       // MinIO serves path-style; virtual-host style needs DNS per bucket.
       forcePathStyle: true,
@@ -175,7 +180,30 @@ function buildStore(env: Partial<Record<EnvKey, string>>, noDb: boolean): Object
             },
           }
         : {}),
-    }),
+    });
+
+  /**
+   * Two clients when the sidecar reaches MinIO on a different host than we do.
+   *
+   * **SigV4 signs the `Host` header.** A URL presigned against `http://localhost:9000` by a
+   * CLI running on a developer's laptop comes back **403 `audio_unreachable`** the instant
+   * the sidecar requests it as `http://minio:9000` — measured, and it was the first failure
+   * of the first real diarization (spike S8, overview amendment 43). Phase 3 §1 says the URL
+   * is minted "with the `s3` client at `http://minio:9000`", which is true only when the
+   * engine also runs inside compose.
+   *
+   * `signingClient` is the seam `S3ObjectStore` already had. Its own doc describes the
+   * mirror-image case — signing for a *public* URL through Caddy so a browser can fetch
+   * audio, Phase 10 — and the two never collide, because only one consumer of a presigned
+   * URL exists at a time: Phase 3's sidecar now, a browser later. If both ever need one at
+   * once, this becomes two methods rather than two clients.
+   */
+  return new S3ObjectStore({
+    bucket: env.S3_BUCKET,
+    client: client(env.S3_ENDPOINT),
+    ...(env.S3_INTERNAL_ENDPOINT
+      ? { signingClient: client(env.S3_INTERNAL_ENDPOINT) }
+      : {}),
   });
 }
 

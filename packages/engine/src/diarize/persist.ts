@@ -154,10 +154,23 @@ export async function persistDiarization(
     /**
      * Prior speakers, with the time *currently attributed* to them.
      *
-     * Not the previous diarization's raw turns — segments, from any earlier run of this job.
-     * That is the whole point: a human who reassigned a segment by hand has changed the
-     * evidence this match runs on, so their correction feeds forward into the next run
-     * instead of being overwritten by it.
+     * Not the previous diarization's raw turns — segments, from **any** run of this job
+     * including the one being diarized right now. That is the whole point: a human who
+     * reassigned a segment by hand has changed the evidence this match runs on, so their
+     * correction feeds forward into the next run instead of being overwritten by it.
+     *
+     * **This deliberately does not exclude `input.runId`, and the first version did.**
+     * `thibi diarize run <runId>` re-diarizes a run in place, which is the only CLI path
+     * that exercises identity matching at all — `thibi transcribe` mints a fresh job every
+     * time, even for a byte-identical file. With the current run excluded, re-diarizing
+     * found no prior attribution, matched nothing, and minted a parallel speaker set,
+     * orphaning every name a human had typed. Measured 2026-08-12 through the CLI: a
+     * rename to "Daw Khin" survived on `speaker-01` with 0 segments while fresh
+     * `speaker-02` and `speaker-03` took all the audio. That is precisely the bug this
+     * whole design exists to prevent.
+     *
+     * Safe because it runs before anything writes: the segment attribution updated below
+     * is read here first, inside the same transaction.
      *
      * Rows merged into another speaker are excluded: their time belongs to the merge target
      * (`thibi speakers merge` repoints it), and letting a merged-away row compete would
@@ -167,8 +180,8 @@ export async function persistDiarization(
       `select sp.id, sp.key, s.start_ms, s.end_ms
          from speakers sp
          join segments s on s.speaker_id = sp.id and s.superseded_at is null
-        where sp.job_id = $1 and sp.is_merged_into is null and s.run_id <> $2`,
-      [input.jobId, input.runId],
+        where sp.job_id = $1 and sp.is_merged_into is null`,
+      [input.jobId],
     );
     const priorByKey = new Map<string, PriorSpeaker & { intervals: Array<[number, number]> }>();
     for (const row of prior.rows) {
