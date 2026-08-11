@@ -1,0 +1,110 @@
+{
+  "status": 200,
+  "ms": 349,
+  "headers": {
+    "x-ratelimit-limit-audio-seconds": "7200",
+    "x-ratelimit-limit-requests": "2000",
+    "x-ratelimit-remaining-audio-seconds": "7198",
+    "x-ratelimit-remaining-requests": "1998",
+    "x-ratelimit-reset-audio-seconds": "1s",
+    "x-ratelimit-reset-requests": "1m26.4s"
+  },
+  "body": {
+    "task": "transcribe",
+    "language": "Vietnamese",
+    "duration": 2,
+    "text": " Cô Nga dễ cô giáp cho khỏe mặt bê bồ.",
+    "words": [
+      {
+        "word": "Cô",
+        "start": 0,
+        "end": 0.24
+      },
+      {
+        "word": "Nga",
+        "start": 0.24,
+        "end": 0.44
+      },
+      {
+        "word": "dễ",
+        "start": 0.44,
+        "end": 0.7
+      },
+      {
+        "word": "cô",
+        "start": 0.7,
+        "end": 0.96
+      },
+      {
+        "word": "giáp",
+        "start": 0.96,
+        "end": 1.18
+      },
+      {
+        "word": "cho",
+        "start": 1.18,
+        "end": 1.38
+      },
+      {
+        "word": "khỏe",
+        "start": 1.38,
+        "end": 1.56
+      },
+      {
+        "word": "mặt",
+        "start": 1.56,
+        "end": 1.72
+      },
+      {
+        "word": "bê",
+        "start": 1.72,
+        "end": 1.94
+      },
+      {
+        "word": "bồ.",
+        "start": 1.94,
+        "end": 2.22
+      }
+    ],
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2,
+        "text": " Cô Nga dễ cô giáp cho khỏe mặt bê bồ.",
+        "tokens": [
+          50365,
+          383,
+          2851,
+          426,
+          3680,
+          274,
+          36664,
+          35167,
+          1735,
+          15059,
+          1586,
+          7168,
+          21920,
+          68,
+          275,
+          38248,
+          272,
+          1307,
+          272,
+          11057,
+          13,
+          50465
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.5477575,
+        "compression_ratio": 0.86206895,
+        "no_speech_prob": 0.050750732
+      }
+    ],
+    "x_groq": {
+      "id": "req_01kzqy4m8peqet0r14ypwydx4k"
+    }
+  }
+}

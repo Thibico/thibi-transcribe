@@ -1,0 +1,21 @@
+{
+  "status": 400,
+  "ms": 2101,
+  "headers": {
+    "x-ratelimit-limit-requests": "5000",
+    "x-ratelimit-remaining-requests": "4999",
+    "x-ratelimit-reset-requests": "12ms"
+  },
+  "body": {
+    "error": {
+      "message": "Language 'my' is not supported.",
+      "type": "invalid_request_error",
+      "param": "language",
+      "code": "unsupported_language"
+    },
+    "usage": {
+      "type": "duration",
+      "seconds": 0
+    }
+  }
+}
