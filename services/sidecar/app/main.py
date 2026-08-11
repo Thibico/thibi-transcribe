@@ -113,11 +113,13 @@ def health() -> Health:
     detail = None
     if unavailable:
         gates = "\n".join(f"  {url}" for url in settings.gate_urls)
-        # Both gates, always. They are accepted separately and accepting only the first
-        # still fails at pipeline load, with an error that never names the second (S6).
+        # All three, always. They are gated separately, and the error only ever names the
+        # one that happened to fail first — which under pyannote 4.x is
+        # `speaker-diarization-community-1`, a repo whose name appears nowhere in the model
+        # id the operator configured. Measured on the built image, 2026-08-11.
         detail = (
-            f"{state.model_error}\n\nAccept the terms for BOTH gated models with the "
-            f"Hugging Face account that owns SIDECAR_HF_TOKEN:\n{gates}"
+            f"{state.model_error}\n\nAccept the terms for ALL of these gated models with "
+            f"the Hugging Face account that owns SIDECAR_HF_TOKEN:\n{gates}"
         )
 
     return Health(

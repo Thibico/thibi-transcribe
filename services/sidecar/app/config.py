@@ -52,17 +52,24 @@ class Settings(BaseSettings):
 
     @property
     def gate_urls(self) -> list[str]:
-        """The two gates a human has to accept, in the order they fail.
+        """Every gate a human has to accept, in the order they fail.
 
+        **Three, not two, and the third is measured rather than documented.** S6 found that
         `pyannote/speaker-diarization-3.1` and `pyannote/segmentation-3.0` are gated
-        **separately** (S6): accepting only the first still fails at pipeline load, with an
-        error that does not name the second. Anything reporting `model_unavailable` prints
-        both, because a newsroom that accepts one and stops is the likeliest first-run
-        failure this service has.
+        separately, so accepting only the first still fails at pipeline load with an error
+        that never names the second. Running the built image on 2026-08-11 found a third:
+        pyannote 4.x resolves `speaker-diarization-3.1` through
+        **`pyannote/speaker-diarization-community-1`**, a repo with a different name that is
+        gated on its own and is not mentioned anywhere in the pipeline id the operator typed.
+
+        The failure is a 403 naming only the community repo. An operator who accepts the two
+        obvious gates gets a 403 pointing at a model they have never heard of, so all three
+        are printed together whenever anything is unavailable.
         """
         return [
             "https://huggingface.co/pyannote/speaker-diarization-3.1",
             "https://huggingface.co/pyannote/segmentation-3.0",
+            "https://huggingface.co/pyannote/speaker-diarization-community-1",
         ]
 
 

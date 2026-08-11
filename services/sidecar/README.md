@@ -18,12 +18,24 @@ curl -s localhost:8081/health | jq
 It is behind a `diarize` profile because it is a ~4 GB image nobody needs in order to run
 the TypeScript test suite.
 
-`pyannote/speaker-diarization-3.1` is **gated on Hugging Face**, and so is
-`pyannote/segmentation-3.0`, **separately** — accepting only the first still fails at
-pipeline load with an error that never names the second (spike S6). Accept both with the
-account that owns `HF_TOKEN`. A sidecar without them still starts and answers `/health`
-with `status: degraded` and both URLs in `detail`, rather than exiting with nothing for an
-operator to read.
+**Three Hugging Face gates, all accepted separately**, with the account that owns
+`HF_TOKEN`:
+
+- `pyannote/speaker-diarization-3.1`
+- `pyannote/segmentation-3.0`
+- `pyannote/speaker-diarization-community-1`
+
+S6 found the first two: accepting only the pipeline's gate still fails at load with an
+error that never names segmentation. The third turned up on the built image — pyannote 4.x
+resolves `speaker-diarization-3.1` through a repo called
+`speaker-diarization-community-1`, whose name appears nowhere in the model id you
+configured, so accepting the two obvious ones earns a 403 about a model you have never
+heard of.
+
+A sidecar missing any of them still starts and answers `/health` with `status: degraded`
+and **all three** URLs in `detail`, rather than exiting with nothing for an operator to
+read. The error only ever names the one that failed first, which is why all three are
+printed together.
 
 ## The tests
 

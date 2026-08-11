@@ -83,15 +83,19 @@ class TestHealth:
         # S6's pessimistic end, until this instance has measured its own.
         assert health["realtime_factor_estimate"] == pytest.approx(0.56)
 
-    def test_names_both_gates_when_the_model_is_unavailable(self, make_client: Any) -> None:
-        # Accepting only the pipeline's gate still fails at load, with an error that never
-        # mentions segmentation-3.0. Printing one URL would send a newsroom in a circle.
+    def test_names_every_gate_when_the_model_is_unavailable(self, make_client: Any) -> None:
+        # Three separate gates, and the error only ever names whichever failed first.
+        # Under pyannote 4.x that is `speaker-diarization-community-1`, a repo whose name
+        # appears nowhere in the model id the operator configured — so an operator who
+        # accepts the two obvious ones gets a 403 about a model they have never heard of.
+        # Measured against the built image on 2026-08-11.
         client = make_client(False)
         health = client.get("/health").json()
         assert health["status"] == "degraded"
         assert health["models"]["diarization"] == "unavailable"
         assert "speaker-diarization-3.1" in health["detail"]
         assert "segmentation-3.0" in health["detail"]
+        assert "speaker-diarization-community-1" in health["detail"]
 
     def test_replaces_the_estimate_with_what_this_machine_measured(
         self, make_client: Any, audio_server: str
@@ -366,7 +370,7 @@ class TestValidation:
         error = response.json()["error"]
         assert error["code"] == "model_unavailable"
         assert error["retryable"] is True
-        assert len(error["gates"]) == 2
+        assert len(error["gates"]) == 3
 
 
 class TestAsrStub:

@@ -19,10 +19,14 @@ RUN apt-get update \
 
 ARG TORCH_INDEX=https://download.pytorch.org/whl/cpu
 
-# torch first and alone, from the index that decides CPU vs CUDA. Installing it in the same
-# resolution as pyannote lets pip pull the default (CUDA) build and silently produce a
-# 6 GB image on a machine with no GPU.
-RUN pip install --no-cache-dir --index-url "${TORCH_INDEX}" torch torchaudio
+# The whole torch family first, from the index that decides CPU vs CUDA — and that means
+# **torchcodec too**, which is the one that is easy to miss. pyannote 4.x decodes audio
+# through torchcodec, and pinning only torch/torchaudio here lets pip resolve torchcodec
+# from the default index a moment later, where it is built against the CUDA runtime. The
+# image then builds cleanly, starts cleanly, and dies on the first file with
+# `libnvrtc.so.13: cannot open shared object file` — measured on this exact Dockerfile
+# before this line included torchcodec.
+RUN pip install --no-cache-dir --index-url "${TORCH_INDEX}" torch torchaudio torchcodec
 
 RUN pip install --no-cache-dir \
         "pyannote.audio>=4.0,<5" \
