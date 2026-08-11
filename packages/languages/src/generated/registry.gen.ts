@@ -8509,9 +8509,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "as",
+      "reason": "Groq accepts this code and no OpenAI model does — the set the one measured failure came out of. Unverified on Groq; Phase 5 measures it.",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -9561,9 +9562,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "eu",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -9961,9 +9963,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "ha",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -10406,9 +10409,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "jv",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -10601,7 +10605,7 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "km",
-      "reason": "Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support.",
+      "reason": "Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support. Note that Khmer is the script Groq produced when asked for Burmese on 2026-08-11, so this row is not hypothetical caution.",
       "status": "accepted",
       "supported": true,
       "verdict": "suspected",
@@ -10760,9 +10764,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "lb",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -10836,9 +10841,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "ln",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -11157,9 +11163,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "mn",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -11278,9 +11285,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "mt",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -11311,7 +11319,7 @@ export const PROVIDER_MATRIX: Readonly<
     },
     "groq": {
       "adaptation": "prompt",
-      "evidence": "လာက္းကေက် ရိုရ်းသဲ့ထါတ် … versus Google's correct output on the same 12 s clip. research/language-support-whisper-vs-google.md, 2026-07-30. This is the finding the whole 'accepting a language code proves nothing' rule is built on.",
+      "evidence": "လာက္းကေက် ရိုရ်းသဲ့ထါတ် … versus Google's correct output on the same 12 s clip. research/language-support-whisper-vs-google.md, 2026-07-30. This is the finding the whole 'accepting a language code proves nothing' rule is built on. Re-measured 2026-08-11 on the committed 2 s probe clip and it is worse than first recorded: language=my returned KHMER script, and autodetect returned Vietnamese, both HTTP 200 with a healthy avg_logprob. A third run through the normalizer produced a repetition loop — 96 words spanning 30.4 s for 2 s of audio. Fixtures in packages/engine/src/providers/whisper/__fixtures__/.",
       "httpStatus": 200,
       "models": [
         "whisper-large-v3"
@@ -11555,9 +11563,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "oc",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -11668,9 +11677,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "pa",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -11989,9 +11999,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "sd",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12150,9 +12161,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "sn",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12189,9 +12201,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "so",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12228,9 +12241,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "sq",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12308,9 +12322,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "su",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12511,9 +12526,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "tg",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12751,9 +12767,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "uz",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {
@@ -12905,9 +12922,10 @@ export const PROVIDER_MATRIX: Readonly<
       ],
       "probedAt": "2026-08-09",
       "providerCode": "yo",
+      "reason": "as as-IN",
       "status": "accepted",
       "supported": true,
-      "verdict": "probe-only",
+      "verdict": "suspected",
       "wordTimestamps": true
     },
     "openai": {

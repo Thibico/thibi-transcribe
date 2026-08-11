@@ -4,22 +4,42 @@
     "verdicts": {
       "measured-failure": "We ran it and the output was wrong. Sets supported: false.",
       "suspected": "We have not measured it, but we have a specific reason to doubt it. Leaves supported: true and makes the picker say 'unverified on this provider'. Marking a whole family unsupported on a hunch would be the same error as marking it supported on a status code, in the other direction."
-    }
+    },
+    "phase4Note": "The Phase 4 plan's Definition of done asked for every unmeasured Groq code outside OpenAI's list to be `supported: false, evidence: 'assumed'`. That is not what this file does, and the difference is deliberate — see the `suspected` verdict above, which is Phase 0 doctrine and predates the plan being executed. Fabricating 24 negative findings would be the same error as the 24 positive findings a status code would have given us. What Phase 4 did instead was widen `suspected` to the whole set the risk actually lives in, which is the 24 codes Groq accepts and no OpenAI model does. Phase 5 promotes or demotes each of them with a CER and a script-integrity number attached. plans/00-overview.md carries the amendment."
   },
   "groq": {
     "my-MM": {
       "supported": false,
       "verdict": "measured-failure",
       "reason": "Accepts language=my and returns non-words; on autodetect returns romanized Latin.",
-      "evidence": "လာက္းကေက် ရိုရ်းသဲ့ထါတ် … versus Google's correct output on the same 12 s clip. research/language-support-whisper-vs-google.md, 2026-07-30. This is the finding the whole 'accepting a language code proves nothing' rule is built on."
+      "evidence": "လာက္းကေက် ရိုရ်းသဲ့ထါတ် … versus Google's correct output on the same 12 s clip. research/language-support-whisper-vs-google.md, 2026-07-30. This is the finding the whole 'accepting a language code proves nothing' rule is built on. Re-measured 2026-08-11 on the committed 2 s probe clip and it is worse than first recorded: language=my returned KHMER script, and autodetect returned Vietnamese, both HTTP 200 with a healthy avg_logprob. A third run through the normalizer produced a repetition loop — 96 words spanning 30.4 s for 2 s of audio. Fixtures in packages/engine/src/providers/whisper/__fixtures__/."
     },
     "km-KH": {
       "verdict": "suspected",
-      "reason": "Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support."
+      "reason": "Same low-resource family as the measured my-MM failure; unverified. Warn in the picker; do not claim support. Note that Khmer is the script Groq produced when asked for Burmese on 2026-08-11, so this row is not hypothetical caution."
     },
     "lo-LA": { "verdict": "suspected", "reason": "as km-KH" },
     "si-LK": { "verdict": "suspected", "reason": "as km-KH" },
     "ps-AF": { "verdict": "suspected", "reason": "as km-KH" },
-    "am-ET": { "verdict": "suspected", "reason": "as km-KH" }
+    "am-ET": { "verdict": "suspected", "reason": "as km-KH" },
+
+    "as-IN": { "verdict": "suspected", "reason": "Groq accepts this code and no OpenAI model does — the set the one measured failure came out of. Unverified on Groq; Phase 5 measures it." },
+    "eu-ES": { "verdict": "suspected", "reason": "as as-IN" },
+    "ha-NG": { "verdict": "suspected", "reason": "as as-IN" },
+    "jv-ID": { "verdict": "suspected", "reason": "as as-IN" },
+    "lb-LU": { "verdict": "suspected", "reason": "as as-IN" },
+    "ln-CD": { "verdict": "suspected", "reason": "as as-IN" },
+    "mn-MN": { "verdict": "suspected", "reason": "as as-IN" },
+    "mt-MT": { "verdict": "suspected", "reason": "as as-IN" },
+    "oc-FR": { "verdict": "suspected", "reason": "as as-IN" },
+    "pa-Guru-IN": { "verdict": "suspected", "reason": "as as-IN" },
+    "sd-IN": { "verdict": "suspected", "reason": "as as-IN" },
+    "sn-ZW": { "verdict": "suspected", "reason": "as as-IN" },
+    "so-SO": { "verdict": "suspected", "reason": "as as-IN" },
+    "sq-AL": { "verdict": "suspected", "reason": "as as-IN" },
+    "su-ID": { "verdict": "suspected", "reason": "as as-IN" },
+    "tg-TJ": { "verdict": "suspected", "reason": "as as-IN" },
+    "uz-UZ": { "verdict": "suspected", "reason": "as as-IN" },
+    "yo-NG": { "verdict": "suspected", "reason": "as as-IN" }
   }
 }
