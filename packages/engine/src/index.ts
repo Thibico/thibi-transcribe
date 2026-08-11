@@ -230,6 +230,18 @@ export {
   type GroqConfig,
 } from './providers/groq.js';
 export {
+  createFasterWhisperProvider,
+  fasterWhisperCapabilities,
+  resolveFasterWhisperModel,
+  SidecarBusyError,
+  DEFAULT_MODEL as FASTER_WHISPER_DEFAULT_MODEL,
+  DEFAULT_ENGLISH_MODEL as FASTER_WHISPER_ENGLISH_MODEL,
+  PREFER_SPEED_MODEL as FASTER_WHISPER_SPEED_MODEL,
+  MODELS as FASTER_WHISPER_MODELS,
+  type FasterWhisperConfig,
+  type StagedAudio,
+} from './providers/faster-whisper.js';
+export {
   attachWords,
   DEFAULT_EPS_MS,
   type AttachResult,

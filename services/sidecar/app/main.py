@@ -1,9 +1,16 @@
-"""The sidecar's four routes.
+"""The sidecar's routes.
 
     GET    /health
     POST   /v1/diarize        202 new · 200 known key · 429 slot held by a different key
+    POST   /v1/transcribe     the same, for faster-whisper — Phase 4b
     GET    /v1/tasks/{id}     404 never seen · state `lost` after a restart
     DELETE /v1/tasks/{id}     204, idempotent, 204 even if already terminal
+
+**Both workloads share one registry, one journal and one slot**, which is the whole reason
+Phase 3 built the task API before it had a second caller. A `--diarize --provider
+faster-whisper` run therefore takes the **sum** of the two stages rather than their max, and
+the CLI estimate says so: both saturate every core and allocate GB-scale tensors, so
+overlapping them is slower than serialising them and can OOM the container.
 
 The distinction between a 404 and a `lost` state is the one an engine cannot recover from
 if it is got wrong: 404 means "never seen, safe to submit" while `lost` means "this ran and
@@ -24,7 +31,7 @@ from typing import AsyncIterator, Optional
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 
-from .asr import router as asr_router
+from .asr import asr_available, get_model, loaded_model_name, run_transcription
 from .audio import fetched_audio, probe_duration_ms
 from .config import Settings, get_settings
 from .diarize import Pipeline, load_pipeline, run_diarization
@@ -36,6 +43,8 @@ from .schemas import (
     Slots,
     TaskAccepted,
     TaskStatus,
+    TranscribeRequest,
+    TranscribeResult,
 )
 from .tasks import Busy, Task, TaskRegistry, task_id_for
 
@@ -88,7 +97,6 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="thibi sidecar", version="0.1.0", lifespan=lifespan)
-app.include_router(asr_router)
 
 
 @app.get("/health", response_model=Health)
@@ -109,6 +117,16 @@ def health() -> Health:
     except ImportError:
         pass
 
+    # ASR loads lazily — its model is a request parameter, not configuration — so
+    # `not_loaded` here means "nothing has asked yet", which is the normal steady state on a
+    # diarization-only instance. `unavailable` means the image cannot run it at all.
+    if not asr_available():
+        asr_state = "unavailable"
+    elif loaded_model_name() is not None:
+        asr_state = "loaded"
+    else:
+        asr_state = "not_loaded"
+
     unavailable = state.pipeline is None
     detail = None
     if unavailable:
@@ -126,15 +144,20 @@ def health() -> Health:
         status="degraded" if unavailable else "ok",
         models=ModelStatus(
             diarization="unavailable" if unavailable else "loaded",
-            asr="not_loaded",  # Phase 4b
+            asr=asr_state,
         ),
+        asr_model=loaded_model_name(),
         device=settings.device,
         torch=torch_version,
         pyannote=pyannote_version,
         slots=Slots(max=max_slots, busy=busy),
+        # **Diarization's, and only diarization's.** Phase 4b gave this registry a second
+        # workload whose factor is an order of magnitude different; blending them would make
+        # the estimate shown before a diarization depend on how much ASR ran that day.
         realtime_factor_estimate=measured
         if measured is not None
         else settings.default_realtime_factor,
+        realtime_factors=state.registry.measured_realtime_factors(),
         detail=detail,
     )
 
@@ -197,6 +220,76 @@ def diarize(request: DiarizeRequest) -> Response:
 
     # 202 for a new task, 200 for a key we already know — in flight or complete. The engine
     # reads the status code to tell "I started this" from "this was already running".
+    return JSONResponse(
+        status_code=202 if created else 200,
+        content=_accepted(task).model_dump(),
+    )
+
+
+@app.post("/v1/transcribe")
+def transcribe(request: TranscribeRequest) -> Response:
+    """faster-whisper, Phase 4b. Same lifecycle as `/v1/diarize`, same slot.
+
+    The 503 differs from diarization's in one way worth stating: pyannote's is a *gate*
+    problem, which a human fixes on a web page, so its message carries three URLs. This one
+    is either a missing model or an image without faster-whisper in it, and the remedy is
+    `thibi models pull`.
+    """
+    settings = state.settings
+
+    if request.model not in settings.asr_allowed_models:
+        # 400 rather than 503: nothing is broken, the request asked for something this
+        # instance will not fetch. Allowlisted because `model` reaches `WhisperModel(name)`,
+        # which downloads and runs whatever it is handed — see `config.asr_allowed_models`.
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": {
+                    "code": "bad_request",
+                    "message": (
+                        f"model {request.model!r} is not in this instance's allowlist: "
+                        + ", ".join(settings.asr_allowed_models)
+                    ),
+                    "retryable": False,
+                }
+            },
+        )
+
+    def run(task: Task) -> TranscribeResult:
+        # Loaded inside the worker, not in the request handler. The first load of `large-v3`
+        # downloads ~3 GB, and doing that on the request thread would hold the HTTP
+        # connection open for minutes and time out the client that is about to poll anyway.
+        model = get_model(
+            request.model,
+            compute_type=request.compute_type,
+            device=settings.device,
+            download_root=settings.hf_home,
+            cpu_threads=settings.asr_cpu_threads,
+        )
+        with fetched_audio(
+            request.audio_url,
+            expected_duration_ms=request.expected_duration_ms,
+            tolerance_ms=settings.duration_tolerance_ms,
+            task_id=task.task_id,
+        ) as audio:
+            return run_transcription(
+                model,
+                audio,
+                request,
+                task,
+                device=settings.device,
+                audio_duration_ms=probe_duration_ms(audio),
+            )
+
+    try:
+        task, created = state.registry.submit(request.idempotency_key, run)
+    except Busy as busy:
+        return JSONResponse(
+            status_code=429,
+            headers={"Retry-After": str(busy.retry_after_s)},
+            content={"error": "busy", "retry_after_s": busy.retry_after_s},
+        )
+
     return JSONResponse(
         status_code=202 if created else 200,
         content=_accepted(task).model_dump(),

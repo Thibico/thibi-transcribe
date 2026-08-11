@@ -29,11 +29,28 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
-from .schemas import DiarizeResult, TaskError, TaskState
+from .schemas import DiarizeResult, TaskError, TaskState, TranscribeResult
 
 log = logging.getLogger(__name__)
+
+#: One registry, one slot and one journal now serve two workloads. The union is the honest
+#: type: a task is a diarization *or* a transcription and the caller tells them apart by the
+#: `kind` discriminator rather than by which fields happen to be present.
+TaskResult = Union[DiarizeResult, TranscribeResult]
+
+
+def workload_of(result: TaskResult) -> str:
+    """The rolling-window key: `diarize`, or `asr:<model>`.
+
+    Per model, because `large-v3` and `large-v3-turbo` differ by 2-3x on the same box. A
+    single ASR bucket would report a number that describes neither.
+    """
+    if result.kind == "transcribe":
+        return f"asr:{result.model}"
+    return "diarize"
+
 
 #: Same namespace on both sides of the contract. Changing it silently breaks idempotency
 #: for every in-flight task, so it is a constant rather than configuration.
@@ -61,7 +78,7 @@ class Task:
     started_at: Optional[float] = None
     finished_at: Optional[float] = None
     expires_at: float = 0.0
-    result: Optional[DiarizeResult] = None
+    result: Optional[TaskResult] = None
     error: Optional[TaskError] = None
     #: Cooperative cancellation. Checked inside pyannote's progress hook, which is the only
     #: place the pipeline yields — there is no way to interrupt it between hook calls.
@@ -114,7 +131,9 @@ class TaskRegistry:
         self._tasks: dict[str, Task] = {}
         self._slot = threading.BoundedSemaphore(max_slots)
         self._busy = 0
-        self._recent_factors: list[float] = []
+        #: Keyed by workload — see `measured_realtime_factor`. A shared list would blend a
+        #: diarization factor with an ASR one and publish the median of two unrelated things.
+        self._recent_factors: dict[str, list[float]] = {}
 
     # ---------------------------------------------------------------- journal
 
@@ -198,7 +217,7 @@ class TaskRegistry:
     def submit(
         self,
         idempotency_key: str,
-        run: Callable[[Task], DiarizeResult],
+        run: Callable[[Task], TaskResult],
         *,
         retry_after_s: int = 60,
     ) -> tuple[Task, bool]:
@@ -235,7 +254,7 @@ class TaskRegistry:
         thread.start()
         return task, True
 
-    def _run(self, task: Task, run: Callable[[Task], DiarizeResult]) -> None:
+    def _run(self, task: Task, run: Callable[[Task], TaskResult]) -> None:
         with self._lock:
             task.state = "running"
             task.started_at = time.time()
@@ -254,7 +273,7 @@ class TaskRegistry:
         task: Task,
         *,
         state: TaskState,
-        result: Optional[DiarizeResult] = None,
+        result: Optional[TaskResult] = None,
         error: Optional[TaskError] = None,
     ) -> None:
         with self._lock:
@@ -266,19 +285,42 @@ class TaskRegistry:
             if result is not None:
                 # Keep a short rolling window so /health reports what this machine actually
                 # does rather than a constant from somebody else's laptop.
-                self._recent_factors.append(result.realtime_factor)
-                del self._recent_factors[:-5]
+                self._recent_factors.setdefault(workload_of(result), []).append(
+                    result.realtime_factor
+                )
+                del self._recent_factors[workload_of(result)][:-5]
             self._write_journal(task)
             self._busy -= 1
         self._slot.release()
 
-    def measured_realtime_factor(self) -> Optional[float]:
-        """Median of the last five successful runs, or None until there are any."""
+    def measured_realtime_factor(self, workload: str = "diarize") -> Optional[float]:
+        """Median of the last five successful runs of one workload, or None until there are any.
+
+        **Keyed by workload, and that is not a refinement.** Phase 4b gave this registry a
+        second kind of task, and a shared window would have silently blended a diarization
+        factor of 0.4 with a `tiny` ASR factor of 12 — then published the median as the
+        estimate shown to a user before a diarization. The bug would have been a number
+        nobody could explain rather than an exception, so the key is `kind` plus model:
+        `large-v3` and `large-v3-turbo` differ by 2-3x and are no more comparable to each
+        other than either is to pyannote.
+        """
         with self._lock:
-            if not self._recent_factors:
+            factors = self._recent_factors.get(workload)
+            if not factors:
                 return None
-            ordered = sorted(self._recent_factors)
+            ordered = sorted(factors)
             return ordered[len(ordered) // 2]
+
+    def measured_realtime_factors(self) -> dict[str, float]:
+        """Every workload's median, for `/health`."""
+        with self._lock:
+            keys = list(self._recent_factors)
+        result: dict[str, float] = {}
+        for key in keys:
+            value = self.measured_realtime_factor(key)
+            if value is not None:
+                result[key] = value
+        return result
 
     # ---------------------------------------------------------------- cancel
 

@@ -1,6 +1,14 @@
 # Phase 4 — Whisper providers
 
-> **Status, 2026-08-11 — Phase 4a is done; Phase 4b is not started.**
+> **Status, 2026-08-12 — 4a done; 4b built and running end to end.**
+>
+> `thibi transcribe --provider faster-whisper` completes on real audio with genuine per-word
+> confidence. What remains is measurement rather than construction: no long-tail language, no
+> file longer than 11 s, and no model larger than `tiny` has been run on this box. Amendments
+> 49–51 come out of 4b, and 51 is the one to read first — Burmese left the "only Google covers
+> this" list because this provider now claims it on no evidence.
+>
+> **Superseded status, 2026-08-11 — Phase 4a is done; Phase 4b is not started.**
 >
 > This document is really two phases sharing a file, and they were executed apart because they
 > have different prerequisites.
@@ -62,7 +70,9 @@ built to be measured, not to be recommended.
 | `services/sidecar/app/schemas.py` | *(modified)* `TranscribeRequest` / `TranscribeResult` |
 | `apps/cli/src/commands/transcribe.ts` | *(modified)* `--provider`, `--model`, `--force-unsupported` |
 | `apps/cli/src/commands/providers.ts` | `thibi providers list --language <code>` |
-| `apps/cli/src/commands/models.ts` | `thibi models pull <model>` — pre-download into `hf-cache` |
+| `apps/cli/src/commands/models.ts` | `thibi models pull <model>` — pre-download into `hf-cache`, plus `thibi models list` with this box's measured realtime factors |
+| `packages/languages/data/whisper-language-codes.json` | *(added 2026-08-12)* the Whisper tokenizer's 100 codes, with provenance — the source of the `faster-whisper` column |
+| `packages/languages/scripts/gen-faster-whisper-column.ts` | *(added 2026-08-12)* derives that column. **Not a probe**: for a local model, tokenizer membership is a stronger fact than a status code |
 | `packages/engine/src/providers/whisper/__fixtures__/` | Recorded responses, including the two Groq failures |
 
 ## Design
@@ -680,17 +690,27 @@ starts immediately rather than stalling on a 3 GB download.
       probe date and source; a test asserts it on the matrix file itself.
 - [ ] Every unmeasured Groq code outside OpenAI's 57 is `supported: false, evidence: "assumed"`.
 - [ ] Groq autodetect is disabled; `--force-unsupported` reproduces the romanisation on demand.
-- [ ] `services/sidecar/app/asr.py` replaces the 501 stub in the **same image** as Phase 3, sharing
-      `hf-cache` and the single task slot, with `word_timestamps=True`, `vad_filter=True`,
-      `initial_prompt`, and `condition_on_previous_text=False`.
-- [ ] faster-whisper is the only provider with `wordConfidence: true`, its per-word `probability`
-      reaches `words.confidence`, and the low-confidence QA surface is live for it.
-- [ ] The model picker shows a realtime factor computed from the last five runs on this instance,
-      and `thibi models pull` pre-downloads weights.
+- [x] *(2026-08-12)* `services/sidecar/app/asr.py` replaces the 501 stub in the **same image** as
+      Phase 3, sharing `hf-cache` and the single task slot, with `word_timestamps=True`,
+      `vad_filter=True`, `initial_prompt`, and `condition_on_previous_text=False` — the last of
+      which cannot be turned on from the wire, and there is a test saying so. The image did not
+      actually contain faster-whisper despite its own header claiming it did: amendment 49.
+- [x] *(2026-08-12)* faster-whisper is the only provider with `wordConfidence: true` and its
+      per-word `probability` reaches `words.confidence` — verified through the CLI, 24 words
+      persisted with real probabilities. **The QA surface itself is Phase 12**; what exists now is
+      the data it needs, which is what was missing.
+- [x] *(2026-08-12)* `thibi models list` shows a realtime factor computed from the last five runs
+      **on this instance**, read from `/health.realtime_factors`, and `thibi models pull`
+      pre-downloads weights. The graphical picker is Phase 14 and will read the same map. The
+      per-workload keying is amendment 50 — a shared window would have blended pyannote's 0.4x
+      with `tiny`'s 2.0x.
 - [ ] `chooseProvider` always returns a printable `reason`; `thibi providers list --language my`
       renders the table in Verification.
 - [ ] `paramsHash()` is stable and no request carries a timestamp or nonce — the Phase 5 caching
       contract holds.
 - [ ] `text_raw` keeps exact provider bytes; `packages/core/src/metrics/script.ts` ships and
       snapshots the Groq romanisation as a number.
-- [ ] `thibi transcribe --provider faster-whisper` completes end to end on real audio.
+- [x] *(2026-08-12)* `thibi transcribe --provider faster-whisper` completes end to end on real
+      audio: 11 s, four segments, 24 words, `word timings: full`, cost $0.0000. **Only `tiny`,
+      only English, only 11 s** — `large-v3` has never been run on this box and the plan's
+      1-2x realtime figure is still somebody else's 8-vCPU number.

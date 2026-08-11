@@ -35,6 +35,15 @@ RUN pip install --no-cache-dir \
         "pydantic-settings>=2.5" \
         "uvicorn[standard]>=0.31"
 
+# faster-whisper, Phase 4b. The comment at the top of this file promised it from the day
+# the image existed and the install list did not contain it — found 2026-08-12 by looking,
+# which is the only way that class of error is ever found.
+#
+# It does **not** run on torch. faster-whisper is CTranslate2, a separate inference engine,
+# so this adds ~100 MB rather than a second multi-GB stack — which is the reason one image
+# for both halves is still the right call now that the second half is real.
+RUN pip install --no-cache-dir "faster-whisper>=1.1,<2"
+
 # Unprivileged. The sidecar holds no credentials and no database connection — it is a pure
 # function of (audio, params) -> turns — and running it as root would give away the one
 # property that makes that worth anything.

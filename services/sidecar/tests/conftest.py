@@ -112,6 +112,82 @@ class CannedPipeline:
         return _DiarizeOutput(annotation) if self.wrap_output else annotation
 
 
+class CannedTranscriber:
+    """A faster-whisper model that returns known segments.
+
+    Same bargain as `CannedPipeline`: the routes, the slot, the journal and the progress
+    contract are testable without CTranslate2 or 3 GB of weights, which the image build and
+    a live run cover instead.
+
+    Two details are copied from the real thing on purpose. `transcribe()` returns a
+    **generator**, so nothing is decoded until it is iterated — that is what makes the loop
+    in `run_transcription` the cancellation point rather than the call. And `words` is
+    `None`, not `[]`, when word timestamps are off, which is exactly where an
+    `AttributeError` would come from.
+    """
+
+    def __init__(
+        self,
+        segments: list[tuple[float, float, str]] | None = None,
+        *,
+        delay_s: float = 0.0,
+        language: str = "en",
+        words: bool = True,
+    ) -> None:
+        self.segments = segments if segments is not None else [(0.0, 6.0, " Hello."), (6.4, 11.8, " Goodbye.")]
+        self.delay_s = delay_s
+        self.language = language
+        self.words = words
+        self.kwargs: dict[str, Any] = {}
+        self.calls = 0
+
+    def transcribe(self, _audio: str, **kwargs: Any) -> Any:
+        self.calls += 1
+        self.kwargs = kwargs
+
+        def generate() -> Iterator[Any]:
+            for start, end, text in self.segments:
+                if self.delay_s:
+                    time.sleep(self.delay_s)
+                yield _Seg(start, end, text, with_words=self.words)
+
+        return generate(), _Info(self.language)
+
+
+class _Info:
+    def __init__(self, language: str) -> None:
+        self.language = language
+        self.language_probability = 0.98
+
+
+class _Word:
+    def __init__(self, start: float, end: float, word: str, probability: float) -> None:
+        self.start = start
+        self.end = end
+        self.word = word
+        self.probability = probability
+
+
+class _Seg:
+    def __init__(self, start: float, end: float, text: str, *, with_words: bool) -> None:
+        self.start = start
+        self.end = end
+        self.text = text
+        self.avg_logprob = -0.2481
+        self.no_speech_prob = 0.0123
+        # Four decimal places on purpose: the round-trip through JSON must not quietly
+        # truncate a probability, because the whole value of this provider is that its
+        # per-word number is real.
+        self.words = (
+            [
+                _Word(start, (start + end) / 2, text.strip(), 0.9137),
+                _Word((start + end) / 2, end, "more", 0.4062),
+            ]
+            if with_words
+            else None
+        )
+
+
 class _DiarizeOutput:
     """pyannote 4.x's return shape: two Annotations plus embeddings.
 
