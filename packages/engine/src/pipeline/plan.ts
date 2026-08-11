@@ -128,7 +128,13 @@ export function planMode(input: PlanInput): PlanDecision {
   if (fitsOneRequest) {
     return {
       mode: 'sync',
-      reason: `${seconds}s fits one ${caps.limits.syncMaxSeconds}s request`,
+      // A provider with no request ceiling gets a sentence rather than the number, because
+      // the number is `Infinity` and `"11s fits one Infinitys request"` is what a user saw
+      // the first time faster-whisper ran — it takes the whole file, so there is no limit to
+      // quote. Found by running it, 2026-08-12.
+      reason: Number.isFinite(caps.limits.syncMaxSeconds)
+        ? `${seconds}s fits one ${caps.limits.syncMaxSeconds}s request`
+        : `${seconds}s in one request — this provider takes the whole file`,
       warnings,
     };
   }

@@ -19,7 +19,7 @@ from app import main
 from app.config import Settings
 from app.tasks import TaskRegistry, task_id_for
 
-from .conftest import CannedPipeline
+from .conftest import CannedPipeline, CannedTranscriber
 
 
 @pytest.fixture
@@ -78,7 +78,9 @@ class TestHealth:
         client = make_client()
         health = client.get("/health").json()
         assert health["status"] == "ok"
-        assert health["models"] == {"diarization": "loaded", "asr": "not_loaded"}
+        # `unavailable` rather than `not_loaded`: this suite deliberately runs without
+        # faster-whisper installed, and reporting it as merely unloaded would be a lie.
+        assert health["models"] == {"diarization": "loaded", "asr": "unavailable"}
         assert health["slots"] == {"max": 1, "busy": 0}
         # S6's pessimistic end, until this instance has measured its own.
         assert health["realtime_factor_estimate"] == pytest.approx(0.56)
@@ -392,9 +394,209 @@ class TestValidation:
         assert len(error["gates"]) == 3
 
 
-class TestAsrStub:
-    def test_transcribe_is_501_and_says_what_to_use_instead(self, make_client: Any) -> None:
+def asr_body(url: str, name: str = "twelve.wav", **overrides: Any) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "idempotency_key": "asr-step-1",
+        "audio_url": f"{url}/{name}",
+        "expected_duration_ms": 12_000,
+        "model": "tiny",
+        "deadline_s": 60,
+    }
+    payload.update(overrides)
+    return payload
+
+
+class TestTranscribe:
+    """Phase 4b. The lifecycle is Phase 3's and is not re-asserted here — what is asserted
+    is what is new: the parameters that reach faster-whisper, the per-word probability
+    surviving the wire, the allowlist, and the slot being genuinely *shared* between the two
+    workloads rather than merely documented as shared."""
+
+    def test_returns_segments_and_per_word_probabilities_intact(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        transcriber = CannedTranscriber()
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: transcriber)
         client = make_client()
-        response = client.post("/v1/transcribe")
-        assert response.status_code == 501
-        assert "Phase 4b" in response.json()["detail"]
+
+        accepted = client.post("/v1/transcribe", json=asr_body(audio_server))
+        assert accepted.status_code == 202
+        status = wait_for(client, accepted.json()["task_id"], "succeeded")
+
+        result = status["result"]
+        # The discriminator, without which a client polling one endpoint has to guess which
+        # result shape it got by looking for fields.
+        assert result["kind"] == "transcribe"
+        assert result["language"] == "en"
+        assert [s["text"] for s in result["segments"]] == [" Hello.", " Goodbye."]
+        # Four decimal places, unrounded. This provider exists for this number.
+        assert [w["probability"] for w in result["segments"][0]["words"]] == [0.9137, 0.4062]
+        assert result["segments"][0]["avg_logprob"] == pytest.approx(-0.2481)
+        assert result["audio_duration_ms"] == pytest.approx(12_000, abs=100)
+
+    def test_passes_the_parameters_that_matter_and_pins_the_one_that_is_not_a_knob(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        transcriber = CannedTranscriber()
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: transcriber)
+        client = make_client()
+
+        accepted = client.post(
+            "/v1/transcribe",
+            json=asr_body(audio_server, language="my", vad_min_silence_ms=700, beam_size=3),
+        )
+        wait_for(client, accepted.json()["task_id"], "succeeded")
+
+        assert transcriber.kwargs["language"] == "my"
+        assert transcriber.kwargs["beam_size"] == 3
+        assert transcriber.kwargs["word_timestamps"] is True
+        assert transcriber.kwargs["vad_filter"] is True
+        assert transcriber.kwargs["vad_parameters"] == {"min_silence_duration_ms": 700}
+        # **False, and not from the request.** The default True is the classic
+        # repetition-loop trigger on long low-resource audio, which is the entire use case,
+        # so a request asking for True must not get it.
+        assert transcriber.kwargs["condition_on_previous_text"] is False
+
+    def test_condition_on_previous_text_cannot_be_turned_on_from_the_wire(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        transcriber = CannedTranscriber()
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: transcriber)
+        client = make_client()
+        accepted = client.post(
+            "/v1/transcribe", json=asr_body(audio_server, condition_on_previous_text=True)
+        )
+        status = wait_for(client, accepted.json()["task_id"], "succeeded")
+        assert transcriber.kwargs["condition_on_previous_text"] is False
+        assert status["result"]["params"]["condition_on_previous_text"] is False
+
+    def test_words_are_absent_rather_than_an_error_when_timestamps_are_off(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # faster-whisper sets `words` to None, not [], which is where an AttributeError
+        # would come from if the code trusted the type.
+        transcriber = CannedTranscriber(words=False)
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: transcriber)
+        client = make_client()
+        accepted = client.post(
+            "/v1/transcribe", json=asr_body(audio_server, word_timestamps=False)
+        )
+        status = wait_for(client, accepted.json()["task_id"], "succeeded")
+        assert status["result"]["segments"][0]["words"] == []
+
+    def test_refuses_a_model_outside_the_allowlist(
+        self, make_client: Any, audio_server: str
+    ) -> None:
+        # `model` reaches `WhisperModel(name)`, which downloads and runs whatever it is
+        # handed. The sidecar is unauthenticated by design, so this is the one place that
+        # can be closed.
+        client = make_client()
+        response = client.post(
+            "/v1/transcribe", json=asr_body(audio_server, model="attacker/whatever")
+        )
+        assert response.status_code == 400
+        assert "allowlist" in response.json()["error"]["message"]
+
+    def test_shares_the_single_slot_with_diarization(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The claim Phase 4 §5 makes and Phase 3 could not test: **one slot, both
+        workloads**. A `--diarize --provider faster-whisper` run takes the sum of the two
+        stages rather than their max, and the reason it is safe to say so is this 429."""
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: CannedTranscriber())
+        client = make_client(CannedPipeline(delay_s=0.2, steps=20))
+
+        diarize = client.post("/v1/diarize", json=body(audio_server))
+        assert diarize.status_code == 202
+        busy = client.post("/v1/transcribe", json=asr_body(audio_server))
+        assert busy.status_code == 429
+        assert busy.headers["retry-after"] == "60"
+
+    def test_cancels_mid_run(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # The generator is the yield point, and it yields per segment rather than per stage
+        # — a finer cancellation grain than pyannote's hook offers.
+        monkeypatch.setattr(
+            main,
+            "get_model",
+            lambda *_a, **_k: CannedTranscriber(
+                segments=[(float(i), float(i) + 1, f" {i}") for i in range(40)], delay_s=0.05
+            ),
+        )
+        client = make_client()
+        accepted = client.post("/v1/transcribe", json=asr_body(audio_server))
+        task_id = accepted.json()["task_id"]
+        wait_for(client, task_id, "running", timeout=2.0)
+        assert client.delete(f"/v1/tasks/{task_id}").status_code == 204
+        wait_for(client, task_id, "cancelled")
+
+    def test_progress_is_a_real_fraction_and_never_goes_backwards(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Unlike pyannote's, whose per-stage count restarts and *does* go backwards
+        # (overview amendment 44). Here `segment.end / duration` is monotone by
+        # construction, and an operator can read it as "how far through the file".
+        monkeypatch.setattr(
+            main,
+            "get_model",
+            lambda *_a, **_k: CannedTranscriber(
+                segments=[(float(i), float(i) + 1, f" {i}") for i in range(12)], delay_s=0.04
+            ),
+        )
+        client = make_client()
+        accepted = client.post("/v1/transcribe", json=asr_body(audio_server))
+        task_id = accepted.json()["task_id"]
+
+        seen: list[float] = []
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            status = client.get(f"/v1/tasks/{task_id}").json()
+            if status["progress"] is not None:
+                seen.append(status["progress"])
+            if status["state"] == "succeeded":
+                break
+            time.sleep(0.01)
+
+        assert seen, "no progress was ever reported"
+        assert seen == sorted(seen)
+        assert max(seen) == 1.0
+
+    def test_the_realtime_factor_windows_do_not_blend(
+        self, make_client: Any, audio_server: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The bug this would otherwise be: `/health.realtime_factor_estimate` is what the
+        engine shows a user *before a diarization*, and a shared window would let a fast ASR
+        run drag it upward. The failure would be a number nobody could explain rather than
+        an exception, which is why it is asserted rather than reasoned about."""
+        monkeypatch.setattr(main, "get_model", lambda *_a, **_k: CannedTranscriber())
+        client = make_client()
+
+        d = client.post("/v1/diarize", json=body(audio_server))
+        wait_for(client, d.json()["task_id"], "succeeded")
+        a = client.post("/v1/transcribe", json=asr_body(audio_server))
+        wait_for(client, a.json()["task_id"], "succeeded")
+
+        health = client.get("/health").json()
+        factors = health["realtime_factors"]
+        assert set(factors) == {"diarize", "asr:tiny"}
+        # The headline field still means diarization, and nothing else.
+        assert health["realtime_factor_estimate"] == factors["diarize"]
+        assert factors["diarize"] != factors["asr:tiny"]
+
+    def test_health_reports_asr_honestly(
+        self, make_client: Any, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        client = make_client()
+        # This suite runs without faster-whisper installed — deliberately, because the whole
+        # point of the Transcriber protocol is that the contract is testable without
+        # CTranslate2. `unavailable` is therefore the honest answer here.
+        assert client.get("/health").json()["models"]["asr"] == "unavailable"
+
+        monkeypatch.setattr(main, "asr_available", lambda: True)
+        assert client.get("/health").json()["models"]["asr"] == "not_loaded"
+
+        monkeypatch.setattr(main, "loaded_model_name", lambda: "large-v3")
+        health = client.get("/health").json()
+        assert health["models"]["asr"] == "loaded"
+        assert health["asr_model"] == "large-v3"

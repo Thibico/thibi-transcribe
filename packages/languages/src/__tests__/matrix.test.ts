@@ -34,22 +34,39 @@ describe('provider matrix', () => {
   });
 
   /**
-   * Twenty of those are rejected by every Whisper-family endpoint tested. Our count is 21,
-   * and the extra one is the point of the whole overrides mechanism: Groq *accepts*
-   * Burmese and returns non-words, so a status code alone would have hidden it.
+   * Twenty languages every Whisper-family endpoint tested simply rejects.
+   *
+   * **This was 21 until 2026-08-12, and the one that left is Burmese** — overview amendment
+   * 51. Nothing was measured to change it. Phase 4b gave faster-whisper a matrix column
+   * derived from the Whisper tokenizer, `my` has a token, and a `suspected` verdict leaves
+   * `supported: true` by the doctrine in `matrix-overrides.json` — so a third provider now
+   * *claims* Burmese and the exclusivity filter, which asks about support rather than
+   * evidence, stops counting it.
+   *
+   * That is the honest reading and it is worth being precise about what changed: the claim
+   * went from "only Google works for Burmese" to "only Google is *known* to work for
+   * Burmese". faster-whisper runs the same `whisper-large-v3` weights Groq was measured
+   * mangling, so the expected outcome of measuring it is that Burmese comes back to this
+   * list — which makes it the single highest-value measurement Phase 5 can make, and it is
+   * recorded as such in the handoff note rather than left to be rediscovered here.
    */
-  it('finds 21 languages no other provider covers, including Burmese by override', () => {
+  it('finds 20 languages no other provider claims, Burmese having left on an untested claim', () => {
     const only = registry.list({ exclusiveTo: 'google' }).map((l) => l.code);
-    expect(only.length).toBe(21);
+    expect(only.length).toBe(20);
     expect(only).toEqual(
       [
         'ast-ES', 'ceb-PH', 'ckb-IQ', 'ff-SN', 'ga-IE', 'ig-NG', 'kam-KE', 'kea-CV', 'ky-KG',
-        'lg-UG', 'luo-KE', 'my-MM', 'nso-ZA', 'ny-MW', 'om-ET', 'or-IN', 'rup-BG', 'umb-AO',
+        'lg-UG', 'luo-KE', 'nso-ZA', 'ny-MW', 'om-ET', 'or-IN', 'rup-BG', 'umb-AO',
         'wo-SN', 'xh-ZA', 'zu-ZA',
       ].sort(),
     );
-    // Burmese is here only because a human judgement overrode a 200.
-    expect(only).toContain('my-MM');
+    // And the reason it left is visible rather than implied: an unmeasured row, marked as
+    // doubted, on the same weights that already failed this language elsewhere.
+    expect(only).not.toContain('my-MM');
+    const fw = registry.get('my-MM')!.providers['faster-whisper']!;
+    expect(fw.supported).toBe(true);
+    expect(fw.verdict).toBe('suspected');
+    expect(fw.reason).toMatch(/same weights/i);
   });
 
   it('keeps the Groq Burmese finding through a re-probe', () => {

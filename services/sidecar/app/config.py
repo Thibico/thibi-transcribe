@@ -35,6 +35,32 @@ class Settings(BaseSettings):
     hf_token: Optional[str] = None
     hf_home: str = "/cache/hf"
 
+    #: Which faster-whisper models this instance will load, Phase 4b.
+    #:
+    #: An allowlist rather than a free string, because `model` is a request field and
+    #: `WhisperModel(name)` will happily download whatever it is given from the Hugging Face
+    #: hub. The sidecar is internal and unauthenticated *by design* — it holds no credentials
+    #: precisely so it can be trusted with none — which makes "any request can make it fetch
+    #: and execute arbitrary weights" a gap worth closing with six lines.
+    #:
+    #: `tiny` and `base` are here for tests and for a first run on a laptop, not because
+    #: anybody should transcribe with them. `distil-large-v3` is **English only** — a
+    #: distillation of English data, which is why the overview's "default to distil-large-v3"
+    #: was corrected in Phase 4 risk 1.
+    asr_allowed_models: list[str] = [
+        "large-v3",
+        "large-v3-turbo",
+        "distil-large-v3",
+        "medium",
+        "small",
+        "base",
+        "tiny",
+    ]
+
+    #: CTranslate2 worker threads. 0 means "all cores", which is right when one task runs at
+    #: a time — and one task at a time is enforced by `max_concurrent_tasks`.
+    asr_cpu_threads: int = 0
+
     #: Where the task journal lives. Survives a container restart so a known id resolves to
     #: `lost` rather than 404 — see `tasks.py` for why that distinction is load-bearing.
     data_dir: str = "/data/tasks"

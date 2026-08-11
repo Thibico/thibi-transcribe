@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-12, end of the contract-test sitting.
+**Last updated:** 2026-08-12, end of the Phase 4b sitting.
 
 ---
 
@@ -16,40 +16,46 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 1 — engine core, Google sync, CLI | done |
 | 2 — batchRecognize, GCS staging, rates | done |
 | **3 — diarization** | **done.** The full path has run on real audio, the rename survives a re-diarization *and* a re-transcription with a different provider, and the contract test runs `PyannoteSource` against the real container. `scribe.ts` was the last item and is **descoped** — the user decided against ElevenLabs on 2026-08-12 (amendment 48), so pyannote is the only diarization source |
-| **4 — Whisper providers** | 4a done (OpenAI + Groq over HTTP); **4b unblocked** — the sidecar image it needed exists |
+| **4 — Whisper providers** | **built, end to end.** 4a (OpenAI + Groq over HTTP) and now 4b: faster-whisper on the sidecar, the only provider with genuine per-word confidence. `thibi transcribe --provider faster-whisper` runs. **What is built and what is measured are different lists** — see below |
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #15. **PR #16 — the contract test — is open and green.**
+`main` is at the merge of PR #15. **Two PRs are open and green: #16 (the contract test, plus the ElevenLabs decision) and the Phase 4b branch, which is stacked on it.** Merge #16 first; the second is a descendant and needs no rebase.
 
-On that branch, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646
-tests, nothing skipped**, with Postgres, MinIO and the sidecar up — run twice consecutively.
-`pnpm gen` is idempotent. The sidecar's own suite is **32 pytest tests**, still run
-separately (see *Known debt*).
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
+skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
+own suite is **41 pytest tests**, still run separately (see *Known debt*).
 
 ---
 
 ## Do this next
 
-**Merge PR #16 first**, then choose. The branch is green and self-contained.
+**Merge PR #16, then the Phase 4b branch.** Both are green; the second descends from the first.
 
-**Phase 3 is finished.** The presign gap (amendment 43), `--job` (46), the identity-matching
-defect (45) and the contract test (47) are all done, and `scribe.ts` — the last item — is
-descoped by the user's decision against ElevenLabs (48).
+**Phase 3 and Phase 4 are both built.** What is left in Phase 4 is not construction, and the
+distinction matters more than usual here:
 
-**Phase 4b is the phase in progress**, chosen 2026-08-12 because the build order puts 4 before
-5 and 4b is the unfinished half of a started phase.
+> **Built:** every item in Phase 4b's Definition of done.
+> **Measured:** `tiny`, English, eleven seconds. `large-v3` has never been loaded on this box.
 
-1. **Phase 4b.** The short hop: the image, the task registry and the single slot are already
-   built, so faster-whisper is `services/sidecar/app/asr.py` plus `thibi models pull`.
-   `asr.py` is a 501 stub waiting for exactly that. It is also the only route to **per-word
-   confidence from something that is not Google**, which every downstream quality feature
-   assumes.
-2. **Phase 5, the eval harness**, is what follows it. It has
-   *three* work queues waiting for it: Phase 4a's 24 Groq codes marked `suspected`, S7's 68
-   accepted-but-unmeasured language codes, and `reconcile.ts`'s five chosen-not-measured
-   thresholds — `purityReviewBelow: 0.6` in particular, which is known to let a real second
-   speaker through. `thibi diarize score` exists and needs an RTTM, which is open question 2.
+So the next phase is **Phase 5, the eval harness**, and it now arrives with an unusually
+sharp first task rather than a menu.
+
+1. **Measure faster-whisper on Burmese, before anything else.** Amendment 51:
+   `exclusiveTo: 'google'` dropped from 21 to 20 today because faster-whisper's matrix column
+   claims `my` on no evidence. The product's sentence is currently "only Google is *known* to
+   work for Burmese", and one measurement settles whether it goes back to "only Google
+   works". These are the same `whisper-large-v3` weights Groq was measured returning
+   Myanmar-script non-words from, so the expected answer is a demotion to
+   `measured-failure` — but expecting is not measuring, and this project exists because of
+   that difference.
+2. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
+   same 23 now mirrored onto faster-whisper, S7's 68 accepted-but-unmeasured codes, and
+   `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
+   particular, which is known to let a real second speaker through.
+3. **Somewhere in there, run `large-v3` once on this box** and put a real number beside the
+   plan's inherited "1-2x realtime". `thibi models pull large-v3` exists to make that a
+   deliberate three-gigabyte wait rather than a run that looks hung.
 
 **Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
 out: it reintroduces exactly the identity problem whole-file diarization removes. The answer
@@ -58,6 +64,19 @@ to memory is memory.
 ---
 
 ## What you would otherwise rediscover
+
+**A comment is not an install line.** The sidecar Dockerfile's header said "one image for both
+halves ... pyannote and faster-whisper" from the day it was written, and the `pip install`
+three lines below it never contained faster-whisper (amendment 49). Nothing failed, because
+nothing had asked. Phase 4's prerequisites table trusted the comment too. **Check the list,
+not the prose above the list** — the same habit as checking a deliverables table against the
+tree.
+
+**A registry that grows a second workload grows a second unit.** `TaskRegistry` kept one
+rolling window of realtime factors and `/health.realtime_factor_estimate` is read *before a
+diarization*; adding ASR to the same window would have blended 0.4x with 2.0x into a number
+describing neither, with no exception anywhere (amendment 50). Whenever something shared
+starts serving two kinds of work, ask what it is averaging.
 
 **Run it. Build it. Start it.** Every defect in the last two sittings came from doing that and
 none from re-reading code. In this sitting: the dev database was two migrations behind and the
@@ -200,6 +219,15 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 
 ## Known debt, recorded not hidden
 
+- **Phase 4b is built and barely measured.** `tiny`, English, eleven seconds. `large-v3` has
+  never been loaded on this box, no long-tail language has been through this provider, and the
+  plan's "1-2x realtime on 8 vCPU" is inherited. The Docker Desktop penalty applies here as it
+  does to pyannote, so expect worse than the table.
+- **`thibi models pull` works by transcribing one second of silence.** The URL it passes is a
+  404 by design: the model loads before the audio is fetched, so reaching the fetch proves the
+  weights are cached. It is a smaller surface than a `/v1/models/pull` route and it exercises
+  the real path — but it does mean a *successful* pull ends in a `bad_audio` task, and
+  anything that later tightens that error handling has to keep knowing why.
 - **Phase 3 has no open Definition-of-done items.** `scribe.ts` was the last and is descoped,
   not forgotten: the design survives in Phase 3 §2 and amendment 48 says what has to be true
   for it to come back. **The debt it leaves is in the docs, not the code** — every place that

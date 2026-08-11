@@ -1,4 +1,8 @@
+import { createReadStream } from 'node:fs';
+import { basename } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import {
+  createFasterWhisperProvider,
   createGoogleProvider,
   createGroqProvider,
   createOpenAiProvider,
@@ -9,6 +13,8 @@ import {
   GROQ_SYNC_MAX_BYTES_FREE,
   NotConfiguredError,
   OPENAI_DEFAULT_MODEL,
+  resolveFasterWhisperModel,
+  type FasterWhisperConfig,
   type GoogleConfig,
   type GroqConfig,
   type OpenAiConfig,
@@ -16,6 +22,7 @@ import {
   type SettingsPort,
   type TranscriptionProvider,
 } from '@thibi/engine';
+import type { ObjectStore } from '@thibi/storage';
 import { chooseProvider, PROVIDER_MATRIX, type ProviderId } from '@thibi/languages';
 import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from './config.js';
 import { resolveServiceAccountJson, type EnvKey } from './context.js';
@@ -51,6 +58,13 @@ export interface BuildProviderInput {
   /** An explicit `--model`, if given. */
   model?: string | undefined;
   requireWordTimestamps: boolean;
+  /**
+   * Needed only by faster-whisper, which is the one provider whose audio has to be
+   * *somewhere the sidecar can fetch it* rather than in this process's temp directory. The
+   * store stays here rather than reaching the provider: `stageAudio` is built from it below
+   * and handed down, so `faster-whisper.ts` never learns what S3 is.
+   */
+  store?: ObjectStore;
 }
 
 export function isProviderId(value: string): value is ProviderId {
@@ -66,10 +80,7 @@ export async function buildProvider(input: BuildProviderInput): Promise<BuiltPro
     case 'groq':
       return buildGroq(input);
     case 'faster-whisper':
-      throw new NotConfiguredError(
-        'faster-whisper runs on the Phase 3 sidecar, which is not built yet. Phase 4 shipped ' +
-          'the HTTP half — google, openai and groq work today.',
-      );
+      return buildFasterWhisper(input);
     default:
       throw new NotConfiguredError(
         `Unknown provider '${input.id}'. Expected one of ${PROVIDER_IDS.join(', ')}.`,
@@ -163,6 +174,70 @@ function buildOpenAi(input: BuildProviderInput): BuiltProvider {
     config,
     model,
     modelReason: input.model ? 'requested with --model' : resolved.reason,
+  };
+}
+
+/**
+ * Where a staged clip lives, and why it is deleted.
+ *
+ * A scratch prefix rather than the content-addressed `assets/` tree: this object exists for
+ * the seconds between "the sidecar needs a URL" and "the sidecar has the bytes", and putting
+ * a transient copy of an interview in the same place as the durable one would make the
+ * dedupe path's `delete` a hazard (see the two-key-schemes note in the handoff).
+ */
+const ASR_SCRATCH_PREFIX = 'scratch/asr';
+
+function buildFasterWhisper(input: BuildProviderInput): BuiltProvider {
+  const baseUrl = input.env.SIDECAR_URL;
+  if (!baseUrl) {
+    throw new NotConfiguredError('SIDECAR_URL is not set, so this box cannot run faster-whisper.', {
+      hint:
+        'Start it with `docker compose --env-file .env -f infra/compose.dev.yml --profile ' +
+        'diarize up -d sidecar` and set SIDECAR_URL=http://localhost:8081, or use ' +
+        '--provider google.',
+    });
+  }
+  const store = input.store;
+  if (!store) {
+    // Not a user error: a caller wired this wrong. Say so plainly rather than failing later
+    // with a URL that was never minted.
+    throw new NotConfiguredError(
+      'faster-whisper needs an object store to stage audio for the sidecar, and none was ' +
+        'provided to buildProvider.',
+    );
+  }
+
+  const model = input.model ?? resolveFasterWhisperModel(input.languageCode);
+
+  const config: FasterWhisperConfig = {
+    baseUrl,
+    model,
+    /**
+     * Upload, presign, and hand back the URL plus the way to undo it.
+     *
+     * `presignGet` mints against the **internal** endpoint when `S3_INTERNAL_ENDPOINT` is
+     * set, because SigV4 signs `Host`: a URL signed for `localhost:9000` comes back 403 the
+     * moment the sidecar asks for it as `minio:9000`. That is overview amendment 43, and it
+     * cost the first real diarization.
+     */
+    stageAudio: async (localPath: string) => {
+      const key = `${ASR_SCRATCH_PREFIX}/${randomUUID()}/${basename(localPath)}`;
+      await store.putStream(key, createReadStream(localPath));
+      const url = await store.presignGet(key, 6 * 3600);
+      return { url, release: async () => void (await store.delete(key)) };
+    },
+  };
+
+  return {
+    provider: createFasterWhisperProvider(),
+    config,
+    model,
+    modelReason: input.model
+      ? 'requested with --model'
+      : `${model}, chosen for ${input.languageCode}` +
+        (model === 'distil-large-v3'
+          ? ' (English only — a distillation of English data, so never the non-English default)'
+          : ' (large-v3; --model large-v3-turbo trades accuracy for ~2x speed)'),
   };
 }
 

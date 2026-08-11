@@ -168,6 +168,8 @@ export function transcribeCommand(): Command {
           languageCode: language.code,
           model: opts.model as string | undefined,
           requireWordTimestamps,
+          // Only faster-whisper uses it — its audio has to reach a different container.
+          store: cli.ctx.store,
         });
         const provider: TranscriptionProvider = built.provider;
         const providerConfig = built.config;
