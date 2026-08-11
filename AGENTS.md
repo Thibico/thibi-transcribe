@@ -3,6 +3,10 @@
 How this project is planned, executed and recorded. These are conventions the repo already
 follows — every rule below has examples in `plans/`, `work-diary/` and the git history.
 
+**Start by reading [`plans/note-for-next-session.md`](./plans/note-for-next-session.md).** It is
+the handoff from the last session: what is merged, what to do next, and the traps you would
+otherwise rediscover. **End by rewriting it** — see *Session handoff* below.
+
 ---
 
 ## Plans live in the repo
@@ -98,6 +102,43 @@ rather than listing commits flatly.
 **Make the corrections the visible output**, not a footnote. The things the plan got wrong
 are what a reader six months from now actually needs. Write it after the commits, not instead
 of them.
+
+---
+
+## Session handoff
+
+`plans/note-for-next-session.md` is the first thing to read and the last thing to write. A
+session's context is cleared between sittings, so anything not written down is lost — and what
+gets lost is never the code, which is in git, but the *reasoning about what to do next* and the
+traps already paid for once.
+
+**Read it at the start.** Before picking up work, before re-reading the overview.
+
+**Rewrite it before the context is cleared**, and whenever the user says they are about to
+clear, wrap up, or stop for the day. Do not wait to be asked. Treat "let's stop here" as the
+trigger.
+
+It is a living document, not an append-only log — **rewrite it rather than adding to it**. A
+handoff note that accumulates a year of stale next-steps is worse than none, because the reader
+cannot tell which lines are still true.
+
+It carries:
+
+- **Where the build is** — a phase-by-phase state table, and what is merged rather than in
+  flight.
+- **Do this next**, with a recommendation and the reason, plus the alternative that was
+  considered. Include anything already known to be wrong in that phase's plan.
+- **What you would otherwise rediscover** — the non-obvious facts that cost this session time.
+  Plans predating the code, ports that are not the shape a plan assumes, invariants that look
+  like drift.
+- **Open questions the user has to answer**, kept separate from work that can just be done.
+- **Known debt, recorded not hidden** — including anything a Definition of done still leaves
+  unchecked.
+- **Environment notes** that are not derivable from the repo.
+
+What it must *not* do is duplicate the work diary. The diary is the historical record of what
+happened and why; this note is the forward-looking state of play, and it is allowed to delete
+anything that stopped being true.
 
 ---
 
