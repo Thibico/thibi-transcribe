@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of PR #11. Everything above is merged, nothing in flight.
+`main` is at the merge of PR #12. Everything above is merged, nothing in flight.
 
 At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **633
 tests, nothing skipped**, with Postgres and MinIO up — checked three consecutive times with
