@@ -20,9 +20,9 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-Phase 3 is on branch **`phase-3/diarization`**, 7 commits ahead of `main`. `main` is still at the merge of PR #9.
+`main` is at the merge of PR #10. Everything above is merged, not in flight.
 
-On the branch: `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **605
+At that commit, `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **605
 tests, nothing skipped**, with Postgres and MinIO up. `pnpm gen` is idempotent. The sidecar's
 own suite is **30 pytest tests**, run separately (see below).
 
