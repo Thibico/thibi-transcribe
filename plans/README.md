@@ -1,6 +1,11 @@
 # thibi-transcribe — implementation plans
 
-Start with **[00-overview.md](./00-overview.md)** — context, confirmed decisions, architecture,
+**Picking up after a break? Read
+[note-for-next-session.md](./note-for-next-session.md) first** — where the build actually is,
+what to do next, and the traps already paid for once. It is rewritten at the end of every
+session and is the only document here that is allowed to delete what stopped being true.
+
+Then **[00-overview.md](./00-overview.md)** — context, confirmed decisions, architecture,
 data model, and the build order. Everything below is a detailed execution plan for one phase of
 that order.
 
