@@ -14,4 +14,4 @@ file.
 |---|---|
 | [2026-08-09](./2026-08-09.md) | Repo created · 16 plan documents · Phase 0 spikes · Phase 0 monorepo, language registry, CLI and live provider probe |
 | [2026-08-10](./2026-08-10.md) | Phase 1 engine: core primitives, storage port, database schema, audio stages, seam merge, Google provider, pipeline and `thibi transcribe` · Phase 2 batch: the staging port, `batchRecognize`, routing corrected against spike S3, and the 192 kHz normalize bug |
-| [2026-08-11](./2026-08-11.md) | Phase 8 merged and the session-handoff convention · Phase 4a: the shared Whisper HTTP transport, OpenAI and Groq, script integrity, `chooseProvider`, and four defects that only running it found |
+| [2026-08-11](./2026-08-11.md) | Phase 8 merged and the session-handoff convention · Phase 4a: the shared Whisper HTTP transport, OpenAI and Groq, script integrity, `chooseProvider`, and four defects that only running it found · Phase 3 begun: spike S7 kills the hosted-diarizer alternative, then the reconciler, the Hungarian matcher, the speaker schema and the sidecar |
