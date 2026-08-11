@@ -1,5 +1,28 @@
 # Phase 4 — Whisper providers
 
+> **Status, 2026-08-11 — Phase 4a is done; Phase 4b is not started.**
+>
+> This document is really two phases sharing a file, and they were executed apart because they
+> have different prerequisites.
+>
+> **4a — OpenAI and Groq over `whisper-http.ts` — shipped.** `whisper-http.ts`, `openai.ts`,
+> `groq.ts`, `whisper/{attach-words,prompt,parse,errors,language}.ts`,
+> `packages/core/src/metrics/script.ts`, `packages/languages/src/choose.ts`, the
+> `--provider/--model/--force-unsupported/--no-word-timestamps` flags on `thibi transcribe`,
+> `thibi providers list --language`, the rate rows, and recorded fixtures with 69 tests over
+> them. Run live against both APIs.
+>
+> **4b — faster-whisper — blocked on Phase 3**, which owns the sidecar image, the task registry
+> and the single `MAX_CONCURRENT_TASKS=1` slot this would share. §5 of this document, plus
+> `services/sidecar/app/asr.py`, `thibi models pull`, and every `wordConfidence: true` claim in
+> here, belong to that half. `buildProvider` currently refuses `--provider faster-whisper` with a
+> message saying so.
+>
+> Amendments 28–34 in [`00-overview.md`](./00-overview.md) come out of 4a. The corrections are
+> marked inline below; where a paragraph is struck through, the replacement reasoning is directly
+> beneath it.
+
+
 ## Goal
 
 At the end of this phase three more providers sit behind the same `TranscriptionProvider`
@@ -108,9 +131,20 @@ export function attachWords(
 ): { segments: ProviderSegment[]; unattached: number }
 ```
 
-Containment by start time with a 20 ms tolerance: a word belongs to the first segment where
-`w.startMs >= s.startMs - eps && w.startMs < s.endMs + eps`. Leftovers are counted, reported in
+Containment by start time in **two passes**: first the segment that strictly contains the word
+start (`w.startMs >= s.startMs && w.startMs < s.endMs`), and only for words no segment contains,
+a second pass widened by a 20 ms tolerance. Leftovers are counted, reported in
 `TranscribeResult.usage.wordsUnattached`, and logged — never silently dropped.
+
+> **Corrected 2026-08-11.** The single-pass version this plan specified —
+> `w.startMs >= s.startMs - eps && w.startMs < s.endMs + eps`, first match wins — leaks words
+> backwards. Real `verbose_json` segments are contiguous: in a recorded response segment 1 ends at
+> 7.239999771118164 s and segment 2 begins at exactly 7.239999771118164 s, and the word
+> "statement" starts on that boundary. A symmetric tolerance makes adjacent segments overlap by
+> 2·eps, so the word goes to segment 1 and segment 2 gets none — `wordTimingQuality` drops from
+> `full` to `partial` on a four-segment response, and on an hour of audio it would strip the
+> timings off a segment at every boundary. Strict-first keeps the rescue and removes the theft.
+> A fixture with round numbers could not have shown this; only a recorded response did.
 
 Parsing rules:
 
@@ -120,10 +154,18 @@ word.confidence    = undefined;                             // never fabricated
 result.wordTimingQuality = words.length > 0 ? 'full' : 'none';
 ```
 
-Hallucination guard: drop segments where `no_speech_prob > 0.6 && text.trim().length < 3` — the
+Hallucination guard: drop segments where `no_speech_prob > 0.6 && text.trim().length < 30` — the
 "Thank you." that Whisper emits over trailing silence. Count them and log the count; if more than
 10% of segments are dropped, surface it as a run warning rather than quietly deleting a tenth of
 the transcript.
+
+> **Corrected 2026-08-11.** This read `text.trim().length < 3`, which contradicts the very next
+> clause of its own sentence: `"Thank you."` is ten characters and `"Thanks for watching!"` is
+> twenty, so a three-character cap could never drop any phrase the rule exists for. Writing the
+> test is what surfaced it. `no_speech_prob` is the detector; the length is only the rail that
+> stops one uncertain number deleting a paragraph. Both conditions remain required, and a genuine
+> `"Yes."` scores a *low* `no_speech_prob` and survives — there is a named test for that, because
+> silently deleting one-word answers from an interview would be worse than the bug being fixed.
 
 Retry: `429` honours `Retry-After` exactly; `5xx` gets full-jitter 5 × 2 s from `util/retry.ts`;
 `400` is never retried. Groq returns `x-ratelimit-remaining-*` headers — record them in
@@ -228,6 +270,26 @@ From `research/language-support-whisper-vs-google.md:86-97`, on the same 12-seco
 
 HTTP 200 all three times.
 
+**Re-measured 2026-08-11 on the committed 2 s probe clip, and it is not one failure mode but
+three.** Fixtures in `packages/engine/src/providers/whisper/__fixtures__/`:
+
+| Call | Output | Note |
+|---|---|---|
+| Groq, `language=my` | `ប្យទៅទៅក្ម។ ផ្្ទៅក៏់។` | **Khmer script** — a different wrong script from the 2026-07-30 run |
+| Groq, autodetect | `Cô Nga dễ cô giáp cho khỏe mặt bê bồ.` | **Vietnamese**, and the body says `language: "Vietnamese"` |
+| Groq, `language=my`, post-normalizer | 96 words spanning **30.4 s** for 2 s of audio | a repetition loop, with `duration: 2` and one segment ending at 2 s |
+
+All HTTP 200, `avg_logprob` ≈ −0.6, `no_speech_prob` ≈ 0.05 — numerically indistinguishable from
+the English control run through the same model on the same day. That last row is a failure mode
+this plan did not anticipate at all, and the parser now names it (`timings_beyond_audio`) rather
+than reporting it as 63 unmatched words, which would send the reader hunting for a matcher bug.
+
+Note what this does to script integrity. On the 2026-07-30 sample the metric caught the autodetect
+case and missed the `language=my` one, because Myanmar-script non-words are still Myanmar script.
+On these samples it catches both, because Khmer is not Myanmar either. **It is a cheap screen for
+wrong-alphabet output and never a guarantee** — CER against a reference is still what Phase 5
+needs.
+
 **The principle, stated once and then enforced in data: accepting a code is not support.**
 
 `provider-matrix.json` carries per `(provider, code)`:
@@ -250,10 +312,21 @@ like an unprobed gap — the distinction a future maintainer needs in order not 
 Two seeding rules, and the second is the opinionated one:
 
 1. `supported: false, evidence: "measured"` for the Burmese case above.
-2. `supported: false, evidence: "assumed"` for **every Groq code outside OpenAI's 57-language list
-   that has not been through the Phase 5 harness.** Defaulting unmeasured low-resource codes to
-   unsupported is the only default consistent with the overview's finding #2. Phase 5 flips them to
-   `true` one at a time, each with a CER and a script-integrity number attached.
+2. ~~`supported: false, evidence: "assumed"` for **every Groq code outside OpenAI's 57-language
+   list that has not been through the Phase 5 harness.**~~
+
+> **Refused 2026-08-11, and the refusal is Phase 0 doctrine rather than a preference.**
+> `packages/languages/data/matrix-overrides.json` already states it: *"Marking a whole family
+> unsupported on a hunch would be the same error as marking it supported on a status code, in the
+> other direction."* Twenty-four fabricated negative findings are worth no more than twenty-four
+> fabricated positive ones, and this plan asking for them is the plan predating the doctrine.
+>
+> What Phase 4 did instead: widen `verdict: "suspected"` from 5 codes to **all 24 that Groq
+> accepts and no OpenAI model does** — precisely the set the one measured failure came out of.
+> `supported` is left alone, the picker warns, `chooseProvider` never lets a suspected row outrank
+> a settled one, and Phase 5 promotes or demotes each with a CER and a script-integrity number
+> attached. A test asserts the whole set is flagged and that exactly one of them is a measured
+> failure.
 
 Autodetect (omitting `language`) is **disabled outright for Groq** in Phase 4 — the romanised output
 above is precisely an autodetect result, and the overview already restricts autodetect to
@@ -262,6 +335,20 @@ verified+beta.
 Limits: 25 MB free tier / 100 MB dev tier (a setting), `maxConcurrentRequests: 2`, and
 audio-seconds-per-hour quotas tight enough that a harness sweep can exhaust them — which is a
 Phase 5 budget problem, handled here only by honouring `Retry-After` and failing cleanly.
+
+> **Measured 2026-08-11, and the shape is not an rpm.** Live response headers on this project's
+> key: `x-ratelimit-limit-requests: 2000` with a 43.2 s reset per request — 86400/2000, so a
+> **daily** bucket — and `x-ratelimit-limit-audio-seconds: 7200`, i.e. **two hours of audio per
+> hour of wall clock**. The audio budget is what will bite a Phase 5 sweep; at 600 s chunks the
+> daily request cap is 333 hours of audio and never binds first. GroqCloud's model docs list
+> 300 RPM and 200k ASH for what must be a different tier, and Phase 0's probe measured ~20 rpm as
+> the pace that returned data rather than holes. `limits.rpm` keeps the 20 because it is the only
+> figure measured *safe in practice*; all three are recorded in `groq.ts` for Phase 9. Groq also
+> sends `Retry-After` as a Go duration (`7.66s`, `2m59.56s`), not the bare seconds the RFC
+> describes — the parser handles both.
+>
+> Groq bills a **10-second minimum per request**, so short chunks are disproportionately
+> expensive. Irrelevant at 600 s; it would not be at 30.
 
 Users may still force it, because reproducing the failure on demand is genuinely useful:
 `thibi transcribe --provider groq --lang my --force-unsupported` warns loudly, runs, and marks the
