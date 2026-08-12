@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-12, end of the S9 sitting.
+**Last updated:** 2026-08-12, end of the first-real-audio sitting.
 
 ---
 
@@ -20,11 +20,25 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #19**. Everything through spike S9 is merged. **In flight: a cloud agent is building Phase 5's metrics layer** on `phase-5/metrics` — `levenshtein`, `cer`, `wer`, `chrf`, `normalize`, `script-integrity`, `bootstrap`, and the frozen jiwer/sacrebleu parity fixture. It was scoped to that boundary deliberately: everything else in Phase 5 needs live provider keys, FLEURS downloads and Postgres, none of which a cloud worker has.
+`main` is at the merge of **PR #20**, which lands Phase 5's **metrics layer** — `levenshtein`,
+`cer`, `wer`, `chrf`, `normalize`, `script-integrity`, `bootstrap`, and the jiwer 4.0.0 /
+sacrebleu 2.6.0 parity fixture, frozen and asserted in CI. Built by a cloud agent and scoped
+to that boundary deliberately: everything else in Phase 5 needs live provider keys, FLEURS
+downloads and Postgres, none of which a cloud worker has. **CER now exists, so the language
+queues below are finally measurable.** What is still missing is everything around it — the
+FLEURS download, the sampler, the runner, the report, `tiers.json`.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
-skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
-own suite is **41 pytest tests**, still run separately (see *Known debt*).
+**Amendment numbers 56–65 were allocated by two branches at once, and it nearly shipped.**
+PR #22 took 56–59 while PR #20 was already open holding 56–61; the table auto-merged without
+a git conflict and would have carried four duplicate rows into the canonical record that every
+phase document cross-references. PR #20's were renumbered to 60–65 on the way in, along with
+eight references in `normalize.ts`, `script-integrity.ts`, a test and the diary. **Check the
+open PRs before taking the next number** — the amendments table is append-only prose, so git
+cannot see the collision for you.
+
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **860 tests across 49
+files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
+The sidecar's own suite is **42 pytest tests**, still run separately (see *Known debt*).
 
 ---
 
@@ -49,11 +63,20 @@ sharp first task rather than a menu.
    whether the audio contains any of it — so everything Phase 12 builds on it is a guide to
    where the model hesitated, never evidence that the rest is right. Write the UI copy
    accordingly, and note that only Phase 5's CER can make the stronger claim.
-2. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
+2. **Build the rest of Phase 5 around the metrics that now exist.** The FLEURS download, the
+   sampler, the runner, the report and `tiers.json` are all still unwritten; `cer`, `wer`,
+   `chrf2` and `bootstrapCi` are done and parity-frozen, so this is assembly rather than
+   invention.
+3. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
    same 23 now mirrored onto faster-whisper, S7's 68 accepted-but-unmeasured codes, and
    `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
-   particular, which is known to let a real second speaker through.
-3. **Do not try to benchmark `large-v3` on this machine.** S9 tried: it needs ~6.7 GB, the
+   particular, which is now known to sit at the densest point of a real purity distribution
+   (amendment 57) and not merely to be unmeasured.
+4. **Two small defects worth fixing while you are in the CLI** (amendment 59): `thibi diarize
+   run` exits **0** when `SIDECAR_URL` is unset, which Phase 9's queue cannot distinguish from
+   success, and a non-existent `THIBI_TMP_DIR` raises a raw `ENOENT` stack trace in a CLI
+   built around never showing one.
+5. **Do not try to benchmark `large-v3` on this machine.** S9 tried: it needs ~6.7 GB, the
    Docker Desktop VM has 7.65 GB total, and with pyannote also resident the container is
    killed mid-transcription. Even alone it thrashes — a 2-second clip took minutes. A real
    throughput number for this model needs a bigger box, and amendment 54 is the reason the
@@ -67,6 +90,29 @@ to memory is memory.
 ---
 
 ## What you would otherwise rediscover
+
+**Every throughput number here was measured on a clip too short to mean anything, and they
+all understate it.** A 16.6-minute real recording diarized at **0.656×** against 0.36–0.51×
+for every 11–34 s clip on this box: at that length the model load is amortised over nothing.
+The trap is Phase 3 §6 item 4, which asks for the pre-run estimate to be the mean of the last
+five runs — unweighted, that tracks how long recent jobs happened to be, and it read 0.326×
+just before a job that ran at 0.656×. **Weight by duration.** Amendment 56. Ask the same
+question of any rolling average this project grows: what is it averaging, and over what.
+
+**Real audio is where the reconcile thresholds fail, and `purityReviewBelow: 0.6` fails
+worst.** The sub-0.7 purities on that recording were 0.589, 0.595, 0.60, 0.60, 0.64, then a
+gap to 0.70. Two segments flagged, three not, **0.006 apart**. The line is at the densest
+point of the distribution. Amendment 57, and it is a far better tuning target than the
+synthetic fixture the risk section used to cite.
+
+**Google on real Burmese is the first evidence for a tier this product has been asserting.**
+Script integrity **0.99**, 2 555 words with full timings, 99 % of the audio covered, 57 s of
+wall clock for 16.6 minutes, $0.27. Set against amendments 52–53, where the same language
+produced Khmer script and Vietnamese boilerplate from other providers, `my-MM` is the one
+long-tail claim now standing on a newsroom-shaped file. Amendment 58 — which also carries the
+offsetting half: **four of 19 chunk seams were hard cuts**, against a fixture set tuned on
+English where they were rare. Continuous natural speech is harder on the seam merge than
+anything it was built against, and each hard cut costs 2–3 words.
 
 **A high per-word confidence is not evidence the words are real.** S9's Vietnamese
 hallucination — fabricated YouTube boilerplate over Burmese audio — scored a mean word
@@ -213,10 +259,16 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
    a 1 h 38 m diarization wait is acceptable, and therefore whether the GPU tier is a
    requirement or an upsell. S7 removed the escape hatch, so this is unavoidable now.
 2. **Is there a real multi-speaker recording in one of the long-tail languages** we can use as
-   a diarization reference? Now the most valuable open question of the five. `thibi diarize
-   score` is built and needs an RTTM. S8 scored two macOS TTS voices with silence between
-   turns — a floor on difficulty, not evidence about an interview with crosstalk — and
-   nothing has ever measured diarization accuracy on Burmese or on real multi-mic audio.
+   a diarization reference? **Half-answered 2026-08-12, and the remaining half is the whole
+   point.** There is now a 16.6-minute real multi-speaker Burmese recording in local
+   `testdata/`, and the full pipeline has run on it — pyannote found **2 speakers**, 295 turns,
+   0 unassigned words. What there is *not* is a **reference RTTM**, so none of that is
+   *accuracy*: nothing here can say whether 2 is the right answer, whether the 17.7 % of audio
+   attributed to nobody is non-speech or missed speech, or whether the 64/18 speaking split
+   hides a third voice folded into `speaker-00`. `thibi diarize score` still has nothing to
+   score against. **Hand-labelling a few minutes of that file is now the cheapest unblock in
+   the project** — it converts an existing asset into the first real diarization measurement
+   and gives amendment 57's threshold something to tune against.
 3. **~~Is an ElevenLabs Scribe key worth getting?~~ Answered 2026-08-12: no, not for now.**
    `scribe.ts` is not built and every document that promised a hosted diarization fallback is
    corrected — amendment 48, Phase 3 open question 7, Phase 14's provider table, Phase 15
@@ -265,10 +317,12 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   crosstalk, and `--speakers`/`--min-speakers`/`--max-speakers`. **The contract test's
   fixture is 11 s of macOS TTS with no crosstalk** — a contract check, deliberately not an
   accuracy measurement.
-- **The estimate shown before a diarization is still S6's 0.6× constant**, even though
-  `diarization_runs.realtime_factor` now holds real numbers (0.36-0.51× on this box). Phase 3
-  §6 item 4 asks for the mean of the last five on this instance; nothing reads the column
-  yet. Small, and now unblocked.
+- **The estimate shown before a diarization is still S6's 0.6× constant**, and it is now
+  measured to be the *better* of the two options on offer. `diarization_runs.realtime_factor`
+  holds 0.36–0.51× from short clips and **0.656× from the one real-length recording**, so the
+  mean-of-last-five in Phase 3 §6 item 4 must be weighted by duration before anything reads
+  the column — unweighted it would have promised ~51 minutes for a 26-minute job. Amendment
+  56. Still small, still unblocked, no longer a straight substitution.
 - **`persistDiarization` is not idempotent per run.** Calling it twice for the same run
   inserts a second `diarization_runs` row and re-attributes the same segments. That is honest
   — each call *was* an attempt — but nothing dedupes, and Phase 9's retry loop will need to
@@ -318,6 +372,12 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   configuration and prints a remediation rather than a stack trace.
 - **Run `thibi db migrate` against the dev database after pulling.** The test suites migrate
   their own databases and will not tell you the dev one is stale.
+- **`/testdata/` is gitignored and holds real recordings.** Third-party material, some of it
+  editorially sensitive, and this repo is public. Measurements taken against it are committed;
+  the audio, the transcripts, the filenames and the sources are not. Do not `git add -f` in
+  there and do not name a source in any committed file — including this one.
+- **`THIBI_TMP_DIR` must exist before you set it.** `mkdtemp` does not create the parent, and
+  the failure is a raw stack trace rather than the CLI's usual remediation (amendment 59).
 - `.env` carries `DATABASE_URL`, the `S3_*` keys, `APP_SECRET_KEY`, `HF_TOKEN`,
   `OPENAI_API_KEY` and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
 - **Run `pnpm test` with the services up.** With them down, suites skip themselves and one

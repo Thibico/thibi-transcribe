@@ -65,7 +65,7 @@ export interface ScoreProfile {
    *
    * **The registry has no field for this yet** — `text.punctuation` carries only
    * `sentenceEnders` and `quotes`. Until it does, this is `[]` for every language and
-   * Somali, Hausa and Uzbek WER is overstated. Recorded as amendment 57.
+   * Somali, Hausa and Uzbek WER is overstated. Recorded as amendment 61.
    */
   letterlikePunct: readonly string[];
 }

@@ -649,6 +649,15 @@ These are design decisions, not caveats. **None of them are relaxed by the faste
 4. `worker-heavy` runs at concurrency 1, and the estimate shown to the user is computed from the
    **measured** `realtime_factor` of the last five `diarization_runs` on this instance, not a
    constant. The number gets more honest on its own.
+   *Amended 2026-08-12 — the mean must be weighted by duration, or it gets less honest on its
+   own.* A 16.6-minute real recording measured **0.656×** while every short clip on this box
+   measured 0.36–0.51×: at 11–34 s the model load is a large fraction of the run and is
+   amortised over nothing. An unweighted mean of the last five therefore tracks *how long the
+   recent jobs happened to be* rather than how fast this machine is. At the moment that job
+   started, the rolling estimate read 0.326× and would have promised ~51 minutes for a
+   26-minute run. Weight each run's factor by its `duration_ms`, and prefer the constant to a
+   window containing no run within an order of magnitude of the job being estimated. See
+   overview amendment 56.
 5. The deployment guide's tier table carries the honest trade, in the deployment guide rather
    than a footnote. *Amended 2026-08-10:* the line was "the GPU tier is the difference between
    overnight and coffee", which overstates it now that CPU measures ~0.6×. Overnight starts at
@@ -869,6 +878,14 @@ Docker must not read as a failure.
    2 s identity floor. `thibi diarize score` exists so Phase 5 can tune them against hand-labelled
    RTTM. Record their provenance in the code as *"initial, unmeasured"* so nobody later cites them
    as findings.
+   *Amended 2026-08-12 — `purityReviewBelow: 0.6` is now known to be badly placed, not merely
+   unmeasured.* On a 16.6-minute real recording the sub-0.7 purity values were **0.589, 0.595,
+   0.60, 0.60, 0.64**, then a gap to 0.70, with 29 of 40 segments at exactly 1.00. Two segments
+   were flagged and three were not, separated by 0.006. The cutoff is sitting at the densest
+   point of the distribution — the worst place for a line that decides whether a human is asked
+   to look — and both flagged segments were long (24.3 s, 25.3 s), so it is not a
+   short-fragment artefact. The distribution, not the `interjection-genuine` fixture, is the
+   shape to tune against. Overview amendment 57.
 6. **Open — do we write `words.speaker_id` for all ~40k words, or only the segment?** Write both.
    Word rows are what export-time splitting and the "two speakers in one segment" affordance need,
    and 40k `COPY`-batched updates are cheap. Revisit only with a measurement.
