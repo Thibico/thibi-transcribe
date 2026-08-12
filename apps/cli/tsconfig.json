@@ -22,6 +22,9 @@
     },
     {
       "path": "../../packages/engine"
+    },
+    {
+      "path": "../../packages/eval"
     }
   ]
 }

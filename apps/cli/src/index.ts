@@ -13,6 +13,7 @@ import { modelsCommand } from './commands/models.js';
 import { ingestCommand } from './commands/ingest.js';
 import { providersCommand } from './commands/providers.js';
 import { settingsCommand } from './commands/settings.js';
+import { evalCommand } from './commands/eval.js';
 import { ProbeAbort } from './probe/types.js';
 import { JobAssetMismatchError, JobNotFoundError } from '@thibi/engine';
 
@@ -33,6 +34,7 @@ program.addCommand(modelsCommand());
 program.addCommand(ingestCommand());
 program.addCommand(providersCommand());
 program.addCommand(settingsCommand());
+program.addCommand(evalCommand());
 program.addCommand(new Command('probe').description('Measure provider capabilities').addCommand(probeLanguagesCommand()));
 
 try {

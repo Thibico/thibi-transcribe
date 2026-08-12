@@ -317,8 +317,16 @@ was not chosen.
 Wavs are cached at `<cacheDir>/wav/<cfg>/<split>/<filename>` — the FLEURS filename is already a
 content hash, so the filename *is* the cache key.
 
-Clips join back to the TSV by `filename`. If a tar member has no TSV row (never observed, but
-cheap to guard), it is dropped and counted in `sample.unmatched`.
+Clips join back to the TSV by `filename`. If a tar member has no TSV row (~~never observed, but
+cheap to guard~~), it is dropped and counted in `sample.unmatched`.
+
+*Amended 2026-08-12 — it is observed on the first real pull, and the guard is load-bearing.*
+`fetchClips('my_mm','dev',30)` returned 30 clips and the join produced **29 scoreable pairs**.
+The unmatched member is `id=1607`, one of the four six-field records dropped for having no
+`transcription` (amendment 67): **the tarball carries audio for records the TSV cannot give a
+reference for.** Any tar-order sample walks into them at roughly `dropped / total records`.
+So `fetchClips(n)` returning n clips does *not* mean n scoreable clips, and the runner must
+over-fetch or accept a smaller n than it asked for. Overview amendment 70.
 
 ### 5.4 `manifest.ts` — the door for non-FLEURS languages
 
@@ -794,6 +802,16 @@ into the harness; the engine never reads `process.env`.
 
 **Dry run.** Costs nothing and downloads nothing: `num_samples ÷ 16000` gives exact audio
 seconds straight from the TSV.
+
+*Amended 2026-08-12 — "exact" holds for the text-only evals and not for ASR.* The ASR sample
+is **tar order**, so which N rows it contains is decided inside the tarball, and fetching the
+tarball is the audio a dry run exists to avoid. Measured at n=30 against a real pull
+(450.6 s): **mean clip length × n is +2.8%**; first-n-in-TSV-order is **−10.2%** and is
+rejected precisely because it looks exact while being four times worse. The estimate is
+therefore a projection, every projected figure carries `~`, and the table says why in the
+output rather than in a footnote — an estimate that does not announce itself is the failure
+this phase exists to prevent. `exact` is true only when the request covers the whole split.
+Overview amendment 69.
 
 ```
 $ thibi eval asr --languages ha-NG,jv-ID,yo-NG --n 30 --dry-run
@@ -1392,8 +1410,12 @@ re-run of unchanged languages free.
       `mini.tar.gz` over a local range server — and the retry rewritten, because §5.3's
       snippet could not double (amendment 66). Verified live: 3 clips of `my_mm/dev` in
       2.3 s from a 3.7 MB prefix of a 281 MB tarball, every filename present in the TSV.
-- [ ] `thibi eval asr --dry-run` prints exact audio minutes and estimated USD with no audio
-      downloaded.
+- [x] `thibi eval asr --dry-run` prints ~~exact~~ **estimated** audio minutes and estimated USD
+      with no audio downloaded. **Done 2026-08-12.** "Exact" was struck rather than met: the
+      ASR sample is tar order, so exact minutes are unknowable without the tarball
+      (amendment 69). Projected from mean clip length, measured +2.8% against a real pull,
+      every projected figure marked `~`. Verified with zero audio downloaded — after a live
+      run over `my-MM`, `ha-NG`, `si-LK` the cache held two TSVs and **0 wav files**.
 - [ ] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
       `tiers.json`.
 - [ ] A second identical run makes zero provider calls.

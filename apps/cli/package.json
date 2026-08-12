@@ -27,6 +27,7 @@
     "@thibi/core": "workspace:*",
     "@thibi/db": "workspace:*",
     "@thibi/engine": "workspace:*",
+    "@thibi/eval": "workspace:*",
     "@thibi/languages": "workspace:*",
     "@thibi/storage": "workspace:*",
     "commander": "^14.0.2",
