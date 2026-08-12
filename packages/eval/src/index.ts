@@ -1,6 +1,14 @@
 // The FLEURS eval harness. Phase 5.
-//
-// Placeholder: this package exists now so the dependency graph — and the ESLint
-// rule that enforces its direction — is real from the first commit.
 
-export {};
+export {
+  configTree,
+  loadTsv,
+  parseTsv,
+  NoEvalSetError,
+  type FleursRow,
+  type ParsedTsv,
+  type Split,
+  type TreeEntry,
+} from './fleurs/tsv.js';
+
+export { fetchClips, type Clip, type FetchClipsOptions } from './fleurs/audio.js';
