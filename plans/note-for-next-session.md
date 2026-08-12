@@ -20,7 +20,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #18**. **PR #19 — spike S9 and the two defects it found — is open and green.**
+`main` is at the merge of **PR #19**. Everything through spike S9 is merged. **In flight: a cloud agent is building Phase 5's metrics layer** on `phase-5/metrics` — `levenshtein`, `cer`, `wer`, `chrf`, `normalize`, `script-integrity`, `bootstrap`, and the frozen jiwer/sacrebleu parity fixture. It was scoped to that boundary deliberately: everything else in Phase 5 needs live provider keys, FLEURS downloads and Postgres, none of which a cloud worker has.
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
 skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
