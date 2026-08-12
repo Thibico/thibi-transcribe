@@ -170,11 +170,20 @@ and only `packages/engine` and `apps/cli` have the `@thibi/storage` symlink at a
 has to be copied into one of them. `spikes/s8-run-sidecar.mjs`'s header says "run it from
 `packages/storage`", which is wrong on both counts.
 
-**A timing assertion nobody deliberately chose is a test of the machine.** Three times now:
-the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`, and
+**A timing assertion nobody deliberately chose is a test of the machine.** Four times now:
+the 64×64 Hungarian wall-clock bound, the DB teardown against `hookTimeout`,
 `speakers.test.ts > answers the review query from the partial index` — 2.0 s standalone, over
-5 s inside the 40-file run once a sixth suite also held a database. If you see a red suite
-under a green assertion count, check what else is running.
+5 s inside the 40-file run once a sixth suite also held a database — and, 2026-08-12,
+`bootstrap.test.ts > mulberry32 > stays in [0, 1)`. If you see a red suite under a green
+assertion count, check what else is running.
+
+**The newest one had a cause worth generalising: the assertion count *was* the load.** That
+test drew 5000 numbers and wrote **two `expect()`s per iteration — 10 000 assertions** in a
+hot loop. `expect` is not free; it ran ~800 ms alone and blew a 5 s timeout inside the
+53-file run. It now scans the draws and asserts three times, which is 35 ms and reports
+*which* value was out of range instead of merely that one was. **Assert on the aggregate, not
+inside the loop** — a per-iteration `expect` is a timing assertion you did not know you were
+writing, and it degrades exactly when the suite is busiest.
 
 **`hookTimeout` and `testTimeout` in `vitest.config.ts` do nothing.** Root-level `test`
 options are silently ignored once `test.projects` is used. Both were set there anyway, twice,

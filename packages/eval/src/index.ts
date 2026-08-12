@@ -12,3 +12,13 @@ export {
 } from './fleurs/tsv.js';
 
 export { fetchClips, type Clip, type FetchClipsOptions } from './fleurs/audio.js';
+
+export {
+  dedupeById,
+  describeSample,
+  joinTarOrder,
+  sampleSeeded,
+  type AsrSample,
+  type Deduped,
+  type SampleComposition,
+} from './sample.js';
