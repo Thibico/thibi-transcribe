@@ -217,7 +217,7 @@ describe('rule 4 — punctuation', () => {
    * Somali's glottal apostrophe and Hausa's compounding hyphen are letters, not punctuation.
    * Stripping them merges two words into one and inflates that language's WER at every
    * occurrence — which is what happens today, because the registry has no field to populate
-   * `letterlikePunct` from (amendment 55). The mechanism works; the data does not exist yet.
+   * `letterlikePunct` from (amendment 57). The mechanism works; the data does not exist yet.
    */
   it('retains letterlike punctuation when the profile names it', () => {
     const hausa = base({ letterlikePunct: ['-'] });

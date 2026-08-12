@@ -34,7 +34,7 @@
  * would fail a correct Cyrillic Serbian transcript — and reports no stray characters, so a
  * failure prints as `0.02` rather than `0.02 (stray: A S E N Y K)`. The Phase 4a
  * implementation and its measured cases survive unchanged; only the filename moved.
- * Recorded as amendment 54 in `plans/00-overview.md`.
+ * Recorded as amendment 56 in `plans/00-overview.md`.
  */
 
 export interface ScriptRanges {
