@@ -56,6 +56,13 @@ next-env.d.ts
 # bytes are kept locally so a disputed number can be re-checked.
 /spikes/raw/
 
+# real-world test media and the transcripts made from it. Kept on disk so a measurement
+# can be re-run against the same audio, and out of git because this repo is public: the
+# recordings are third-party material and some are editorially sensitive. Anything here
+# is local-only by design — do not `git add -f` it, and do not name its sources in any
+# committed file. Measurements distilled from it belong in the plans; the bytes do not.
+/testdata/
+
 # python — S6 runs pyannote through `uv run`, which needs no venv in-tree, but the
 # interpreter still writes bytecode next to the spike.
 __pycache__/
