@@ -15,13 +15,26 @@
  * "the provider answered in the wrong alphabet"; CER against a reference is what catches
  * "the provider answered in the right alphabet with the wrong words". Phase 5 runs both.
  *
- * It ships here in Phase 4, ahead of the harness that will use it in anger, so the Groq
+ * It shipped here in Phase 4, ahead of the harness that will use it in anger, so the Groq
  * romanization case is a number in CI from the day the adapter exists rather than a
  * paragraph in a research note.
  *
  * Lives in `@thibi/core` and takes ranges structurally rather than importing
  * `ScriptEntry` — core depends on nothing, and the eval harness and the running app have to
  * score identically.
+ *
+ * ---
+ *
+ * **This file was `metrics/script.ts` until Phase 5.** Phase 5's deliverables table names
+ * `metrics/script-integrity.ts`, so this is a rename and not a second module: two
+ * overlapping implementations of the metric that decides `tier: unsupported` is precisely
+ * the drift the eval harness cannot afford, and Phase 5's own §5.9 sketch is the weaker of
+ * the two. It returns a bare `number`, scores an empty transcript 0 as though that were a
+ * measurement, takes one block list rather than a script plus its `altScripts` — which
+ * would fail a correct Cyrillic Serbian transcript — and reports no stray characters, so a
+ * failure prints as `0.02` rather than `0.02 (stray: A S E N Y K)`. The Phase 4a
+ * implementation and its measured cases survive unchanged; only the filename moved.
+ * Recorded as amendment 54 in `plans/00-overview.md`.
  */
 
 export interface ScriptRanges {
