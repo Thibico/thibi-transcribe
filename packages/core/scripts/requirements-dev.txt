@@ -1,0 +1,15 @@
+# Parity fixture generation only. NEVER installed in CI, never a runtime dependency of any
+# package, and not needed to run `pnpm test` — `__fixtures__/parity.json` is committed and CI
+# asserts against the committed numbers.
+#
+# Pinned exactly, because the fixture records what *these* versions computed. Bumping a pin
+# and re-running `gen-parity.py` is a deliberate act that shows up as a diff in the PR; if the
+# numbers move, that is a finding about the reference implementation and belongs in the commit
+# message.
+#
+#   python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+#   .venv/bin/python gen-parity.py
+#
+# Installed and run on 2026-08-12 under CPython 3.11.8 on x86 macOS.
+jiwer==4.0.0
+sacrebleu==2.6.0
