@@ -100,6 +100,10 @@ Two traps in the file format itself:
 
 1. **Multiple rows share an `id`.** Different speakers reading the same sentence. Dedupe before
    sampling or a 30-clip sample can contain 30 renderings of 11 sentences.
+   *Measured 2026-08-12 — not hypothetical, and worst in the language this exists for.*
+   `my_mm/dev` holds **380 rows carrying 148 distinct ids**, an average of 2.6 renderings
+   each, so an undeduped 30-clip sample draws from roughly 12 sentences. Dedupe is a
+   correctness requirement here, not a refinement. Overview amendment 68.
 2. **It is tab-delimited but CSV-quoted.** Row 1 of `my_mm/dev.tsv` wraps `raw_transcription`
    in `"` with inner quotes doubled (`""ကိုရီးယား…""`). `split('\t')` leaves stray quote
    characters in the reference string and silently corrupts every CER computed against it.
@@ -294,6 +298,14 @@ Four things that will bite whoever writes this from scratch:
   surfaces as an `AbortError` on `source`, not on `tar`.
 - A skipped entry must be drained (`stream.resume()`), or `tar-stream` never emits the next one.
 - Truncated-gzip errors are the success path. Discriminate on `out.length`, not on error type.
+  *Amended 2026-08-12 — and the snippet above does not do what this line says.* Its `settle`
+  **rejects** whenever `out.length < n`, so `fetchClips`'s `limit *= 2` is unreachable and the
+  doubling retry can never fire; a long-clip config surfaces as `unexpected end of file`
+  instead of a wider second request. `streamPrefix` returns `{ clips, error }` and never
+  rejects on a short read — only the caller owns the byte budget, so only the caller can say
+  whether what came back is enough. HTTP failures still throw before streaming begins.
+  `HEADROOM` became injectable at the same time: fixed at 1 MB, the opening range covers any
+  fixture small enough to commit, so nothing could test the retry. Overview amendment 66.
 - The first entry is the `dev/` directory; `header.type === 'file'` filters it.
 
 **Determinism.** Tar order is lexicographic over random-hash filenames. It correlates with
@@ -493,7 +505,7 @@ export function chrfStats(hyp: string, ref: string, charOrder = 6, wordOrder = 0
   const rw = ref.split(/\s+/u).filter(Boolean);
   const out: ChrfStats[] = [];
   for (let n = 1; n <= charOrder; n++) out.push(overlap(ngrams(hc, n), ngrams(rc, n)));
-  for (let n = 1; n <= wordOrder; n++) out.push(overlap(ngrams(hw, n, ' '), ngrams(rw, n, ' ')));
+  for (let n = 1; n <= wordOrder; n++) out.push(overlap(ngrams(hw, n, '\0'), ngrams(rw, n, '\0')));
   return out;
 }
 
@@ -1324,6 +1336,13 @@ re-run of unchanged languages free.
    a single speaker could dominate a 30-clip sample and nothing would reveal it. Mitigation:
    report the gender split, and offer `--sample-strategy id-seeded` which downloads a larger
    prefix and selects by seeded shuffle over `id`. Default stays tar-order because it is free.
+   *Amended 2026-08-12 — the gender split is not a mitigation for every config, and is not
+   one for Burmese.* **All 380 rows of `my_mm/dev` are `FEMALE`.** A constant reveals nothing
+   about speaker concentration, so for this config the stated mitigation reports a fact that
+   was never in question while the risk it was meant to surface stays invisible. Two things
+   follow: a `my-MM` CER is measured **entirely on female speech** and every tier claim
+   derived from it has to say so, and the report must print the split's *distinctness*, not
+   just the split — one value across n rows is a finding, not a column. Overview amendment 68.
    **Open:** whether id-seeded sampling materially moves any language's CER. Measure once on
    three languages and record the answer here.
 3. **n=30 gives a wide interval.** That is not a flaw, it is the honest mechanical reason
@@ -1363,9 +1382,16 @@ re-run of unchanged languages free.
       component.
 - [x] `gen-parity.py` is committed with pinned requirements and is **not** invoked by CI.
       **Run for real 2026-08-12: jiwer 4.0.0, sacrebleu 2.6.0, CPython 3.11.8.**
-- [ ] `loadTsv` performs one tree call and zero resolve calls when the cached oid matches.
-- [ ] `fetchClips` returns exactly N wavs from a byte prefix, aborts the request, and treats
-      truncated-gzip as success.
+- [x] `loadTsv` performs one tree call and zero resolve calls when the cached oid matches.
+      **Done 2026-08-12**, asserted with a counting `fetchImpl`; a changed oid re-downloads
+      and leaves the old file on disk. Verified live against `my_mm/dev` at oid
+      `15b8e8cc…`: 380 rows, 4 dropped, 97.8 minutes of audio costed from column 5 with no
+      audio downloaded.
+- [x] `fetchClips` returns exactly N wavs from a byte prefix, aborts the request, and treats
+      truncated-gzip as success. **Done 2026-08-12** against a committed incompressible
+      `mini.tar.gz` over a local range server — and the retry rewritten, because §5.3's
+      snippet could not double (amendment 66). Verified live: 3 clips of `my_mm/dev` in
+      2.3 s from a 3.7 MB prefix of a 281 MB tarball, every filename present in the TSV.
 - [ ] `thibi eval asr --dry-run` prints exact audio minutes and estimated USD with no audio
       downloaded.
 - [ ] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
