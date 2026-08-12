@@ -31,7 +31,7 @@ from typing import AsyncIterator, Optional
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 
-from .asr import asr_available, get_model, loaded_model_name, run_transcription
+from .asr import asr_available, get_model, loaded_model_name, loading_model_name, run_transcription
 from .audio import fetched_audio, probe_duration_ms
 from .config import Settings, get_settings
 from .diarize import Pipeline, load_pipeline, run_diarization
@@ -120,8 +120,14 @@ def health() -> Health:
     # ASR loads lazily — its model is a request parameter, not configuration — so
     # `not_loaded` here means "nothing has asked yet", which is the normal steady state on a
     # diarization-only instance. `unavailable` means the image cannot run it at all.
+    loading = loading_model_name()
     if not asr_available():
         asr_state = "unavailable"
+    elif loading is not None:
+        # Neither of these calls waits on the load. `/health` is the container's HEALTHCHECK
+        # and a cold `large-v3` takes minutes; reporting from behind the load lock marked the
+        # container unhealthy for the whole download. Measured 2026-08-12.
+        asr_state = "loading"
     elif loaded_model_name() is not None:
         asr_state = "loaded"
     else:
@@ -146,7 +152,7 @@ def health() -> Health:
             diarization="unavailable" if unavailable else "loaded",
             asr=asr_state,
         ),
-        asr_model=loaded_model_name(),
+        asr_model=loaded_model_name() or loading,
         device=settings.device,
         torch=torch_version,
         pyannote=pyannote_version,

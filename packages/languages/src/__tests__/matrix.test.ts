@@ -34,39 +34,49 @@ describe('provider matrix', () => {
   });
 
   /**
-   * Twenty languages every Whisper-family endpoint tested simply rejects.
+   * Twenty languages every Whisper-family endpoint tested rejects, plus Burmese — which is
+   * here for the second time and for a better reason than before.
    *
-   * **This was 21 until 2026-08-12, and the one that left is Burmese** — overview amendment
-   * 51. Nothing was measured to change it. Phase 4b gave faster-whisper a matrix column
-   * derived from the Whisper tokenizer, `my` has a token, and a `suspected` verdict leaves
-   * `supported: true` by the doctrine in `matrix-overrides.json` — so a third provider now
-   * *claims* Burmese and the exclusivity filter, which asks about support rather than
-   * evidence, stops counting it.
+   * The number went 21 → 20 → 21 in a day. It dropped when Phase 4b gave faster-whisper a
+   * matrix column derived from the Whisper tokenizer: `my` has a token, `suspected` leaves
+   * `supported: true`, and Burmese acquired a claimant on no evidence (amendment 51). It came
+   * back when somebody ran it (spike S9, amendment 52): `language=my` returns Khmer script or
+   * nothing at all, autodetect returns Vietnamese YouTube boilerplate at mean word
+   * probability 0.892. The same weights fail the same way behind a different transport.
    *
-   * That is the honest reading and it is worth being precise about what changed: the claim
-   * went from "only Google works for Burmese" to "only Google is *known* to work for
-   * Burmese". faster-whisper runs the same `whisper-large-v3` weights Groq was measured
-   * mangling, so the expected outcome of measuring it is that Burmese comes back to this
-   * list — which makes it the single highest-value measurement Phase 5 can make, and it is
-   * recorded as such in the handoff note rather than left to be rediscovered here.
+   * **So this row now rests on a measurement rather than on nobody having looked**, which is
+   * the difference the whole overrides mechanism exists to record. Two of the twenty-one are
+   * now measured failures at HTTP 200 rather than honest rejections.
    */
-  it('finds 20 languages no other provider claims, Burmese having left on an untested claim', () => {
+  it('finds 21 languages no other provider covers, two of them by measurement', () => {
     const only = registry.list({ exclusiveTo: 'google' }).map((l) => l.code);
-    expect(only.length).toBe(20);
+    expect(only.length).toBe(21);
     expect(only).toEqual(
       [
         'ast-ES', 'ceb-PH', 'ckb-IQ', 'ff-SN', 'ga-IE', 'ig-NG', 'kam-KE', 'kea-CV', 'ky-KG',
-        'lg-UG', 'luo-KE', 'nso-ZA', 'ny-MW', 'om-ET', 'or-IN', 'rup-BG', 'umb-AO',
+        'lg-UG', 'luo-KE', 'my-MM', 'nso-ZA', 'ny-MW', 'om-ET', 'or-IN', 'rup-BG', 'umb-AO',
         'wo-SN', 'xh-ZA', 'zu-ZA',
       ].sort(),
     );
-    // And the reason it left is visible rather than implied: an unmeasured row, marked as
-    // doubted, on the same weights that already failed this language elsewhere.
-    expect(only).not.toContain('my-MM');
+    // Burmese is here because two providers were run and both mangled it — never because a
+    // status code was trusted, and no longer because a column was missing.
+    expect(only).toContain('my-MM');
+    for (const provider of ['groq', 'faster-whisper'] as const) {
+      const capability = registry.get('my-MM')!.providers[provider]!;
+      expect(capability.status, provider).toBe('accepted');
+      expect(capability.supported, provider).toBe(false);
+      expect(capability.verdict, provider).toBe('measured-failure');
+    }
+  });
+
+  it('records what faster-whisper actually returned for Burmese', () => {
+    // The evidence string is the row. A `measured-failure` a reader cannot check is an
+    // assertion wearing a verdict's clothes.
     const fw = registry.get('my-MM')!.providers['faster-whisper']!;
-    expect(fw.supported).toBe(true);
-    expect(fw.verdict).toBe('suspected');
-    expect(fw.reason).toMatch(/same weights/i);
+    expect(fw.evidence).toMatch(/KHMER/);
+    expect(fw.evidence).toMatch(/empty transcript/);
+    expect(fw.evidence).toMatch(/0\.892/);
+    expect(fw.evidence).toMatch(/RESULTS\.md#s9/);
   });
 
   it('keeps the Groq Burmese finding through a re-probe', () => {

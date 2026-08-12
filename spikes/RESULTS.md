@@ -420,6 +420,67 @@ pipeline the pytest suite uses.
   would take about 50 minutes.
 - **GPU.** Still the inherited, unmeasured 8–20×.
 
+## S9 — is faster-whisper usable for Burmese?
+
+**No, and it fails exactly the way the same weights fail on Groq — plus one new way.**
+Measured 2026-08-12, `large-v3` int8, faster-whisper 1.2.1 in the `services/sidecar` image,
+against `packages/languages/fixtures/probe-2s.flac` — the same committed 2-second Burmese
+clip Groq was re-measured on. Instrument `s9-faster-whisper-mya.mjs`; rows in
+`raw/s9-large-v3-mya.json`.
+
+This spike exists because of overview amendment 51. Giving faster-whisper a matrix column
+derived from the Whisper tokenizer dropped `exclusiveTo: 'google'` from 21 to 20 — `my` has a
+token, a `suspected` verdict leaves `supported: true`, and Burmese acquired a claimant on no
+evidence at all. The product's sentence weakened from "only Google works" to "only Google is
+*known* to work", and one measurement decides which it is.
+
+| Setting | Detected | Output | Script | Mean word probability |
+|---|---|---|---|---|
+| `language=my`, run 0 | `my` | `ជោះ ស្្្្្ទៅទៅ់។` | **Khmer** | 0.553 |
+| `language=my`, run 1 | `my` | *(empty)* | — | — |
+| `language=my`, run 2 | `my` | *(empty)* | — | — |
+| autodetect | `vi` | `Hãy subscribe cho kênh La La School Để không bỏ lỡ những video hấp dẫn` | Latin, Vietnamese | **0.892** |
+
+Script integrity against `Mymr` is **0.00** for both non-empty outputs.
+
+### The three findings
+
+**Khmer for `language=my`, which is Groq's failure exactly.** Same weights, different
+transport, same wrong script — the 2026-08-11 Groq re-measure on this identical clip also
+returned Khmer. Whatever is wrong is in `whisper-large-v3`, not in anybody's API.
+
+**It is unstable, so it cannot even be screened.** Three identical requests: Khmer once,
+empty twice. Phase 4a's script-integrity screen catches a consistently wrong-language output
+once and can then be trusted; it has nothing to score on an empty transcript. This is S7's
+finding in a second place, and it is why a single probe is never a measurement here.
+
+**The autodetect output is training-data boilerplate at high confidence.** *"Please subscribe
+to the La La School channel so you don't miss exciting videos"* — Vietnamese YouTube filler,
+returned for two seconds of Burmese speech, at a **mean per-word probability of 0.892**.
+
+That last number is the one to carry forward. faster-whisper's genuine per-word confidence is
+its entire reason for existing in this system, and here it is high while the output is
+fabricated. **Per-word probability measures the decoder's certainty about its own next token,
+not whether the audio contains any of it.** Anything built on it — the low-confidence
+underline, the "38 uncertain words" count, the `confidence < 0.5` index — is a guide to where
+the model hesitated, never evidence that the rest is right.
+
+### What this settles, and what it does not
+
+Settles: `my-MM` is `supported: false, verdict: measured-failure` for faster-whisper, and
+`exclusiveTo: 'google'` is 21 again — with two of those twenty-one now resting on a
+measurement rather than on an honest rejection. Amendment 52.
+
+Does not settle: the other 22 codes mirrored as `suspected` from Groq. They are still
+unmeasured, and this spike is the shape that measures them.
+
+### The realtime factors in the raw file are not a speed measurement
+
+They are a measurement of a thrashing VM. `large-v3` int8 needs **~6.7 GB** and the Docker
+Desktop VM has **7.65 GB total**, so this ran with the diarization model deliberately
+unloaded and still swapped. See amendment 54: the sidecar's single slot serialises *compute*
+and not *residency*, and `mem_limit: 16g` in a 7.65 GB VM is not a limit at all.
+
 ## Reproducing
 
 The scripts are committed so a disputed number can be re-measured rather than argued about.
