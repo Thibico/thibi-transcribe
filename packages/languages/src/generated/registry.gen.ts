@@ -12099,15 +12099,16 @@ export const PROVIDER_MATRIX: Readonly<
   "my-MM": {
     "faster-whisper": {
       "adaptation": "prompt",
+      "evidence": "large-v3 int8, packages/languages/fixtures/probe-2s.flac, the clip Groq was re-measured on. language=my run 0: 'ជោះ ស្្្្្ទៅទៅ់។' — KHMER, script integrity 0.00 against Mymr, mean word probability 0.553. Runs 1 and 2: empty transcript, which the script screen cannot catch because there is nothing to score. Autodetect: detected 'vi' and returned 'Hãy subscribe cho kênh La La School Để không bỏ lỡ những video hấp dẫn' — YouTube boilerplate, i.e. training-data hallucination rather than a transcription attempt, at mean word probability 0.892 on two seconds of Burmese speech. **This is the provider whose genuine per-word confidence is its entire reason for existing, and that confidence was high while the output was fabricated**: the number measures the decoder's certainty about its own next token, not whether the audio contains any of it. Full table in spikes/RESULTS.md#s9; instrument in spikes/s9-faster-whisper-mya.mjs, which reproduces it. (spikes/raw/ is gitignored, so the numbers live in RESULTS.md rather than being cited into a file a clone does not have.) The user reported the same conclusion independently before this was run.",
       "models": [
         "large-v3"
       ],
       "probedAt": "2026-08-12",
       "providerCode": "my",
-      "reason": "Groq's whisper-large-v3 was measured returning Myanmar-script non-words for language=my (2026-07-30), Khmer on a re-measure (2026-08-11) and romanised Vietnamese on autodetect. faster-whisper runs the *same weights* behind a different transport, so this is not an open question inherited from a family resemblance — it is the same model. Not measured-failure only because nobody has run this transport yet; Phase 5 does that first.",
+      "reason": "Measured 2026-08-12 (spike S9), not inherited. language=my returns Khmer script and, on two of three identical requests, nothing at all; autodetect returns Vietnamese. The same three failures whisper-large-v3 produces on Groq, from the same weights behind a different transport.",
       "status": "accepted",
-      "supported": true,
-      "verdict": "suspected",
+      "supported": false,
+      "verdict": "measured-failure",
       "wordTimestamps": true
     },
     "google": {

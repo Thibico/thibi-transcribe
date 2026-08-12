@@ -61,6 +61,19 @@ class ModelUnavailable(AudioError):
 
 _load_lock = threading.Lock()
 _loaded: Optional[Tuple[Tuple[str, str, str], Transcriber]] = None
+#: The model currently being loaded, if any.
+#:
+#: **Read without the lock, deliberately.** `get_model` holds `_load_lock` for the whole of a
+#: cold load — three gigabytes over the network for `large-v3` — and `/health` is the
+#: container's HEALTHCHECK. The first version of this file reported the loaded name from
+#: inside the lock, so `/health` blocked for the entire download and Docker marked the
+#: container **unhealthy** exactly while it was doing the slow thing an operator most wants
+#: to watch. Under Phase 15's restart policy that is worse than cosmetic: the restart kills
+#: the download, and the next one starts it again.
+#:
+#: A module-global read is atomic in CPython, and stale by at most one assignment — which is
+#: the right trade for a status field that must never wait on the thing it is reporting.
+_loading: Optional[str] = None
 
 
 def load_model(
@@ -117,21 +130,32 @@ def get_model(
         if _loaded is not None:
             log.info("swapping ASR model %s -> %s", _loaded[0][0], name)
             _loaded = None  # drop the reference before allocating the next one
-        model = load_model(
-            name,
-            compute_type=compute_type,
-            device=device,
-            download_root=download_root,
-            cpu_threads=cpu_threads,
-        )
+        global _loading
+        _loading = name
+        try:
+            model = load_model(
+                name,
+                compute_type=compute_type,
+                device=device,
+                download_root=download_root,
+                cpu_threads=cpu_threads,
+            )
+        finally:
+            # Cleared on failure too: a model that could not be loaded is not loading.
+            _loading = None
         _loaded = (key, model)
         return model
 
 
 def loaded_model_name() -> Optional[str]:
-    """What `/health` reports. `None` means nothing has been asked for yet."""
-    with _load_lock:
-        return _loaded[0][0] if _loaded is not None else None
+    """The resident model, or `None`. **Never takes the lock** — see `_loading`."""
+    current = _loaded
+    return current[0][0] if current is not None else None
+
+
+def loading_model_name() -> Optional[str]:
+    """The model being loaded right now, or `None`. Never takes the lock either."""
+    return _loading
 
 
 def asr_available() -> bool:

@@ -61,3 +61,7 @@ next-env.d.ts
 __pycache__/
 *.py[cod]
 .venv/
+
+# Worktrees created for background agents. Each is a git repo of its own; committing
+# one lands a submodule entry nobody can clone.
+.claude/worktrees/

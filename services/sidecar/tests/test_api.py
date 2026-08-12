@@ -8,6 +8,7 @@ every path including the ones that raise.
 
 from __future__ import annotations
 
+import threading
 import time
 from pathlib import Path
 from typing import Any, Iterator
@@ -583,6 +584,45 @@ class TestTranscribe:
         # The headline field still means diarization, and nothing else.
         assert health["realtime_factor_estimate"] == factors["diarize"]
         assert factors["diarize"] != factors["asr:tiny"]
+
+    def test_health_never_waits_on_a_model_load(
+        self, make_client: Any, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The regression test for the bug a real 3 GB pull found.
+
+        `get_model` holds `_load_lock` for the whole of a cold load. The first version of
+        `loaded_model_name()` acquired that same lock, so `/health` — which is the container's
+        HEALTHCHECK — blocked for the entire download and Docker marked the container
+        **unhealthy exactly while it was doing the slow thing an operator most wants to
+        watch**. Under a restart policy that is worse than cosmetic: the restart kills the
+        download and the next one starts it again.
+
+        Holding the lock here is precisely the state a cold load is in.
+        """
+        from app import asr
+
+        client = make_client()
+        monkeypatch.setattr(main, "asr_available", lambda: True)
+        monkeypatch.setattr(asr, "_loading", "large-v3")
+
+        # In a thread with a join timeout, because the regression **blocks** rather than
+        # returning something wrong. A plain call here would hang CI forever instead of
+        # failing it, which is the one way a regression test can be worse than none.
+        result: dict[str, Any] = {}
+
+        def probe() -> None:
+            result["health"] = client.get("/health").json()
+
+        with asr._load_lock:
+            thread = threading.Thread(target=probe, daemon=True)
+            thread.start()
+            thread.join(timeout=5.0)
+            blocked = thread.is_alive()
+
+        assert not blocked, "/health blocked on the model-load lock"
+        assert result["health"]["models"]["asr"] == "loading"
+        # And it names the model, so "loading" is actionable rather than mysterious.
+        assert result["health"]["asr_model"] == "large-v3"
 
     def test_health_reports_asr_honestly(
         self, make_client: Any, monkeypatch: pytest.MonkeyPatch
