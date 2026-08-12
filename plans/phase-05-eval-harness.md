@@ -31,17 +31,22 @@ so the harness scores the production prompt objects rather than a transcription 
 
 | Path | Purpose |
 |---|---|
-| `packages/core/src/metrics/levenshtein.ts` | Two-row DP edit distance over a unit array |
-| `packages/core/src/metrics/cer.ts` | Codepoint and grapheme CER; corpus CER as ratio-of-sums |
-| `packages/core/src/metrics/wer.ts` | WER, returning `null` for non-word-delimited scripts |
-| `packages/core/src/metrics/chrf.ts` | chrF2 ported from sacrebleu; per-order stats + corpus aggregation |
-| `packages/core/src/metrics/normalize.ts` | `normalizeForScoring` — the eight scoring rules |
-| `packages/core/src/metrics/script-integrity.ts` | Fraction of output in the expected Unicode blocks |
-| `packages/core/src/metrics/bootstrap.ts` | Seeded percentile bootstrap over per-clip statistics |
-| `packages/core/src/metrics/index.ts` | Public surface; the only import path for the app and the harness |
-| `packages/core/src/metrics/__fixtures__/parity.json` | Frozen `jiwer`/`sacrebleu` expectations, asserted in CI |
-| `packages/core/scripts/gen-parity.py` | Regenerates the fixture. Run by hand, never in CI |
-| `packages/core/scripts/requirements-dev.txt` | Pins `jiwer` and `sacrebleu` versions for reproducibility |
+**The metrics layer is built and merged** — everything from `levenshtein.ts` to
+`parity.json` below, on branch `phase-5/metrics`, 2026-08-12. The `packages/eval` half is
+not started. Amendments 54–59 in [`00-overview.md`](./00-overview.md) record what this
+document got wrong about it and are folded in inline below.
+
+| `packages/core/src/metrics/levenshtein.ts` | **Built.** Two-row DP edit distance over a unit array |
+| `packages/core/src/metrics/cer.ts` | **Built.** Codepoint and grapheme CER; corpus CER as ratio-of-sums |
+| `packages/core/src/metrics/wer.ts` | **Built.** WER, returning `null` for non-word-delimited scripts |
+| `packages/core/src/metrics/chrf.ts` | **Built.** chrF2 ported from sacrebleu 2.6.0's source; per-order stats + corpus aggregation |
+| `packages/core/src/metrics/normalize.ts` | **Built.** `normalizeForScoring` — the eight scoring rules |
+| `packages/core/src/metrics/script-integrity.ts` | **Built** — a rename of Phase 4a's `metrics/script.ts`, not a new module. See amendment 54 |
+| `packages/core/src/metrics/bootstrap.ts` | **Built.** Seeded percentile bootstrap over per-clip statistics |
+| `packages/core/src/metrics/index.ts` | **Built.** The metrics barrel, re-exported by `@thibi/core`'s root; nothing deep-imports a metric module |
+| `packages/core/src/metrics/__fixtures__/parity.json` | **Built.** Frozen `jiwer` 4.0.0 / `sacrebleu` 2.6.0 expectations, 19 sentence cases plus a corpus block, asserted in CI |
+| `packages/core/scripts/gen-parity.py` | **Built.** Regenerates the fixture. Run by hand, never in CI |
+| `packages/core/scripts/requirements-dev.txt` | **Built.** Pins `jiwer==4.0.0` and `sacrebleu==2.6.0` |
 | `packages/eval/src/fleurs/tsv.ts` | HF tree API → `oid` → cached `dev.tsv`, quote-aware parse |
 | `packages/eval/src/fleurs/audio.ts` | Ranged tarball → gunzip → `tar-stream` → N wavs → abort |
 | `packages/eval/src/fleurs/manifest.ts` | `--manifest ./local.tsv` loader, same 7 columns, local audio |
@@ -428,26 +433,26 @@ export function corpusCer(stats: readonly EditStats[]): number | null {
  * `werKind` travels with the number so a consumer can never mistake an ICU-segmented WER for a
  * comparable one.
  */
-export type WerKind = 'space' | 'icu' | null;
+export type WerKind = 'spaces' | 'icu' | null;
 
-export function wer(hyp: string, ref: string, seg: 'space' | 'none' | 'icu'):
-  { value: number | null; kind: WerKind } {
-  if (seg === 'none') return { value: null, kind: null };
-  const split = seg === 'space'
-    ? (s: string) => s.split(/\s+/u).filter(Boolean)
-    : icuWords;
-  const h = split(hyp), r = split(ref);
-  if (r.length === 0) return { value: h.length === 0 ? 0 : null, kind: seg === 'space' ? 'space' : 'icu' };
-  return { value: levenshtein(h, r) / r.length, kind: seg === 'space' ? 'space' : 'icu' };
-}
-
-const wordSegmenter = new Intl.Segmenter('und', { granularity: 'word' });
-function icuWords(s: string): string[] {
-  return Array.from(wordSegmenter.segment(s))
-    .filter((x) => x.isWordLike)
-    .map((x) => x.segment);
-}
+export function wer(hyp: string, ref: string, rules: SegmentationRules): WerResult;
 ```
+
+**Corrected against the built file (amendment 59).** Three things this sketch had wrong:
+
+- The vocabulary is `'spaces'`, not `'space'` — that is how the registry spells
+  `text.wordSegmentation`, and a profile is meant to be a projection of the registry with no
+  translation step to get wrong. Same for `WerKind`.
+- It takes the existing `SegmentationRules` shape from `timing/interpolate.ts` (`code` +
+  `wordSegmentation`) rather than a bare enum, so word segmentation for timings and word
+  segmentation for scoring cannot become two different opinions.
+- ICU segmentation runs in the **language's own locale**, not `'und'`: Thai, Khmer and Lao
+  word breaking is dictionary-driven and locale-sensitive. A small-ICU Node build — which has
+  `Intl.Segmenter` but breaks Thai into runs of characters — gets the same refusal as
+  `'none'` rather than a plausible-looking number.
+
+`werStats` and `corpusWer` accompany it, for the same reason `editStats` accompanies `cer`:
+the corpus estimator is the ratio of sums and a rate cannot be summed back into one.
 
 ```ts
 // packages/core/src/metrics/chrf.ts
@@ -471,7 +476,13 @@ function overlap(h: Map<string, number>, r: Map<string, number>): ChrfStats {
   for (const v of h.values()) hyp += v;
   for (const v of r.values()) ref += v;
   for (const [k, v] of h) { const o = r.get(k); if (o) match += Math.min(v, o); }
-  return { hyp, ref, match };
+  // CORRECTED, amendment 58. sacrebleu 2.6.0's `_get_match_statistics` is
+  // `hyp_count if ref_ngrams else 0`: at any order where the reference has no n-grams at
+  // all, the hypothesis count is reported as zero and — via the effective-order rule — the
+  // order drops out of the average entirely. Returning `hyp` unconditionally, as this
+  // sketch did, scores a short hypothesis against a long reference differently from
+  // sacrebleu. `chrf-asymmetric-short` in the parity fixture is the case that catches it.
+  return { hyp: ref === 0 ? 0 : hyp, ref, match };
 }
 
 /** Per-order statistics for one pair. Codepoints, not UTF-16 units — sacrebleu works on Python str. */
@@ -525,10 +536,42 @@ Get this wrong and every number in the report is garbage. All eight rules, and w
 | 2 | Zawgyi detect + convert before scoring | step 2, then **re-NFC** — conversion is not NFC-stable |
 | 3 | Strip all whitespace for Mymr/Khmr/Laoo/Thai; tier on `cer_nospace` | step 7, via `profile.stripWhitespace` |
 | 4 | Punctuation stripped for ASR, **kept** for cleanup | step 6, via `opts.keepPunctuation` |
-| 5 | Digit-shape normalization | step 5, via `profile.nativeDigitBase` |
-| 6 | ZWSP always; ZWNJ/ZWJ per script (semantic in Sinhala and Devanagari) | step 3, via `profile.zeroWidth` |
+| 5 | Digit-shape normalization | step 4, via `profile.nativeDigits` — a **list** of 10-character sets |
+| 6 | ZWSP always; ZWNJ/ZWJ per script (semantic in Sinhala and Devanagari) | step 3, via `profile.zeroWidth`, the registry's three-way record |
 | 7 | Codepoint **and** grapheme CER reported; tier on codepoint | metric layer, `units()` |
 | 8 | WER `null` for non-word-delimited scripts | metric layer, `wer()` |
+
+**Corrections from building it (amendments 55–57).** The `ScoreProfile` sketched below is
+not the shape the registry can produce, and the code block that follows is superseded by
+`packages/core/src/metrics/normalize.ts`:
+
+- **`nativeDigitBase?: number` cannot express Arabic script**, which has two native digit
+  sets — Arabic-Indic U+0660 and Extended Arabic-Indic U+06F0 — either of which a provider
+  may return against the same reference. One base folds one set and leaves the other wrong at
+  every digit. The profile takes `scriptEntry.digits.native` unchanged.
+- **Rule 5 folds unconditionally**, ignoring `digits.foldToLatin`. That flag is `false` for
+  every script in the tree; it is a rendering policy about what a user should see, and
+  honouring it here would have meant rule 5 never fired at all. Scoring is symmetric, so
+  folding both sides cannot lose a distinction that matters.
+- **`zeroWidth: 'strip-all' | 'strip-zwsp' | 'keep'` collapses a per-character policy** the
+  registry already distinguishes and has to: ZWJ is semantic in Sinhala and ZWNJ in
+  Devanagari, so one enum cannot both strip Burmese's and keep Sinhala's.
+- **`letterlikePunct` has no registry field to come from.** `text.punctuation` carries
+  `sentenceEnders` and `quotes` and nothing else, so Somali's glottal apostrophe and Hausa's
+  compounding hyphen are stripped as punctuation today and both languages' WER is overstated
+  at every occurrence. The mechanism is built and tested; adding `text.letterlikePunct` to
+  the registry is open work and belongs with `toScoreProfile`.
+- **Zawgyi is injected, not imported.** `is-zawgyi` and `rabbit-node` are not in the tree,
+  `@thibi/core` has zero runtime dependencies and ships into a React client bundle, so
+  `ScoreOptions.convertZawgyi` is the seam and `@thibi/languages` is where the real detector
+  and converter belong. A profile with `zawgyiApplies: true` and no converter **throws** —
+  silently skipping conversion reports a correct Burmese transcript at ~100% error, which
+  reads as a provider failure, and nothing else in the suite would catch it.
+- **Rule 7 stands, but its wording must not.** A grapheme cluster is not a Burmese syllable:
+  `မြန်မာ` is two syllables and four extended grapheme clusters, and `တော်` splits as `တေ` +
+  `ာ်` (measured, Node 22.18 / ICU 77.1). The grapheme column is well-defined and earns its
+  place on Yoruba diacritics; it is not "what a human would count by hand" for Mymr and the
+  report may not say so. Amendment 57.
 
 ```ts
 // packages/core/src/metrics/normalize.ts
@@ -625,17 +668,36 @@ packages/core/scripts/requirements-dev.txt   jiwer==<pinned>  sacrebleu==<pinned
 packages/core/scripts/gen-parity.py          reads cases.json, writes __fixtures__/parity.json
 ```
 
+**Generated for real on 2026-08-12** under CPython 3.11.8 with **jiwer 4.0.0** and
+**sacrebleu 2.6.0** (signature `nrefs:1|case:mixed|eff:yes|nc:6|nw:0|space:no`). The cases
+are embedded in `gen-parity.py` rather than read from a separate `cases.json`, which is what
+the deliverables table asks for — it lists three files, and a fourth would be one more thing
+to keep in step.
+
 ```json
 {
-  "generatedAt": "2026-08-09",
-  "jiwer": "3.x.y",
-  "sacrebleu": "2.x.y",
+  "generatedAt": "2026-08-12",
+  "jiwer": "4.0.0",
+  "sacrebleu": "2.6.0",
   "cases": [
     { "id": "ascii-basic", "hyp": "the cat sat", "ref": "the cat sit",
-      "expect": { "cer": 0.09090909090909091, "wer": 0.3333333333333333, "chrf2": 71.8… } }
-  ]
+      "divergence": null,
+      "sacrebleu": { "chrf2": 68.66402116402116, "chrfPlusPlus": 66.08134920634922 },
+      "jiwer": { "cer": 0.09090909090909091, "wer": 0.3333333333333333,
+                 "refChars": 11, "refWords": 3, "charEdits": 1, "wordEdits": 1 } }
+  ],
+  "corpus": { "pairs": [...], "jiwer": {...}, "sacrebleu": {...} }
 }
 ```
+
+Two additions to what this section originally specified, both amendment 58:
+
+- **Counts, not only rates.** A rate can match for the wrong reason — compensating errors in
+  the numerator and the denominator — which is exactly what a parity fixture is for.
+- **A `corpus` block.** `corpusCer`, `corpusWer` and `corpusChrf2` are ratio-of-sums and
+  aggregate-then-score. A drift to the mean of the sentence values would pass every
+  sentence-level assertion, look harmless, and move every language in the tier table. Four
+  committed pairs, with jiwer's and sacrebleu's corpus answers, are frozen alongside.
 
 The fixture stores **raw, un-normalized** strings and the expectations of the Python libraries
 on those exact strings. Our normalizer is *not* in the loop — it is tested separately, by
@@ -652,7 +714,12 @@ Required cases, minimum:
 | `hyp-longer` | Insertions dominate |
 | `single-char` | Off-by-one in the DP seed row |
 | `burmese-spaced` / `burmese-unspaced` | The scriptio-continua pair |
-| `burmese-zawgyi` | Normalizer test only — excluded from the jiwer comparison |
+| `burmese-zawgyi` | Normalizer test only — excluded from the fixture entirely; it lives in `normalize.test.ts` |
+| `burmese-mangled` | **Added.** The Groq `language=my` output from 2026-07-30: Myanmar script, not Burmese words. Script integrity scores it 1.00 and only CER can call it wrong, so the number that makes that argument is frozen |
+| `chrf-asymmetric-short` | **Added.** A one-character hypothesis against a long reference — the `hyp_count if ref_ngrams else 0` branch |
+| `punct-heavy` | **Added.** Exercises chrF++'s punctuation-splitting word tokenizer, which is reproduced faithfully so an unused path cannot rot |
+| `padded-whitespace` | **Added.** Documented divergence: jiwer applies `Strip()` first, we do not |
+| `tab-separated` | **Added.** Documented divergence: jiwer splits words on `' '` alone, so `the\tcat` is one token to it and two to us — WER 1.0 against our 1/3 |
 | `amharic` | Ethiopic, BMP, own punctuation (`።` `፣`) |
 | `pashto-with-latin-acronym` | RTL with an embedded LTR run |
 | `combining-marks` | Yoruba `ọ́` — codepoint vs grapheme CER must differ here |
@@ -815,17 +882,29 @@ const BASELINE_CODE = 'my-MM';
  * integrity ~0.0, CER also high. You need both metrics; neither alone names both failures.
  */
 export function scriptIntegrity(text: string, blocks: ReadonlyArray<readonly [number, number]>): number {
-  let inBlock = 0, counted = 0;
-  for (const ch of text) {
-    // Script-neutral characters carry no evidence either way.
-    if (/[\p{White_Space}\p{P}\p{S}\p{N}\p{Cf}\p{M}]/u.test(ch)) continue;
-    counted++;
-    const c = ch.codePointAt(0)!;
-    if (blocks.some(([lo, hi]) => c >= lo && c <= hi)) inBlock++;
-  }
-  return counted === 0 ? 0 : inBlock / counted;
+  // SUPERSEDED — see below.
 }
 ```
+
+**This sketch is not what shipped (amendment 54).** Phase 4a had already built the metric as
+`packages/core/src/metrics/script.ts`, and Phase 5's contribution is the rename to
+`script-integrity.ts` — the filename this table names — and nothing else. The sketch above is
+the weaker of the two on four counts, so it is the one that gave way:
+
+- it returns a bare `number` and scores an empty transcript **0**, as though "nothing to
+  measure" were a measurement. The built version returns `fraction: number | null`;
+- it takes one block list, where the built version takes a script **and its `altScripts`** —
+  without which a correct Cyrillic Serbian transcript scores 0 and the harness reports a
+  provider failure that did not happen. `sr-RS` is 93% Latin / 7% Cyrillic across the FLEURS
+  dev set;
+- it reports no stray characters, so a failure prints as `0.02` rather than
+  `0.02 (stray: A S E N Y K)` — the difference between a number and a diagnosis;
+- it excludes `\p{M}`, dropping combining marks from the denominator, which is most of what a
+  Burmese cluster is.
+
+Two implementations of the metric that decides `tier: unsupported` is exactly the drift the
+harness cannot afford, so there is one. Its measured Groq cases — romanized output below 0.1,
+Myanmar-script non-words at 1.00 — travelled with it unchanged.
 
 Integrity is computed on the **un-normalized** hypothesis, before punctuation stripping and
 digit folding, on the concatenation of all clips for the language. `blocks` comes from the
@@ -842,9 +921,13 @@ rather than counted.
  */
 export function bootstrapCi(
   perClip: ReadonlyArray<EditStats>, b = 2000, seed = 1, alpha = 0.05,
-): readonly [number, number] {
+): readonly [number, number] | null {
   const n = perClip.length;
-  if (n === 0) return [NaN, NaN];
+  // CORRECTED, amendment 59: `null`, not `[NaN, NaN]`. NaN compares false against every
+  // threshold, so a language with no clips would sail straight through `ciHi <= 0.20` and
+  // land in the tier table with an interval that prints as `NaN`. Every other metric in this
+  // layer answers "undefined" with null.
+  if (n === 0) return null;
   const rnd = mulberry32(seed);
   const samples = new Float64Array(b);
   for (let k = 0; k < b; k++) {
@@ -1126,11 +1209,11 @@ Must **not** survive:
 
 ## Tests
 
-`packages/core/src/metrics/__tests__/`
+`packages/core/src/metrics/__tests__/` — **all written and green: 213 tests, 2026-08-12.**
 
 | File | Cases |
 |---|---|
-| `parity.test.ts` | Every case in `__fixtures__/parity.json`, CER/WER at 1e-12, chrF2 at 1e-6 |
+| `parity.test.ts` | 121 tests. Every case in `__fixtures__/parity.json`, CER/WER at 1e-12, chrF2 at 1e-6, plus the corpus block and the three documented jiwer divergences asserted rather than skipped |
 | `levenshtein.test.ts` | Empty/empty, empty/non-empty both directions, identical, single substitution, pure insertion, pure deletion, transposition costs 2, symmetry over 100 random pairs |
 | `cer.test.ts` | `corpusCer` ≠ mean of sentence CERs on a deliberately skewed length distribution; grapheme vs codepoint differ on `yoruba-combining`; `null` on empty reference |
 | `wer.test.ts` | `null` for `wordSegmentation: 'none'`; `kind: 'icu'` never labelled `'space'`; Hausa hyphen retained by `letterlikePunct` |
@@ -1272,10 +1355,14 @@ re-run of unchanged languages free.
 
 ## Definition of done
 
-- [ ] `pnpm -F @thibi/core test` passes, including every case in `__fixtures__/parity.json`.
-- [ ] `packages/core/src/metrics` has zero runtime dependencies beyond `is-zawgyi` and
-      `rabbit-node`, and imports cleanly from a React client component.
-- [ ] `gen-parity.py` is committed with pinned requirements and is **not** invoked by CI.
+- [x] `pnpm -F @thibi/core test` passes, including every case in `__fixtures__/parity.json`.
+      **Done 2026-08-12: 213 metrics tests, 859 across the repo, nothing skipped.**
+- [x] `packages/core/src/metrics` has zero runtime dependencies ~~beyond `is-zawgyi` and
+      `rabbit-node`~~ **at all** — Zawgyi conversion is injected through
+      `ScoreOptions.convertZawgyi` (amendment 56) — and imports cleanly from a React client
+      component.
+- [x] `gen-parity.py` is committed with pinned requirements and is **not** invoked by CI.
+      **Run for real 2026-08-12: jiwer 4.0.0, sacrebleu 2.6.0, CPython 3.11.8.**
 - [ ] `loadTsv` performs one tree call and zero resolve calls when the cached oid matches.
 - [ ] `fetchClips` returns exactly N wavs from a byte prefix, aborts the request, and treats
       truncated-gzip as success.
@@ -1286,9 +1373,14 @@ re-run of unchanged languages free.
 - [ ] A second identical run makes zero provider calls.
 - [ ] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
       disabled.
-- [ ] Every one of the eight normalization rules has a named snapshot test.
-- [ ] `scriptIntegrity` scores the recorded Groq romanized-Burmese string below 0.1 and the
-      Google output above 0.99, both from committed fixtures.
+- [x] Every one of the eight normalization rules has a named snapshot test. **Done** —
+      `mymr-unicode`, `mymr-zawgyi`, `khmr`, `laoo`, `thai`, `ethi`, `arab-rtl`,
+      `latn-yoruba`, `sinh-zwj-preserved`, `deva-zwnj-preserved`, plus NFC idempotence,
+      `၁၉၉၅ → 1995`, both Arabic digit sets, ZWSP, the seven bidi marks, and `keepPunctuation`
+      preserving `။` and `።`.
+- [x] `scriptIntegrity` scores the recorded Groq romanized-Burmese string below 0.1 and the
+      Google output above 0.99, both from committed fixtures. **Done in Phase 4a; the test
+      moved to `metrics/__tests__/script-integrity.test.ts` with the rename.**
 - [ ] The Burmese baseline is measured in every run; a >25% baseline move sets `baselineSuspect`,
       blocks `tiers.json` and exits 4.
 - [ ] `assignTier` cannot return `verified` with `humanReview: null`, asserted by a test.
