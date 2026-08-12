@@ -22,13 +22,30 @@ describe('mulberry32', () => {
     expect(mulberry32(1)()).not.toBe(mulberry32(2)());
   });
 
+  /**
+   * Scans, then asserts three times — not `expect()` twice per iteration.
+   *
+   * The loop is 5000 draws and the original wrote 10 000 assertions inside it. Each
+   * `expect()` carries real overhead, so the test ran ~800 ms alone and **blew a 5 s timeout
+   * inside the full 53-file run**, where it is competing for CPU. That is the failure mode
+   * this repo has hit three times now: a red suite under a green assertion count, caused by
+   * what else was running. Collecting the offending value also makes the failure say *which*
+   * draw was out of range, which 10 000 identical `expect`s never did.
+   */
   it('stays in [0, 1)', () => {
     const rnd = mulberry32(20260812);
+    let min = Infinity;
+    let max = -Infinity;
+    let firstOutOfRange: number | null = null;
     for (let i = 0; i < 5000; i++) {
       const v = rnd();
-      expect(v).toBeGreaterThanOrEqual(0);
-      expect(v).toBeLessThan(1);
+      if (v < min) min = v;
+      if (v > max) max = v;
+      if (firstOutOfRange === null && !(v >= 0 && v < 1)) firstOutOfRange = v;
     }
+    expect(firstOutOfRange).toBeNull();
+    expect(min).toBeGreaterThanOrEqual(0);
+    expect(max).toBeLessThan(1);
   });
 });
 
