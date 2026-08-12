@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatScriptIntegrity, scriptIntegrity, type ScriptRanges } from '../metrics/script.js';
+import { formatScriptIntegrity, scriptIntegrity, type ScriptRanges } from '../script-integrity.js';
 
 /**
  * Ranges copied from `packages/languages/data/scripts.json` rather than imported: `@thibi/core`
@@ -84,7 +84,10 @@ describe('scriptIntegrity', () => {
   });
 
   it('counts combining marks, which is most of what a Burmese cluster is', () => {
-    // U+1000 U+103C U+1014 U+103A: one grapheme cluster, four countable code points.
+    // U+1000 U+103C U+1014 U+103A: four countable code points. The comment here used to
+    // call that "one grapheme cluster"; measured on Node 22.18 / ICU 77.1 it is two,
+    // ['ကြ', 'န်'] — see the note in metrics/cer.ts. The assertion was always about code
+    // points and is unchanged; only the claim beside it was wrong.
     expect(scriptIntegrity('ကြန်', [MYMR]).counted).toBe(4);
   });
 

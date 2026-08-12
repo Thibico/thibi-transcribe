@@ -53,11 +53,10 @@ export {
   type ResolvedText,
 } from './layers/resolve.js';
 
-export {
-  formatScriptIntegrity,
-  scriptIntegrity,
-  type ScriptIntegrity,
-  type ScriptRanges,
-} from './metrics/script.js';
+// The whole metrics layer through its own barrel — CER, WER, chrF2, the scoring normalizer,
+// script integrity and the seeded bootstrap. `metrics/index.ts` is the single entry point and
+// nothing outside that directory deep-imports one of its modules, so the eval harness and the
+// editor cannot end up scoring the same text two different ways.
+export * from './metrics/index.js';
 
 export { assignmentCost, hungarian, type Assignment } from './algo/hungarian.js';

@@ -20,16 +20,25 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 5–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #21**. **PR #20 is open and unreviewed** — Phase 5's metrics
-layer on `phase-5/metrics`, built by a cloud agent: `levenshtein`, `cer`, `wer`, `chrf`,
-`normalize`, `script-integrity`, `bootstrap`, and the frozen jiwer/sacrebleu parity fixture.
-24 files, +2 989/−72, CI green, mergeable. It was scoped to that boundary deliberately:
-everything else in Phase 5 needs live provider keys, FLEURS downloads and Postgres, none of
-which a cloud worker has. **Review and merge it first** — everything below wants CER.
+`main` is at the merge of **PR #20**, which lands Phase 5's **metrics layer** — `levenshtein`,
+`cer`, `wer`, `chrf`, `normalize`, `script-integrity`, `bootstrap`, and the jiwer 4.0.0 /
+sacrebleu 2.6.0 parity fixture, frozen and asserted in CI. Built by a cloud agent and scoped
+to that boundary deliberately: everything else in Phase 5 needs live provider keys, FLEURS
+downloads and Postgres, none of which a cloud worker has. **CER now exists, so the language
+queues below are finally measurable.** What is still missing is everything around it — the
+FLEURS download, the sampler, the runner, the report, `tiers.json`.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **646 tests, nothing
-skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent. The sidecar's
-own suite is **41 pytest tests**, still run separately (see *Known debt*).
+**Amendment numbers 56–65 were allocated by two branches at once, and it nearly shipped.**
+PR #22 took 56–59 while PR #20 was already open holding 56–61; the table auto-merged without
+a git conflict and would have carried four duplicate rows into the canonical record that every
+phase document cross-references. PR #20's were renumbered to 60–65 on the way in, along with
+eight references in `normalize.ts`, `script-integrity.ts`, a test and the diary. **Check the
+open PRs before taking the next number** — the amendments table is append-only prose, so git
+cannot see the collision for you.
+
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **860 tests across 49
+files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
+The sidecar's own suite is **42 pytest tests**, still run separately (see *Known debt*).
 
 ---
 
@@ -54,8 +63,10 @@ sharp first task rather than a menu.
    whether the audio contains any of it — so everything Phase 12 builds on it is a guide to
    where the model hesitated, never evidence that the rest is right. Write the UI copy
    accordingly, and note that only Phase 5's CER can make the stronger claim.
-2. **Review and merge PR #20** before anything else — Phase 5's metrics layer is what every
-   remaining item on this list is measured with.
+2. **Build the rest of Phase 5 around the metrics that now exist.** The FLEURS download, the
+   sampler, the runner, the report and `tiers.json` are all still unwritten; `cer`, `wer`,
+   `chrf2` and `bootstrapCi` are done and parity-frozen, so this is assembly rather than
+   invention.
 3. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
    same 23 now mirrored onto faster-whisper, S7's 68 accepted-but-unmeasured codes, and
    `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
