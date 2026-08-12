@@ -22,3 +22,11 @@ export {
   type Deduped,
   type SampleComposition,
 } from './sample.js';
+
+export {
+  estimateAsr,
+  formatDryRun,
+  formatDuration,
+  type AsrEstimate,
+  type EstimateInput,
+} from './estimate.js';

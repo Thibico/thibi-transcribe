@@ -53,6 +53,9 @@ importers:
       '@thibi/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@thibi/eval':
+        specifier: workspace:*
+        version: link:../../packages/eval
       '@thibi/languages':
         specifier: workspace:*
         version: link:../../packages/languages
