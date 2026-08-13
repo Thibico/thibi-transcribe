@@ -118,6 +118,11 @@ export function evalCommand(): Command {
           requireWordTimestamps: false,
         });
 
+        // Resolved once, for two callers: costing each clip, and projecting whether the
+        // next clip would cross `--budget-usd`. It used to be a database query per clip
+        // against a table that cannot change mid-run.
+        const runRate = await maybeRate(cli.db, provider, built.model);
+
         const result = await runAsrEval(
           {
             now: () => cli.ctx.clock.now(),
@@ -145,9 +150,7 @@ export function evalCommand(): Command {
                 logger: cli.ctx.logger,
               });
               const text = out.segments.map((s) => s.text).join(' ').trim();
-              const usdPerMinute =
-                (await maybeRate(cli.db, provider, built.model)) ?? 0;
-              return { text, costUsd: (out.usage.audioMs / 60_000) * usdPerMinute };
+              return { text, costUsd: (out.usage.audioMs / 60_000) * (runRate ?? 0) };
             },
           },
           {
@@ -158,6 +161,7 @@ export function evalCommand(): Command {
             provider,
             model: built.model,
             budgetUsd: opts['budgetUsd'] === undefined ? null : Number(opts['budgetUsd']),
+            usdPerMinute: runRate,
             onProgress: (line) => process.stderr.write(`${line}\r`),
           },
         );

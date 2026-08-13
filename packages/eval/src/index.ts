@@ -47,11 +47,15 @@ export { assignTier, THRESHOLDS, type Tier, type TierInput, type TierReason, typ
 export { scoreProfileFor, scriptRangesFor } from './profile.js';
 
 export {
+  applyBaselineAndTiers,
   runAsrEval,
   BASELINE_CODE,
   type AsrRunResult,
   type AsrTranscribe,
+  type FetchClipsFn,
   type LanguageResult,
+  type LoadTsvFn,
   type RunAsrDeps,
   type RunAsrOptions,
+  type RunEvent,
 } from './runner.js';
