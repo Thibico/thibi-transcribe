@@ -47,7 +47,42 @@ export { assignTier, THRESHOLDS, type Tier, type TierInput, type TierReason, typ
 export { scoreProfileFor, scriptRangesFor } from './profile.js';
 
 export {
+  isComplete,
+  MalformedRunlogError,
+  parseRunlog,
+  readRunlog,
+  reconstructRun,
+  RunlogWriter,
+  runlogPath,
+  type RunFooter,
+  type RunHeader,
+  type RunlogLine,
+} from './runlog.js';
+
+export {
+  baselineSuspect,
+  buildTiersFile,
+  diffTiers,
+  loadHumanReviews,
+  readTiersFile,
+  tiersPath,
+  writeTiersFile,
+  BASELINE_DRIFT_LIMIT,
+  TIERS_SCHEMA_VERSION,
+  type BuildTiersInput,
+  type HumanReview,
+  type TierChange,
+  type TiersFile,
+  type TiersLanguage,
+} from './results/tiers.js';
+
+export { publishRun, type PublishResult } from './results/publish.js';
+
+export { renderAsrReport, reportPath, writeAsrReport, type AsrReportInput } from './report/asr.js';
+
+export {
   applyBaselineAndTiers,
+  makeRunId,
   runAsrEval,
   BASELINE_CODE,
   type AsrRunResult,

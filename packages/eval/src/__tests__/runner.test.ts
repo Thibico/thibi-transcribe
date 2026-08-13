@@ -448,6 +448,7 @@ describe('applyBaselineAndTiers', () => {
     costUsd: 0,
     cachedClips: 0,
     unmatched: 0,
+    example: null,
   });
 
   it('is the only route to verified, and only with a human review', () => {

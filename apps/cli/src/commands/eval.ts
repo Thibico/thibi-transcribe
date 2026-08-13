@@ -6,12 +6,19 @@ import { resolveRate, type Db } from '@thibi/db';
 import {
   estimateAsr,
   formatDryRun,
+  loadHumanReviews,
   loadTsv,
+  makeRunId,
   NoEvalSetError,
+  publishRun,
+  readRunlog,
   ResponseCache,
   runAsrEval,
+  RunlogWriter,
+  runlogPath,
   type AsrEstimate,
   type AsrRunResult,
+  type PublishResult,
 } from '@thibi/eval';
 import { buildContext, readEnvironment } from '../context.js';
 import { runNormalize } from '@thibi/engine';
@@ -38,6 +45,7 @@ export function evalCommand(): Command {
     .option('-m, --model <id>', 'provider model', 'chirp_2')
     .option('--split <split>', 'dev | test | train', 'dev')
     .option('--cache-dir <path>', 'where FLEURS TSVs and wavs are cached')
+    .option('--results-dir <path>', 'where the runlog, tiers.json and reports are written', 'results')
     .option(
       '--dry-run',
       'print exact clip counts, estimated audio and estimated USD. Downloads no audio.',
@@ -54,6 +62,7 @@ export function evalCommand(): Command {
       const model = String(opts['model']);
       const split = String(opts['split']) as 'dev' | 'test' | 'train';
       const cacheDir = String(opts['cacheDir'] ?? '.thibi-cache');
+      const resultsDir = String(opts['resultsDir'] ?? 'results');
 
       const cli = await buildContext({ engineVersion: ENGINE_VERSION });
       try {
@@ -123,9 +132,30 @@ export function evalCommand(): Command {
         // against a table that cannot change mid-run.
         const runRate = await maybeRate(cli.db, provider, built.model);
 
+        // The id is minted here, not inside the run, because the runlog is named by it and
+        // has to be open before the first billable call — a log that only learns the run's
+        // identity at the end cannot have recorded anything on the way to a crash.
+        const startedAt = cli.ctx.clock.now();
+        const runId = makeRunId(startedAt, provider);
+        const runlog = new RunlogWriter(runlogPath(resultsDir, runId));
+        await runlog.write({
+          t: 'run',
+          runId,
+          startedAt: startedAt.toISOString(),
+          argv: process.argv.slice(2),
+          engineVersion: ENGINE_VERSION,
+          provider,
+          model: built.model,
+          split,
+          n,
+          baselineCode: 'my-MM',
+          baselineAdded: !codes.includes('my-MM'),
+        });
+
         const result = await runAsrEval(
           {
             now: () => cli.ctx.clock.now(),
+            onEvent: (event) => runlog.write(event),
             cache: new ResponseCache(cacheDir, { read: opts['noCache'] !== true }),
             transcribe: async ({ clip, languageCode }) => {
               // Providers take a path, so each clip is written to a temp directory that
@@ -155,6 +185,7 @@ export function evalCommand(): Command {
           },
           {
             languages: codes,
+            runId,
             n,
             split,
             cacheDir,
@@ -166,22 +197,95 @@ export function evalCommand(): Command {
           },
         );
 
+        await runlog.write({
+          t: 'end',
+          finishedAt: result.finishedAt,
+          spentUsd: result.spentUsd,
+          budgetExhausted: result.budgetExhausted,
+        });
+
         process.stderr.write('\n');
         process.stdout.write(`${formatRunSummary(result)}\n`);
+        process.stdout.write(`\nrunlog  ${runlogPath(resultsDir, runId)}\n`);
 
         if (result.budgetExhausted) {
           process.stderr.write(
             `\nBudget of $${Number(opts['budgetUsd']).toFixed(2)} reached. Partial results above; ` +
-              `tiers.json is not written from a partial run.\n`,
+              `tiers.json is not written from a partial run — the runlog is, so ` +
+              `\`thibi eval report --run ${runId}\` still works on what was measured.\n`,
           );
           process.exitCode = 3;
+          return;
         }
+
+        const published = await publishRun(resultsDir, result, ENGINE_VERSION);
+        process.stdout.write(`${formatPublish(published)}\n`);
+        if (published.exitCode !== 0) process.exitCode = published.exitCode;
       } finally {
         await cli.close();
       }
     });
 
+  cmd
+    .command('report')
+    .description('Recompute tiers.json and the dated report from a runlog. Makes no API calls.')
+    .requiredOption('--run <runId>', 'the run to re-derive from')
+    .option('--results-dir <path>', 'where the runlog, tiers.json and reports live', 'results')
+    .action(async (opts: Record<string, unknown>) => {
+      const resultsDir = String(opts['resultsDir'] ?? 'results');
+      const runId = String(opts['run']);
+      const path = runlogPath(resultsDir, runId);
+
+      // No context, no provider, no database: this command exists to be runnable with the
+      // network off, which is what makes a disputed number re-derivable by someone who was
+      // not there when it was measured.
+      let result: AsrRunResult;
+      try {
+        const { current } = await loadHumanReviews(resultsDir, runId);
+        result = await readRunlog(path, current);
+      } catch (err) {
+        process.stderr.write(
+          `  cannot read runlog ${path}\n  ${err instanceof Error ? err.message : String(err)}\n`,
+        );
+        process.exitCode = 1;
+        return;
+      }
+
+      process.stdout.write(`${formatRunSummary(result)}\n`);
+      const published = await publishRun(resultsDir, result, ENGINE_VERSION);
+      process.stdout.write(`${formatPublish(published)}\n`);
+      if (published.exitCode !== 0) process.exitCode = published.exitCode;
+    });
+
   return cmd;
+}
+
+/**
+ * Print what `publishRun` did. The decisions are all in `@thibi/eval`; this is the part
+ * that belongs to a terminal.
+ */
+function formatPublish(p: PublishResult): string {
+  const lines: string[] = [];
+  if (p.tiersPath) lines.push(`tiers   ${p.tiersPath}`);
+  lines.push(`report  ${p.reportPath}`);
+  if (p.tiersPath === null) {
+    const b = p.tiers.baseline;
+    lines.push(
+      `\nBaseline ${b.code} moved from ${b.previousCerNospace?.toFixed(3) ?? '—'} to ` +
+        `${b.cerNospace?.toFixed(3) ?? '—'} — more than 25%. Every ratio in this run is against ` +
+        `that baseline, so tiers.json was NOT written. The report above has the numbers; ` +
+        `investigate the baseline before believing any of them.`,
+    );
+    return lines.join('\n');
+  }
+  lines.push(
+    p.changes.length === 0
+      ? 'no tier changes'
+      : `${p.changes.length} tier change(s): ${p.changes
+          .map((c) => `${c.code} ${c.from ?? '—'}→${c.to}`)
+          .join(', ')}`,
+  );
+  return lines.join('\n');
 }
 
 /**

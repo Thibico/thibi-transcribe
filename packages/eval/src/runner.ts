@@ -63,6 +63,15 @@ export interface RunAsrOptions {
   /** Stop before the call that would exceed this. Null means no ceiling. */
   budgetUsd?: number | null;
   /**
+   * The run's identity, minted by the caller.
+   *
+   * It has to be, because the runlog is *named* by it and has to be open before the first
+   * billable call — a run that only learns its own id once it has finished cannot have
+   * written anything down on the way, which is the one thing the log is for. Defaults to
+   * `makeRunId(now, provider)` for callers that keep no log.
+   */
+  runId?: string;
+  /**
    * The rate the budget check projects each clip's cost from, when one is known.
    *
    * Without it the ceiling can only be enforced retrospectively — see the check in
@@ -128,6 +137,15 @@ export interface LanguageResult {
   cachedClips: number;
   /** Clips fetched whose TSV row had no reference — amendment 70, counted not hidden. */
   unmatched: number;
+  /**
+   * The worst-scoring clip of the sample, as the provider returned it.
+   *
+   * Un-normalized on both sides, deliberately. A script-integrity failure printed as `0.02`
+   * is a number; printed as `ASEAN YAK SOMPHA CHHA KOO` beside the Burmese it was supposed
+   * to be, it is a diagnosis, and it is what makes the check comprehensible to someone who
+   * did not write it. Null when nothing was scored.
+   */
+  example: { id: number; ref: string; hyp: string } | null;
   tier?: TierResult;
   error?: string;
 }
@@ -149,6 +167,14 @@ export interface AsrRunResult {
 
 /** Burmese calibrates every other language, so it is measured every run, never hardcoded. */
 export const BASELINE_CODE = 'my-MM';
+
+/**
+ * A run's id: sortable, filename-safe, and carrying the provider so a directory of them can
+ * be read without opening any.
+ */
+export function makeRunId(startedAt: Date, provider: string): string {
+  return `${startedAt.toISOString().replace(/[:.]/gu, '-')}-${provider}`;
+}
 
 const SCORE_OPTIONS = {
   // FLEURS column 3 is lowercased and unpunctuated, so the ASR metric scores neither.
@@ -184,17 +210,27 @@ export async function runAsrEval(deps: RunAsrDeps, opts: RunAsrOptions): Promise
   let spent = 0;
   let exhausted = false;
 
+  // Every language reaches the log, including the ones that failed and the ones the budget
+  // never reached. A runlog that records only successes reconstructs a run that appears to
+  // have measured fewer languages than were asked for, with nothing to say what happened to
+  // the rest.
+  const finish = async (r: LanguageResult): Promise<void> => {
+    results.push(r);
+    // A snapshot, because `applyBaselineAndTiers` mutates these objects afterwards and an
+    // event is a statement about the moment it was emitted.
+    await deps.onEvent?.({ t: 'summary', lang: r.languageCode, result: { ...r } });
+  };
+
   for (const code of requested) {
     if (exhausted) {
-      results.push(emptyResult(code, 'not run: budget exhausted'));
+      await finish(emptyResult(code, 'not run: budget exhausted'));
       continue;
     }
     try {
       const r = await runOne(deps, opts, split, code, () => spent, (add) => {
         spent += add;
       }, opts.budgetUsd ?? null, log);
-      results.push(r);
-      await deps.onEvent?.({ t: 'summary', lang: code, result: r });
+      await finish(r);
     } catch (err) {
       if (err instanceof BudgetExhausted) {
         exhausted = true;
@@ -203,10 +239,10 @@ export async function runAsrEval(deps: RunAsrDeps, opts: RunAsrOptions): Promise
         // measurement anyone asked for, and it would enter the report indistinguishable
         // from a complete one. The money is not wasted — those responses are cached, so
         // resuming with a larger budget pays only for what is left.
-        results.push(emptyResult(code, 'stopped part-way: budget exhausted'));
+        await finish(emptyResult(code, 'stopped part-way: budget exhausted'));
         continue;
       }
-      results.push(emptyResult(code, err instanceof Error ? err.message : String(err)));
+      await finish(emptyResult(code, err instanceof Error ? err.message : String(err)));
     }
   }
 
@@ -214,7 +250,7 @@ export async function runAsrEval(deps: RunAsrDeps, opts: RunAsrOptions): Promise
 
   const finishedAt = deps.now();
   return {
-    runId: `${startedAt.toISOString().replace(/[:.]/gu, '-')}-${opts.provider}`,
+    runId: opts.runId ?? makeRunId(startedAt, opts.provider),
     startedAt: startedAt.toISOString(),
     finishedAt: finishedAt.toISOString(),
     provider: opts.provider,
@@ -318,6 +354,7 @@ async function runOne(
   let refAll = '';
   let cost = 0;
   let cached = 0;
+  let worst: { id: number; ref: string; hyp: string; cer: number } | null = null;
 
   for (const [i, pair] of pairs.entries()) {
     const clipHash = clipHashOf(pair.clip.bytes);
@@ -406,6 +443,14 @@ async function runOne(
     });
     hypAll += (hypAll ? ' ' : '') + hyp;
     refAll += (refAll ? ' ' : '') + ref;
+
+    // The worst clip, kept as the provider wrote it. `>=` rather than `>` so a run where
+    // every clip scores identically — a wrong-language transcript, typically — still has an
+    // example to print rather than reporting a failure with nothing to look at.
+    const clipCer = stats.refLen === 0 ? 0 : stats.edits / stats.refLen;
+    if (worst === null || clipCer >= worst.cer) {
+      worst = { id: pair.row.id, ref: pair.row.plain, hyp: text, cer: clipCer };
+    }
     log(`  ${code} ${i + 1}/${pairs.length}${cached === i + 1 ? ' (cached)' : ''}`);
   }
 
@@ -440,6 +485,7 @@ async function runOne(
     costUsd: cost,
     cachedClips: cached,
     unmatched: joined.unmatched.length,
+    example: worst === null ? null : { id: worst.id, ref: worst.ref, hyp: worst.hyp },
   };
 }
 
@@ -463,6 +509,7 @@ function emptyResult(code: string, error?: string, cfg: string | null = null): L
     costUsd: 0,
     cachedClips: 0,
     unmatched: 0,
+    example: null,
     ...(error ? { error } : {}),
   };
 }
