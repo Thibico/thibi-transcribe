@@ -1,28 +1,51 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { LANGUAGES } from '@thibi/languages';
+import { chooseProvider, LANGUAGES } from '@thibi/languages';
 import type { AsrRunResult, LanguageResult } from '../runner.js';
-import type { Tier, TierReason } from '../tier.js';
+import { assignTier, type Tier, type TierReason } from '../tier.js';
 
 /**
  * `results/tiers.json` — the file that turns a measurement into a claim the product makes.
  *
  * It is the only route by which a CER reaches a user: `packages/languages` reads it at build
- * time and `/settings/languages` renders it. That is why three things here are stricter than
+ * time and `/settings/languages` renders it. That is why four things here are stricter than
  * they look:
  *
  * - **`reason` is an enum, not prose.** "Not yet measured" and "measured and bad" must never
  *   render the same, and a UI cannot branch on a sentence.
  * - **A partial run writes nothing.** A budget-exhausted sweep has real numbers for the
- *   languages it reached and silence for the rest; merging those into the previous file
- *   would produce a document whose rows come from two different runs with one `runId` at
- *   the top saying otherwise.
- * - **A drifting baseline is a hard stop.** Every ratio in the file is against `my-MM`, so a
- *   baseline that moved re-tiers every other language at once, in a direction that has
- *   nothing to do with those languages. Catching it is worth refusing to write.
+ *   languages it reached and silence for the rest, and half a sweep is not a state anything
+ *   downstream should have to reason about.
+ * - **A drifting baseline is a hard stop.** Every ratio in a run is against `my-MM`, so a
+ *   baseline that moved re-tiers every language measured against it at once, in a direction
+ *   that has nothing to do with those languages.
+ * - **A measurement taken with a provider the product would not choose never sets a tier.**
+ *   See `deriveLanguages`. This is the rule that stops a deliberate Groq probe demoting
+ *   Burmese.
+ *
+ * ## Why v2 merges
+ *
+ * v1 wrote one row per language *in the current run*, so a five-language sweep after a
+ * hundred-language one published five rows and silently dropped ninety-five — the file the
+ * registry compiles in, rewritten to say nothing about languages nobody had re-measured.
+ * Risk 10.
+ *
+ * The fix is not "merge the rows", because a row carries a run's sampling context and a
+ * baseline, and rows from two runs under one header is a document that lies in a different
+ * way. Instead the file separates the three things v1 had conflated:
+ *
+ * | key | what it is | merged? |
+ * |---|---|---|
+ * | `runs` | per-run context: provider, model, split, n, baseline, sampling | accumulated |
+ * | `measurements` | one entry per `code\|provider\|model`, the raw measured numbers | accumulated, newest run wins |
+ * | `languages` | one row per language — the claim the product makes | **derived, never merged** |
+ *
+ * `languages` is recomputed from `measurements` on every publish, so it is a pure function of
+ * the evidence and can never drift from it. Deleting it and republishing yields the same file.
  */
 
-export const TIERS_SCHEMA_VERSION = 1;
+/** Bumped to 2 on 2026-08-13: `runs` + `measurements` + derived `languages`. */
+export const TIERS_SCHEMA_VERSION = 2;
 
 /** How far the baseline may move between runs before the file is refused. §5.9. */
 export const BASELINE_DRIFT_LIMIT = 0.25;
@@ -42,8 +65,17 @@ export interface HumanReview {
 export interface TiersLanguage {
   tier: Tier;
   reason: TierReason;
+  /** The provider this row's numbers came from. Null when nothing usable was measured. */
   provider: string | null;
   model: string | null;
+  /**
+   * The provider this product *would* route the language to, per `chooseProvider`.
+   *
+   * Equal to `provider` on any row carrying a tier — that is the rule `deriveLanguages`
+   * enforces. It differs only on a `not-run` row, where it says which provider a measurement
+   * would have to come from before this language can claim anything.
+   */
+  chosenProvider: string | null;
   n: number;
   clipSeconds: number;
   genderSplit: Record<string, number>;
@@ -59,9 +91,75 @@ export interface TiersLanguage {
   scriptIntegrity: number | null;
   evalRunId: string;
   evalDate: string;
+  /** The split this row was measured on, resolved through `runs[evalRunId]`. */
+  split: string | null;
   /** The worst clip of the sample, un-normalized, so a bad row can be looked at. */
   example: { id: number; ref: string; hyp: string } | null;
   humanReview: HumanReview | null;
+  blockedFromVerifiedBy: string[];
+  /**
+   * Every other provider this language has been measured on — kept because "Groq is
+   * unusable for Burmese" is a finding worth having, and deliberately unable to set a tier.
+   */
+  otherProviders: Array<{
+    provider: string;
+    model: string;
+    tier: Tier;
+    cerNospace: number | null;
+    runId: string;
+  }>;
+  notes: string;
+}
+
+/** One run's context. Every measurement resolves its sampling and baseline through this. */
+export interface TiersRun {
+  runId: string;
+  engineVersion: string;
+  provider: string;
+  model: string;
+  startedAt: string;
+  finishedAt: string;
+  sampling: { strategy: 'tar-order'; split: string; n: number; deterministic: true };
+  baseline: {
+    code: string;
+    cerNospace: number | null;
+    n: number;
+    ci95: readonly [number, number] | null;
+    /** True when this run's baseline moved more than 25% from the previous run's. */
+    suspect: boolean;
+    previousCerNospace: number | null;
+  };
+}
+
+/**
+ * One measurement: a language, under one provider and model, in one run.
+ *
+ * This is the evidence layer, and it is append-mostly — a later run replaces the entry for
+ * the same `code|provider|model` and touches nothing else. Everything a `TiersLanguage`
+ * asserts is derived from here, so nothing is ever lost by publishing a narrow sweep.
+ */
+export interface TiersMeasurement {
+  code: string;
+  provider: string;
+  model: string;
+  runId: string;
+  evalDate: string;
+  tier: Tier;
+  reason: TierReason;
+  n: number;
+  clipSeconds: number;
+  genderSplit: Record<string, number>;
+  genderUniform: boolean;
+  distinctIds: number;
+  cer: number | null;
+  cerNospace: number | null;
+  cerCi95: readonly [number, number] | null;
+  wer: number | null;
+  werKind: 'spaces' | 'icu' | null;
+  ratio: number | null;
+  scriptIntegrity: number | null;
+  /** The worst clip of the sample, un-normalized, so a bad row can be looked at. */
+  example: { id: number; ref: string; hyp: string } | null;
   blockedFromVerifiedBy: string[];
   notes: string;
 }
@@ -69,27 +167,22 @@ export interface TiersLanguage {
 export interface TiersFile {
   schemaVersion: number;
   generatedAt: string;
-  runId: string;
-  engineVersion: string;
-  sampling: { strategy: 'tar-order'; split: string; n: number; deterministic: true };
-  baseline: {
-    code: string;
-    provider: string;
-    model: string;
-    cerNospace: number | null;
-    n: number;
-    ci95: readonly [number, number] | null;
-    /** True when this run's baseline moved more than 25% from the previous file's. */
-    suspect: boolean;
-    previousCerNospace: number | null;
-  };
+  /** The run that last updated this file. Individual rows name their own. */
+  latestRunId: string;
+  runs: Record<string, TiersRun>;
+  measurements: Record<string, TiersMeasurement>;
+  /** Derived from `measurements` on every publish. Never merged, never hand-edited. */
   languages: Record<string, TiersLanguage>;
 }
+
+/** `code|provider|model` — the identity of a measurement. */
+export const measurementKey = (code: string, provider: string, model: string): string =>
+  `${code}|${provider}|${model}`;
 
 export interface BuildTiersInput {
   run: AsrRunResult;
   engineVersion: string;
-  /** The file this run is replacing, for baseline drift. Null on the first ever run. */
+  /** The file this run updates. Null on the first ever run. */
   previous: TiersFile | null;
   humanReviews?: Readonly<Record<string, HumanReview>>;
 }
@@ -97,35 +190,224 @@ export interface BuildTiersInput {
 export function buildTiersFile(input: BuildTiersInput): TiersFile {
   const { run, engineVersion, previous } = input;
   const reviews = input.humanReviews ?? {};
-  const baseline = run.languages.find((l) => l.languageCode === run.baselineCode);
-  const previousBaseline = previous?.baseline.cerNospace ?? null;
+  const baselineResult = run.languages.find((l) => l.languageCode === run.baselineCode);
+  const previousBaseline = previousBaselineFor(previous, run.provider, run.model);
   const evalDate = run.finishedAt.slice(0, 10);
 
-  const languages: Record<string, TiersLanguage> = {};
+  const thisRun: TiersRun = {
+    runId: run.runId,
+    engineVersion,
+    provider: run.provider,
+    model: run.model,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    sampling: { strategy: 'tar-order', split: run.split, n: run.n, deterministic: true },
+    baseline: {
+      code: run.baselineCode,
+      cerNospace: baselineResult?.cerNospace ?? null,
+      n: baselineResult?.n ?? 0,
+      ci95: baselineResult?.cerCi95 ?? null,
+      suspect: baselineSuspect(baselineResult?.cerNospace ?? null, previousBaseline),
+      previousCerNospace: previousBaseline,
+    },
+  };
+
+  // Accumulate. A run contributes what it measured and disturbs nothing else — which is the
+  // whole of risk 10, and the reason the header can no longer be a single run's metadata.
+  const measurements: Record<string, TiersMeasurement> = { ...(previous?.measurements ?? {}) };
   for (const l of run.languages) {
-    // A language the run never reached has no row. An absent row and a row saying
-    // `not-run` are different claims, and only the second one is a measurement's output.
+    // A language the run never reached contributes nothing. An absent measurement and one
+    // saying `not-run` are different claims, and only the second is a measurement's output.
     if (l.error !== undefined) continue;
-    languages[l.languageCode] = toRow(l, run, evalDate, reviews[l.languageCode] ?? null);
+    measurements[measurementKey(l.languageCode, run.provider, run.model)] = toMeasurement(
+      l,
+      run,
+      evalDate,
+    );
   }
+
+  const runs: Record<string, TiersRun> = { ...(previous?.runs ?? {}), [run.runId]: thisRun };
 
   return {
     schemaVersion: TIERS_SCHEMA_VERSION,
     generatedAt: run.finishedAt,
-    runId: run.runId,
-    engineVersion,
-    sampling: { strategy: 'tar-order', split: run.split, n: run.n, deterministic: true },
-    baseline: {
-      code: run.baselineCode,
-      provider: run.provider,
-      model: run.model,
-      cerNospace: baseline?.cerNospace ?? null,
-      n: baseline?.n ?? 0,
-      ci95: baseline?.cerCi95 ?? null,
-      suspect: baselineSuspect(baseline?.cerNospace ?? null, previousBaseline),
-      previousCerNospace: previousBaseline,
-    },
-    languages,
+    latestRunId: run.runId,
+    runs,
+    measurements,
+    languages: deriveLanguages(measurements, runs, reviews),
+  };
+}
+
+/**
+ * The baseline to compare drift against: **the last run that used the same provider and
+ * model**, not simply the last run.
+ *
+ * Comparing a Groq baseline against a Google one would fire the drift alarm on every
+ * provider switch — which is not drift, it is a different measurement of a different thing,
+ * and an alarm that cries wolf on a routine action stops being read.
+ */
+function previousBaselineFor(
+  previous: TiersFile | null,
+  provider: string,
+  model: string,
+): number | null {
+  if (!previous) return null;
+  const candidates = Object.values(previous.runs)
+    .filter((r) => r.provider === provider && r.model === model)
+    .sort((a, b) => (a.finishedAt < b.finishedAt ? 1 : -1));
+  return candidates[0]?.baseline.cerNospace ?? null;
+}
+
+/**
+ * Turn the evidence into the claim — the one function that decides what a language's tier is.
+ *
+ * **A measurement only sets a tier if it was taken with the provider the product would
+ * actually use for that language.** `chooseProvider` answers that, and it is the same
+ * function the CLI and the Phase 11 picker call, so the tier describes what a user will
+ * actually get rather than what some sweep happened to point at.
+ *
+ * Without this rule the file has a trapdoor: deliberately measuring `my-MM` on Groq — which
+ * the project does, because reproducing that failure on demand is worth a flag — would
+ * publish Groq's romanized non-words as Burmese's tier and mark the product's best language
+ * unsupported. The Groq numbers are still kept, in `measurements` and on the row's
+ * `otherProviders`, because "Groq is unusable for Burmese" is a finding worth having; it is
+ * simply not a fact about Burmese.
+ *
+ * Where the chosen provider has no measurement, the language is reported `not-run` however
+ * many other providers have been measured, because a CER from a provider we would not route
+ * to says nothing about what the user would receive.
+ */
+export function deriveLanguages(
+  measurements: Readonly<Record<string, TiersMeasurement>>,
+  runs: Readonly<Record<string, TiersRun>>,
+  reviews: Readonly<Record<string, HumanReview>> = {},
+): Record<string, TiersLanguage> {
+  const byCode = new Map<string, TiersMeasurement[]>();
+  for (const m of Object.values(measurements)) {
+    const list = byCode.get(m.code) ?? [];
+    list.push(m);
+    byCode.set(m.code, list);
+  }
+
+  const languages: Record<string, TiersLanguage> = {};
+  for (const [code, all] of byCode) {
+    const choice = chooseProvider(code);
+    const chosen = choice
+      ? all.find((m) => m.provider === choice.providerId && (choice.model === null || m.model === choice.model)) ??
+        all.find((m) => m.provider === choice.providerId)
+      : undefined;
+
+    const others = all
+      .filter((m) => m !== chosen)
+      .map((m) => ({
+        provider: m.provider,
+        model: m.model,
+        tier: m.tier,
+        cerNospace: m.cerNospace,
+        runId: m.runId,
+      }));
+
+    if (!chosen) {
+      languages[code] = notRunRow(code, choice?.providerId ?? null, others, all);
+      continue;
+    }
+
+    // A sign-off is against a measurement, so it counts only when it names the run that
+    // produced the row it would promote.
+    const review = reviews[code];
+    const applicable = review && review.evalRunId === chosen.runId ? review : null;
+
+    /**
+     * Re-run `assignTier` rather than adjusting the stored tier.
+     *
+     * The measurement was tiered during the run, when no sign-off could exist — so its
+     * `tier` is the best the harness can award on its own and its blockers always include
+     * `humanReview`. Applying a review is therefore not "remove a blocker and promote": it
+     * is the same decision with one more input, and computing it any other way would put a
+     * second copy of the threshold rules in this file.
+     */
+    const tiered = assignTier({
+      cerNospace: chosen.cerNospace,
+      ci95: chosen.cerCi95,
+      ratio: chosen.ratio,
+      scriptIntegrity: chosen.scriptIntegrity,
+      n: chosen.n,
+      ...(chosen.reason === 'no-eval-set' ? { noEvalSet: true } : {}),
+      humanReview: applicable,
+    });
+
+    // A row with no numbers names no provider. `si-LK` has an entry because a run asked for
+    // it and FLEURS had nothing; saying `provider: google` there implies a Google
+    // measurement exists, and the whole point of the `no-eval-set` reason is that one does
+    // not. `chosenProvider` still says where a measurement would have to come from.
+    const measured = chosen.reason !== 'no-eval-set' && chosen.n > 0;
+    languages[code] = {
+      tier: tiered.tier,
+      reason: tiered.reason,
+      provider: measured ? chosen.provider : null,
+      model: measured ? chosen.model : null,
+      chosenProvider: choice?.providerId ?? null,
+      n: chosen.n,
+      clipSeconds: chosen.clipSeconds,
+      genderSplit: chosen.genderSplit,
+      genderUniform: chosen.genderUniform,
+      distinctIds: chosen.distinctIds,
+      cer: chosen.cer,
+      cerNospace: chosen.cerNospace,
+      cerCi95: chosen.cerCi95,
+      wer: chosen.wer,
+      werKind: chosen.werKind,
+      ratio: chosen.ratio,
+      scriptIntegrity: chosen.scriptIntegrity,
+      evalRunId: chosen.runId,
+      evalDate: chosen.evalDate,
+      split: runs[chosen.runId]?.sampling.split ?? null,
+      example: chosen.example,
+      humanReview: applicable,
+      blockedFromVerifiedBy: tiered.blockedFromVerifiedBy,
+      otherProviders: others,
+      notes: chosen.notes,
+    };
+  }
+  return languages;
+}
+
+function notRunRow(
+  code: string,
+  chosenProvider: string | null,
+  others: TiersLanguage['otherProviders'],
+  all: readonly TiersMeasurement[],
+): TiersLanguage {
+  const measuredOn = all.map((m) => m.provider).join(', ');
+  return {
+    tier: 'experimental',
+    reason: 'not-run',
+    provider: null,
+    model: null,
+    chosenProvider,
+    n: 0,
+    clipSeconds: 0,
+    genderSplit: {},
+    genderUniform: false,
+    distinctIds: 0,
+    cer: null,
+    cerNospace: null,
+    cerCi95: null,
+    wer: null,
+    werKind: null,
+    ratio: null,
+    scriptIntegrity: null,
+    evalRunId: '',
+    evalDate: '',
+    split: null,
+    example: null,
+    humanReview: null,
+    blockedFromVerifiedBy: ['not-run'],
+    otherProviders: others,
+    notes:
+      chosenProvider === null
+        ? `No provider supports ${code}, so nothing here describes what a user would get. Measured on ${measuredOn}.`
+        : `Measured on ${measuredOn}, but this product would route ${code} to ${chosenProvider}, which has not been measured. A CER from a provider we would not use is not a claim about this language.`,
   };
 }
 
@@ -141,18 +423,15 @@ export function baselineSuspect(current: number | null, previous: number | null)
   return Math.abs(current - previous) / previous > BASELINE_DRIFT_LIMIT;
 }
 
-function toRow(
-  l: LanguageResult,
-  run: AsrRunResult,
-  evalDate: string,
-  review: HumanReview | null,
-): TiersLanguage {
-  const measured = l.cfg !== null && l.n > 0;
+function toMeasurement(l: LanguageResult, run: AsrRunResult, evalDate: string): TiersMeasurement {
   return {
+    code: l.languageCode,
+    provider: run.provider,
+    model: run.model,
+    runId: run.runId,
+    evalDate,
     tier: l.tier?.tier ?? 'experimental',
     reason: l.tier?.reason ?? 'not-run',
-    provider: measured ? run.provider : null,
-    model: measured ? run.model : null,
     n: l.n,
     clipSeconds: l.clipSeconds,
     genderSplit: l.genderSplit,
@@ -165,10 +444,7 @@ function toRow(
     werKind: l.werKind,
     ratio: l.ratio,
     scriptIntegrity: l.scriptIntegrity,
-    evalRunId: run.runId,
-    evalDate,
     example: l.example,
-    humanReview: review,
     blockedFromVerifiedBy: l.tier?.blockedFromVerifiedBy ?? ['not-run'],
     notes: noteFor(l),
   };
@@ -206,13 +482,41 @@ function noteFor(l: LanguageResult): string {
 
 export const tiersPath = (resultsDir: string): string => join(resultsDir, 'tiers.json');
 
-/** The previous file, or null when there is none. A missing file is a first run, not an error. */
+export class UnsupportedTiersSchemaError extends Error {
+  constructor(
+    readonly path: string,
+    readonly found: unknown,
+  ) {
+    super(
+      `${path}: schemaVersion ${String(found)} is not supported (expected ${TIERS_SCHEMA_VERSION}). ` +
+        `It is derived from the runlogs in results/runs, so republish it with ` +
+        `\`thibi eval report --run <runId>\` rather than editing it.`,
+    );
+    this.name = 'UnsupportedTiersSchemaError';
+  }
+}
+
+/**
+ * The previous file, or null when there is none.
+ *
+ * A **missing** file is a first run, not an error. A file of the **wrong schema version** is
+ * an error and must stay one: v1 had no `measurements`, so reading it as v2 yields a file
+ * whose evidence layer is empty and whose next publish silently drops every language v1 had
+ * measured — which is risk 10 reappearing through the fix for risk 10. Republishing from the
+ * runlog regenerates it.
+ */
 export async function readTiersFile(resultsDir: string): Promise<TiersFile | null> {
+  let raw: string;
   try {
-    return JSON.parse(await readFile(tiersPath(resultsDir), 'utf8')) as TiersFile;
+    raw = await readFile(tiersPath(resultsDir), 'utf8');
   } catch {
     return null;
   }
+  const parsed = JSON.parse(raw) as TiersFile;
+  if (parsed.schemaVersion !== TIERS_SCHEMA_VERSION) {
+    throw new UnsupportedTiersSchemaError(tiersPath(resultsDir), parsed.schemaVersion);
+  }
+  return parsed;
 }
 
 export async function writeTiersFile(resultsDir: string, file: TiersFile): Promise<string> {

@@ -124,10 +124,16 @@ describe('the sections that make a threshold actionable', () => {
     expect(md).toContain('အာဆီယံ ရဲ့ ဆုံးဖြတ်ချက်');
   });
 
+  /**
+   * The blockers are recomputed from the numbers, not copied off the run, so this row lists
+   * `ciHiRatio>1.15` as well: the fixture's interval is [0.10, 0.14] against a point estimate
+   * of 0.12, and 0.14/0.12 is 1.167. A stored blocker list could have said otherwise.
+   */
   it('names what each language still needs, as a work queue', () => {
     const md = render([language()]);
     expect(md).toContain('## Blocked from verified');
-    expect(md).toMatch(/\| `my-MM` \| beta \| `humanReview` \|/u);
+    expect(md).toMatch(/\| `my-MM` \| beta \| .*`humanReview`/u);
+    expect(md).toMatch(/`ciHiRatio>1\.15`/u);
   });
 
   /** Amendment 68: a Burmese CER is a measurement of female speech, and the report says so. */

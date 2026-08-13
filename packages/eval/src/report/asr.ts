@@ -2,7 +2,13 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { LANGUAGES } from '@thibi/languages';
 import { THRESHOLDS, type Tier } from '../tier.js';
-import type { HumanReview, TierChange, TiersFile, TiersLanguage } from '../results/tiers.js';
+import type {
+  HumanReview,
+  TierChange,
+  TiersFile,
+  TiersLanguage,
+  TiersRun,
+} from '../results/tiers.js';
 
 /**
  * `results/reports/asr-YYYY-MM-DD.md` — the human-readable half of a run.
@@ -52,7 +58,7 @@ export function renderAsrReport(input: AsrReportInput): string {
   out.push('');
   out.push(...tierChangesSection(changes, previous));
   out.push(...baselineBanner(tiers));
-  out.push(...metadataSection(tiers, rows.length));
+  out.push(...metadataSection(tiers, rows));
   out.push(...tableSection(rows));
   out.push(...sampleNotesSection(rows));
   out.push(...blockedSection(rows));
@@ -95,32 +101,55 @@ function tierChangesSection(changes: readonly TierChange[], previous: TiersFile 
  * has to meet that fact before the table and not in a footnote underneath it.
  */
 function baselineBanner(tiers: TiersFile): string[] {
-  if (!tiers.baseline.suspect) return [];
-  const { cerNospace, previousCerNospace, code } = tiers.baseline;
+  const run = latestRun(tiers);
+  if (!run?.baseline.suspect) return [];
+  const { cerNospace, previousCerNospace, code } = run.baseline;
   return [
     `> **⚠ Baseline suspect.** \`${code}\` moved from ${num(previousCerNospace)} to ${num(cerNospace)}`,
-    '> between runs — more than the 25% that makes every ratio below untrustworthy. `tiers.json`',
-    '> was **not written** from this run. Investigate the baseline before reading anything else here.',
+    '> since the last run on this provider and model — more than the 25% that makes every ratio',
+    '> below untrustworthy. `tiers.json` was **not written** from this run. Investigate the',
+    '> baseline before reading anything else here.',
     '',
   ];
 }
 
-function metadataSection(tiers: TiersFile, languageCount: number): string[] {
-  const b = tiers.baseline;
+/**
+ * The run that produced this report, and — since v2 — how much of the table it accounts for.
+ *
+ * The file accumulates across runs, so a report that only described the latest one would let
+ * a reader take a carried-over row for a fresh measurement. **Naming the split is the point
+ * of the "carried over" line**: it is the honest version of the warning risk 10 asked for,
+ * and it is more useful than a warning because it appears on every run rather than only on a
+ * shrinking one.
+ */
+function metadataSection(tiers: TiersFile, rows: ReadonlyArray<[string, TiersLanguage]>): string[] {
+  const run = latestRun(tiers);
+  if (!run) return ['## Run', '', '_No run metadata in this file._', ''];
+
+  const fresh = rows.filter(([, r]) => r.evalRunId === run.runId).length;
+  const carried = rows.length - fresh;
+  const s = run.sampling;
+
   return [
     '## Run',
     '',
-    `- **Run id** \`${tiers.runId}\``,
-    `- **Provider / model** \`${b.provider}/${b.model}\``,
-    `- **Sample** ${tiers.sampling.n} clips per language, \`${tiers.sampling.split}\` split, ${tiers.sampling.strategy} — deterministic, and not chosen (see *Methodology*)`,
-    `- **Languages** ${languageCount}`,
-    `- **Engine** \`${tiers.engineVersion}\``,
-    `- **Baseline** \`${b.code}\` CER ${num(b.cerNospace)} over n=${b.n}, CI95 ${ci(b.ci95)}${
-      b.suspect ? ' — **suspect**' : ''
-    }`,
+    `- **Run id** \`${run.runId}\``,
+    `- **Provider / model** \`${run.provider}/${run.model}\``,
+    `- **Sample** ${s.n} clips per language, \`${s.split}\` split, ${s.strategy} — deterministic, and not chosen (see *Methodology*)`,
+    `- **Languages** ${rows.length} — **${fresh} measured in this run**` +
+      (carried > 0
+        ? `, ${carried} carried over from earlier runs (each row names its own run id and date below)`
+        : ''),
+    `- **Engine** \`${run.engineVersion}\``,
+    `- **Baseline** \`${run.baseline.code}\` CER ${num(run.baseline.cerNospace)} over n=${run.baseline.n}, CI95 ${ci(
+      run.baseline.ci95,
+    )}${run.baseline.suspect ? ' — **suspect**' : ''}`,
     '',
   ];
 }
+
+const latestRun = (tiers: TiersFile): TiersRun | null =>
+  tiers.runs[tiers.latestRunId] ?? null;
 
 function tableSection(rows: ReadonlyArray<[string, TiersLanguage]>): string[] {
   const out = ['## Languages', ''];
@@ -138,14 +167,21 @@ function tableSection(rows: ReadonlyArray<[string, TiersLanguage]>): string[] {
     // this product already ships, and that is the ratio, not the code.
     list.sort((a, b) => (a[1].ratio ?? Number.POSITIVE_INFINITY) - (b[1].ratio ?? Number.POSITIVE_INFINITY));
     out.push(`### ${tier} (${list.length})`, '');
-    out.push('| code | name | endonym | n | CER | CI95 | ratio | WER | script | reason |');
-    out.push('|---|---|---|---|---|---|---|---|---|---|');
+    // `measured` and `provider` are columns rather than a footnote because the file
+    // accumulates across runs: without them a row from a sweep three months ago is
+    // indistinguishable from one measured this morning.
+    out.push(
+      '| code | name | endonym | n | CER | CI95 | ratio | WER | script | provider | measured | reason |',
+    );
+    out.push('|---|---|---|---|---|---|---|---|---|---|---|---|');
     for (const [code, r] of list) {
       const entry = LANGUAGES[code];
       out.push(
         `| \`${code}\` | ${entry?.nameEn ?? '—'} | ${entry?.endonym ?? '—'} | ${r.n} | ${num(r.cerNospace)} | ${ci(
           r.cerCi95,
-        )} | ${num(r.ratio, 2)} | ${werCell(r)} | ${num(r.scriptIntegrity, 2)} | ${r.reason} |`,
+        )} | ${num(r.ratio, 2)} | ${werCell(r)} | ${num(r.scriptIntegrity, 2)} | ${
+          r.provider ? `${r.provider}/${r.model}` : '—'
+        } | ${r.evalDate || '—'} | ${r.reason} |`,
       );
     }
     out.push('');
@@ -258,6 +294,9 @@ function staleReviewSection(stale: readonly HumanReview[]): string[] {
 }
 
 function methodologySection(tiers: TiersFile): string[] {
+  const run = latestRun(tiers);
+  const n = run?.sampling.n ?? 30;
+  const split = run?.sampling.split ?? 'dev';
   return [
     '## Methodology and caveats',
     '',
@@ -265,13 +304,20 @@ function methodologySection(tiers: TiersFile): string[] {
     '  crosstalk, and no code-switching — where real Hausa, Javanese and Cebuano usage is',
     '  heavily mixed with English, Indonesian and Tagalog. **Every number here overstates',
     '  newsroom performance**, and by more for the long tail.',
-    `- **The sample is the first ${tiers.sampling.n} entries of the \`${tiers.sampling.split}\` tarball**, which is`,
-    '  ordered lexicographically over random-hash filenames. It correlates with nothing in the',
-    '  data, so it is random-but-reproducible: the same request yields the same clips on every',
-    '  machine. It was not chosen, and it is not stratified — FLEURS dev carries no speaker id,',
-    '  so a single speaker could dominate a sample and nothing here would reveal it.',
-    `- **At n=${tiers.sampling.n} the interval is wide.** That is not a flaw; it is the mechanical reason`,
+    `- **The sample is the first ${n} entries of the \`${split}\` tarball**, for this run — rows`,
+    '  carried over from earlier runs carry their own `n`, and every row names the date it was',
+    '  measured. The tarball is ordered lexicographically over random-hash filenames, which',
+    '  correlates with nothing in the data, so it is random-but-reproducible: the same request',
+    '  yields the same clips on every machine. It was not chosen, and it is not stratified —',
+    '  FLEURS carries no speaker id, so a single speaker could dominate a sample and nothing',
+    '  here would reveal it. **Every dev split measured so far is single-gender in its**',
+    '  **entirety**, so the gender column cannot stand in for that check.',
+    `- **At n=${n} the interval is wide.** That is not a flaw; it is the mechanical reason`,
     '  `verified` also needs a human sign-off. Read the CI, not the point estimate.',
+    '- **A tier only ever reflects the provider this product would route the language to.** A',
+    '  measurement taken with any other provider is kept and listed, and cannot set a tier: a',
+    '  deliberate probe of a provider we would not use is a finding about that provider, not a',
+    '  fact about the language.',
     '- **Audio is normalized exactly as the product normalizes it** (`loudnorm=I=-16:TP=-1.5:LRA=11`,',
     '  16 kHz mono) before every request, because loudnorm changes what the recogniser hears and a',
     '  CER measured without it describes a path no user takes.',

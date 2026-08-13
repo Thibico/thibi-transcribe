@@ -270,10 +270,10 @@ function formatPublish(p: PublishResult): string {
   if (p.tiersPath) lines.push(`tiers   ${p.tiersPath}`);
   lines.push(`report  ${p.reportPath}`);
   if (p.tiersPath === null) {
-    const b = p.tiers.baseline;
+    const b = p.tiers.runs[p.tiers.latestRunId]?.baseline;
     lines.push(
-      `\nBaseline ${b.code} moved from ${b.previousCerNospace?.toFixed(3) ?? '—'} to ` +
-        `${b.cerNospace?.toFixed(3) ?? '—'} — more than 25%. Every ratio in this run is against ` +
+      `\nBaseline ${b?.code ?? 'my-MM'} moved from ${b?.previousCerNospace?.toFixed(3) ?? '—'} to ` +
+        `${b?.cerNospace?.toFixed(3) ?? '—'} — more than 25%. Every ratio in this run is against ` +
         `that baseline, so tiers.json was NOT written. The report above has the numbers; ` +
         `investigate the baseline before believing any of them.`,
     );
@@ -285,6 +285,17 @@ function formatPublish(p: PublishResult): string {
       : `${p.changes.length} tier change(s): ${p.changes
           .map((c) => `${c.code} ${c.from ?? '—'}→${c.to}`)
           .join(', ')}`,
+  );
+  // The counterweight to merging: say how much of the published file this run actually
+  // touched. A sweep of five languages that leaves ninety-five in place is correct now, and
+  // is also exactly the situation where a reader could believe all one hundred were fresh.
+  const total = Object.keys(p.tiers.languages).length;
+  const fresh = Object.values(p.tiers.languages).filter(
+    (l) => l.evalRunId === p.tiers.latestRunId,
+  ).length;
+  lines.push(
+    `${total} language(s) published — ${fresh} measured by this run` +
+      (total > fresh ? `, ${total - fresh} carried over from earlier runs` : ''),
   );
   return lines.join('\n');
 }

@@ -1,26 +1,207 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "generatedAt": "2026-08-13T07:21:37.448Z",
-  "runId": "2026-08-13T07-12-20-473Z-google",
-  "engineVersion": "phase-5",
-  "sampling": {
-    "strategy": "tar-order",
-    "split": "dev",
-    "n": 30,
-    "deterministic": true
+  "latestRunId": "2026-08-13T07-12-20-473Z-google",
+  "runs": {
+    "2026-08-13T07-12-20-473Z-google": {
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "engineVersion": "phase-5",
+      "provider": "google",
+      "model": "chirp_2",
+      "startedAt": "2026-08-13T07:12:20.473Z",
+      "finishedAt": "2026-08-13T07:21:37.448Z",
+      "sampling": {
+        "strategy": "tar-order",
+        "split": "dev",
+        "n": 30,
+        "deterministic": true
+      },
+      "baseline": {
+        "code": "my-MM",
+        "cerNospace": 0.06431302001349225,
+        "n": 30,
+        "ci95": [
+          0.04712279111916629,
+          0.07957405614714425
+        ],
+        "suspect": false,
+        "previousCerNospace": null
+      }
+    }
   },
-  "baseline": {
-    "code": "my-MM",
-    "provider": "google",
-    "model": "chirp_2",
-    "cerNospace": 0.06431302001349225,
-    "n": 30,
-    "ci95": [
-      0.04712279111916629,
-      0.07957405614714425
-    ],
-    "suspect": false,
-    "previousCerNospace": null
+  "measurements": {
+    "my-MM|google|chirp_2": {
+      "code": "my-MM",
+      "provider": "google",
+      "model": "chirp_2",
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "evalDate": "2026-08-13",
+      "tier": "beta",
+      "reason": "measured",
+      "n": 30,
+      "clipSeconds": 465.18,
+      "genderSplit": {
+        "FEMALE": 30
+      },
+      "genderUniform": true,
+      "distinctIds": 30,
+      "cer": 0.06431302001349225,
+      "cerNospace": 0.06431302001349225,
+      "cerCi95": [
+        0.04712279111916629,
+        0.07957405614714425
+      ],
+      "wer": null,
+      "werKind": null,
+      "ratio": 1,
+      "scriptIntegrity": 1,
+      "example": {
+        "id": 1572,
+        "ref": "နှစ်နာရီအတွင်း အစိုးရ အဆောက်အအုံများအနီး၌ နောက်ထပ်ဗုံးသုံးလုံး ပေါက်ကွဲခဲ့ပါသည်",
+        "hyp": "၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"
+      },
+      "blockedFromVerifiedBy": [
+        "ciHiRatio>1.15",
+        "humanReview"
+      ],
+      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 1 fetched clip(s) had no reference text and were dropped."
+    },
+    "ha-NG|google|chirp_2": {
+      "code": "ha-NG",
+      "provider": "google",
+      "model": "chirp_2",
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "evalDate": "2026-08-13",
+      "tier": "beta",
+      "reason": "measured",
+      "n": 30,
+      "clipSeconds": 510.54,
+      "genderSplit": {
+        "FEMALE": 30
+      },
+      "genderUniform": true,
+      "distinctIds": 28,
+      "cer": 0.056946354883081154,
+      "cerNospace": 0.058666666666666666,
+      "cerCi95": [
+        0.04311893639956881,
+        0.07562189054726368
+      ],
+      "wer": 0.19097744360902255,
+      "werKind": "spaces",
+      "ratio": 0.9122051282051281,
+      "scriptIntegrity": 1,
+      "example": {
+        "id": 1591,
+        "ref": "tsohon kakakin majalisar newt gingrich gwamnan texas rick perry da uwargidan majalisar wakilai michele bachmann sun gama a mataki na hudu na biyar da na shida bi da bi",
+        "hyp": "Tsohon kakakin Majalisar New Green Ridge, gwamnan Texas Rick Perry da uwar gidan Majalisar Wakilai Mike Bloomberg sun gama a mataki na hudu na biyar da na shida biyar."
+      },
+      "blockedFromVerifiedBy": [
+        "ciHiRatio>1.15",
+        "humanReview"
+      ],
+      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 30 clips cover 28 distinct sentences."
+    },
+    "yo-NG|google|chirp_2": {
+      "code": "yo-NG",
+      "provider": "google",
+      "model": "chirp_2",
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "evalDate": "2026-08-13",
+      "tier": "experimental",
+      "reason": "measured",
+      "n": 30,
+      "clipSeconds": 466.08,
+      "genderSplit": {
+        "MALE": 30
+      },
+      "genderUniform": true,
+      "distinctIds": 30,
+      "cer": 0.26123427201917315,
+      "cerNospace": 0.3054003724394786,
+      "cerCi95": [
+        0.2491961414790997,
+        0.36191626409017713
+      ],
+      "wer": 0.6998535871156661,
+      "werKind": "spaces",
+      "ratio": 4.748655441392871,
+      "scriptIntegrity": 0.984860248447205,
+      "example": {
+        "id": 1656,
+        "ref": "àwọn ọlọ́pàá sọ pé ó dàbí ẹni wípé ara náà ti wà níbẹ̀ fún bí i ọjọ́ kan",
+        "hyp": "Awon olopa sope, o dabi enipe oro naa ti wa nibe fun bi ojo kan."
+      },
+      "blockedFromVerifiedBy": [
+        "ratio>1.15",
+        "cer>0.2",
+        "ciHi>0.2",
+        "ciHiRatio>1.15",
+        "humanReview"
+      ],
+      "notes": "Every clip in this sample is MALE; the split cannot show speaker concentration."
+    },
+    "jv-ID|google|chirp_2": {
+      "code": "jv-ID",
+      "provider": "google",
+      "model": "chirp_2",
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "evalDate": "2026-08-13",
+      "tier": "beta",
+      "reason": "measured",
+      "n": 30,
+      "clipSeconds": 397.74,
+      "genderSplit": {
+        "MALE": 30
+      },
+      "genderUniform": true,
+      "distinctIds": 27,
+      "cer": 0.04,
+      "cerNospace": 0.042973651191969886,
+      "cerCi95": [
+        0.029759891782211702,
+        0.05748233782915864
+      ],
+      "wer": 0.14638447971781304,
+      "werKind": "spaces",
+      "ratio": 0.6681951987786366,
+      "scriptIntegrity": 1,
+      "example": {
+        "id": 1515,
+        "ref": "iki cep kelimane martelly ing patang taun",
+        "hyp": "Iki CEB kelimane merteli ing patang tahun."
+      },
+      "blockedFromVerifiedBy": [
+        "humanReview"
+      ],
+      "notes": "Every clip in this sample is MALE; the split cannot show speaker concentration. 30 clips cover 27 distinct sentences."
+    },
+    "si-LK|google|chirp_2": {
+      "code": "si-LK",
+      "provider": "google",
+      "model": "chirp_2",
+      "runId": "2026-08-13T07-12-20-473Z-google",
+      "evalDate": "2026-08-13",
+      "tier": "experimental",
+      "reason": "no-eval-set",
+      "n": 0,
+      "clipSeconds": 0,
+      "genderSplit": {},
+      "genderUniform": false,
+      "distinctIds": 0,
+      "cer": null,
+      "cerNospace": null,
+      "cerCi95": null,
+      "wer": null,
+      "werKind": null,
+      "ratio": null,
+      "scriptIntegrity": null,
+      "example": null,
+      "blockedFromVerifiedBy": [
+        "no-eval-set"
+      ],
+      "notes": "No FLEURS config for this language. Not measured, which is not the same as measured and poor — supply --manifest to measure it."
+    }
   },
   "languages": {
     "my-MM": {
@@ -28,6 +209,7 @@
       "reason": "measured",
       "provider": "google",
       "model": "chirp_2",
+      "chosenProvider": "google",
       "n": 30,
       "clipSeconds": 465.18,
       "genderSplit": {
@@ -47,6 +229,7 @@
       "scriptIntegrity": 1,
       "evalRunId": "2026-08-13T07-12-20-473Z-google",
       "evalDate": "2026-08-13",
+      "split": "dev",
       "example": {
         "id": 1572,
         "ref": "နှစ်နာရီအတွင်း အစိုးရ အဆောက်အအုံများအနီး၌ နောက်ထပ်ဗုံးသုံးလုံး ပေါက်ကွဲခဲ့ပါသည်",
@@ -57,6 +240,7 @@
         "ciHiRatio>1.15",
         "humanReview"
       ],
+      "otherProviders": [],
       "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 1 fetched clip(s) had no reference text and were dropped."
     },
     "ha-NG": {
@@ -64,6 +248,7 @@
       "reason": "measured",
       "provider": "google",
       "model": "chirp_2",
+      "chosenProvider": "google",
       "n": 30,
       "clipSeconds": 510.54,
       "genderSplit": {
@@ -83,6 +268,7 @@
       "scriptIntegrity": 1,
       "evalRunId": "2026-08-13T07-12-20-473Z-google",
       "evalDate": "2026-08-13",
+      "split": "dev",
       "example": {
         "id": 1591,
         "ref": "tsohon kakakin majalisar newt gingrich gwamnan texas rick perry da uwargidan majalisar wakilai michele bachmann sun gama a mataki na hudu na biyar da na shida bi da bi",
@@ -93,6 +279,7 @@
         "ciHiRatio>1.15",
         "humanReview"
       ],
+      "otherProviders": [],
       "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 30 clips cover 28 distinct sentences."
     },
     "yo-NG": {
@@ -100,6 +287,7 @@
       "reason": "measured",
       "provider": "google",
       "model": "chirp_2",
+      "chosenProvider": "google",
       "n": 30,
       "clipSeconds": 466.08,
       "genderSplit": {
@@ -119,6 +307,7 @@
       "scriptIntegrity": 0.984860248447205,
       "evalRunId": "2026-08-13T07-12-20-473Z-google",
       "evalDate": "2026-08-13",
+      "split": "dev",
       "example": {
         "id": 1656,
         "ref": "àwọn ọlọ́pàá sọ pé ó dàbí ẹni wípé ara náà ti wà níbẹ̀ fún bí i ọjọ́ kan",
@@ -132,6 +321,7 @@
         "ciHiRatio>1.15",
         "humanReview"
       ],
+      "otherProviders": [],
       "notes": "Every clip in this sample is MALE; the split cannot show speaker concentration."
     },
     "jv-ID": {
@@ -139,6 +329,7 @@
       "reason": "measured",
       "provider": "google",
       "model": "chirp_2",
+      "chosenProvider": "google",
       "n": 30,
       "clipSeconds": 397.74,
       "genderSplit": {
@@ -158,6 +349,7 @@
       "scriptIntegrity": 1,
       "evalRunId": "2026-08-13T07-12-20-473Z-google",
       "evalDate": "2026-08-13",
+      "split": "dev",
       "example": {
         "id": 1515,
         "ref": "iki cep kelimane martelly ing patang taun",
@@ -167,6 +359,7 @@
       "blockedFromVerifiedBy": [
         "humanReview"
       ],
+      "otherProviders": [],
       "notes": "Every clip in this sample is MALE; the split cannot show speaker concentration. 30 clips cover 27 distinct sentences."
     },
     "si-LK": {
@@ -174,6 +367,7 @@
       "reason": "no-eval-set",
       "provider": null,
       "model": null,
+      "chosenProvider": "google",
       "n": 0,
       "clipSeconds": 0,
       "genderSplit": {},
@@ -188,11 +382,13 @@
       "scriptIntegrity": null,
       "evalRunId": "2026-08-13T07-12-20-473Z-google",
       "evalDate": "2026-08-13",
+      "split": "dev",
       "example": null,
       "humanReview": null,
       "blockedFromVerifiedBy": [
         "no-eval-set"
       ],
+      "otherProviders": [],
       "notes": "No FLEURS config for this language. Not measured, which is not the same as measured and poor — supply --manifest to measure it."
     }
   }

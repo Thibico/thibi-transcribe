@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-13, end of the publishing sitting — the first tier table.
+**Last updated:** 2026-08-13, after risk 10 — `tiers.json` accumulates across runs.
 
 ---
 
@@ -21,10 +21,9 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #30** — this sitting's six commits on
-`phase-5/publish-results`: the runner seam, the publishing layer, the registry consuming it,
-the sweep, the docs, and the four Definition-of-done items run through the CLI. Nothing is in
-flight.
+`main` is at the merge of **PR #31**. This sitting landed the publishing layer (#30) and the
+handoff correction (#31); risk 10 — `tiers.json` accumulating across runs rather than being
+replaced — is on `phase-5/tiers-merge` and may still be in flight when you read this.
 
 **The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
 order, 2026-08-13:
@@ -51,9 +50,10 @@ The sidecar's own suite is 42 pytest tests, still run separately.
 ## Do this next
 
 1. **Widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
-   107-language sweep is ~$17 by the plan's own arithmetic. Two things to settle first:
-   whether `tiers.json` should merge (risk 10) and whether `--sample-strategy id-seeded` moves
-   any language's CER (risk 2, still open).
+   107-language sweep is ~$17 by the plan's own arithmetic. **Risk 10 is closed**, so a
+   partial sweep is now safe: `tiers.json` accumulates and a run only replaces what it
+   measured. Still open beforehand: whether `--sample-strategy id-seeded` moves any
+   language's CER (risk 2).
 2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
    `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
    §5.10 is explicit that the eval imports the real builders and never a copy.
@@ -83,14 +83,11 @@ design working, not a regression, and the route back is a person writing
 `results/human-review/my-MM.json` naming run `2026-08-13T07-12-20-473Z-google`, with
 `verdict: "pass"`. Amendment 78.
 
-Two related facts, both in that amendment. **The baseline language can essentially never
+One related fact, from the same amendment. **The baseline language can essentially never
 clear its own `ciHiRatio > 1.15` gate**, because for the baseline that ratio is the relative
 width of its own interval (1.24 at n=30) rather than a comparison with anything — applied to
 `my-MM` the rule quietly becomes a precision requirement. Left as-is, since nothing reaches
-`verified` without a human anyway, but do not read it as a quality signal. And **a run's
-`tiers.json` replaces the file rather than merging**, so a five-language sweep after this one
-would drop the other four from the published table with no warning. Use `--results-dir` for
-partial sweeps until risk 10 is settled.
+`verified` without a human anyway, but do not read it as a quality signal.
 
 ---
 
@@ -130,6 +127,14 @@ on reproducing it after somebody changed the estimator. Two traps came with it: 
 to move out of `runAsrEval` (the log is *named* by it and must be open before the first
 billable call), and a budget-stopped language leaves `score` lines behind that the first
 reader happily recomputed into the partial CER the runner deliberately drops.
+
+**`tiers.json` separates the evidence from the claim, and only the evidence merges.**
+`runs` and `measurements` accumulate across runs; `languages` is **derived** from them on
+every publish, so it is a pure function of the evidence and republishing an untouched file is
+a no-op. Two rules live in that derivation and the first is load-bearing: **a measurement only
+sets a tier if it came from the provider `chooseProvider` would use** — otherwise deliberately
+probing Groq on Burmese, which this project does, would publish romanized non-words as
+Burmese's tier. Amendment 79.
 
 **Turbo will replay a cached `gen` and leave a generated file stale.** After the sweep,
 `results/tiers.json` was full and `tiers.gen.ts` was empty, because `results/` was not an
@@ -288,8 +293,6 @@ suite is safe; sharing a template name is not.
 
 - **The sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment 77's
   wav reader. Fixed forward; the run's log is left as it was written.
-- **`tiers.json` replaces rather than merges.** Risk 10. A partial sweep silently drops every
-  language it did not measure from the published file.
 - **A runlog carries provider transcript text.** Fine for FLEURS, which is public. **A
   `--manifest` run over newsroom audio would put transcripts of `/testdata/` material into a
   public repo**, and nothing enforces the distinction. Decide it before `--manifest` is built.
