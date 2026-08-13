@@ -56,6 +56,13 @@ next-env.d.ts
 # bytes are kept locally so a disputed number can be re-checked.
 /spikes/raw/
 
+# the eval harness's cache — FLEURS TSVs, downloaded wavs, and cached provider responses.
+# `thibi eval asr` defaults to `.thibi-cache` in the working directory, so running it from the
+# repo root drops reference data and transcript text straight into the tree. It is a cache:
+# every file in it is re-derivable from the network, and the response entries carry provider
+# output that has no business in git history.
+/.thibi-cache/
+
 # real-world test media and the transcripts made from it. Kept on disk so a measurement
 # can be re-run against the same audio, and out of git because this repo is public: the
 # recordings are third-party material and some are editorially sensitive. Anything here

@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-12, end of the first-real-audio sitting.
+**Last updated:** 2026-08-13, end of the runner sitting — the first measured CER.
 
 ---
 
@@ -17,16 +17,25 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 2 — batchRecognize, GCS staging, rates | done |
 | **3 — diarization** | **done.** The full path has run on real audio, the rename survives a re-diarization *and* a re-transcription with a different provider, and the contract test runs `PyannoteSource` against the real container. `scribe.ts` was the last item and is **descoped** — the user decided against ElevenLabs on 2026-08-12 (amendment 48), so pyannote is the only diarization source |
 | **4 — Whisper providers** | **built, end to end.** 4a (OpenAI + Groq over HTTP) and now 4b: faster-whisper on the sidecar, the only provider with genuine per-word confidence. `thibi transcribe --provider faster-whisper` runs. **What is built and what is measured are different lists** — see below |
-| 5–7, 9–15 | not started |
+| **5 — eval harness** | **measuring.** The whole chain runs: FLEURS TSV fetch and oid-keyed cache, the ranged-tarball audio pull, sampling, the response cache, scoring, bootstrap CI, tiering, and `thibi eval asr` with `--dry-run` and `--budget-usd`. **The first CER exists** — `my-MM` on `google/chirp_2` at **0.072** (below). Unbuilt: `tiers.json`, the dated report, the tier-change diff, the LLM evals |
+| 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #20**, which lands Phase 5's **metrics layer** — `levenshtein`,
-`cer`, `wer`, `chrf`, `normalize`, `script-integrity`, `bootstrap`, and the jiwer 4.0.0 /
-sacrebleu 2.6.0 parity fixture, frozen and asserted in CI. Built by a cloud agent and scoped
-to that boundary deliberately: everything else in Phase 5 needs live provider keys, FLEURS
-downloads and Postgres, none of which a cloud worker has. **CER now exists, so the language
-queues below are finally measurable.** What is still missing is everything around it — the
-FLEURS download, the sampler, the runner, the report, `tiers.json`.
+`main` is at the merge of **PR #28**. Phase 5 went from a six-line placeholder to a working
+harness across 2026-08-12/13: the metrics layer (PR #20, frozen against jiwer 4.0.0 and
+sacrebleu 2.6.0), the FLEURS data path (#23), the sampler (#24), the dry run (#25) and the
+runner (#28).
+
+**The first measured CER in this project: `my-MM` on `google/chirp_2` = 0.072.** n=5, dev
+split, tar order, CI95 [0.019, 0.122], script integrity 1.00, WER `null` (correct — Burmese
+has no word segmentation), $0.0061. **It tiered `beta`, not `verified`**, blocked by `n<30`,
+`humanReview` and `ciHiRatio>1.15`. Read that last one before quoting the 7.2%: at n=5 the
+interval's upper bound is 1.7× the point estimate, so the gate comparing the *interval*
+against the baseline caught what the point estimate alone would not. **It is the first number,
+not a tier.** Amendment 74.
+
+An identical second run cost **$0.0000** in 3.5 s, so the response cache and the
+reproducibility Definition-of-done item are verified rather than asserted.
 
 **Amendment numbers 56–65 were allocated by two branches at once, and it nearly shipped.**
 PR #22 took 56–59 while PR #20 was already open holding 56–61; the table auto-merged without
@@ -36,7 +45,7 @@ eight references in `normalize.ts`, `script-integrity.ts`, a test and the diary.
 open PRs before taking the next number** — the amendments table is append-only prose, so git
 cannot see the collision for you.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **860 tests across 49
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **950 tests across 57
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
 The sidecar's own suite is **42 pytest tests**, still run separately (see *Known debt*).
 
@@ -63,10 +72,18 @@ sharp first task rather than a menu.
    whether the audio contains any of it — so everything Phase 12 builds on it is a guide to
    where the model hesitated, never evidence that the rest is right. Write the UI copy
    accordingly, and note that only Phase 5's CER can make the stronger claim.
-2. **Build the rest of Phase 5 around the metrics that now exist.** The FLEURS download, the
-   sampler, the runner, the report and `tiers.json` are all still unwritten; `cer`, `wer`,
-   `chrf2` and `bootstrapCi` are done and parity-frozen, so this is assembly rather than
-   invention.
+2. **~~Build the rest of Phase 5~~ — mostly done 2026-08-13.** The data path, sampler, dry
+   run, response cache, runner and tiering are built and have produced a real number. **What
+   is left is publishing it**, in this order:
+
+   1. **`tiers.json` and the dated report.** The measurement works; nothing writes it out, so
+      `packages/languages` still cannot import a tier and `/settings/languages` has nothing
+      to render. §5.11 has the shape. The tier-change diff goes **first** in the report — a
+      reader who only reads the top must still learn the thing that matters.
+   2. **Inject `loadTsv` and `fetchClips` into the runner.** They are called directly, so the
+      one module that spends money is the one module with no unit test. Small now, harder
+      once the report and the LLM evals both call it. See *Known debt*.
+   3. **Then a real n=30 sweep**, which is the first output a user could look at and judge.
 3. **Then the rest of Phase 5's queues**: Phase 4a's 24 Groq codes marked `suspected`, the
    same 23 now mirrored onto faster-whisper, S7's 68 accepted-but-unmeasured codes, and
    `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
@@ -93,6 +110,21 @@ to memory is memory.
 ---
 
 ## What you would otherwise rediscover
+
+**The eval must traverse the code the user traverses.** The runner's first attempt posted
+FLEURS wavs straight to Google and got `400 … not in a supported encoding`. The encoding was
+only how it surfaced. `runNormalize` applies `loudnorm=I=-16:TP=-1.5:LRA=11` before every
+production request and **loudnorm changes what the recogniser hears**, so a CER measured
+without it is a number for a path that does not exist in the product. Amendment 73, and the
+general form is the useful part: **a shortcut that happens to work is worse than one that
+fails, because only the second one tells you.**
+
+**A refusal to score beat a plausible number, twice in one run.** `normalizeForScoring` threw
+rather than treat Burmese as Unicode when no Zawgyi converter was supplied — scoring Zawgyi as
+Unicode reports a *correct* transcript as ~100% error, which would have made Burmese look
+unsupported against its own baseline (amendment 62's injected converter, earning its keep).
+And `wer()` returned `null` for Burmese rather than a whitespace-tokenized fiction. Neither
+would have failed loudly if it had been built to guess.
 
 **Every throughput number here was measured on a clip too short to mean anything, and they
 all understate it.** A 16.6-minute real recording diarized at **0.656×** against 0.36–0.51×
@@ -314,6 +346,18 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
 
 ## Known debt, recorded not hidden
 
+- **`runner.ts` has no unit test, and it is the module that spends money.** It calls `loadTsv`
+  and `fetchClips` directly instead of taking them as dependencies the way it already takes
+  `transcribe`, so nothing exercises it but a real billable run. 84 eval tests cover the cache,
+  the tiering, the sampler and the data path; none cover the runner. Take the seam before the
+  report and the LLM evals become its second and third callers.
+- **The only measured language is one gender and five clips.** `my-MM` at n=5, all `FEMALE` —
+  the split has no other (amendment 68). The tiering already refuses to call it verified, and
+  nothing downstream may quote 0.072 as a language-level claim.
+- **`--budget-usd` is implemented but its abort path has never fired.** The check runs before
+  each billable call, and the exit-3-with-partial-results behaviour is asserted by nothing.
+  Phase 5's Definition of done wants it proven; a run small enough to trip it deliberately is
+  the cheapest way.
 - **Phase 4b is built and barely measured.** `tiny`, English, eleven seconds. `large-v3` has
   never been loaded on this box, no long-tail language has been through this provider, and the
   plan's "1-2x realtime on 8 vCPU" is inherited. The Docker Desktop penalty applies here as it
@@ -402,6 +446,10 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   configuration and prints a remediation rather than a stack trace.
 - **Run `thibi db migrate` against the dev database after pulling.** The test suites migrate
   their own databases and will not tell you the dev one is stale.
+- **`thibi eval asr` caches into `.thibi-cache` in the working directory**, which is
+  gitignored as of 2026-08-13. It holds FLEURS TSVs, downloaded wavs and cached provider
+  responses — all re-derivable, and the response entries carry provider transcript text that
+  has no business in git history. Delete it freely; a rerun refetches. `--cache-dir` moves it.
 - **`/testdata/` is gitignored and holds real recordings.** Third-party material, some of it
   editorially sensitive, and this repo is public. Measurements taken against it are committed;
   the audio, the transcripts, the filenames and the sources are not. Do not `git add -f` in
