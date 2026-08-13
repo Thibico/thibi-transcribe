@@ -49,25 +49,21 @@ The sidecar's own suite is 42 pytest tests, still run separately.
 
 ## Do this next
 
-1. **Four Definition-of-done items are `[~]` — built, unit-tested, never observed through the
-   CLI.** They are cheap and they are first, because "asserted by a test" is not what that
-   checklist promises. The machine ran out of disk part-way through checking them.
-   1. `--budget-usd` exit 3 with the runlog written and `tiers.json` not: a tiny budget on an
-      uncached language, under a cent.
-   2. Exit 4 on a suspect baseline: doctor a previous `tiers.json` in a scratch
-      `--results-dir` and replay. Free.
-   3. `thibi eval report --run <id>` byte-identical against the real run. Free, network off.
-   4. The other four non-FLEURS languages as a set — **into a scratch `--results-dir`**, see
-      the trap below.
-2. **Then widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
+1. **Widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
    107-language sweep is ~$17 by the plan's own arithmetic. Two things to settle first:
    whether `tiers.json` should merge (risk 10) and whether `--sample-strategy id-seeded` moves
    any language's CER (risk 2, still open).
-3. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
+2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
    `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
    §5.10 is explicit that the eval imports the real builders and never a copy.
-4. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See the next
+3. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See the next
    section — this is a decision, not a task.
+
+**Phase 5's ASR half has no open Definition-of-done items.** All four that were `[~]` were run
+through the CLI on 2026-08-13 for a total of **$0.0089**: exit 3 with the runlog written and
+`tiers.json` withheld, exit 4 with the previous file left byte-for-byte intact, a replay that
+`diff` calls byte-identical, and all five non-FLEURS locales at exit 0 and $0.0000. What
+remains open in the phase is the LLM half and `--manifest`.
 
 **Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
 out: it reintroduces exactly the identity problem whole-file diarization removes.
@@ -289,9 +285,6 @@ suite is safe; sharing a template name is not.
 
 ## Known debt, recorded not hidden
 
-- **Four Phase 5 Definition-of-done items are `[~]`** — built and unit-tested, never observed
-  through the CLI. Listed under *Do this next*. `[~]` is a marker introduced this sitting and
-  explained above that checklist.
 - **The sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment 77's
   wav reader. Fixed forward; the run's log is left as it was written.
 - **`tiers.json` replaces rather than merges.** Risk 10. A partial sweep silently drops every
@@ -344,13 +337,27 @@ suite is safe; sharing a template name is not.
 
 ## Environment notes
 
-- **This machine ran out of disk on 2026-08-13 and it wedged Docker, not just Postgres.** With
-  the volume at 99 % the `rates` query hung, `docker ps`, `docker logs` and `docker stats` all
-  hung with it, and a CLI command failed with an unexplained `Failed query`. Caches cleared to
-  20 GB free (`uv cache clean` alone gave back 8.1 GB; pip 2.4 GB; staged Electron updates
-  under `~/Library/Caches/*ShipIt* ` 2.5 GB). **Docker needs a restart to unstick**, and
-  `Docker.raw` reading 60 GB in `ls` is sparse — `du` says ~7.7 GB, so it is not the culprit.
-  If Postgres hangs rather than refusing, check `df` before anything else.
+- **This machine ran out of disk on 2026-08-13, and the way it presented is worth knowing.**
+  At 99 % full the `rates` query *hung* rather than failing, and so did `docker ps`,
+  `docker logs` and `docker stats`; a CLI command died on an unexplained `Failed query` with
+  no cause attached. The actual event was in
+  `~/Library/Containers/com.docker.docker/Data/log/host/com.docker.backend.log`:
+
+      engine linux/virtualization-framework run error:
+        write .../Data/log/vm/init.log: no space left on device
+
+  Docker Desktop had put up a *"disk full — free up space and start Docker Desktop again"*
+  dialog and quit its VM, **leaving `com.docker.backend` resident and holding the socket** —
+  which is why every client hung instead of erroring. **Freeing space is not enough; the
+  leftover backend must be killed and the app relaunched.** What worked:
+  `osascript -e 'quit app "Docker Desktop"'`, then `pkill -f com.docker.backend` (and
+  `kill -9` the two that survive it), then `open -a Docker`. All three containers came back
+  healthy in under a minute with every named volume intact.
+  Space came from `uv cache clean` (8.1 GB), `pip cache purge` (2.4 GB), staged Electron
+  updates under `~/Library/Caches/*ShipIt*` (2.5 GB), and the Adobe/Playwright/Cypress caches
+  (6.6 GB) — 6.9 GB free became 20 GB. **`Docker.raw` reading 60 GB in `ls` is sparse**; `du`
+  says ~7.7 GB, so it is not the culprit and must not be deleted on that evidence.
+  **If a database hangs rather than refusing, check `df` before anything else.**
 - `docker compose -f infra/compose.dev.yml up -d` brings up Postgres (5433) and MinIO (9000).
   The sidecar is behind a profile and needs the repo-root `.env` passed explicitly:
   `docker compose --env-file .env -f infra/compose.dev.yml --profile diarize up -d sidecar`.

@@ -1443,7 +1443,9 @@ re-run of unchanged languages free.
 
 `[~]` means built and unit-tested but **not yet observed through the CLI** — the distinction
 this checklist exists to keep, since an item that can only be checked by reading the
-implementation is one this section says to rewrite.
+implementation is one this section says to rewrite. **Nothing carries it as of 2026-08-13**;
+the four that did were run and are ticked with what was observed rather than what was
+written. The whole check cost **$0.0089**.
 
 - [x] `pnpm -F @thibi/core test` passes, including every case in `__fixtures__/parity.json`.
       **Done 2026-08-12: 213 metrics tests, 859 across the repo, nothing skipped.**
@@ -1469,21 +1471,24 @@ implementation is one this section says to rewrite.
       (amendment 69). Projected from mean clip length, measured +2.8% against a real pull,
       every projected figure marked `~`. Verified with zero audio downloaded — after a live
       run over `my-MM`, `ha-NG`, `si-LK` the cache held two TSVs and **0 wav files**.
-- [~] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
-      `tiers.json`. **Half done 2026-08-13.** The abort is asserted by three unit tests
-      including the case that first version got wrong (amendment 75), and the CLI returns
-      before publishing when `budgetExhausted` is set. **Not yet run for real**, so the
-      exit code and the absent `tiers.json` are claims about code rather than observations.
-      A deliberately tiny budget on an uncached language costs under a cent to check.
+- [x] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
+      `tiers.json`. **Observed 2026-08-13**, `--no-cache --n 5 --budget-usd 0.012`: two clips
+      transcribed for **$0.0089**, the third projected to cross the ceiling and refused,
+      **exit 3**, a `{"t":"budget","spentUsd":0.008864,"limitUsd":0.012}` line and an `end`
+      footer in the runlog, and **no `tiers.json`**. A first attempt at `--budget-usd 0.005`
+      spent **$0.0000** — it refused the opening clip, whose own 21.6 s projects past the
+      ceiling on its own, which is amendment 75's projection doing exactly what the ledger
+      check could not.
 - [x] A second identical run makes zero provider calls. **Verified 2026-08-13**: the same
       `my-MM` n=5 run a second time cost **$0.0000** and returned identical numbers in 3.5 s.
-- [~] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
-      disabled. **Built and exercised 2026-08-13, not yet proved byte-identical.** The command
-      builds no provider, opens no database and makes no HTTP call — it reads the runlog and
-      the sign-offs and nothing else — and it was run against a synthetic log, where it
-      correctly recomputed a CER of 0.050 over a summary line claiming 0.100. The outstanding
-      half is the one the phrasing asks for: replay the real run and `diff` the outputs.
-      Only the LLM report is genuinely missing, along with the evals that would fill it.
+- [x] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
+      disabled. **Observed 2026-08-13**: the real run replayed into a scratch `--results-dir`
+      produced a `tiers.json` and a report that `diff` reports as **byte-identical** to the
+      published pair. The command builds no provider, opens no database and makes no HTTP
+      call — it reads the runlog and the sign-offs and nothing else. It also recomputes
+      rather than trusting the log: given a summary line hand-edited to claim `cer: 0.100`
+      it returned 0.050 from the `score` lines. Only the **LLM** report is missing, along
+      with the evals that would fill it.
 - [x] Every one of the eight normalization rules has a named snapshot test. **Done** —
       `mymr-unicode`, `mymr-zawgyi`, `khmr`, `laoo`, `thai`, `ethi`, `arab-rtl`,
       `latn-yoruba`, `sinh-zwj-preserved`, `deva-zwnj-preserved`, plus NFC idempotence,
@@ -1492,24 +1497,24 @@ implementation is one this section says to rewrite.
 - [x] `scriptIntegrity` scores the recorded Groq romanized-Burmese string below 0.1 and the
       Google output above 0.99, both from committed fixtures. **Done in Phase 4a; the test
       moved to `metrics/__tests__/script-integrity.test.ts` with the rename.**
-- [~] The Burmese baseline is measured in every run; a >25% baseline move sets `baselineSuspect`,
-      blocks `tiers.json` and exits 4. **Built 2026-08-13.** The baseline half is verified live:
-      the first n=30 sweep did not request `my-MM`'s ratio from anywhere else, and a run that
-      omits the code adds it with a line saying so. Drift is unit-tested in both directions
-      including the case that leaves the previous file untouched on disk. **Exit 4 has not
-      been observed from the CLI** — it needs a doctored previous file and a replay, which
-      costs nothing but was not run.
+- [x] The Burmese baseline is measured in every run; a >25% baseline move sets `baselineSuspect`,
+      blocks `tiers.json` and exits 4. **Observed 2026-08-13.** A run over the five non-FLEURS
+      locales added `my-MM` on its own and printed the line saying so. Drift was then forced by
+      editing a previous file's baseline to 0.150 against the run's 0.064 and replaying:
+      **exit 4**, the report written *with* the banner, and the existing `tiers.json` left
+      byte-for-byte untouched — the last trustworthy file is not replaced by an untrustworthy
+      one.
 - [x] `assignTier` cannot return `verified` with `humanReview: null`, asserted by a test.
       **Done** — `tier.test.ts` asserts the tier drops to `beta` and lists `humanReview` among
       the blockers, and `runner.test.ts` asserts it again end to end on a perfect CER of 0.0.
       Confirmed by the real sweep: `my-MM` measured 0.064 with ratio 1.00 and came out `beta`.
-- [~] The five non-FLEURS languages appear as `experimental / no-eval-set / cer: null`, and the
-      command exits 0. **`si-LK` verified live in the n=30 sweep** — the row reads
-      `experimental`, `no-eval-set`, `cer: null`, and the run exited 0. The other four
-      (`eu-ES`, `sq-AL`, `su-ID`, `rup-BG`) take the identical code path and have not been run.
-      Do it into a scratch `--results-dir`: a run that measures fewer languages **replaces**
-      `tiers.json` rather than merging into it, so a five-language sweep would drop the four
-      measured ones from the published file. See *Risks* 10.
+- [x] The five non-FLEURS languages appear as `experimental / no-eval-set / cer: null`, and the
+      command exits 0. **Observed 2026-08-13** for all five — `si-LK`, `eu-ES`, `sq-AL`,
+      `su-ID`, `rup-BG` — at **exit 0** and **$0.0000**, the baseline arriving entirely from
+      cache, which re-verifies the reproducibility item as a side effect. Run into a scratch
+      `--results-dir` on purpose: a run measuring fewer languages **replaces** `tiers.json`
+      rather than merging, so doing this against `results/` would have dropped the four
+      measured languages from the published file. See *Risks* 10.
 - [ ] `--manifest` runs the full pipeline on a hand-built 7-column file with local audio.
 - [ ] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
       the control in every language tested.
