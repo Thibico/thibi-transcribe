@@ -6,6 +6,7 @@ import type { AsrRunResult, LanguageResult } from '../runner.js';
 import {
   baselineSuspect,
   buildTiersFile,
+  deriveLanguages,
   diffTiers,
   loadHumanReviews,
   readTiersFile,
@@ -63,8 +64,16 @@ function run(languages: LanguageResult[], over: Partial<AsrRunResult> = {}): Asr
   };
 }
 
-const build = (languages: LanguageResult[], previous: TiersFile | null = null, reviews = {}) =>
-  buildTiersFile({ run: run(languages), engineVersion: 'test', previous, humanReviews: reviews });
+const build = (
+  languages: LanguageResult[],
+  previous: TiersFile | null = null,
+  reviews = {},
+  over: Partial<AsrRunResult> = {},
+) =>
+  buildTiersFile({ run: run(languages, over), engineVersion: 'test', previous, humanReviews: reviews });
+
+/** The baseline block now lives on the run, because that is whose baseline it is. */
+const baselineOf = (f: TiersFile) => f.runs[f.latestRunId]!.baseline;
 
 describe('the shape a UI branches on', () => {
   it('distinguishes not-measured from measured-and-bad', () => {
@@ -112,10 +121,105 @@ describe('the shape a UI branches on', () => {
   });
 });
 
+/**
+ * Risk 10. v1 wrote one row per language *in the current run*, so a narrow sweep after a wide
+ * one republished the file with only the narrow sweep's languages in it — silently, totally,
+ * and into the file the registry compiles.
+ */
+describe('a later run does not erase an earlier one', () => {
+  it('keeps languages the new run never touched', () => {
+    const wide = build([
+      language(),
+      language({ languageCode: 'ha-NG' }),
+      language({ languageCode: 'yo-NG' }),
+    ]);
+    expect(Object.keys(wide.languages).sort()).toEqual(['ha-NG', 'my-MM', 'yo-NG']);
+
+    const narrow = build([language()], wide, {}, { runId: 'run-3' });
+    expect(Object.keys(narrow.languages).sort()).toEqual(['ha-NG', 'my-MM', 'yo-NG']);
+    expect(narrow.languages['ha-NG']!.evalRunId).toBe('run-2');
+    expect(narrow.languages['my-MM']!.evalRunId).toBe('run-3');
+  });
+
+  it('replaces a measurement of the same language, provider and model', () => {
+    const first = build([language({ cerNospace: 0.12, cer: 0.12 })]);
+    const second = build([language({ cerNospace: 0.05, cer: 0.05 })], first, {}, { runId: 'run-3' });
+    expect(second.languages['my-MM']!.cerNospace).toBe(0.05);
+    expect(Object.keys(second.measurements)).toEqual(['my-MM|google|chirp_2']);
+  });
+
+  it('keeps every run it has seen, so a row can resolve its own sampling context', () => {
+    const first = build([language()]);
+    const second = build([language({ languageCode: 'ha-NG' })], first, {}, { runId: 'run-3' });
+    expect(Object.keys(second.runs).sort()).toEqual(['run-2', 'run-3']);
+    expect(second.languages['my-MM']!.split).toBe('dev');
+  });
+
+  it('derives languages purely from measurements, so republishing is idempotent', () => {
+    const file = build([language(), language({ languageCode: 'ha-NG' })]);
+    const rederived = deriveLanguages(file.measurements, file.runs);
+    expect(rederived).toEqual(file.languages);
+  });
+});
+
+/**
+ * The trapdoor merging opens, and the rule that closes it. Measuring `my-MM` on Groq is
+ * something this project does deliberately — reproducing that failure on demand is worth a
+ * flag — and it must not publish Groq's romanized non-words as Burmese's tier.
+ */
+describe('a provider the product would not use cannot set a tier', () => {
+  const groqRun = { runId: 'run-groq', provider: 'groq', model: 'whisper-large-v3' };
+
+  it('keeps the good provider’s row when a worse provider is measured afterwards', () => {
+    const good = build([language({ cerNospace: 0.064 })]);
+    const after = build(
+      [
+        language({
+          cerNospace: 0.97,
+          scriptIntegrity: 0.02,
+          tier: { tier: 'unsupported', reason: 'script-integrity', blockedFromVerifiedBy: ['scriptIntegrity<0.8'] },
+        }),
+      ],
+      good,
+      {},
+      groqRun,
+    );
+
+    const row = after.languages['my-MM']!;
+    expect(row.tier).toBe('beta');
+    expect(row.provider).toBe('google');
+    expect(row.cerNospace).toBe(0.064);
+  });
+
+  it('keeps the rejected measurement rather than discarding it', () => {
+    const good = build([language({ cerNospace: 0.064 })]);
+    const after = build([language({ cerNospace: 0.97 })], good, {}, groqRun);
+
+    // The finding survives — "Groq is unusable for Burmese" is worth having — it simply is
+    // not a fact about Burmese.
+    expect(Object.keys(after.measurements).sort()).toEqual([
+      'my-MM|google|chirp_2',
+      'my-MM|groq|whisper-large-v3',
+    ]);
+    expect(after.languages['my-MM']!.otherProviders).toEqual([
+      expect.objectContaining({ provider: 'groq', cerNospace: 0.97 }),
+    ]);
+  });
+
+  it('reports not-run when only a provider we would not route to has been measured', () => {
+    const onlyGroq = build([language({ cerNospace: 0.97 })], null, {}, groqRun);
+    const row = onlyGroq.languages['my-MM']!;
+    expect(row.reason).toBe('not-run');
+    expect(row.cerNospace).toBeNull();
+    expect(row.chosenProvider).toBe('google');
+    expect(row.notes).toMatch(/would route my-MM to google/u);
+  });
+});
+
 describe('the baseline', () => {
   it('is not suspect on a first run, having nothing to drift from', () => {
     expect(baselineSuspect(0.12, null)).toBe(false);
-    expect(build([language()]).baseline.suspect).toBe(false);
+    expect(baselineOf(build([language()])).suspect).toBe(false);
   });
 
   it('is suspect when it moves more than a quarter in either direction', () => {
@@ -124,11 +228,11 @@ describe('the baseline', () => {
     expect(baselineSuspect(0.13, 0.12)).toBe(false); // +8%
   });
 
-  it('flags the whole file, because every ratio in it is against the baseline', () => {
+  it('flags the run, because every ratio in it is against that baseline', () => {
     const previous = build([language({ cerNospace: 0.12 })]);
     const next = build([language({ cerNospace: 0.3 })], previous);
-    expect(next.baseline.suspect).toBe(true);
-    expect(next.baseline.previousCerNospace).toBe(0.12);
+    expect(baselineOf(next).suspect).toBe(true);
+    expect(baselineOf(next).previousCerNospace).toBe(0.12);
   });
 });
 

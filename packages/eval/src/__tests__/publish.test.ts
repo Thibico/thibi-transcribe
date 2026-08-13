@@ -89,23 +89,20 @@ describe('publishRun', () => {
     expect(await readTiersFile(dir)).toEqual(before);
   });
 
+  /**
+   * The tier is **recomputed** from the numbers rather than read back off the measurement,
+   * so a change has to be driven by the measurement moving. That is the property worth
+   * having: a stored tier and the numbers under it cannot disagree.
+   */
   it('reports the tier changes it published', async () => {
     await publishRun(dir, run([language()], 'run-1'), 'test');
     const p = await publishRun(
       dir,
-      run(
-        [
-          language({
-            cerNospace: 0.13,
-            tier: { tier: 'experimental', reason: 'measured', blockedFromVerifiedBy: ['ratio>1.15'] },
-          }),
-        ],
-        'run-2',
-      ),
+      run([language({ cer: 0.9, cerNospace: 0.9, cerCi95: [0.85, 0.95] })], 'run-2'),
       'test',
     );
     expect(p.changes).toHaveLength(1);
-    expect(p.changes[0]).toMatchObject({ code: 'my-MM', from: 'beta', to: 'experimental' });
+    expect(p.changes[0]).toMatchObject({ code: 'my-MM', from: 'beta', to: 'unsupported' });
   });
 
   it('honours a sign-off naming this run, and ignores one naming another', async () => {

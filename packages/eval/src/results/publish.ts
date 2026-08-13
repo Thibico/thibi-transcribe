@@ -55,7 +55,7 @@ export async function publishRun(
     renderAsrReport({ tiers, previous, changes, staleReviews: stale }),
   );
 
-  if (tiers.baseline.suspect) {
+  if (tiers.runs[tiers.latestRunId]?.baseline.suspect) {
     return { tiers, changes, reportPath, tiersPath: null, exitCode: 4 };
   }
   return {

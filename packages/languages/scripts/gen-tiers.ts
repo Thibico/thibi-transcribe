@@ -38,9 +38,13 @@ interface TiersJsonLanguage {
 interface TiersJson {
   schemaVersion: number;
   generatedAt: string;
-  runId: string;
+  /** v2. The file accumulates across runs, so each row names its own; this is the newest. */
+  latestRunId: string;
   languages: Record<string, TiersJsonLanguage>;
 }
+
+/** The schema this script understands. Bumped with `TIERS_SCHEMA_VERSION` in `@thibi/eval`. */
+const SUPPORTED_SCHEMA = 2;
 
 // Relative to the package, because that is where `pnpm --filter` puts the cwd. The results
 // directory belongs to the repo, not to this package: the harness writes it and several
@@ -50,10 +54,14 @@ const source = process.argv[2] ?? resolve('../../results/tiers.json');
 let file: TiersJson | null = null;
 if (existsSync(source)) {
   file = JSON.parse(readFileSync(source, 'utf8')) as TiersJson;
-  if (file.schemaVersion !== 1) {
+  if (file.schemaVersion !== SUPPORTED_SCHEMA) {
     // Loudly, rather than emitting a table shaped like a version this code does not
     // understand. A silently mis-parsed tier is a claim made to a newsroom.
-    throw new Error(`${source}: schemaVersion ${file.schemaVersion} is not supported (expected 1)`);
+    throw new Error(
+      `${source}: schemaVersion ${file.schemaVersion} is not supported (expected ${SUPPORTED_SCHEMA}). ` +
+        `It is derived from the runlogs in results/runs — republish it with ` +
+        `\`thibi eval report --run <runId>\` rather than editing it or loosening this check.`,
+    );
   }
 }
 
@@ -93,7 +101,7 @@ const out = `// GENERATED — DO NOT EDIT.
 import type { MeasuredTier } from '../tiers.js';
 
 /** The run these rows came from, or null if no eval has been published. */
-export const TIERS_RUN_ID: string | null = ${JSON.stringify(file?.runId ?? null)};
+export const TIERS_RUN_ID: string | null = ${JSON.stringify(file?.latestRunId ?? null)};
 export const TIERS_GENERATED_AT: string | null = ${JSON.stringify(file?.generatedAt ?? null)};
 
 function deepFreeze<T>(value: T): T {
@@ -115,5 +123,5 @@ writeFileSync('src/generated/tiers.gen.ts', out);
 console.error(
   file === null
     ? `wrote src/generated/tiers.gen.ts — no ${source}, so no measurements (this is normal on a fresh clone)`
-    : `wrote src/generated/tiers.gen.ts — ${Object.keys(rows).length} measured language(s) from run ${file.runId}`,
+    : `wrote src/generated/tiers.gen.ts — ${Object.keys(rows).length} measured language(s), newest run ${file.latestRunId}`,
 );

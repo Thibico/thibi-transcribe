@@ -1,4 +1,5 @@
 import { LANGUAGES, PROVIDER_MATRIX } from './generated/registry.gen.js';
+import { hasMeasurement, measuredTier } from './tiers.js';
 import type { ProviderId, ProviderLanguageCapability, Tier } from './types.js';
 
 /**
@@ -104,7 +105,17 @@ export function chooseProvider(code: string, options: ChooseOptions = {}): Provi
     return {
       providerId,
       model: capability.models?.[0] ?? null,
-      tier: language.seed.tier,
+      /**
+       * The **measured** tier where one exists, falling back to the seed.
+       *
+       * This read `language.seed.tier` until 2026-08-13, which meant the picker reported a
+       * seeded guess while `resolveLanguage` reported a measurement — two answers to the
+       * same question, in one package, differing exactly when a measurement had been taken.
+       * `hasMeasurement` rather than `measuredTier` alone, for the reason in `tiers.ts`: the
+       * unmeasured fallback answers "what has been measured", and using it as a tier would
+       * demote every language on a checkout that has never run an eval.
+       */
+      tier: hasMeasurement(code) ? measuredTier(code).tier : language.seed.tier,
       reason: `${prefix}; ${describe(code, providerId, capability)}`,
       forcedUnsupported: !usable,
       capability,

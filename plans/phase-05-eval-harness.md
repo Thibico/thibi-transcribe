@@ -1162,6 +1162,41 @@ tokens. Under $10 uncached, ~$0 thereafter.
 **`results/tiers.json`** — imported by `packages/languages` at build time, rendered by
 `/settings/languages`, overridden per-instance by the `language_support` table.
 
+**Superseded 2026-08-13 by schema v2 (amendment 79).** The shape below is v1 and is kept
+because the field-level decisions in it still hold — `reason` as an enum above all. What it
+got wrong is structural: one run's metadata at the top and one row per language *in that
+run*, which makes every publish a full replacement, so a narrow sweep after a wide one drops
+every language it did not measure. v2 splits the three things v1 conflated:
+
+| key | what it is | on publish |
+|---|---|---|
+| `runs` | per-run context: provider, model, split, `n`, sampling, baseline | accumulated |
+| `measurements` | one entry per `code\|provider\|model` — the evidence | accumulated, newest run wins per key |
+| `languages` | one row per language — **the claim** | **derived from `measurements`, never merged** |
+
+Deriving rather than merging the claim is what keeps the file honest: `languages` is a pure
+function of the evidence, so it cannot drift from it, and republishing an untouched file is a
+no-op. Two rules live in that derivation:
+
+- **A measurement only sets a tier if it came from the provider `chooseProvider` would use
+  for that language.** Otherwise the file has a trapdoor: this project deliberately measures
+  `my-MM` on Groq — reproducing that failure on demand is worth a flag — and merging without
+  this rule would publish Groq's romanized non-words as Burmese's tier. The rejected
+  measurement is kept, in `measurements` and on the row's `otherProviders`, because "Groq is
+  unusable for Burmese" is a finding worth having. It is simply not a fact about Burmese.
+- **A language whose chosen provider has never been measured reads `not-run`**, however many
+  other providers have been. A CER from a provider we would not route to says nothing about
+  what a user would receive.
+
+The tier and its blockers are **recomputed** by `assignTier` at derive time rather than read
+back off the measurement, so a stored tier and the numbers underneath it cannot disagree, and
+a human sign-off is applied as one more input to the same decision rather than as a manual
+promotion.
+
+`baselineSuspect` compares against the last run **with the same provider and model**, not
+simply the last run — otherwise every provider switch trips the alarm, which is not drift and
+would teach everyone to ignore it.
+
 ```json
 {
   "schemaVersion": 1,
@@ -1429,15 +1464,17 @@ re-run of unchanged languages free.
    or the whole measurement discipline leaks.
    *Half closed 2026-08-13.* `ResolvedLanguage.tierSource` is `'seed' | 'measured' | 'override'`
    and `thibi lang show` prints it. The UI half is Phase 14's and is still open.
-10. **A run's `tiers.json` replaces the file; it does not merge into it.** New 2026-08-13, from
-    building it. `buildTiersFile` emits a row per language *in this run*, so a five-language
-    sweep after a hundred-language one publishes five rows and the other ninety-five vanish
-    from the file the registry compiles. One run, one file is what §5.11 describes and it is
-    coherent — every row shares a `runId`, a provider and a sampling note, and merging would
-    produce a document whose header describes one run and whose rows come from several. But
-    nothing warns, and the failure is silent and total. **Open:** either warn loudly when a
-    run publishes fewer languages than the file it replaces, or give `tiers.json` per-row
-    provenance so a merge is honest. Until then, use `--results-dir` for partial sweeps.
+10. ~~**A run's `tiers.json` replaces the file; it does not merge into it.**~~ **Closed
+    2026-08-13 by schema v2 — see §5.11 and amendment 79.** The objection to merging was
+    real and is what shaped the fix: rows from several runs under one run's header is a
+    document that lies in a different way. So the file separates the evidence from the
+    claim. `runs` and `measurements` accumulate; `languages` is **derived** from them on
+    every publish and never merged, which makes it a pure function of the evidence —
+    delete it, republish, get the same file. A narrow sweep now leaves the languages it did
+    not measure exactly as they were, each naming its own run id and date, and both the CLI
+    and the report state the split (`5 language(s) published — 1 measured by this run, 4
+    carried over`). Verified end to end by publishing a one-language sweep over the
+    five-language file.
 
 ## Definition of done
 
