@@ -21,9 +21,10 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #28**. This sitting's work is four commits on
-**`phase-5/publish-results`**, unmerged and unpushed: the runner seam, the publishing layer,
-the registry consuming it, and the sweep.
+`main` is at the merge of **PR #30** — this sitting's six commits on
+`phase-5/publish-results`: the runner seam, the publishing layer, the registry consuming it,
+the sweep, the docs, and the four Definition-of-done items run through the CLI. Nothing is in
+flight.
 
 **The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
 order, 2026-08-13:
