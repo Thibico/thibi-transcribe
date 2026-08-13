@@ -866,6 +866,11 @@ Docker must not read as a failure.
    a tooltip. This risk got worse when the second mitigation went away, and it is now the main
    argument for answering open question 1 (typical recording length and deadline pressure)
    before Phase 15 prices the tiers.
+   *2026-08-13 — open question 7 is reopened and this sentence still stands.* A hosted source
+   is being **evaluated**, and until one is built and measured the mitigation list remains one
+   item long. Nothing here may be softened on the strength of an open evaluation; see overview
+   amendment 71, which also records why a hosted diarizer is not a free win — it sends the
+   audio out of a building this product promises it never leaves.
 3. **Reconcile is only as good as the word timings.** With `wordTimingQuality: 'none'` the feature
    degrades to interval fallback with everything flagged. Per the overview's risk 2, **build and
    test that path first**, not last — the `no-words-oromo` fixture is a Phase-3 deliverable, not a
@@ -889,18 +894,48 @@ Docker must not read as a failure.
 6. **Open — do we write `words.speaker_id` for all ~40k words, or only the segment?** Write both.
    Word rows are what export-time splitting and the "two speakers in one segment" affordance need,
    and 40k `COPY`-batched updates are cheap. Revisit only with a measurement.
-7. **~~Open~~ — Closed 2026-08-12 by the user: ElevenLabs is not being used, for now.** Scribe's
-   cost and duration cap were never confirmed against the live API, and now will not be —
-   `scribe.ts` is not built, and this phase stops promising it. Overview amendment 48 carries
-   the consequences, of which the load-bearing one is that **the small tier has exactly one
-   mitigation left, the GPU tier**, and the honest answer for a box that can run neither is
-   that it does no diarization. That is already a supported configuration: `SIDECAR_URL`
-   unset prints a remediation rather than a stack trace.
+7. **Open again — reopened 2026-08-13 by the user, as a question about hosted diarization in
+   general rather than about ElevenLabs.** Closed 2026-08-12 (ElevenLabs is not being used);
+   `scribe.ts` is still not built and this phase still promises nothing. Overview amendments
+   48 and 71.
 
-   Reopen this if a newsroom turns up that cannot host pyannote and wants diarization anyway.
+   **Why it reopened.** Amendment 48 named the trigger — *a newsroom that cannot host pyannote
+   and wants diarization anyway* — and three measurements since make that look less like an
+   edge case. Throughput is now known rather than estimated: **0.656× realtime**, so an hour
+   of audio is ~90 minutes of diarization (amendment 56). The memory floor is pyannote **plus**
+   the resident ASR model, not the larger of the two (amendment 54). And **accuracy is still
+   unmeasured** — with no reference RTTM, nothing establishes that the 90-minute wait buys a
+   good answer, which also means a hosted service currently has no local number to be compared
+   against.
+
+   **What has to be true for a hosted source to come back**, in the order that kills candidates
+   fastest:
+
+   1. **Long-tail language coverage.** This product exists for languages hosted ASR refuses.
+      A diarizer that only serves the languages we already have alternatives for solves
+      nothing. Check the actual list, and treat an accepted language code as proof of nothing
+      — S7 is the standing warning.
+   2. **Data residency.** Self-hosted, one instance per newsroom, audio that never leaves the
+      building is the product's premise, and a hosted diarizer breaks it for this step. For a
+      newsroom handling sensitive recordings that is disqualifying rather than a trade. Any
+      hosted source therefore ships **off by default, per-instance opt-in, and named in the UI
+      at the point of use** — never silently substituted when the sidecar is absent.
+   3. **Whether it re-transcribes.** §2's caveat still applies: a source that runs its own ASR
+      returns boundaries derived from its own words, so they are comparable to ours, not
+      identical — and it means paying for transcription twice.
+   4. **Cost per hour and any duration cap**, confirmed against the live API rather than a
+      pricing page. Neither was ever established for Scribe.
+   5. **Measured against pyannote on the same audio**, which requires the reference RTTM that
+      open question 2 in the handoff note is still waiting on. Until that exists, a comparison
+      can only be about latency and cost, never quality.
+
    Nothing in the code has to change to accept a second source — `DiarizationSource` and
-   `wordsToTurns`'s design survive in §2 precisely so the answer is an adapter and not a
-   refactor.
+   `wordsToTurns` survive in §2 precisely so the answer is an adapter, not a refactor.
+
+   **Unchanged by the reopening:** no document may describe a hosted fallback as *existing*.
+   A box that can run neither pyannote nor a GPU does no diarization, which is supported and
+   is never to be called a fallback. `SIDECAR_URL` unset prints a remediation, not a stack
+   trace.
 
 ## Definition of done
 

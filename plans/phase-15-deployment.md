@@ -724,7 +724,10 @@ slot; and the sidecar is behind a profile so a small install cannot accidentally
 that will still be running tomorrow. A newsroom that needs diarization against a deadline
 **needs a GPU** — that is the whole list since 2026-08-12 dropped Scribe (amendment 48), and
 it is the reason overview open question 1 (typical recording length and deadline pressure) has
-to be answered before this phase prices a tier.
+to be answered before this phase prices a tier. *2026-08-13: hosted diarization is reopened as
+an **evaluation** (amendment 71, Phase 3 open question 7). The list is still one item long, and
+this tier table may not price or promise a hosted option until one is built and measured —
+including the residency question, since a hosted diarizer sends audio out of the building.*
 
 Print the realtime factor in the model picker, measured on this host after the first run, not
 from this table.
