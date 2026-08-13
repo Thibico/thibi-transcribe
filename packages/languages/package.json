@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "gen": "tsx scripts/gen-languages.ts",
+    "gen": "tsx scripts/gen-languages.ts && tsx scripts/gen-tiers.ts",
     "build": "tsc -b",
     "clean": "rm -rf dist *.tsbuildinfo"
   },

@@ -90,13 +90,20 @@ function printDetail(language: ResolvedLanguage): void {
   out.write(`  fleurs      ${language.fleurs.config ?? 'none — no eval set for this language'}\n`);
 
   const support = language.support;
+  // Rounded, because these are floats now that a real eval writes them: the first measured
+  // run printed `CER 0.06431302001349225`, seventeen digits of which fifteen are noise from
+  // a 30-clip sample whose interval is ±0.017.
   const measured =
     support.cer === null
       ? 'unmeasured'
-      : `CER ${support.cer}${support.cerRatio ? ` (${support.cerRatio}× baseline)` : ''}` +
+      : `CER ${support.cer.toFixed(3)}` +
+        `${support.cerRatio ? ` (${support.cerRatio.toFixed(2)}× baseline)` : ''}` +
         `${support.evalN ? ` on ${support.evalN} clips` : ''}` +
         `${support.evalDate ? `, ${support.evalDate}` : ''}`;
-  out.write(`  tier        ${language.tier} (${measured})${language.enabled ? '' : ' · disabled'}\n`);
+  out.write(
+    `  tier        ${language.tier} (${measured}) · from ${language.tierSource}` +
+      `${language.enabled ? '' : ' · disabled'}\n`,
+  );
   if (support.notes) out.write(`  notes       ${support.notes}\n`);
 
   const providerIds = (Object.keys(language.providers) as ProviderId[]).sort();

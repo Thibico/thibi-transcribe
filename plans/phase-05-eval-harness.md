@@ -52,18 +52,19 @@ document got wrong about it and are folded in inline below.
 | `packages/eval/src/fleurs/manifest.ts` | `--manifest ./local.tsv` loader, same 7 columns, local audio |
 | `packages/eval/src/sample.ts` | Deterministic sampling; id dedupe; seeded shuffle for text-only evals |
 | `packages/eval/src/cache.ts` | Three cache layers; `sha256(provider\|model\|lang\|clipHash\|paramsHash)` |
-| `packages/eval/src/budget.ts` | `--dry-run` estimation and `--budget-usd` enforcement |
-| `packages/eval/src/runlog.ts` | `results/runs/<runId>.jsonl` writer and reader |
-| `packages/eval/src/asr.ts` | The ASR eval |
+| ~~`packages/eval/src/budget.ts`~~ `estimate.ts` | **Built.** `--dry-run` estimation and `--budget-usd` projection. Named for what it does; there was never a second thing in it |
+| `packages/eval/src/runlog.ts` | **Built.** `results/runs/<runId>.jsonl` writer, and a reader that *recomputes* rather than reading back aggregates — see §5.13 |
+| ~~`packages/eval/src/asr.ts`~~ `runner.ts` | **Built.** The ASR eval. `loadTsv`, `fetchClips` and `transcribe` are all injected (amendment 75) |
+| `packages/eval/src/wav.ts` | **Built, and not in the original plan.** Clip duration by walking the RIFF chunk list. Amendment 77 is why it is a file rather than a line |
 | `packages/eval/src/cleanup.ts` | The cleanup eval: arms, `content_delta`, `entity_drift`, the gate |
 | `packages/eval/src/translate.ts` | The translation eval: n-way join on `id`, chrF2, the two controls |
-| `packages/eval/src/tier.ts` | Thresholds, baseline handling, CI, `humanReview` merge, `tiers.json` |
-| `packages/eval/src/report/asr.ts` | Dated ASR markdown, tier changes first |
+| `packages/eval/src/tier.ts` | **Built.** Thresholds, CI and the tier rules. `tiers.json`, baseline drift and the `humanReview` merge went to `results/tiers.ts`, and publishing to `results/publish.ts` — one function with two callers, so a live run and a replay cannot answer "what tier is this" differently |
+| `packages/eval/src/report/asr.ts` | **Built.** Dated ASR markdown, tier changes first |
 | `packages/eval/src/report/llm.ts` | Dated LLM markdown in the research doc's table shape |
-| `apps/cli/src/commands/eval.ts` | `thibi eval asr\|cleanup\|translate\|report\|init-manifest` |
-| `results/human-review/<code>.json` | Committed human sign-off blocks; the only route to `verified` |
+| `apps/cli/src/commands/eval.ts` | **`asr` and `report` built**; `cleanup`, `translate` and `init-manifest` are not |
+| `results/human-review/<code>.json` | Committed human sign-off blocks; the only route to `verified`. **Read and matched against the run id**; none exists yet |
 | `.github/workflows/eval.yml` | CI: parity assertions + `thibi eval cleanup --gate` |
-| `packages/languages/src/tiers.ts` | Build-time import of `results/tiers.json`, all-experimental fallback |
+| `packages/languages/src/tiers.ts` | **Built** — via `scripts/gen-tiers.ts` and a committed `generated/tiers.gen.ts`, not a JSON import: `resolveJsonModule` is off repo-wide. All-experimental fallback, and see the trap in amendment 78 about not letting that fallback reach a tier |
 
 ## Design
 
@@ -827,6 +828,18 @@ TOTAL     90     29m 05s                     $0.304 to spend, $0.161 avoided by 
 exhaustion flushes the runlog, writes a partial report and exits `3`. A partial run never writes
 `tiers.json`.
 
+*Corrected 2026-08-13 — "before each billable call" is the specification the first
+implementation failed (amendment 75).* It tested `spent >= budget`, which permits the call that
+crosses the ceiling and refuses only the next one; a $0.03 ceiling with $0.02 clips spent $0.04
+and reported the ceiling as enforced. The check projects the clip's own cost from
+`numSamples / 16000 × usdPerMinute` and refuses before the call. **Where no rate is known the
+projection is zero and the check degrades to the old ledger test** — one clip late, and asserted
+as such, because a run against a provider with no rate row must not appear exact. A language cut
+off mid-way reports `stopped part-way: budget exhausted` and its scored clips are **discarded**:
+a CER over however many clips the money reached is not the measurement anyone asked for, and in
+a table it is indistinguishable from a complete one. The responses stay cached, so resuming with
+a larger budget pays only for the remainder.
+
 **Concurrency.** `p-limit` at `min(--concurrency, provider.capabilities().limits.maxConcurrentRequests)`,
 plus a token bucket for provider RPM and a second for LLM tokens-per-minute. Both are in-process
 here — the Postgres-backed bucket from Phase 9 is for the worker, and the harness is a
@@ -848,6 +861,31 @@ work completes so a crashed run is still analysable.
 `thibi eval report --run <runId>` regenerates both reports **and** `tiers.json` from this file
 alone. Changing a threshold, a report layout or the tier logic costs zero API calls — which is
 the property that makes it safe to argue about thresholds.
+
+**Built 2026-08-13, with four departures from the sketch above, three of them load-bearing.**
+
+1. **The run id is minted by the caller**, not inside the run. The log is *named* by it and has
+   to be open before the first billable call; a run that learns its own identity at the end
+   cannot have written anything down on the way to a crash. `RunAsrOptions.runId`, and
+   `makeRunId` exported so the CLI mints the same shape.
+2. **`score` lines carry edit counts, not rates**, and the reader **recomputes**. Corpus CER is
+   the ratio of sums and the bootstrap resamples the `(edits, refLen)` pairs, so a log of rates
+   could reproduce neither the headline nor its interval. A reader that trusted the stored
+   `cer` would reproduce the old report perfectly and go on reproducing it after somebody
+   changed the estimator — which is the one thing this file exists to prevent. Asserted by
+   rewriting a stored `cer` to 0.999 in a log and watching the replay ignore it.
+3. **A language with an `error` is never recomputed from its `score` lines.** The trap found
+   while writing it: a budget-stopped language leaves the clips it did buy in the log, and the
+   first reader resurrected exactly the partial CER the runner had deliberately dropped.
+4. There is an `{"t":"end", …}` footer, so `budgetExhausted` and the finish time are facts
+   rather than inferences; a log without one crashed or is still running, which `isComplete`
+   reports.
+
+**A runlog carries provider transcript text.** For FLEURS — read Wikipedia sentences, public —
+committing it is what makes a disputed number re-derivable. **A `--manifest` run over newsroom
+audio is a different matter entirely**, and nothing enforces that distinction yet: `/testdata/`
+is gitignored precisely because this repo is public, and a runlog of transcripts made from it
+would walk straight past that rule. Decide it before `--manifest` is built.
 
 ### 5.9 Tiering
 
@@ -1389,8 +1427,25 @@ re-run of unchanged languages free.
    the DB. That is intended — a newsroom that has validated Hausa on its own material should be
    able to say so — but the UI must show the tier's provenance (`measured` vs `admin override`)
    or the whole measurement discipline leaks.
+   *Half closed 2026-08-13.* `ResolvedLanguage.tierSource` is `'seed' | 'measured' | 'override'`
+   and `thibi lang show` prints it. The UI half is Phase 14's and is still open.
+10. **A run's `tiers.json` replaces the file; it does not merge into it.** New 2026-08-13, from
+    building it. `buildTiersFile` emits a row per language *in this run*, so a five-language
+    sweep after a hundred-language one publishes five rows and the other ninety-five vanish
+    from the file the registry compiles. One run, one file is what §5.11 describes and it is
+    coherent — every row shares a `runId`, a provider and a sampling note, and merging would
+    produce a document whose header describes one run and whose rows come from several. But
+    nothing warns, and the failure is silent and total. **Open:** either warn loudly when a
+    run publishes fewer languages than the file it replaces, or give `tiers.json` per-row
+    provenance so a merge is honest. Until then, use `--results-dir` for partial sweeps.
 
 ## Definition of done
+
+`[~]` means built and unit-tested but **not yet observed through the CLI** — the distinction
+this checklist exists to keep, since an item that can only be checked by reading the
+implementation is one this section says to rewrite. **Nothing carries it as of 2026-08-13**;
+the four that did were run and are ticked with what was observed rather than what was
+written. The whole check cost **$0.0089**.
 
 - [x] `pnpm -F @thibi/core test` passes, including every case in `__fixtures__/parity.json`.
       **Done 2026-08-12: 213 metrics tests, 859 across the repo, nothing skipped.**
@@ -1416,12 +1471,24 @@ re-run of unchanged languages free.
       (amendment 69). Projected from mean clip length, measured +2.8% against a real pull,
       every projected figure marked `~`. Verified with zero audio downloaded — after a live
       run over `my-MM`, `ha-NG`, `si-LK` the cache held two TSVs and **0 wav files**.
-- [ ] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
-      `tiers.json`.
+- [x] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
+      `tiers.json`. **Observed 2026-08-13**, `--no-cache --n 5 --budget-usd 0.012`: two clips
+      transcribed for **$0.0089**, the third projected to cross the ceiling and refused,
+      **exit 3**, a `{"t":"budget","spentUsd":0.008864,"limitUsd":0.012}` line and an `end`
+      footer in the runlog, and **no `tiers.json`**. A first attempt at `--budget-usd 0.005`
+      spent **$0.0000** — it refused the opening clip, whose own 21.6 s projects past the
+      ceiling on its own, which is amendment 75's projection doing exactly what the ledger
+      check could not.
 - [x] A second identical run makes zero provider calls. **Verified 2026-08-13**: the same
       `my-MM` n=5 run a second time cost **$0.0000** and returned identical numbers in 3.5 s.
-- [ ] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
-      disabled.
+- [x] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
+      disabled. **Observed 2026-08-13**: the real run replayed into a scratch `--results-dir`
+      produced a `tiers.json` and a report that `diff` reports as **byte-identical** to the
+      published pair. The command builds no provider, opens no database and makes no HTTP
+      call — it reads the runlog and the sign-offs and nothing else. It also recomputes
+      rather than trusting the log: given a summary line hand-edited to claim `cer: 0.100`
+      it returned 0.050 from the `score` lines. Only the **LLM** report is missing, along
+      with the evals that would fill it.
 - [x] Every one of the eight normalization rules has a named snapshot test. **Done** —
       `mymr-unicode`, `mymr-zawgyi`, `khmr`, `laoo`, `thai`, `ethi`, `arab-rtl`,
       `latn-yoruba`, `sinh-zwj-preserved`, `deva-zwnj-preserved`, plus NFC idempotence,
@@ -1430,11 +1497,24 @@ re-run of unchanged languages free.
 - [x] `scriptIntegrity` scores the recorded Groq romanized-Burmese string below 0.1 and the
       Google output above 0.99, both from committed fixtures. **Done in Phase 4a; the test
       moved to `metrics/__tests__/script-integrity.test.ts` with the rename.**
-- [ ] The Burmese baseline is measured in every run; a >25% baseline move sets `baselineSuspect`,
-      blocks `tiers.json` and exits 4.
-- [ ] `assignTier` cannot return `verified` with `humanReview: null`, asserted by a test.
-- [ ] The five non-FLEURS languages appear as `experimental / no-eval-set / cer: null`, and the
-      command exits 0.
+- [x] The Burmese baseline is measured in every run; a >25% baseline move sets `baselineSuspect`,
+      blocks `tiers.json` and exits 4. **Observed 2026-08-13.** A run over the five non-FLEURS
+      locales added `my-MM` on its own and printed the line saying so. Drift was then forced by
+      editing a previous file's baseline to 0.150 against the run's 0.064 and replaying:
+      **exit 4**, the report written *with* the banner, and the existing `tiers.json` left
+      byte-for-byte untouched — the last trustworthy file is not replaced by an untrustworthy
+      one.
+- [x] `assignTier` cannot return `verified` with `humanReview: null`, asserted by a test.
+      **Done** — `tier.test.ts` asserts the tier drops to `beta` and lists `humanReview` among
+      the blockers, and `runner.test.ts` asserts it again end to end on a perfect CER of 0.0.
+      Confirmed by the real sweep: `my-MM` measured 0.064 with ratio 1.00 and came out `beta`.
+- [x] The five non-FLEURS languages appear as `experimental / no-eval-set / cer: null`, and the
+      command exits 0. **Observed 2026-08-13** for all five — `si-LK`, `eu-ES`, `sq-AL`,
+      `su-ID`, `rup-BG` — at **exit 0** and **$0.0000**, the baseline arriving entirely from
+      cache, which re-verifies the reproducibility item as a side effect. Run into a scratch
+      `--results-dir` on purpose: a run measuring fewer languages **replaces** `tiers.json`
+      rather than merging, so doing this against `results/` would have dropped the four
+      measured languages from the published file. See *Risks* 10.
 - [ ] `--manifest` runs the full pipeline on a hand-built 7-column file with local audio.
 - [ ] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
       the control in every language tested.
@@ -1444,9 +1524,19 @@ re-run of unchanged languages free.
 - [ ] `packages/eval` imports the prompt builders from `packages/engine`; a grep for a prompt
       string literal in `packages/eval` returns nothing.
 - [ ] `thibi eval translate --target en` prints both controls in every table.
-- [ ] `results/tiers.json` validates against its schema and is consumed by
+- [x] `results/tiers.json` validates against its schema and is consumed by
       `packages/languages/src/tiers.ts` at build time, with an all-experimental fallback when
-      absent.
-- [ ] The ASR report opens with tier changes since the last run.
+      absent. **Done 2026-08-13.** Via `scripts/gen-tiers.ts` and a committed
+      `generated/tiers.gen.ts`, because `resolveJsonModule` is off repo-wide and a JSON import
+      would type-check under vitest and fail `tsc -b`. `schemaVersion !== 1` throws rather
+      than emitting a table shaped like a version the code does not understand. Verified end
+      to end: `thibi lang show my-MM` prints `beta (CER 0.064 (1.00× baseline) on 30 clips,
+      2026-08-13) · from measured`. **Read amendment 78 before touching the fallback** — it
+      answers "what has been measured", and applied as a tier it demotes every language on a
+      checkout that has never run an eval.
+- [x] The ASR report opens with tier changes since the last run. **Done** — first section,
+      before the run metadata, asserted by an ordering test rather than by eye, with the
+      one-line "No tier changes." case and a first-run case that does not report every
+      language as a promotion.
 - [ ] `.github/workflows/eval.yml` runs parity + the cleanup gate on every PR touching
       `packages/core/src/metrics`, `packages/eval`, or `packages/engine/src/llm/prompts`.

@@ -1,5 +1,11 @@
 export type Direction = 'ltr' | 'rtl';
 export type Tier = 'verified' | 'beta' | 'experimental' | 'unsupported';
+/**
+ * Where a resolved tier came from. Lives here rather than in `tiers.ts` because
+ * `ResolvedLanguage` carries it and `types.ts` imports nothing — the one rule that keeps
+ * this file loadable from anywhere, including a React client component.
+ */
+export type TierSource = 'seed' | 'measured' | 'override';
 export type ZeroWidth = 'strip' | 'keep';
 
 /**
@@ -185,6 +191,12 @@ export interface ResolvedLanguage extends Omit<LanguageEntry, 'typography' | 'se
   /** Script defaults merged with language overrides. */
   typography: Typography;
   tier: Tier;
+  /**
+   * How this tier was arrived at: the seeded default, a harness measurement, or a
+   * per-instance admin override. Risk 9 — a promoted language is intended, and a UI that
+   * cannot say which rows were hand-set leaks the whole measurement discipline.
+   */
+  tierSource: TierSource;
   enabled: boolean;
   support: ResolvedSupport;
   providers: Partial<Record<ProviderId, ProviderLanguageCapability>>;

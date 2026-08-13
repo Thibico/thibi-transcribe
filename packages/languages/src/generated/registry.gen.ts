@@ -6206,7 +6206,7 @@ export const LANGUAGES: Readonly<Record<string, LanguageEntry>> = deepFreeze(
     "seed": {
       "enabled": true,
       "humanReviewed": true,
-      "notes": "Verified by operational use since 2026, not by the harness. CER to be measured in Phase 5. The harness can award beta and experimental on its own; it can never award verified.",
+      "notes": "Verified by operational use since 2026, not by the harness — and superseded the moment the harness measured it: a seeded tier gives way to a measurement. The harness can award beta and experimental on its own; it can never award verified, so a measured my-MM sits at beta until a person signs it off in results/human-review/my-MM.json against that run.",
       "tier": "verified"
     },
     "subtitle": {

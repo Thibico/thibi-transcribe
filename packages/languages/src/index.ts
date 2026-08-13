@@ -39,6 +39,15 @@ export {
   SCRIPTS,
 } from './generated/registry.gen.js';
 
+export {
+  hasMeasurement,
+  measuredTier,
+  MEASURED_TIERS,
+  TIERS_GENERATED_AT,
+  TIERS_RUN_ID,
+  type MeasuredTier,
+} from './tiers.js';
+
 export type {
   Direction,
   LanguageEntry,
@@ -57,6 +66,7 @@ export type {
   SubtitleRules,
   TextRules,
   Tier,
+  TierSource,
   Typography,
   ZeroWidth,
 } from './types.js';
