@@ -1418,7 +1418,8 @@ re-run of unchanged languages free.
       run over `my-MM`, `ha-NG`, `si-LK` the cache held two TSVs and **0 wav files**.
 - [ ] `--budget-usd` aborts mid-run with exit 3, writes the runlog, and does not write
       `tiers.json`.
-- [ ] A second identical run makes zero provider calls.
+- [x] A second identical run makes zero provider calls. **Verified 2026-08-13**: the same
+      `my-MM` n=5 run a second time cost **$0.0000** and returned identical numbers in 3.5 s.
 - [ ] `thibi eval report --run <id>` reproduces both reports and `tiers.json` with the network
       disabled.
 - [x] Every one of the eight normalization rules has a named snapshot test. **Done** —
