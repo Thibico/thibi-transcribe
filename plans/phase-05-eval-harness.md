@@ -920,7 +920,12 @@ boundary above which a language becomes beta — i.e. the verified thresholds th
 phrase in the spec, and because at n=30 the point estimate clears the line long before the
 interval does.
 
-**The Burmese baseline is measured every run, never hardcoded.**
+**The Burmese baseline is measured every run, never hardcoded — and since 2026-08-13 it is
+measured at its own `n`.** `--baseline-n 100` against `--n 30` for everything else: every
+ratio divides by the baseline, so its precision is the one figure every other row inherits,
+and raising `n` for one language is far cheaper than raising it for all. Note that **`ratio`
+is computed within a run and never re-derived**, so a language only benefits from a better
+baseline by being measured alongside it.
 
 ```ts
 const BASELINE_CODE = 'my-MM';
@@ -1445,9 +1450,15 @@ re-run of unchanged languages free.
    language at once.** `distinctIds` came back 30/30 under id-seeded against 28 and 27 under
    tar order — the dedupe doing what amendment 68 asked for. Note what id-seeded is *not*: it
    selects from the prefix it downloaded, so it breaks the correlation with tar order and
-   nothing more. Sampling the split means downloading the split. **Still open:** whether the
-   ratio thresholds should widen at small n, or the baseline should simply be measured at a
-   larger n than everything it calibrates.
+   nothing more. Sampling the split means downloading the split. **Answered in part 2026-08-13 (amendment
+   82): the baseline is now measured at a larger n than everything it calibrates.**
+   `--baseline-n 100` put `my-MM` at **0.076, CI [0.064, 0.088]** — 27% narrower than the
+   n=30 interval, and containing both n=30 estimates. Every future sweep gets those clips
+   from cache for $0.0000. **Still open:** even at n=100 the baseline's `ciHi / cer` is
+   **1.160** against a 1.15 gate, so it stays `blocked: ciHiRatio>1.15` — a rule that, applied
+   to the baseline, is the relative width of its own interval rather than a comparison with
+   anything (amendment 78). Exempting the baseline from the ratio gates is a product decision
+   and is close to moot while `humanReview` blocks it anyway.
 3. **n=30 gives a wide interval.** That is not a flaw, it is the honest mechanical reason
    `verified` requires human sign-off. Raising n is cheap ($0.16 per 30 clips) and the harness
    supports `--n 100`; the thresholds do not change, the CI just narrows.

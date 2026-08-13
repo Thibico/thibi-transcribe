@@ -11,8 +11,8 @@
 import type { MeasuredTier } from '../tiers.js';
 
 /** The run these rows came from, or null if no eval has been published. */
-export const TIERS_RUN_ID: string | null = "2026-08-13T07-12-20-473Z-google";
-export const TIERS_GENERATED_AT: string | null = "2026-08-13T07:21:37.448Z";
+export const TIERS_RUN_ID: string | null = "2026-08-13T15-17-34-278Z-google";
+export const TIERS_GENERATED_AT: string | null = "2026-08-13T15:22:41.876Z";
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -31,20 +31,20 @@ export const MEASURED_TIERS: Readonly<Record<string, MeasuredTier>> = deepFreeze
       "reason": "measured",
       "provider": "google",
       "model": "chirp_2",
-      "n": 30,
-      "cer": 0.06431302001349225,
-      "cerNospace": 0.06431302001349225,
+      "n": 100,
+      "cer": 0.07586530721760129,
+      "cerNospace": 0.07586530721760129,
       "cerCi95": [
-        0.04712279111916629,
-        0.07957405614714425
+        0.0641399416909621,
+        0.08797842281017211
       ],
       "ratio": 1,
-      "scriptIntegrity": 1,
+      "scriptIntegrity": 0.9917478354978355,
       "wer": null,
-      "evalRunId": "2026-08-13T07-12-20-473Z-google",
+      "evalRunId": "2026-08-13T15-17-34-278Z-google",
       "evalDate": "2026-08-13",
       "humanReviewed": false,
-      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 1 fetched clip(s) had no reference text and were dropped."
+      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 100 clips cover 82 distinct sentences. 1 fetched clip(s) had no reference text and were dropped."
     },
     "ha-NG": {
       "tier": "beta",

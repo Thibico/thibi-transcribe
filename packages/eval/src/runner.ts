@@ -73,6 +73,17 @@ export interface RunAsrOptions {
   cacheDir: string;
   provider: string;
   model: string;
+  /**
+   * Clips for the baseline language, when it should be measured more precisely than the
+   * languages it calibrates.
+   *
+   * Every ratio in a run divides by the baseline, so the baseline's own sampling noise is
+   * multiplied across every language at once — measured: re-sampling moved `my-MM` 31% and
+   * took `ha-NG` from ratio 0.91 to 0.67 with Hausa unchanged (amendment 81). Raising `n`
+   * for one language is far cheaper than raising it for all of them, and it is the only one
+   * whose precision every other row inherits. Defaults to `n`.
+   */
+  baselineN?: number;
   /** Defaults to `tar-order`. */
   sampleStrategy?: SampleStrategy;
   /** `id-seeded` only: the shuffle seed, written to the runlog so a sample is reproducible. */
@@ -365,41 +376,50 @@ async function runOne(
 
   const strategy = opts.sampleStrategy ?? 'tar-order';
   const seed = opts.seed ?? 1;
+  // The baseline may be measured at a larger n than the languages it calibrates: every ratio
+  // divides by it, so its precision is the one every other row inherits.
+  const n = code === BASELINE_CODE ? (opts.baselineN ?? opts.n) : opts.n;
 
   // Over-fetch. A tar-order sample walks into the records that have audio and no reference
   // at a rate of `dropped / total`, so asking for exactly n returns fewer than n scoreable
   // pairs — measured: 30 fetched, 29 usable (amendment 70). Ask for the shortfall plus one,
   // then take the first n that joined.
   const totalRecords = rows.length + dropped;
-  const expectedLoss = totalRecords === 0 ? 0 : (opts.n * dropped) / totalRecords;
-  const tarOrderFetch = Math.min(totalRecords, opts.n + Math.ceil(expectedLoss) + 1);
+  const expectedLoss = totalRecords === 0 ? 0 : (n * dropped) / totalRecords;
+  const tarOrderFetch = Math.min(totalRecords, n + Math.ceil(expectedLoss) + 1);
   const overFetch =
     strategy === 'id-seeded'
-      ? Math.min(totalRecords, opts.n * (opts.oversample ?? 3))
+      ? Math.min(totalRecords, n * (opts.oversample ?? 3))
       : tarOrderFetch;
 
   const clips = await fetchClips(cfg, split, overFetch);
   const joined = joinTarOrder(clips, rows);
   const pairs =
     strategy === 'id-seeded'
-      ? selectSeeded(joined.pairs, opts.n, seed)
-      : joined.pairs.slice(0, opts.n);
+      ? selectSeeded(joined.pairs, n, seed)
+      : joined.pairs.slice(0, n);
 
   const profile = scoreProfileFor(code);
   const ranges = scriptRangesFor(code);
   if (!profile) return emptyResult(code, `no scoring profile for ${code}`, cfg);
 
   /**
-   * The sampling strategy is deliberately **not** in the cache key.
+   * The key covers everything that could change the response and **nothing that could not**.
    *
-   * The cache answers "what did this provider say about this clip", and that does not depend
-   * on how the clip was chosen — the key already carries `clipHash`. Putting the strategy in
-   * would split the cache and re-bill every clip the two strategies have in common, which on
-   * a wide prefix is most of them. (Written down because the opposite looked obviously right
-   * for a minute: two samples *are* different measurements, but they are different
-   * measurements over the same per-clip answers.)
+   * The cache answers "what did this provider say about this clip", and the key already
+   * carries `clipHash`. Neither the sampling strategy nor the sample size can change that
+   * answer, so neither belongs here: including them splits the cache and re-bills every clip
+   * two runs have in common, which between a 30-clip and a 100-clip sample of the same
+   * tar-order prefix is all thirty.
+   *
+   * `n` **was** in this key until 2026-08-13 and is the reason measuring the baseline at a
+   * larger n could not reuse the clips already paid for at the smaller one. Removing it
+   * orphans the entries written under the old key — a one-time re-bill, taken deliberately
+   * rather than carried forever. (The sampling strategy nearly went in for the opposite
+   * reason: two samples *are* different measurements, but they are different measurements
+   * over the same per-clip answers.)
    */
-  const paramsHash = paramsHashOf({ split, n: opts.n, model: opts.model, scoring: SCORE_OPTIONS });
+  const paramsHash = paramsHashOf({ split, model: opts.model, scoring: SCORE_OPTIONS });
   const perClip: EditStats[] = [];
   const perClipNospace: EditStats[] = [];
   let hypAll = '';

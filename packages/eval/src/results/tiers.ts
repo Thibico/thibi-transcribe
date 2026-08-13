@@ -130,6 +130,7 @@ export interface TiersRun {
   baseline: {
     code: string;
     cerNospace: number | null;
+    /** May exceed `sampling.n`: the baseline is what every ratio divides by. */
     n: number;
     ci95: readonly [number, number] | null;
     /** True when this run's baseline moved more than 25% from the previous run's. */

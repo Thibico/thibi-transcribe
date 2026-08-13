@@ -59,6 +59,11 @@ export function evalCommand(): Command {
     )
     .option('--seed <n>', 'id-seeded only: the shuffle seed', (v) => Number.parseInt(v, 10), 1)
     .option(
+      '--baseline-n <count>',
+      'clips for my-MM specifically — every ratio divides by it, so its precision is inherited',
+      (v) => Number.parseInt(v, 10),
+    )
+    .option(
       '--oversample <n>',
       'id-seeded only: how many times --n to pull before selecting',
       (v) => Number.parseInt(v, 10),
@@ -210,6 +215,7 @@ export function evalCommand(): Command {
             sampleStrategy: String(opts['sampleStrategy']) === 'id-seeded' ? 'id-seeded' : 'tar-order',
             seed: Number(opts['seed'] ?? 1),
             oversample: Number(opts['oversample'] ?? 3),
+            ...(opts['baselineN'] === undefined ? {} : { baselineN: Number(opts['baselineN']) }),
             usdPerMinute: runRate,
             onProgress: (line) => process.stderr.write(`${line}\r`),
           },

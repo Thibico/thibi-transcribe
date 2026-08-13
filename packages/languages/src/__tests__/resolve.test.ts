@@ -108,7 +108,10 @@ describe('language_support overrides', () => {
     const my = resolveLanguage('my-MM')!;
     expect(my.tierSource).toBe('measured');
     expect(my.support.humanReviewed).toBe(false);
-    expect(my.support.evalN).toBe(30);
+    // Whatever the latest sweep measured; the baseline is deliberately measured at a larger
+    // n than the languages it calibrates, so pinning a literal here would break on every
+    // change to `--baseline-n`.
+    expect(my.support.evalN).toBeGreaterThanOrEqual(30);
     // The override layer can still assert it, which is the admin's call to make.
     expect(resolveLanguage('my-MM', [{ code: 'my-MM', humanReviewed: true }])!.support.humanReviewed).toBe(true);
   });

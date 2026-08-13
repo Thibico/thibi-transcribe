@@ -468,3 +468,75 @@ describe('applyBaselineAndTiers', () => {
     expect(results[1]!.ratio).toBeCloseTo(1.5, 10);
   });
 });
+
+/**
+ * Every ratio in a run divides by the baseline, so the baseline's own sampling noise reaches
+ * every language at once — measured at n=30, re-sampling moved `my-MM` 31% and took `ha-NG`
+ * from ratio 0.91 to 0.67 with Hausa unchanged (amendment 81). Raising `n` for the one
+ * language whose precision everything inherits is far cheaper than raising it for all.
+ */
+describe('--baseline-n', () => {
+  it('measures the baseline at its own n and everything else at the run n', async () => {
+    const rows = Array.from({ length: 20 }, (_, i) => row(i, `${i}.wav`));
+    const haRows = Array.from({ length: 20 }, (_, i) => row(100 + i, `ha${i}.wav`, 'abcd'));
+    const h = harness({
+      cacheDir,
+      rows: { my_mm: rows, ha_ng: haRows },
+      clips: {
+        my_mm: rows.map((r) => clip(r.filename)),
+        ha_ng: haRows.map((r) => clip(r.filename)),
+      },
+      hyp: (f) => (f.startsWith('ha') ? 'abcd' : HYP),
+    });
+
+    const result = await runAsrEval(h.deps, {
+      languages: ['my-MM', 'ha-NG'],
+      n: 3,
+      baselineN: 10,
+      cacheDir,
+      provider: 'fake',
+      model: 'fake-1',
+    });
+
+    expect(result.languages.find((l) => l.languageCode === 'my-MM')!.n).toBe(10);
+    expect(result.languages.find((l) => l.languageCode === 'ha-NG')!.n).toBe(3);
+  });
+
+  it('defaults to the run n, so nothing changes for a caller that does not ask', async () => {
+    const rows = Array.from({ length: 5 }, (_, i) => row(i, `${i}.wav`));
+    const h = harness({
+      cacheDir,
+      rows: { my_mm: rows },
+      clips: { my_mm: rows.map((r) => clip(r.filename)) },
+    });
+
+    const result = await runAsrEval(h.deps, {
+      languages: ['my-MM'],
+      n: 4,
+      cacheDir,
+      provider: 'fake',
+      model: 'fake-1',
+    });
+    expect(result.languages[0]!.n).toBe(4);
+  });
+
+  /**
+   * The cache answers "what did this provider say about this clip", so raising `n` must reuse
+   * every clip already paid for at the lower one. `n` was in the key until 2026-08-13, which
+   * made exactly this measurement cost full price.
+   */
+  it('reuses the clips a smaller sample already paid for', async () => {
+    const rows = Array.from({ length: 10 }, (_, i) => row(i, `${i}.wav`));
+    const clips = rows.map((r) => clip(r.filename));
+    const base = { languages: ['my-MM'], cacheDir, provider: 'fake', model: 'fake-1' } as const;
+
+    const small = harness({ cacheDir, rows: { my_mm: rows }, clips: { my_mm: clips } });
+    await runAsrEval(small.deps, { ...base, n: 3 });
+    expect(small.calls.transcribe).toHaveLength(3);
+
+    const large = harness({ cacheDir, rows: { my_mm: rows }, clips: { my_mm: clips } });
+    const result = await runAsrEval(large.deps, { ...base, n: 8 });
+    expect(large.calls.transcribe).toHaveLength(5);
+    expect(result.languages[0]!.cachedClips).toBe(3);
+  });
+});

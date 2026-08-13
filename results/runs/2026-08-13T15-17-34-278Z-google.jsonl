@@ -1,0 +1,303 @@
+{"t":"run","runId":"2026-08-13T15-17-34-278Z-google","startedAt":"2026-08-13T15:17:34.278Z","argv":["eval","asr","--languages","my-MM","--n","100","--budget-usd","0.60","--results-dir","/private/tmp/claude-501/-Users-yan-Coding-work-thibi-transcribe/57fbe6d9-1c78-4aba-9512-2a52bfc10d10/scratchpad/b100"],"engineVersion":"phase-5","provider":"google","model":"chirp_2","split":"dev","n":100,"sampleStrategy":"tar-order","seed":1,"baselineCode":"my-MM","baselineAdded":false}
+{"t":"clip","lang":"my-MM","id":1601,"filename":"10031156686197511771.wav","clipHash":"sha256:ad4e79fd1a13a3665471f65cd5c8584d8c4aa2fc9a62b768cabac4d8e22b3194","seconds":21.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1601,"cacheHit":false,"usd":0.0057599999999999995,"hyp":"သြစလော့ တောကျောင်းအဝါ သည် တွက်များကို စားရန် သားကောင်အတွက် မြေပြင်ပေါ်တွင် ၎င်းတို့ သွားရောက်ခဲ့သည့် နေရာအား အနံ့ခံခြင်း ဖြင့် အနံ့မှာ တစ်ဆင့် နောက်ယောင်ခံ၍ ရှာဖွေကြောင်း သိပ္ပံပညာရှင်များက ထင်မြင်ကြသည်။"}
+{"t":"score","lang":"my-MM","id":1601,"edits":12,"refLen":182,"editsNospace":12,"refLenNospace":182}
+{"t":"clip","lang":"my-MM","id":1656,"filename":"10073544972710833819.wav","clipHash":"sha256:d406520e11200fed655a36e4413b1c2665f931f97677e96494874947aef00163","seconds":11.64,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1656,"cacheHit":false,"usd":0.003104,"hyp":"အလောင်း သည် ယင်း နေရာ တွင် ပေါ်လာ သည်မှာ တစ်ရက် ပင် ရှိပြီ ဟု ရဲဌာနက ဆိုပါသည်။"}
+{"t":"score","lang":"my-MM","id":1656,"edits":0,"refLen":65,"editsNospace":0,"refLenNospace":65}
+{"t":"clip","lang":"my-MM","id":1542,"filename":"10207165333468320061.wav","clipHash":"sha256:36c25f8b1db4ba5ddab8b3edd0bbd8f2b2af1aeb466863f77cfacad95197ee61","seconds":27.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1542,"cacheHit":false,"usd":0.00736,"hyp":"ဘုရှ်၏\"ပြောရေးဆိုခွင့်ရှိသူဂျော်ဒန်ဂျော်ဒရို\"ကမြောက်ကိုရီးယားနိုင်ငံ၏\"ကတိကဝတ်\"သည်ကိုကိုရီးယားကျွန်းဆွယ်အားအတည်ပြုနိုင်သည့်နျူကလီးယားစစ်ဆင်ရေးစွမ်းဆောင်မှုရည်မှန်ချက်ကိုလျှောက်လှမ်းရာတွင်အဓိကကျသောလီကာထစ်တစ်ခုဖြစ်သည်\"ဟုတုံးတုံးပြောဆိုခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1542,"edits":36,"refLen":245,"editsNospace":36,"refLenNospace":245}
+{"t":"clip","lang":"my-MM","id":1595,"filename":"1023367503538201607.wav","clipHash":"sha256:7802336fd4d81a433a269dda538948e771c0f08ae0cbb75176cb13e7c35d68c6","seconds":17.28,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1595,"cacheHit":false,"usd":0.004608,"hyp":"တိဗက်လူမျိုးတို့၏ ဗုဒ္ဓဘာသာသည် ဗုဒ္ဓ၏ အဆုံးမှောက်များပေါ်တွင် အခြေခံထားခြင်း ဖြစ်သော လေး ၎င်းကို မေတ္တာ ဖြင့် လျှောက်စမ်းသော မဟာယနလမ်းကြောင်းနှင့် အိန္ဒိယ ရောဂါ ပညာတို့ထံမှ နည်းစနစ် များဖြင့် အကျယ်ဖြန့်ထားပါသည်။"}
+{"t":"score","lang":"my-MM","id":1595,"edits":15,"refLen":189,"editsNospace":15,"refLenNospace":189}
+{"t":"clip","lang":"my-MM","id":1519,"filename":"10289545742032119139.wav","clipHash":"sha256:55a0dc447013157eba85600fa81f418e9529576742e3ca944c3ed24149324546","seconds":15.9,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1519,"cacheHit":false,"usd":0.004240000000000001,"hyp":"များစွာသော ကိစ္စရပ်များတွင် နိုင်ငံရပ်ခြား တွင် နှစ်ရှည် အနားယူနိုင်သည့် သင်ခန်းစာ ၌ စာရင်းသွင်းခြင်း သည် သင်၏ မိခင် နိုင်ငံ ရှိ ပိုမို မြင့်မားသော ပညာရေး ထံ ပြန်လည် ရွှေ့ပြောင်းနိုင်သော သင်၏ အခွင့်ရေး များ ကို အမှန် တကယ် တိုးတက်စေ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1519,"edits":1,"refLen":208,"editsNospace":1,"refLenNospace":208}
+{"t":"clip","lang":"my-MM","id":1647,"filename":"10320655822221216557.wav","clipHash":"sha256:a548e70a1920391ead9a4ecd7cc3a403f938be2b29fad228d6b416e7efd9adb8","seconds":18.36,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1647,"cacheHit":false,"usd":0.004896,"hyp":"တင်ပြထားသည့် ရှုသောက် များ သည် အခြား နေရာ တစ်ခု တွင် ရရှိနိုင်သည် ပိုမို အသေးစိတ်သော အချက်အလက် များ နှင့် နှိုင်းယှဉ် ပါက သမန်ကာရှမ်းကာ ရေပူရ သဘော ဆန့် ပြီး အလေးနက်ထားမှု မရှိ ပေ။"}
+{"t":"score","lang":"my-MM","id":1647,"edits":17,"refLen":158,"editsNospace":17,"refLenNospace":158}
+{"t":"clip","lang":"my-MM","id":1621,"filename":"10381870103415436717.wav","clipHash":"sha256:7d39fc732b7a606ec5eaa90e855a08738b270735d0ad09a70ce1ffd24841e83e","seconds":10.26,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1621,"cacheHit":false,"usd":0.002736,"hyp":"အစပိုင်းတွင် ဝတ်စုံကို အရှေ့ဘက်ရှိ ပိုင်ဆံတိုင်းတို့၏ ပုံစံအတိုင်း ချုပ်ထားခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1621,"edits":4,"refLen":76,"editsNospace":4,"refLenNospace":76}
+{"t":"clip","lang":"my-MM","id":1639,"filename":"10391944485896067743.wav","clipHash":"sha256:2ceaaac6fa7e3a942757e517d7aeb1e38693838dd8164c62bef153b4556dceae","seconds":16.62,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1639,"cacheHit":false,"usd":0.004432,"hyp":"ကျောင်းသားများသည် မကြာခဏ ဆိုသလို ဝေဖန်လေ့ရှိကြသော ပရိသတ်များ ဖြစ်သောကြောင့် ဘလော့ဂ်ရေးသားသူက ဝေဖန် ပြစ်တင်မှုကို ရှောင်ရှားနိုင်ရန် ရေးသားကို မြှင့်တင်ရန် စတင် ကြိုးပမ်းသည်။"}
+{"t":"score","lang":"my-MM","id":1639,"edits":6,"refLen":162,"editsNospace":6,"refLenNospace":162}
+{"t":"clip","lang":"my-MM","id":1577,"filename":"10406743972683477081.wav","clipHash":"sha256:0f5596159ca1e135211cef735e90b32a3ca6fade92c6508f9f1d8b1b8a7a0979","seconds":9.18,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1577,"cacheHit":false,"usd":0.002448,"hyp":"ငါ့အတွက် တော့ ဒါက လုံးဝ အဓိပ္ပာယ် မရှိဘူး လုံးဝ ကို မတရားဘူး"}
+{"t":"score","lang":"my-MM","id":1577,"edits":1,"refLen":52,"editsNospace":1,"refLenNospace":52}
+{"t":"clip","lang":"my-MM","id":1602,"filename":"10419105909360283396.wav","clipHash":"sha256:290e1ab42a74f32155d970d330be64490f368e9267c2f475ef8df7f6b8086f33","seconds":18.84,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1602,"cacheHit":false,"usd":0.005024,"hyp":"ပင်လယ် ဒေသ နှင့် စုံခြင်း တူသော မကျော် ကန် ၏ ချက်ပြုတ် နေ သည် ပါမှုတ် ဟင်းသီးဟင်းရွက် များ နှင့် အသား အထူးသဖြင့် ဝက်သား တို့ ပေါ် တွင် အခြေခံထားခြင်း ဖြစ်ကာ သံလွင်ဆီ ကို သုံးစွဲ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1602,"edits":22,"refLen":169,"editsNospace":22,"refLenNospace":169}
+{"t":"clip","lang":"my-MM","id":1549,"filename":"10424358911403300174.wav","clipHash":"sha256:0e7804d60904fd9fa068c9f8a105b5b0ecf84f3516017f29cd24757f0a7d0ab3","seconds":13.86,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1549,"cacheHit":false,"usd":0.003696,"hyp":"ထို သီရိ များက အကြံပြုသည်မှာ လူများသည် လိုအပ်ချက်များနှင့် ဆန္ဒများကို ရင့်ကျက်လာသည်နှင့် အမျှ မသိစိတ်တွင် ကိန်းအောင်းလာကြသည်။"}
+{"t":"score","lang":"my-MM","id":1549,"edits":4,"refLen":118,"editsNospace":4,"refLenNospace":118}
+{"t":"clip","lang":"my-MM","id":1572,"filename":"10561141569222142979.wav","clipHash":"sha256:4ebdd66c9dbfbabbcf3321da24d3992cdb6d8063a539090b1b154edce9f58c52","seconds":10.8,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1572,"cacheHit":false,"usd":0.0028799999999999997,"hyp":"၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1572,"edits":12,"refLen":74,"editsNospace":12,"refLenNospace":74}
+{"t":"clip","lang":"my-MM","id":1540,"filename":"10582951187228980621.wav","clipHash":"sha256:d9ef734fda08121dd0941ab4d501795b9c5e8c099c8a64bacc92c962fa52d884","seconds":17.82,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1540,"cacheHit":false,"usd":0.004752,"hyp":"စည်းမျဉ်းအရ တိဗက် ဗုဒ္ဓဘာသာသည် အလွန် ရုပ်ရှင်သည်၊ ၎င်းတွင် ကုန်တလိနိ ရောဂါ တရားကျင့်ကြံခြင်းနှင့် သတ္တဝါ ခပ်သိမ်း အပေါ် ထားရှိသည့် မေတ္တာတရားသို့ ပါဝင်သည်။"}
+{"t":"score","lang":"my-MM","id":1540,"edits":9,"refLen":138,"editsNospace":9,"refLenNospace":138}
+{"t":"clip","lang":"my-MM","id":1588,"filename":"10799917574828079160.wav","clipHash":"sha256:fe04b4e7cb862185289dadc9ce7e174e83d0a02c762610a407ffcee20853a85b","seconds":8.94,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1588,"cacheHit":false,"usd":0.002384,"hyp":"ရဲများ၏ အဆိုအရ ဓာတ်ပုံဆရာကို ဝန်တိုက်မိသော ယာဉ်မောင်းသည် ပြစ်မှုဆိုင်ရာ တရားစွဲဆိုမှုများကို ရင်ဆိုင်ရနိုင်ခြေမရှိပါ။"}
+{"t":"score","lang":"my-MM","id":1588,"edits":1,"refLen":108,"editsNospace":1,"refLenNospace":108}
+{"t":"clip","lang":"my-MM","id":1516,"filename":"10901148100322779654.wav","clipHash":"sha256:408dc570635e1cdd8465d20d21d16166fdb7f75730ae3221f33139054a75c26a","seconds":12.66,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1516,"cacheHit":false,"usd":0.003376,"hyp":"နေရာ ဒေသ ကို ၎င်း နှင့် ထိုက်သန်သော ဂုဏ် သိက္ခာ အစဉ်အလာ နှင့် လေးစားမှု တို့ ဖြင့် ဆက်ဆံပေးပါ။ အစုလိုက် အပြုံလိုက် သတ်ဖြတ်ခြင်း သို့မဟုတ် နာစီ တို့ နှင့် ပတ်သက်၍ အာသ မလုပ် ပါနဲ့။"}
+{"t":"score","lang":"my-MM","id":1516,"edits":7,"refLen":153,"editsNospace":7,"refLenNospace":153}
+{"t":"clip","lang":"my-MM","id":1570,"filename":"10947836665564491935.wav","clipHash":"sha256:1fc6fdd20efec24da0c685a635832bfe1ea3918aa7aaa8c06f2f2de7221e6765","seconds":8.16,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1570,"cacheHit":false,"usd":0.0021760000000000004,"hyp":"၎င်း တွေ ပြည်နယ် များ ကြား ရှိ အခု ဥပဒေ များ နဲ့ တွင်းကုန် စည်းကြမ်းခွန် များ အပေါ် လွှမ်းမိုးသည့် လုပ်ပိုင်ခွင့် အာဏာ လည်း မရှိ ပေ"}
+{"t":"score","lang":"my-MM","id":1570,"edits":12,"refLen":116,"editsNospace":12,"refLenNospace":116}
+{"t":"clip","lang":"my-MM","id":1635,"filename":"10949539563983126573.wav","clipHash":"sha256:6ae450a802fb454caaf0d1061e88b172558cb0a58dbad1ba069fa51c6ede335d","seconds":18.24,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1635,"cacheHit":false,"usd":0.004864,"hyp":"ကျွန်ုပ်တို့သည် ပတ်ဝန်းကျင်နှင့် ပိုမို ရင်းနှီးကျွမ်းဝင်စား စတင် နေထိုင်နိုင်ပြီး ပတ်ဝန်းကျင်ဆိုင်ရာ လှုပ်ရှားမှု တွင် ပူးပေါင်း ပါဝင်နိုင်ကာ နောင် တွင် အချို့ ဒေဝီများ ၌ ခံစားရခြင်း ကို လျှော့ချရန် အလို့ငှာ လှုပ်ရှား ပြောင်းလဲရေး ဝါဒီဝန် အဖြစ် ပင် လုပ်ဆောင်နိုင်ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1635,"edits":9,"refLen":241,"editsNospace":9,"refLenNospace":241}
+{"t":"clip","lang":"my-MM","id":1604,"filename":"10991180516324768459.wav","clipHash":"sha256:8ce73fbd878c0ed235e3c2c8347e6f9878de152327e51fb6dac89e398eeb8697","seconds":30.84,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1604,"cacheHit":false,"usd":0.008224,"hyp":"အနီးဖြင့် သူ သည် ကာတာ ကို ၁၉၇၈ ခုနှစ် ကမ် ဒေးဗစ် သဘောတူညီချက် များ ၁၉၇၀ ပြည့်နှစ် များ တစ်လျှောက် လော အမေရိကန် တရုတ် ဆက်ဆံရေး များ ကို ပုံမှန် ဖြစ်စေရန် ချိတ်ညှိခြင်း ၁၉၇၉ ခုနှစ် ၏ အီရန် တစ်စခန်း အရေးခင်း ကို ဦးတည်စေခဲ့သည့် အီရန် တော်လှန်ရေး နှင့် ၁၉၇၉ ခုနှစ် အာဖဂန်နစ္စတန် နိုင်ငံ အတွင်း ဆိုဖီး ရဲ့ ကျူးကျော်မှု ကဲ့သို့ ကမ္ဘာ့ရေးရာ ကိစ္စရပ်များ အား သံသမန်ရေးရာ အရ ကိုင်တွယ်ရာ တွင် အကူအညီပေးခဲ့ သည်. ဟိုး ဟိုး"}
+{"t":"score","lang":"my-MM","id":1604,"edits":32,"refLen":348,"editsNospace":32,"refLenNospace":348}
+{"t":"clip","lang":"my-MM","id":1630,"filename":"11001796933815060439.wav","clipHash":"sha256:ac8b1470e2ddde96b1aae6725efd084159c3a48fa6a963aede042424f6821706","seconds":22.2,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1630,"cacheHit":false,"usd":0.00592,"hyp":"မက်ကဇီကိုမှဧလီဘီလက်စ်ကွက်စ်သည် ထိုင်၍ နှင်လျှောစီးသော အမျိုးသားဆု ပါကီ ပြိုင်ပွဲတွင် ၁၅ ဦးမြောက်အဖြစ် ပါဝင်ခဲ့ပါသည်။ နယူးဇီလန်မှ အဒမ်ဟောလ်သည် မတ်တပ်ရပ်၍ နှင်လျှောစီးသော အမျိုးသား ဆု ပါကီ ပြိုင်ပွဲတွင် ၉ ဦးမြောက်အဖြစ် ပါဝင်ခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1630,"edits":33,"refLen":225,"editsNospace":33,"refLenNospace":225}
+{"t":"clip","lang":"my-MM","id":1557,"filename":"11003204602708991289.wav","clipHash":"sha256:b5084829e31140be0a89c65649c5a20d8bee31acf624267c689c66b8aa252a33","seconds":16.2,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1557,"cacheHit":false,"usd":0.00432,"hyp":"ပထမ ကမ္ဘာစစ် အတွင်း စစ်ပွဲ ၏ ဆိုးရွားမှုများနှင့် ကြံချုပ်မှုများကို တွေ့မြင်ပြီးနောက် နိုင်ငံများသည် နောင် တွင် ထိုသို့သော အခြေအနေမျိုး ထပ်ပေါ်လာခြင်းကို ရှောင်လွှဲရန် ဆုံးဖြတ်ခဲ့ကြပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1557,"edits":6,"refLen":173,"editsNospace":6,"refLenNospace":173}
+{"t":"clip","lang":"my-MM","id":1514,"filename":"11017193851292593160.wav","clipHash":"sha256:f77f07b548ff67891d2642edd09bcd5e387494d712e6c5810c4f2565efedc41d","seconds":12.06,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1514,"cacheHit":false,"usd":0.003216,"hyp":"ဒဏ်ရာရသူ များကို ဆေးရုံ သို့ ပို့ ပြီး နောက် ရန် ဖြစ်မှု များ ရပ်ဆဲ သွား ပြီးချိန် တွင် ကျန်ရှိ နေခဲ့သော ထောင်သား အယောက် ၄၀ ခန့် သည် ခြံဝန်း ထဲ တွင် နေခဲ့ကြ ပြီး ၎င်း တို့ ၏ အခန်း များ သို့ ပြန် သွားရန် ငြင်းဆန် ခဲ့ ကြ သည်"}
+{"t":"score","lang":"my-MM","id":1514,"edits":1,"refLen":183,"editsNospace":1,"refLenNospace":183}
+{"t":"clip","lang":"my-MM","id":1643,"filename":"11069233033021893716.wav","clipHash":"sha256:edf40f013793e1449ccbb678998a15a2a9ddbb7cab7d57425fd3e447b82bed49","seconds":14.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1643,"cacheHit":false,"usd":0.003872,"hyp":"ပန်းခြံသည် ၁၉၅၀၀ စတူရီယန် ကီလိုမီတာ ရှိပြီး အီကိုဆိုများ ၁၄ ခု ပိုင်ခြားထားကာ တစ်ခုချင်းစီ တွင် ကွဲပြားသော သုံးရပ် တိရစ္ဆာန်များကို ထားထားသည်။"}
+{"t":"score","lang":"my-MM","id":1643,"edits":17,"refLen":130,"editsNospace":17,"refLenNospace":130}
+{"t":"clip","lang":"my-MM","id":1659,"filename":"11087094451568329246.wav","clipHash":"sha256:ac0c2dcf0bcda381f0d1c863a9f23135d730095001dbecee264e038059794111","seconds":5.88,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1659,"cacheHit":false,"usd":0.0015680000000000002,"hyp":"သိပ္ပံ ပညာရှင် များ အစိုးရ တိုက်မိခြင်း ကြောင့် ဖြစ်လာသည့် ပျောက်ကွယ်မှု သည် ကြီးမား သည်"}
+{"t":"score","lang":"my-MM","id":1659,"edits":6,"refLen":76,"editsNospace":6,"refLenNospace":76}
+{"t":"clip","lang":"my-MM","id":1575,"filename":"11087326203380270351.wav","clipHash":"sha256:b6fb3ea84ee01b6124a079854b500c3bc48128b1fef09fbe470a3b1939a935d8","seconds":20.82,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1575,"cacheHit":false,"usd":0.005552,"hyp":"ပီအေး က ထို တို့ တော့ သိရှိနေမှု ကို ငါးနှစ်သာ ထွက်ခွာ ပေးရန် သဘောတူစဉ် တွင် သဘောတူညီချက် ကို လက်မှတ်ရေးထိုးလိုက်သည်နှင့် အစ္စရေး သည် တောင်ကြား တွင် စစ်တပ် များကို ဆယ်နှစ်ကြာ ထပ် ၍ တပ်စွဲထားရန် တောင်းဆိုလိုက်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1575,"edits":7,"refLen":188,"editsNospace":7,"refLenNospace":188}
+{"t":"clip","lang":"my-MM","id":1539,"filename":"11168747678750940530.wav","clipHash":"sha256:8659fac4bd6a2d451b05a4a824dc3d6c788c810d66d07be7893c6e195ae15e1c","seconds":12.48,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1539,"cacheHit":false,"usd":0.003328,"hyp":"တူညီသော ရိုးရာ ဓလေ့ဝင်များ သည် ဖက်ရှင်များ、 အပြုအမူများ နှင့် စကားတို့ အပါအဝင် ကွဲပြားပြီး အမှတ်အသားရှိသော အသုံးပြုမှု စက်တိုင် မှ တစ်ဆင့် ၎င်း တို့ ၏ အဖွဲ့ဝင် ဖြစ်မှု ကို အချက်ပြလေ့ရှိ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1539,"edits":4,"refLen":162,"editsNospace":4,"refLenNospace":162}
+{"t":"clip","lang":"my-MM","id":1645,"filename":"11194347463421847271.wav","clipHash":"sha256:c7e77d714dcda43d35b8e0390d1e44f50ebaa60f24d9032898ca181a0bf08b8e","seconds":16.38,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1645,"cacheHit":false,"usd":0.004368,"hyp":"၎င်း၏ အားလုံးထံ စုဝင်ပြန့်နှံ့သွားသော စွမ်းအားသည် ဘုရင်မှ သမန်လူအထိ လူတိုင်းလူတိုင်းကို ထိခိုက်စေခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1645,"edits":6,"refLen":97,"editsNospace":6,"refLenNospace":97}
+{"t":"clip","lang":"my-MM","id":1585,"filename":"1120429317845809681.wav","clipHash":"sha256:bf40e8259b774b81b5f80a668dcfebe6d457b0c0996cfe93b590c96e5b202bd5","seconds":17.22,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1585,"cacheHit":false,"usd":0.004592,"hyp":"အချိန် ကြာလာသည် နှင့် အများ လူဦးရေ အသစ် သည် ၎င်း တို့ ၏ ပတ်ဝန်းကျင် အသစ် နှင့် သဟဇာတ ဖြစ်လာခဲ့ ပြီး ၎င်း တို့ သည် တဖြည်းဖြည်း နှင့် တခြား လူဦးရေ များ နှင့် သိပ်မတူတော့ ပါ။"}
+{"t":"score","lang":"my-MM","id":1585,"edits":6,"refLen":143,"editsNospace":6,"refLenNospace":143}
+{"t":"clip","lang":"my-MM","id":1560,"filename":"11217275853552375891.wav","clipHash":"sha256:bcc0c2be5442f52a8e633de4cbecd68957b18ca5b92d3eb64992a3e40e5db954","seconds":10.14,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1560,"cacheHit":false,"usd":0.0027040000000000002,"hyp":"ရေစီးကျောင်းမှ ထွက်လာသည်နှင့် ရေကူးခြင်းသည် ပုံမှန်အားဖြင့် မခက်ခဲတော့ပါ။"}
+{"t":"score","lang":"my-MM","id":1560,"edits":1,"refLen":68,"editsNospace":1,"refLenNospace":68}
+{"t":"clip","lang":"my-MM","id":1650,"filename":"11250276507411811159.wav","clipHash":"sha256:feeca177e55d7e0d2d2425eb1cb35a4e6a9088de224f3c5848aa73b2dfbcfc4c","seconds":14.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1650,"cacheHit":false,"usd":0.00376,"hyp":"ရေငန်မစ်ကျောင်းများသည် သမုဒ္ဒရာ ထဲတွင် သိပ်မနေဘဲ ရော့ခ် ဟန်ဒန် ၏ မြောက်ဘက်ရှိ မြစ်ဝ များတွင် အဓိက ကျက်စားကြပါသည်။"}
+{"t":"score","lang":"my-MM","id":1650,"edits":6,"refLen":100,"editsNospace":6,"refLenNospace":100}
+{"t":"clip","lang":"my-MM","id":1562,"filename":"11251766658996210363.wav","clipHash":"sha256:27bfacc4d450a39d05b1cbaca7efb9376ad175fb859bb984593ea08316d6bb04","seconds":14.58,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1562,"cacheHit":false,"usd":0.003888,"hyp":"ဤသည်မှာ အသုံးများသည့် လုပ်ထုံးလုပ်နည်း ဖြစ်လာခဲ့ သော်လည်း သံလီ လှည်း များ ၏ သစ်သား ဘီး များ ကို ပိုမို တိုက်စား သည်."}
+{"t":"score","lang":"my-MM","id":1562,"edits":3,"refLen":100,"editsNospace":3,"refLenNospace":100}
+{"t":"clip","lang":"my-MM","id":1645,"filename":"11260202118621750966.wav","clipHash":"sha256:c5941ef1c9cbeb95d8005cbee5992b29cc64465d14435f22ab16154e1218963d","seconds":9,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1645,"cacheHit":false,"usd":0.0024,"hyp":"၎င်း၏ အားလုံးတည်းစုဝင်ပျံ့နှံ့သွားသော စွမ်းအားသည် ဘုရင်မှသာ သမန်လူ အထိ လူတိုင်း လူတိုင်း ကို ထိခိုက်စေခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1645,"edits":7,"refLen":97,"editsNospace":7,"refLenNospace":97}
+{"t":"clip","lang":"my-MM","id":1645,"filename":"11416870564689546668.wav","clipHash":"sha256:faf5e16cbb6d46a3788c4d984e09fc9023662aefd985da03d4235bec76e4d282","seconds":13.5,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1645,"cacheHit":false,"usd":0.0036000000000000003,"hyp":"၎င်း၏ အားလုံးထက် စူးဝင် ပျံ့နှံ့ သွားသော စွမ်းအားသည် ဘုရင်မ သမန်လူ အထိ လူတိုင်း လူတိုင်း ကို ထိခိုက်စေခဲ့ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1645,"edits":4,"refLen":97,"editsNospace":4,"refLenNospace":97}
+{"t":"clip","lang":"my-MM","id":1648,"filename":"11467374296001786322.wav","clipHash":"sha256:0a4cf0854e19427e310b7cdd47fc82c422d1e81db7b262ea06366310e76015df","seconds":10.44,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1648,"cacheHit":false,"usd":0.002784,"hyp":"ကန်ဒန်၏ ကုန်းမြေတွင် တောအုပ်ကြီးကြီး မမ မရှိခဲ့သောကြောင့် သစ်မှာ အလွန် တရာ စျေးကြီး ခဲ့ ပါ သည်."}
+{"t":"score","lang":"my-MM","id":1648,"edits":10,"refLen":86,"editsNospace":10,"refLenNospace":86}
+{"t":"clip","lang":"my-MM","id":1551,"filename":"11497891712905243782.wav","clipHash":"sha256:f2b7a50ac0d87e9662160cc37cf5a036999600e8682ed7b1a9876865456c8097","seconds":11.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1551,"cacheHit":false,"usd":0.00296,"hyp":"ထို အရာ၏ ပျက်ကျမှု၏ အတိုင်းအတာ မြေမှ ကြီးမားကြောင်းနှင့် ကမ္ဘာမြေကို မည်သို့ တက်ရောက်နိုင်ကြောင်း ကို ၎င်းတို့က စုံဖြတ်နိုင်ရန် ကြိုးစားနေဆဲ ဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1551,"edits":6,"refLen":134,"editsNospace":6,"refLenNospace":134}
+{"t":"clip","lang":"my-MM","id":1655,"filename":"11525787919935516830.wav","clipHash":"sha256:8d28b4067832cd380c72065e0c62d42ced02b750004ae4d8e1cd5423b8994f6a","seconds":19.68,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1655,"cacheHit":false,"usd":0.005248,"hyp":"ဥပမာ၊ သင်ယူလေ့လာခြင်းနှင့် ပတ်ဝန်းကျင်နှင့် ဝင်ဆန့်ခြင်းတို့ကို အင်တာနက် အသုံးပြုမှု အတွက် အရေးကြီးသော စိတ်အား တတ်စေသည့် အရာများ အဖြစ် အကြံပြုထားပါသည်။ James et al. (၁၉၉၅)"}
+{"t":"score","lang":"my-MM","id":1655,"edits":3,"refLen":149,"editsNospace":3,"refLenNospace":149}
+{"t":"clip","lang":"my-MM","id":1579,"filename":"11542018697657404827.wav","clipHash":"sha256:f0420baa077518bd663c0a5cdc2bf0a9da3102aa3086d56a0b3f5e44ec7096b7","seconds":20.88,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1579,"cacheHit":false,"usd":0.005568,"hyp":"ဤရှိ ဂိုဏ်းဂဏ ဆိုင်ရာ ပဋိပက္ခ ကြီးထွားလာသော အကြံဖတ်မှု သို့မဟုတ် ပရမ်းပတာ ဖြစ်မှု သို့ ဦးတည်သည့် အခြေနေများကို ရပ်တန့်ရန် ယခု အချိန် တွင် မည်သည့် လုပ်ဆောင်ချက် ကများ ဆောင်ရွက်ပေး နိုင်မည့် မဟုတ်ကြောင်း ကို ၎င်း က သတိပေး ပါ သည်"}
+{"t":"score","lang":"my-MM","id":1579,"edits":14,"refLen":202,"editsNospace":14,"refLenNospace":202}
+{"t":"clip","lang":"my-MM","id":1583,"filename":"1154940050065197948.wav","clipHash":"sha256:cceb6b2651c4d77105b0740e094f9beaa06e3e7aa2e3973d9c3360d1f7cba211","seconds":24.12,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1583,"cacheHit":false,"usd":0.006432,"hyp":"သူမ သည် အပြုသဘောဆောင်ရွက်မှတ်ချက် အများအပြား နှင့် ထို သဌေးသားစီး များ ကို ဆေးပညာ သဘောအရ လိုအပ်မှု အဖြစ် စဉ်းစားနိုင် သည် ဟု တိုက်တွန်း ပြောဆိုကြသော အမျိုးသား အမျိုးသမီး များ မှ သူမ ထံ ပေးပို့ပေးသည့် အားပေးစကား များ ကြောင့် ဤကဲ့သို့ တော် အဆုံးသတ် သို့ ရောက်ရှိလာခြင်း ဖြစ် ပါ သည်"}
+{"t":"score","lang":"my-MM","id":1583,"edits":13,"refLen":244,"editsNospace":13,"refLenNospace":244}
+{"t":"clip","lang":"my-MM","id":1572,"filename":"11565462018298936887.wav","clipHash":"sha256:13f473739c4cc45123fbdd80f8ea2070b8318eb9bb8caa7f02e39aefd8f802e7","seconds":9.78,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1572,"cacheHit":false,"usd":0.002608,"hyp":"၂:၀၀ နာရီ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး ၌ နောက်ထပ် ဗုံး သုံးလုံး ဖောက်ကွယ်ခဲ့ ပါ သည်။"}
+{"t":"score","lang":"my-MM","id":1572,"edits":11,"refLen":74,"editsNospace":11,"refLenNospace":74}
+{"t":"clip","lang":"my-MM","id":1567,"filename":"11608233672499912622.wav","clipHash":"sha256:537d7150c12f0b54db43b1285d1f2383b181009d82295dbe1ccdec3a1f32aa44","seconds":11.46,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1567,"cacheHit":false,"usd":0.003056,"hyp":"နှစ် တစ်နှစ်၏ အကြီးမားဆုံး အားကစား ပြိုင်ပွဲကို ဒီဇင်ဘာ လ တွင် လာကန်နီးဒါရှိ ပိုလိုခွင့် များ ၌ ကျင်းပပါသည်။"}
+{"t":"score","lang":"my-MM","id":1567,"edits":6,"refLen":92,"editsNospace":6,"refLenNospace":92}
+{"t":"clip","lang":"my-MM","id":1584,"filename":"11702314359817770084.wav","clipHash":"sha256:703b79629f74dd06500c9202ddc045aea2b5bc7580edd470aa6a31f94f2cc6a9","seconds":13.32,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1584,"cacheHit":false,"usd":0.003552,"hyp":"ဗစ်ရှ် ကတ် လမ်းများ တွင် ဥပဒေ စိုးမိုးရေး အရရှိရာ ရှိမနေခဲ့သောကြောင့် ညတွင်းချင်း ပင် လူရပ်မှုများ ဆက်တိုက် ပျံ့နှံ့လာခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1584,"edits":9,"refLen":115,"editsNospace":9,"refLenNospace":115}
+{"t":"clip","lang":"my-MM","id":1513,"filename":"11769252981561961833.wav","clipHash":"sha256:cf8b9c3dbfcdd05c05df43f9f9221e6be89898f39c34c12092e900292e091a11","seconds":7.68,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1513,"cacheHit":false,"usd":0.002048,"hyp":"အာဂျင်တီးနား နိုင်ငံ ကို ကမ္ဘာပေါ် တွင် အကောင်းဆုံး သော ပိုး လို အသင်း သတင်း နှင့် ကစားသမား ရှိ သည် ဟူ၍ လူသိ များ ထင်ရှား သည်"}
+{"t":"score","lang":"my-MM","id":1513,"edits":5,"refLen":106,"editsNospace":5,"refLenNospace":106}
+{"t":"clip","lang":"my-MM","id":1592,"filename":"11781826008689390641.wav","clipHash":"sha256:1d11dedaf6c7a1d09c465b3b390ba751550126f584af33557f9d4ac854eb19b6","seconds":14.88,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1592,"cacheHit":false,"usd":0.003968,"hyp":"ပထမဆုံး အကြိမ် ပြည်ပသို့ ခရီးသွားသည့် အခါ လူများမှာ အတော် အတန် စိတ်ရှည်ပေးကြပြီး နိုင်ငံ အသက်တို ခရီး သွားလာချက် လေးရာ မှာ နတ်လျောင်းညီညွှန်း ဖြစ် ရန် လိုအပ်ကြောင်း ကို နားလည်ပေးကြပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1592,"edits":23,"refLen":161,"editsNospace":23,"refLenNospace":161}
+{"t":"clip","lang":"my-MM","id":1593,"filename":"11869336173842911645.wav","clipHash":"sha256:15bc9e736287628162c9dcde5c7a3f31420ae518b3342d605e2e926f89cdeed3","seconds":17.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1593,"cacheHit":false,"usd":0.00456,"hyp":"နောက်ဆုံးတွင်, တစ်သားဘီးများကို သံဘီးများဖြင့် အစားထိုးနိုင်ခဲ့သည်။ ၁၇၆၇ ခုနှစ်တွင် သံဘီးများ အပြည့်အစုံ ပါဝင်သည့် ပထမဆုံးလော ရထားလမ်းများကို နှိပ်စက်ခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1593,"edits":6,"refLen":142,"editsNospace":6,"refLenNospace":142}
+{"t":"clip","lang":"my-MM","id":1533,"filename":"11960938500713109877.wav","clipHash":"sha256:1c7562ca515f02c72eb005dc7cb297ed9e94d261c0079c96f8baaf1bca6e3e43","seconds":14.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1533,"cacheHit":false,"usd":0.003872,"hyp":"သာမန် ပုံစံ အများစု ဥပမာ APS ဖော်မတ် ပုံစံ သူများ သည် ဤ ရှုထောင့် အချို့နှင့် ညီမျှသည် သို့မဟုတ် အနီးကပ် တူညီသည်။"}
+{"t":"score","lang":"my-MM","id":1533,"edits":2,"refLen":97,"editsNospace":2,"refLenNospace":97}
+{"t":"clip","lang":"my-MM","id":1617,"filename":"11965633027465581844.wav","clipHash":"sha256:e26dcc2d48ae41822fed7696127f1c2389539a2d9ea08481327c7a827eca5ecf","seconds":21.36,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1617,"cacheHit":false,"usd":0.005696,"hyp":"Kruger National Park, KNP တောင်အာဖရိက အရှေ့မြောက်ပိုင်း တွင် တည်ရှိကာ အရှေ့ဘက် တွင် မိုဇန်ဘတ် နိုင်ငံ နှင့် ထိဆက်နေသည့် နယ်စပ် တစ်လျှောက် မြောက်ဘက် တွင် ဇင်ဘာဂွေ တို့ နှင့် ထိဆက်နေကာ တောင်ပိုင်း နယ်စပ် မှ ဂရိုပို တိုင်း မြစ် ဖြစ် ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1617,"edits":24,"refLen":203,"editsNospace":24,"refLenNospace":203}
+{"t":"clip","lang":"my-MM","id":1556,"filename":"11978789192013847066.wav","clipHash":"sha256:0ce40d1b2b9e8ce6cd32170742543c84eb996f49c44dccd655794afc4dd83fea","seconds":21.78,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1556,"cacheHit":false,"usd":0.005808,"hyp":"သူ၏အခုတစ်ထောင်မြောက်အသိမှတ်ပြုမှုသည် ဂင်နစ် ကမ္ဘာ့စင်ချိန်များစာအုပ်တွင် ၂၀၀၇ ခုနှစ်ကပါရှိသော ဒေးဗစ် ကလော့တ်က အီရမ်စတား၏ ခန့်နားသည့် ဆွီဒင်ဘုရင်များ၏ ကောင်းမွန်သော လုပ်ဆောင်ချက်များ ဖြစ်ခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1556,"edits":21,"refLen":174,"editsNospace":21,"refLenNospace":174}
+{"t":"clip","lang":"my-MM","id":1545,"filename":"12007601095939055361.wav","clipHash":"sha256:bb3db33ece9a37994cd571673ddc2ffff6692adaed0776c6cd461b40403bc4e5","seconds":11.64,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1545,"cacheHit":false,"usd":0.003104,"hyp":"ဟင်းလျာ တစ်ခု သည် အရည် ပမာဏ ပေါ် မူတည်ပြီး အခြောက် သို့မဟုတ် အဆို တစ်ခုခု ဖြစ်နိုင်သည်။"}
+{"t":"score","lang":"my-MM","id":1545,"edits":2,"refLen":76,"editsNospace":2,"refLenNospace":76}
+{"t":"clip","lang":"my-MM","id":1561,"filename":"12011678642037122936.wav","clipHash":"sha256:fc22a3c0a78d1c25a94274cc87c2fda6b7a668ca72913cd1fc928470c9790607","seconds":7.5,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1561,"cacheHit":false,"usd":0.002,"hyp":"ဆရာကြီး အများစု ကို သက်တောင့် သက်သာ ရှိ ၍ ကြံ့ခိုင်စွာ တည်ဆောက် ထားသည့် ဂျပန် ကော့စ် ကား ဘတ်စ်ကား များ ဖြင့် ဝန်ဆောင်မှု ပေးနေ သည်"}
+{"t":"score","lang":"my-MM","id":1561,"edits":10,"refLen":108,"editsNospace":10,"refLenNospace":108}
+{"t":"clip","lang":"my-MM","id":1600,"filename":"12039363996565400976.wav","clipHash":"sha256:07ee87d5f8508b8f6e4f184861e99559667a359710128c22c6fb1d39fef45ed6","seconds":18.24,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1600,"cacheHit":false,"usd":0.004864,"hyp":"နေရာ တွင် ပင် ပြုလုပ် နိုင်သော လုပ်ဆောင်ချက် များ ၏ ဥပမာ များ မှာ အမဲတိုက်ခြင်း ငါ များခြင်း ဓာတ်ပုံ ရိုက်ခြင်း ညှပ်ကြည့်ခြင်း နှင့် မှန်းချက် များ သို့ လည်ပတ်ခြင်း နှင့် ဂယားစနစ် နှင့် ပတ်သက်သည့် အချက်အလက် များ ကို လေ့လာခြင်း တို့ ဖြစ် ပါ သည်"}
+{"t":"score","lang":"my-MM","id":1600,"edits":13,"refLen":208,"editsNospace":13,"refLenNospace":208}
+{"t":"clip","lang":"my-MM","id":1580,"filename":"12073847449262935281.wav","clipHash":"sha256:76c01b1e9c7f99d66d71420f9c384d63f4e615c23f5837c69182f018d4ef73d0","seconds":17.82,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1580,"cacheHit":false,"usd":0.004752,"hyp":"အမေရိကန်ပြည်ထောင်စုတစ်ဝန်းလုံးတွင် နောက်ဆုံးများချို့ယွင်းမှုရောဂါ (နောက်ဆုံးများချို့ယွင်းမှုရောဂါ) MS ဖြစ်ပေါ်မှု ၄ သိန်းနီးပါးခန့်ရှိပြီး ၎င်းသည် လူငယ်လူရွယ်များနှင့် သက်လက်ပိုင်းလူကြီးများတွင် အများဆုံးဖြစ်ပွားသည့် အာရုံကြောနှင့်ဆိုင်သော ရောဂါဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1580,"edits":47,"refLen":208,"editsNospace":47,"refLenNospace":208}
+{"t":"clip","lang":"my-MM","id":1547,"filename":"12096298887791351082.wav","clipHash":"sha256:fbd7c8f497b0afdcd9f12544984fcfdaea023c2a07b27e8adc61d746b50b340a","seconds":10.02,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1547,"cacheHit":false,"usd":0.0026720000000000003,"hyp":"နီကာတာ စီရင် ဆုနယ်ရှိ ကာရှီယာစာကီ ကာရီယာ နျူကလီးယား စွမ်းအင် စက်ရုံမှ ပုံမှန် လည်ပတ်နေခဲ့ကြောင်း NHK မှ သတင်း ပို့ခဲ့ သည်။"}
+{"t":"score","lang":"my-MM","id":1547,"edits":9,"refLen":108,"editsNospace":9,"refLenNospace":108}
+{"t":"clip","lang":"my-MM","id":1623,"filename":"12132307068508172790.wav","clipHash":"sha256:aa9cb6d269a8b395f99242c455fadde885ccbcdff81299a57cbd82dc617cc201","seconds":20.7,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1623,"cacheHit":false,"usd":0.00552,"hyp":"ပြင်ဆင်မှုမပြုလုပ်မီပိုဒ်ခွဲများက၊ ပြည်နယ်အားလုံးမှ တစ်ညီတစ်ညွတ်တည်း သဘောတူညီမှုကိုလိုအပ်ပြီး၊ ပြည်နယ်များက၎င်းတို့၏ကိုယ်စားလှယ်များမှာမကြာခဏပျက်ကွက်ခဲ့သောကြောင့်၊ ဗဟိုအစိုးရကိုအနည်းငယ်သာခွင့်ပြုခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1623,"edits":1,"refLen":191,"editsNospace":1,"refLenNospace":191}
+{"t":"clip","lang":"my-MM","id":1541,"filename":"12135001501237046727.wav","clipHash":"sha256:6d25364bf1824d706f3f590b49f4abdcc403da3cdba88805fccc73264884e7f1","seconds":22.86,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1541,"cacheHit":false,"usd":0.006096,"hyp":"ပို့ဆောင်ရေး ကုမ္ပဏီ များ သည် ပစ္စည်း များ မြန်ဆန်စွာ ပေးပို့ခြင်း အတွက် ဝန်ငွေ ကောင်းစွာ ရရှိ ပါ သည် ။ များစွာ အားဖြင့် စီးပွားရေး နှင့် သက်ဆိုင်ရာ စာတမ်း များ ကုန်သည်များ သို့မဟုတ် အလျင်လွန်နေသည့် ပြုတ် ပြုတ်ပြင်မှု များ အတွက် spare ပစ္စည်း များ အတွက် အချိန် သည် လွန်ရေး ပါ သော ကြောင့် ဖြစ် သည်"}
+{"t":"score","lang":"my-MM","id":1541,"edits":31,"refLen":257,"editsNospace":31,"refLenNospace":257}
+{"t":"clip","lang":"my-MM","id":1602,"filename":"12202394788954760188.wav","clipHash":"sha256:122b1a2eaf5afbf4081a308f4cfc74a164fa3d42d4f3080c96ddce05d2f7333c","seconds":14.16,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1602,"cacheHit":false,"usd":0.003776,"hyp":"မြေထဲ ပင်လယ် ဒေသ နှင့် စုံခြင်းဆင်တူသော မကျော်ခံ ၏ ချက်ပြုတ် နည်းသည် ပေါင်မော့ ဟင်းသီးဟင်းရွက် များ နှင့် အသား အထူး သဖြင့် ဝက် သား တို့ ပါ တွင် အခြေခံ ထားခြင်း ဖြစ် ကာ သံလွင်ဆီ ကို သုံးစွဲ ပါ သည်."}
+{"t":"score","lang":"my-MM","id":1602,"edits":12,"refLen":169,"editsNospace":12,"refLenNospace":169}
+{"t":"clip","lang":"my-MM","id":1522,"filename":"12212159449783225719.wav","clipHash":"sha256:bd1cf7bbdc05107ab0eab875ec351e98bf5200a6667fc74792417557c1eadcca","seconds":15.12,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1522,"cacheHit":false,"usd":0.004032,"hyp":"နည်းပညာ သည် စစ်မှန် မဟုတ် သော်လည်း တကယ်လက်သွင်းမြင်နိုင်သည့် လေ့လာရေး ခရီးများ အား ကမ်းလှမ်းခြင်း ဖြင့် ဖြေရှင်းပေးနိုင်ခဲ့သည်။ ကျောင်းသားများ သည် လူလုပ် ပြတိုက်များ、 ငါးပြတိုက် သို့မဟုတ် အခန်းပေါ် များ နှင့် ထိုင်နေစဉ် အတွင်း အလွန် လှပ သည့် အနုပညာ လက်ရာများ အား ကြည့်ရှုနိုင်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1522,"edits":14,"refLen":247,"editsNospace":14,"refLenNospace":247}
+{"t":"clip","lang":"my-MM","id":1641,"filename":"12258107500277610172.wav","clipHash":"sha256:902ef97265255bfd307fea36f6fd160d80f37a9ccc9866ed53aa12f34cadda37","seconds":19.2,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1641,"cacheHit":false,"usd":0.00512,"hyp":"သော်အုပ်များသည် လက်မှုတောများ သက်သက်သာမဟုတ်ပါ၊ ၎င်းတို့တွင် တချိန်က ဂျန်ဂျက်တစ်လွင်ပြင်ကို ဖုံးလွှမ်းထားသော ကြီးကျယ်သည့် သော်ကြီးများ၏ နောက်ဆုံး ကျန်ရှိသည့် အရ အချို့ ပါဝင်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1641,"edits":21,"refLen":156,"editsNospace":21,"refLenNospace":156}
+{"t":"clip","lang":"my-MM","id":1613,"filename":"12290828829816583737.wav","clipHash":"sha256:f8829671f784e0d2642a21631b1003f1ac10e961ccfc0027da434ae8a9942bf1","seconds":20.94,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1613,"cacheHit":false,"usd":0.0055839999999999996,"hyp":"ထို့ အပြင် ကုမ္ပဏီ အချို့ အထူးသဖြင့် အင်္ဂလိပ် ကုမ္ပဏီ များ တွင် ပြုကျနေသော စင်ကြင်သူ က နောက် ပြန်ဆွဲလိုက် လျှင် ခြေနင်းကွင်း သရေ အချို့ အား ကုမ္ပဏီ မှ ပြုတ်ကျစေသည့် ဘေးကင်းရေး ဘာများ လည်း ရှိ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1613,"edits":32,"refLen":182,"editsNospace":32,"refLenNospace":182}
+{"t":"clip","lang":"my-MM","id":1620,"filename":"12291961156097249312.wav","clipHash":"sha256:3c67935a6ba527dc90d04cc41db4cd9116dfa54097cf777f1d99d797240f5802","seconds":30.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1620,"cacheHit":false,"usd":0.00816,"hyp":"ယခုအခါတွင် ကျွန်းစုတစ်ခုလုံး၌ ကျယ်ကျယ်ပြန့်ပြန့်ရရှိနိုင်သော ဂျာဗားဟင်းလျာတွင် ဟင်းခတ်ပစ္စည်းများကြီးများက ထည့်သွင်းထားသည့် ဟင်းဖွယ်ခင်းခြင်း、 ဂျာဗားစားမျှ အကြိုက်တွေသည် မြေပဲများပါဝင်သည့် အဓိက အရာငါးပစ္စည်းများ- ငရုတ်သီးများ、 သကြား、 အထူးသဖြင့် ဂျာဗားကျွန်းထွက် အုန်းသီ သကြား နှင့် အမျိုးမျိုးသော ရနံ့ထွက် ဟင်းခတ် အမွေးချိုင့်များကို အသားပေး ထည့်သွင်းထား ပါ သည်. ကျွန်တော် လို့ ပြော တယ်."}
+{"t":"score","lang":"my-MM","id":1620,"edits":48,"refLen":331,"editsNospace":48,"refLenNospace":331}
+{"t":"clip","lang":"my-MM","id":1543,"filename":"12329647497973194058.wav","clipHash":"sha256:0725fea353bbd4184083b976d43060d7a0e07eaa11fca89f1970241414fbb8a8","seconds":13.38,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1543,"cacheHit":false,"usd":0.003568,"hyp":"လူနာ သည် အီပိုလာ ဗိုင်းရပ်စ် ကူးစက်ပြန့်ပွား နေသော နေရာ ဖြစ်သည့် နိုင်ဂျီးရီးယား သို့ သွားရောက်ခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1543,"edits":4,"refLen":92,"editsNospace":4,"refLenNospace":92}
+{"t":"clip","lang":"my-MM","id":1622,"filename":"12351674339127591630.wav","clipHash":"sha256:ee4d03032f21fc9d1d750047f2a18237eb9399719afe4154c1386fef83e6edd5","seconds":16.32,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1622,"cacheHit":false,"usd":0.004352000000000001,"hyp":"အမေရိကန် ပြည်ထောင်စု သမ္မတ G. R. G. W. Batch က ကြေညာချက် ကို ကြိုဆိုထောက်ခံ သည် ။"}
+{"t":"score","lang":"my-MM","id":1622,"edits":18,"refLen":72,"editsNospace":18,"refLenNospace":72}
+{"t":"clip","lang":"my-MM","id":1548,"filename":"1238001244154435282.wav","clipHash":"sha256:dc889e948ad8513d56b659b07a8731cb59cc7b8d6273d6fcd20e904378b7e81d","seconds":14.46,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1548,"cacheHit":false,"usd":0.003856,"hyp":"သင်သည် မိုင်ပေါင်းများစွာ ကွာဝေးသည့် အရပ်မှ တစ်စုံတစ်ဦးကို ဖုန်းခေါ်ဆိုသည့် အခါ သင်သည် ဂြိုဟ်တူးကို အသုံးပြုနေခြင်း ဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1548,"edits":3,"refLen":111,"editsNospace":3,"refLenNospace":111}
+{"t":"clip","lang":"my-MM","id":1618,"filename":"12397090622915838413.wav","clipHash":"sha256:6a5236e88fb42d169d1ed19f6f3b5d25a99b16c7a736229df5f4773248156b74","seconds":21.72,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1618,"cacheHit":false,"usd":0.005792,"hyp":"မြောက်ပိုင်း သို့မဟုတ် Sentinel Range တွင် Mount Vincent ကနေ ၄၈၉ နှစ် မီတာ ထိုးထွက်နေသော Anzac Peak ၏ မြင့်ဆုံး တောင် ဖြစ်သည့် Vincent Massif ရှိ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1618,"edits":23,"refLen":126,"editsNospace":23,"refLenNospace":126}
+{"t":"clip","lang":"my-MM","id":1583,"filename":"12397361598164889906.wav","clipHash":"sha256:cf167a728a33eb1cf56f1a2bdd236a514858c83d1ca8f0316678e02062db54cc","seconds":23.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1583,"cacheHit":false,"usd":0.0061600000000000005,"hyp":"သူမ သည် အပြုသဘောဆောင်နေ မှတ်ချက် အများအပြား နှင့် ထို သဓေဓ ဆေး များ ကို ဆေးပညာ သဘော အရ လိုအပ်မှု အဖြစ် စဉ်းစားနိုင် သည် ဟု တိုက်တွန်း ပြောဆိုကြသော အမျိုးသား အမျိုးသမီး များ မှ သူမ ထံ ပေးပို့ပေးသည့် အာပြည် စကား များ ကြောင့် ဤ ကဲ့သို့သော အဆုံးသတ် သို့ ရောက်ရှိလာခြင်း ဖြစ် ပါ သည်"}
+{"t":"score","lang":"my-MM","id":1583,"edits":14,"refLen":244,"editsNospace":14,"refLenNospace":244}
+{"t":"clip","lang":"my-MM","id":1534,"filename":"12520605743102470651.wav","clipHash":"sha256:b68cd6f73c3bfcc54e74f09e20f2d68d59112f6c48154d14653c63881d07d4fd","seconds":16.8,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1534,"cacheHit":false,"usd":0.0044800000000000005,"hyp":"ဆက်သွယ်ရေး ခက်ခဲခြင်း အပါအဝင်၊ တင်ပူးတူးကို ဒေသထွက်မဟုတ်သော ဝေးကွာသည့် ကုန်းမြေများ အတွက် တင်စားသည့် စကားလုံး အဖြစ် အသုံးပြုလာခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1534,"edits":6,"refLen":122,"editsNospace":6,"refLenNospace":122}
+{"t":"clip","lang":"my-MM","id":1606,"filename":"12522879663950455061.wav","clipHash":"sha256:9355c2e1d65302168dd3acdf6387c195b6b0066bbb8348a7b5acf91dc3023c63","seconds":17.4,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1606,"cacheHit":false,"usd":0.00464,"hyp":"ပေါ်တူဂီ တို့ သည် ၎င်းကို ဖျက်ဆီးကာ ကာဆာဘရန်ကာ ဟူသော အမည်ဖြင့် ပြန်လည် တည်ဆောက်ခဲ့ပြီး ၁၇၅၅ ခုနှစ် ငလျင် ဖြစ်ပြီး နောက်ပိုင်းမှသာ စွန့်ခွာခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1606,"edits":10,"refLen":130,"editsNospace":10,"refLenNospace":130}
+{"t":"clip","lang":"my-MM","id":1529,"filename":"12595912869097553116.wav","clipHash":"sha256:14b31412ed01d1b8fd010073f062ad69eb68c464670df5fdf873b59cf25895eb","seconds":15,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1529,"cacheHit":false,"usd":0.004,"hyp":"ယခင် က ရင် ၏ CEO ဖြစ်သူ ဂျာမီ စီမင် အော့ဖ် သည် သူ ၏ ကား ထားသည့် နေရာ ရှိ ဆိုင် မှာ နေ ၍ သူ ၏ တံခါး ပဲ သံ ကို မကြားရသည့် အချိန် မှ စကာ ကုမ္ပဏီ ကို စားသင်ခဲ့ ခြင်း ဖြစ် သည် ဟု မှတ်ချက် ပြောကြားခဲ့ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1529,"edits":15,"refLen":159,"editsNospace":15,"refLenNospace":159}
+{"t":"clip","lang":"my-MM","id":1518,"filename":"12610158571481983016.wav","clipHash":"sha256:3e12c042900064612cb981fe41c295572b88e5672c4cec176cc32afef007ad80","seconds":9.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1518,"cacheHit":false,"usd":0.00256,"hyp":"ဖိလစ်ပိုင်ရဲအရာရှိဟောင်းတစ်ဦးသည် ဖိလစ်ပိုင်မြို့တော် မနီလာမြို့တွင် ဟောင်ကောင် တိုးရစ်များ စီးနင်းလာသည့် ဘတ်စ်ကို ပြန်ပေးဆွဲထားပြီး ဇာတ်စာခံ လုပ်ထားသည်။"}
+{"t":"score","lang":"my-MM","id":1518,"edits":3,"refLen":141,"editsNospace":3,"refLenNospace":141}
+{"t":"clip","lang":"my-MM","id":1653,"filename":"12621845172369520788.wav","clipHash":"sha256:86f69c42227d0630b2481ad37ed49087dc6c5fec44fa759600099ee1f516fd3e","seconds":14.76,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1653,"cacheHit":false,"usd":0.003936,"hyp":"MPWS နှင့် ဩစတေးလျ သေနတ်ပစ် အားကစား အဖွဲ့ NSW INC တို့ ၏ ပူးပေါင်းမှု တွင် သေနတ်ပစ် အားကစား အဖွဲ့ ၏ အမဲလိုက် ပရိုဂရမ် အတွက် အရေးချင်း ပြည့်မှီသော စေတနာ ဝန်ထမ်း များ ကို စုစည်းခဲ့ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1653,"edits":8,"refLen":158,"editsNospace":8,"refLenNospace":158}
+{"t":"clip","lang":"my-MM","id":1651,"filename":"12792231222841219557.wav","clipHash":"sha256:8f5fa576cf15d98631d4fd0a324d66c6c9c8e8efea0e434934855a137cdebe6e","seconds":15.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1651,"cacheHit":false,"usd":0.0041600000000000005,"hyp":"ကြာရှည်သော အာလပ်ရပ် ကာလ အတွက် အစီအစဉ် ဆွဲရ တွင် တိုးမြင့်လာသည့် ပိုမို လူကြိုက်များသော ရွေးချယ်မှု မှာ ခရီး ထွက်ရန် နှင့် လေ့လာ သင်ယူရန် ဖြစ် ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1651,"edits":3,"refLen":131,"editsNospace":3,"refLenNospace":131}
+{"t":"clip","lang":"my-MM","id":1605,"filename":"12797553773437010453.wav","clipHash":"sha256:5802ed75b5b5003199069aee8d323a64250c0d56fb3414a5b3a5413fea4fc0ed","seconds":17.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1605,"cacheHit":false,"usd":0.004672,"hyp":"တိုက်နယ်နှင့် အလွန် ဝေးကွာသောကြောင့် နို့တိုက် သတ္တဝါများသည် ခရီးစဉ် ကို ဖြတ်သန်းနိုင်ခြင်း မရှိခဲ့ကြဘဲ ဧရာမလိပ်ချည်သည် ဂါလာပါကုစ် တွင် ပထမဆုံး စားကျက်မြေး တွင် လွှတ်ထားသော တိရစ္ဆာန် ဖြစ်လာပါသည်။"}
+{"t":"score","lang":"my-MM","id":1605,"edits":15,"refLen":175,"editsNospace":15,"refLenNospace":175}
+{"t":"clip","lang":"my-MM","id":1586,"filename":"12804051540963155305.wav","clipHash":"sha256:5625d66459d4c40c60a99dbc8870722de371a2f20ceeaf0a34bb949275b2f8be","seconds":20.7,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1586,"cacheHit":false,"usd":0.00552,"hyp":"သူမ၏ ပထမဆုံးအရာမှာ သူမ၏ ပထမဆုံးပြေးပွဲတွင် အဆုံးမသတ်ခဲ့မှုကိုရရှိခဲ့သော ဆက်လာလွမ်မှုဖြစ်ပါသည်။ ယှဉ်ပြိုင်သူ ၁၁၆ ဦးတွင် ၃၆ ဦးမှ ထို ပြိုင်ပွဲတွင် အလားတူရာ လက်ကို ရရှိခဲ့ကြပါသည်။"}
+{"t":"score","lang":"my-MM","id":1586,"edits":15,"refLen":151,"editsNospace":15,"refLenNospace":151}
+{"t":"clip","lang":"my-MM","id":1566,"filename":"12876719955963694447.wav","clipHash":"sha256:a916daf4d813682b8a348b46ab3b360c74d10ac7f3758ca76be121be03b7a4cf","seconds":16.74,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1566,"cacheHit":false,"usd":0.004464,"hyp":"ယခုအချိန်ထိ ကျွန်ုပ်တို့သည် သင့်ကိုပေးအပ်ခဲ့သောကုန်ပစ္စည်းများ ၈၀% မှာ အလယ်ပိုင်းအမေရိကနိုင်ငံများတွင် အကောက်ခိုမှ တစ်ဆင့် အခွန်ဆောင်ပြီးဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1566,"edits":29,"refLen":148,"editsNospace":29,"refLenNospace":148}
+{"t":"clip","lang":"my-MM","id":1544,"filename":"12942585180266815453.wav","clipHash":"sha256:35ab2b4027e1cee044e65edbd027d89a05aa47140a5ff0ed22f62b6512a24647","seconds":22.5,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1544,"cacheHit":false,"usd":0.006,"hyp":"အင်းဆက်များသည် လေကို အသုံးပြုသည့် ပထမဆုံးသော တိရစ္ဆာန် များ ဖြစ်ခဲ့သည်။ ၎င်းတို့ ၏ ပြန်တတ်နိုင်စွမ်းက ရန်သူများကို ပိုမို လွယ်ကူစွာ သိမ်းပိုက်ရန် အထောက်အကူ ဖြစ်စေခဲ့ပြီး အစားအစာများနှင့် မိတ်လိုက်ဖက်များ ကို ပိုမို ထိရောက်စွာ တွေ့ရှိ နိုင်စေခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1544,"edits":7,"refLen":223,"editsNospace":7,"refLenNospace":223}
+{"t":"clip","lang":"my-MM","id":1653,"filename":"13106436846913569631.wav","clipHash":"sha256:fae9ec6acc0965be893cad5aafdebdb5c77a3f593f08fb1b11aafd0e604d01ae","seconds":21.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1653,"cacheHit":false,"usd":0.0057599999999999995,"hyp":"NPWS နှင့် ဩစတေးလျ သေနတ်ပစ် အားကစား အဖွဲ့ (NSWINC) တို့၏ ပူးပေါင်းမှုတွင် သေနတ်ပစ် အားကစား အဖွဲ့၏ အမဲလိုက် ပရိုဂရမ် အတွက် အရည်အချင်း ပြည့်မှီသော စေတနာဝန်ထမ်းများ ကို စုစည်းခဲ့ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1653,"edits":4,"refLen":158,"editsNospace":4,"refLenNospace":158}
+{"t":"clip","lang":"my-MM","id":1558,"filename":"131551071617308641.wav","clipHash":"sha256:94269b9fc6323ccd6243d2e9666a0d6b30202324088b89d872d8d6c6c62dc2d4","seconds":18,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1558,"cacheHit":false,"usd":0.0048,"hyp":"အဖွဲ့အစည်းကို ဆန်သစ်တီထွင်မှုမပြုမီ ခေါင်းဆောင်ပိုင်းသည် ဆန်သစ်တီထွင်သည့် အစဉ်အလာ ကို သာ မက ဗဟုသုတ မျှဝေခြင်းနှင့် အဖွဲ့အစည်းဆိုင်ရာ လေ့လာ သင်ယူခြင်း တို့ကို ဖန်တီးရပါမည်။"}
+{"t":"score","lang":"my-MM","id":1558,"edits":2,"refLen":158,"editsNospace":2,"refLenNospace":158}
+{"t":"clip","lang":"my-MM","id":1619,"filename":"13289875980677668736.wav","clipHash":"sha256:aea340f326e14eaadbdc5900291ea6bd2db92957063d8f95a4fd224be96e394a","seconds":14.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1619,"cacheHit":false,"usd":0.003872,"hyp":"သို့သော်လည်း ရုံးသုံး မာရာစကား အဖြစ် ဥပဒေ အရ ပြဌာန်းခဲ့ပြီ ဖြစ်သောကြောင့် သင်္ကေတ အများစုအား ကတ်သလန် ဘာသာဖြင့် ရည်ညွှန်း သုံး ပြုရခြင်း ဖြစ် သည် ။"}
+{"t":"score","lang":"my-MM","id":1619,"edits":6,"refLen":130,"editsNospace":6,"refLenNospace":130}
+{"t":"clip","lang":"my-MM","id":1611,"filename":"13291849044013927834.wav","clipHash":"sha256:fdbdeb023d5ad9aab9f30402b626fba58531df162f6ec74c402848440918b9cf","seconds":17.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1611,"cacheHit":false,"usd":0.00456,"hyp":"ဤတိရစ္ဆာန်များ၏ အမွှေးအသောက်သည် သစ်ခြားသီးခွံကဲ့သို့သော အညိုဖျော့ရောင်ဖြစ်ကာ ထိပ်ပိုင်းလွယ်ဖျော့သွက်သည် သို့မဟုတ် အောက်ဘက်တွင် နေမော်ရွေ့ရောင် ဖြစ်သည်\" ဟု သိပ္ပံပညာရှင်လာက ပြောကြာပါသည်။"}
+{"t":"score","lang":"my-MM","id":1611,"edits":21,"refLen":174,"editsNospace":21,"refLenNospace":174}
+{"t":"clip","lang":"my-MM","id":1566,"filename":"13302681949403808218.wav","clipHash":"sha256:b1b5b76ec4e0e0122430b1ad9f01dc994f18c0ca1830105a0b95e677ddd95373","seconds":8.58,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1566,"cacheHit":false,"usd":0.0022879999999999997,"hyp":"ယခု အချိန်ထိ, ကျွန်ုပ်တို့သင့်ကိုပေးအပ်ခဲ့သော ကုန်ပစ္စည်းများ ၈၀% မှာ အလယ်ပိုင်း အမေရိကန် နိုင်ငံများတွင် အကောက်ခွန်မှ တစ်ဆင့် အခွန်ဆောင်မီ ဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1566,"edits":28,"refLen":148,"editsNospace":28,"refLenNospace":148}
+{"t":"clip","lang":"my-MM","id":1587,"filename":"13356056981048343539.wav","clipHash":"sha256:fba8b45056a32ebb7cdf54da12b7588e7c54dced3ab41f4cb7977f0f4b6b5b0f","seconds":11.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1587,"cacheHit":false,"usd":0.003072,"hyp":"ဤ ရာသီ၏ ရောဂါ ဖြစ်ပွားမှု ကနဦး လူနာများသည် ဇူလိုင်လ အနှောင်းပိုင်း တွင် ပေါ်လာကြ သည်."}
+{"t":"score","lang":"my-MM","id":1587,"edits":0,"refLen":73,"editsNospace":0,"refLenNospace":73}
+{"t":"clip","lang":"my-MM","id":1602,"filename":"13529644284951665836.wav","clipHash":"sha256:07cf288805dc8193b2f8447d84b405f9fdb1272d8343afed4e7d95caf1d365e6","seconds":18.24,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1602,"cacheHit":false,"usd":0.004864,"hyp":"မြေထဲ ပင်လယ်ဒေသနှင့် စုံခြင်း ဆင်တူသော မကျော်ကန်၏ ချက်ပြုတ်နီသည် ပါမုန့် ဟင်းသီးဟင်းရွက်များနှင့် အသား အထူးသဖြင့် ဝက်သား တို့ ပေါ်တွင် အခြေခံထားခြင်းဖြစ်ကာ သံလွင်ဆီကို သုံးစွဲပါသည်။"}
+{"t":"score","lang":"my-MM","id":1602,"edits":11,"refLen":169,"editsNospace":11,"refLenNospace":169}
+{"t":"clip","lang":"my-MM","id":1562,"filename":"13531315106241413662.wav","clipHash":"sha256:9f8dcb06bcc1f5f6ed87d8fe5181beece946b744464734c36126968141d580ff","seconds":14.22,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1562,"cacheHit":false,"usd":0.003792,"hyp":"ဤသည်မှာ အသုံးများသည့် လုပ်ထုံးလုပ်နည်းဖြစ်လာခဲ့သော်လည်း သံသည် လှည်းများ၏ သစ်သားဘီးများကို ပိုမို တိုက်ဆိုသည်။"}
+{"t":"score","lang":"my-MM","id":1562,"edits":3,"refLen":100,"editsNospace":3,"refLenNospace":100}
+{"t":"clip","lang":"my-MM","id":1587,"filename":"13566284180399203592.wav","clipHash":"sha256:0f99e4ce487cec629ef109807dc81170fec8d95738d65fea24a0eef26da1e0bd","seconds":6.42,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1587,"cacheHit":false,"usd":0.001712,"hyp":"ဤ ရာသီ ၏ ရောဂါ ဖြစ်ပွားမှု ကနဦး လူနာ များ သည် ဇူလိုင် လ အနှောင်းပိုင်း တွင် ပေါ်လာကြ သည်"}
+{"t":"score","lang":"my-MM","id":1587,"edits":0,"refLen":73,"editsNospace":0,"refLenNospace":73}
+{"t":"clip","lang":"my-MM","id":1643,"filename":"13611168070371693985.wav","clipHash":"sha256:5e1dbac6b1b85d43a2d8178cc60d648f346bc6cb291cd55fc0d76d92f51626c4","seconds":20.7,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1643,"cacheHit":false,"usd":0.00552,"hyp":"ပန်းခြံ သည် ၁၉,၅၀၀ စတုရန်းကီလိုမီတာ ရှိပြီး ဤ ကုန်စုံ များ ၁၄ ခု ပိုင်းခြားထားကာ တစ်ခုချင်းစီ တွင် ကွဲပြားသော သွားရိုင်း တိရစ္ဆာန် များ ကို ထပ်ထားသည်။"}
+{"t":"score","lang":"my-MM","id":1643,"edits":13,"refLen":130,"editsNospace":13,"refLenNospace":130}
+{"t":"clip","lang":"my-MM","id":1651,"filename":"13623687923904185399.wav","clipHash":"sha256:eac8910332a1e4fbbe32148fb6f1597cec5d4cbb43f064d18124bd7aa8d31b3f","seconds":16.98,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1651,"cacheHit":false,"usd":0.004528,"hyp":"ကြာရှိသော အားလပ်ရပ်ကာလအတွက် အစီအစဉ်ဆွဲရာတွင် တိုးမြင့်လာသည့် ပိုမိုလူကြိုက်များသော ရွေးချယ်မှုမှာ ခရီးထွက်ရန်နှင့် နေ့လာ သင်ယူရန် ဖြစ်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1651,"edits":4,"refLen":131,"editsNospace":4,"refLenNospace":131}
+{"t":"clip","lang":"my-MM","id":1575,"filename":"13631612944570931266.wav","clipHash":"sha256:fb520aac1b5cac08674e7a54e2647e46fa700bbece3997a3751ffb19e35836bb","seconds":22.56,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1575,"cacheHit":false,"usd":0.0060160000000000005,"hyp":"ပီ အာ ပီ အေ က ထိုသို့သော သိရှိနေမှုကို ငါးနှစ်သား ထွက်ခွာ ပေးရန် သဘောတူစဉ် တွင် သဘောတူညီချက်ကို လက်မှတ်ရေးထိုးလိုက်သည်နှင့် အစ္စရေးသည် တောင်ကြား တွင် စစ်တပ်များကို ဆယ် နှစ် ကြာ ထပ် ၍ သတ်ဆွဲထားရန် တောင်းဆိုလိုက်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1575,"edits":12,"refLen":188,"editsNospace":12,"refLenNospace":188}
+{"t":"clip","lang":"my-MM","id":1516,"filename":"13662903383547881327.wav","clipHash":"sha256:1c78d33479c0a86dddd3e5213e6fe9a6c6bca7159cbc5a392eab83768da86b56","seconds":18.48,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1516,"cacheHit":false,"usd":0.004928,"hyp":"နေရာဒေသကို ၎င်းနှင့် ထိုက်တန်သော ဂုဏ်သိက္ခာ၊ အစဉ်အလာနှင့် လေးစားမှုတို့ဖြင့် ဆက်ဆံပေးပါ။ အစုအလိုက်、 အပြုံလိုက် သတ်ဖြတ်ခြင်း သို့မဟုတ် နာစီတို့နှင့် ပတ်သက်၍ ဟာသ မလုပ်ပါနှင့်။"}
+{"t":"score","lang":"my-MM","id":1516,"edits":1,"refLen":153,"editsNospace":1,"refLenNospace":153}
+{"t":"clip","lang":"my-MM","id":1570,"filename":"13697200706853498588.wav","clipHash":"sha256:6434a136780c4538cbc136f13e68b4ea1c07ceb5c2fde08a4b547a739a1c4f80","seconds":16.44,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1570,"cacheHit":false,"usd":0.004384000000000001,"hyp":"၎င်းတွင် ပြည်နယ်များ အကြားရှိ အခွန်ဥပဒေများနှင့် တွင်းကုန်စည်းချက်ခွန်များ အပေါ် လွှမ်းမိုးသည့် လုပ်ပိုင်ခွင့် အာဏာလည်း မရှိပေ။"}
+{"t":"score","lang":"my-MM","id":1570,"edits":4,"refLen":116,"editsNospace":4,"refLenNospace":116}
+{"t":"clip","lang":"my-MM","id":1594,"filename":"1369919704583935366.wav","clipHash":"sha256:a55e691df7965fcee227abc5a09a00898b59ff01762d2fa5b6018037c61757e4","seconds":15.24,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1594,"cacheHit":false,"usd":0.004064,"hyp":"ဆင်များနှင့် သစ်ကုလားအုတ်များကဲ့သို့ အချို့တိရစ္ဆာန်များက ကားများနှင့် အဆင့်မှီ ကရိယာ ပစ္စည်းအနားသို့ နီးကပ်စွာချဉ်းကပ်ခြင်းကြောင့် ကောင်းကောင်းကြည့်ရှုနိုင်သည်။"}
+{"t":"score","lang":"my-MM","id":1594,"edits":3,"refLen":153,"editsNospace":3,"refLenNospace":153}
+{"t":"clip","lang":"my-MM","id":1565,"filename":"13700182847689002768.wav","clipHash":"sha256:d6860ce30fd1b6b910005e8bb351011cc3561c0cb701b705f1742eda23f3c6db","seconds":13.44,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1565,"cacheHit":false,"usd":0.003584,"hyp":"သိပ္ပံပညာ ၏ ပင်မ ရည်ရွယ်ချက်မှာ သိပ္ပံနည်းကျ နည်းလမ်း အနှံ့ အပြား တွင် အလုပ် ဖြစ်မည့် နည်းလမ်းကို ရှာဖွေရန် ဖြစ် ပါ သည် ။ အမှန်တကယ် တွင် ထို နည်းလမ်းသည် သိပ္ပံဆိုင်ရာ စူးစမ်းလေ့လာမှု အများစု ကို လမ်းညွှန်ပေး ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1565,"edits":0,"refLen":185,"editsNospace":0,"refLenNospace":185}
+{"t":"clip","lang":"my-MM","id":1629,"filename":"13756426047003691895.wav","clipHash":"sha256:47c538aae4fbaa542ecab6cb2c42d14b9a6858fca77fc328c90c903aead82703","seconds":22.32,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1629,"cacheHit":false,"usd":0.005952,"hyp":"အချို့သော သတင်းထုတ်ပြန်မှုများတွင်、 တရားဝင် တင်ဆုံးမှု နှုန်းမှာ ၈ ဦးဖြစ်ပြီး、 တရားဝင် သတင်း ထုတ်ပြန်မှုများတွင် အများဆုံး အယောက် ၃၀ အထိ ထိခိုက်ဒဏ်ရာရခဲ့သည်ဟု အတည်ပြုထားပါသည်။ သို့သော်、 နောက်ဆုံး အရေအတွက် ကို မိုးမသိရသေးပါ။"}
+{"t":"score","lang":"my-MM","id":1629,"edits":13,"refLen":195,"editsNospace":13,"refLenNospace":195}
+{"t":"clip","lang":"my-MM","id":1591,"filename":"13782167064693510981.wav","clipHash":"sha256:ee88728bd84440f56c98ed7df557d7720176fa4b86ae52f4651e5afe9e7dbe11","seconds":20.64,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1591,"cacheHit":false,"usd":0.005503999999999999,"hyp":"ယခင် အိမ်ပြူတော်ပျိုးရေးဆိုခွင့်ရှိသူ မဂျင်ဝတ်ရှီတက် စာအုပ် ချုပ်ရေးမှူး ရစ်စဘယ်ရီ နှင့် အထက် လွှတ်တော် အမတ် မီရှယ်လ် ဘက်စမန် တို့က စတုတ္ထ ပဉ္စမ နှင့် ဆဌမ နေရာ အသီးသီး ရရှိခဲ့ သည်"}
+{"t":"score","lang":"my-MM","id":1591,"edits":24,"refLen":166,"editsNospace":24,"refLenNospace":166}
+{"t":"clip","lang":"my-MM","id":1526,"filename":"13831266363659872966.wav","clipHash":"sha256:c1a70fb845efbc99d1b3a9d3e6e832a5d8875adfd18a992bb9a7152909a02f6b","seconds":13.02,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1526,"cacheHit":false,"usd":0.0034720000000000003,"hyp":"သို့မဟုတ် ဘက် သို့ ဆောင်း သွင်း သွားလည် နှင့် ပိုလာည ကို ကြုံတွေ့ရမည် ဖြစ် ပြီး နေ သည် မိုးကုတ် စက်ဝိုင်း အထက်မှ ထွက်လာမည် မဟုတ် ပါ။"}
+{"t":"score","lang":"my-MM","id":1526,"edits":18,"refLen":126,"editsNospace":18,"refLenNospace":126}
+{"t":"clip","lang":"my-MM","id":1526,"filename":"13989533229982644566.wav","clipHash":"sha256:1b1edc0fd93fa43e89585457e08a5cdc59ebee3dedb9b6f4acf946a3d0755bb8","seconds":15.12,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1526,"cacheHit":false,"usd":0.004032,"hyp":"အားတိတ် သို့မဟုတ် အန္တာတိက ဘက်သို့ စောင်းတွင်း သွားလည်လျှင် ပိုလာည ကို ကြုံတွေ့ရမည်ဖြစ်ပြီး နေသည် မိုးကုတ် စက်ဝိုင်း အထက်မှ ထွက်လာမည် မဟုတ်ပါ။"}
+{"t":"score","lang":"my-MM","id":1526,"edits":2,"refLen":126,"editsNospace":2,"refLenNospace":126}
+{"t":"clip","lang":"my-MM","id":1585,"filename":"14015338219420514251.wav","clipHash":"sha256:63ffb9eec4618dc21959df8f5abcf64d9736a17ededf181eac8ca957b783d382","seconds":18.9,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1585,"cacheHit":false,"usd":0.00504,"hyp":"အချိန် ကြာလာ သည် နှင့် အမျှ လူဦးရေ အသစ် သည် ၎င်း တို့ ၏ ပတ်ဝန်းကျင် အသစ် နှင့် သဟဇာတ ဖြစ်လာခဲ့ ပြီး ၎င်း တို့ သည် တဖြည်းဖြည်း နှင့် အခြားသော လူဦးရေ များ နှင့် သိပ်မတူတော့ ပါ"}
+{"t":"score","lang":"my-MM","id":1585,"edits":0,"refLen":143,"editsNospace":0,"refLenNospace":143}
+{"t":"clip","lang":"my-MM","id":1633,"filename":"14094636005457281639.wav","clipHash":"sha256:6c3cf8cd9c421545c1261d7c33bfc5560743c863b70244d85432ba35261aedc7","seconds":17.4,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1633,"cacheHit":false,"usd":0.00464,"hyp":"ယနေ့ခေတ်ပြောင်းလဲနေသော ပို့ဆောင်ရေး ယာဉ်တွင် လူတိုင်းက တစ်နည်းတစ်ဖုံဖြင့် ချိတ်ဆက်နေပြီး ကိုယ်ပိုင်ကားအပေါ် အခြေခံသည့် ပို့ဆောင်ရေး စနစ်ကို ပံ့ပိုးပေးလျက်ရှိပါသည်။"}
+{"t":"score","lang":"my-MM","id":1633,"edits":1,"refLen":151,"editsNospace":1,"refLenNospace":151}
+{"t":"clip","lang":"my-MM","id":1554,"filename":"1412438848202381567.wav","clipHash":"sha256:f41bea6f5d66a64a87193ed8fc39b28cf20e01fd1ad94dd248dcd7c6c5ce1751","seconds":10.38,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1554,"cacheHit":false,"usd":0.002768,"hyp":"ဝိုင်ဖိုင် တံခါးခေါင်းလောင်း ကို သူ သတ်ဆင်ခဲ့တာ လို့ သူ က ဆိုပါ တယ်။"}
+{"t":"score","lang":"my-MM","id":1554,"edits":12,"refLen":52,"editsNospace":12,"refLenNospace":52}
+{"t":"clip","lang":"my-MM","id":1555,"filename":"14146340825413507658.wav","clipHash":"sha256:5d82129365c8aed809a7b61feedb54005521896c6ef7170bbe1ccc16f1ac2492","seconds":13.98,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1555,"cacheHit":false,"usd":0.0037280000000000004,"hyp":"ဘုရားကျောင်း ပရဝဏ သင်္ချိုင်း ထဲတွင် အုတ်ဂူ အချို့ ပေါ် ၌ ဂျိုးမြတ်လေးများ၏ စကျင် ကျောက်ရုပ်ထုများမှာ စိတ်ဝင်စားဖွယ် ကောင်းပါသည်။"}
+{"t":"score","lang":"my-MM","id":1555,"edits":7,"refLen":117,"editsNospace":7,"refLenNospace":117}
+{"t":"clip","lang":"my-MM","id":1550,"filename":"14169398003232401938.wav","clipHash":"sha256:683eaecb4d565785e1236fcb8a7bfbb8b6e5632cd64eabe27e1f099051150fb7","seconds":22.14,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1550,"cacheHit":false,"usd":0.005904,"hyp":"သတ်မှတ် နေရာ တစ်ခု ထဲ တွင် နှင်းလျှောစီးရန် အတွက် အပန်းဖြေ ခရီးစဉ် တစ်ခု လောက် ကို စီစဉ် တတ်ကြသည့် နှင်းလျှောစီး ဝါသနာဦးမြတ် ဟု သိကြသည့် ဝါသနာရှင် များစွာ ရှိ သောကြောင့် နှင်းလျှောစီး သည် လူကြိုက် များ ခရီးသွား လုပ်ဆောင်မှု တစ်ခု ဖြစ် ပါ သည်"}
+{"t":"score","lang":"my-MM","id":1550,"edits":16,"refLen":217,"editsNospace":16,"refLenNospace":217}
+{"t":"clip","lang":"my-MM","id":1580,"filename":"14219562912024907266.wav","clipHash":"sha256:99be86d6af7cb2ccddb143a8bf066b73f969e2019981d3ed1c7526ae524c168e","seconds":21.42,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1580,"cacheHit":false,"usd":0.005712,"hyp":"အမေရိကန်ပြည်ထောင်စုတစ်ဝန်းလုံးတွင်နှုတ်ဆဲများချွတ်ယွင်းမှုရောဂါ (နှုတ်ဆဲမှန်ကြောင့်များကို ချွတ်ယွင်းမှုရောဂါ) ဖြစ်ပွားမှု ၄ သိန်းနီးပါးခန့်ရှိပြီး ၎င်းသည် လူငယ်လူရွယ်များနှင့် သက်လတ်ပိုင်းလူကြီးများတွင် အများဆုံးဖြစ်ပွားသည့် အာရုံကြောနှင့်ဆိုင်သော ရောဂါဖြစ်သည်။"}
+{"t":"score","lang":"my-MM","id":1580,"edits":51,"refLen":208,"editsNospace":51,"refLenNospace":208}
+{"t":"clip","lang":"my-MM","id":1654,"filename":"14220271637903104270.wav","clipHash":"sha256:02db51261679f500e0a387736017ee4864cf2afb2b916fa5cd516b09ec36cf2a","seconds":17.58,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1654,"cacheHit":false,"usd":0.0046879999999999995,"hyp":"သင့်အနေဖြင့် သတိထားမိခြင်းရှိမရှိကို ကျွန်ုပ်မသိသော်လည်း၊ ဗဟိုအမေရိကဒေသမှကုန်စည်အများစုသည်ဤနိုင်ငံသို့အကောက်ခွန်မဲ့ သင်တွင်းပါသည်။"}
+{"t":"score","lang":"my-MM","id":1654,"edits":2,"refLen":124,"editsNospace":2,"refLenNospace":124}
+{"t":"summary","lang":"my-MM","result":{"languageCode":"my-MM","cfg":"my_mm","tsvOid":"15b8e8cc455f214dd11ddb3cfc1ef8298f057eb7","n":100,"clipSeconds":1617.12,"genderSplit":{"FEMALE":100},"genderUniform":true,"distinctIds":82,"cer":0.07586530721760129,"cerNospace":0.07586530721760129,"cerCi95":[0.0641399416909621,0.08797842281017211],"wer":null,"werKind":null,"scriptIntegrity":0.9917478354978355,"ratio":null,"costUsd":0.43123200000000006,"cachedClips":0,"unmatched":1,"example":{"id":1622,"ref":"အမေရိကန်ပြည်ထောင်စု သမ္မတ ဂျီရောဂျီဒဘလူဘက်ဟ် က ကြေညာချက်ကို ကြိုဆိုထောက်ခံသည်","hyp":"အမေရိကန် ပြည်ထောင်စု သမ္မတ G. R. G. W. Batch က ကြေညာချက် ကို ကြိုဆိုထောက်ခံ သည် ။"}}}
+{"t":"end","finishedAt":"2026-08-13T15:22:41.876Z","spentUsd":0.43123200000000006,"budgetExhausted":false}

@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-13, after the sampling checks.
+**Last updated:** 2026-08-13, after the baseline was measured at n=100.
 
 ---
 
@@ -30,14 +30,15 @@ order, 2026-08-13:
 
 | code | CER (nospace) | CI95 | ratio | script | tier |
 |---|---|---|---|---|---|
-| `my-MM` | 0.064 | [0.047, 0.080] | 1.00 | 1.00 | beta |
+| `my-MM` | **0.076** | [0.064, 0.088] | 1.00 | 0.99 | beta |
 | `ha-NG` | 0.059 | [0.043, 0.076] | 0.91 | 1.00 | beta |
 | `jv-ID` | 0.043 | [0.030, 0.057] | 0.67 | 1.00 | beta |
 | `yo-NG` | 0.305 | [0.249, 0.362] | 4.75 | 0.98 | experimental |
 
-`si-LK` reads `experimental / no-eval-set / cer: null` at exit 0. The n=5 Burmese number from
-earlier the same day (0.072) survives at n=30 as 0.064 — inside the old interval, with an
-interval a third as wide. **Yoruba is the first language measured as clearly worse than the
+`si-LK` reads `experimental / no-eval-set / cer: null` at exit 0. **The baseline row is
+n=100**; the rest are n=30, and each names its own run in `tiers.json`. Burmese has now been
+measured three times — 0.072 (n=5), 0.064 (n=30), **0.076 (n=100, CI [0.064, 0.088])** — each
+inside the previous interval, which is what a converging estimate looks like. **Yoruba is the first language measured as clearly worse than the
 one this product already ships**, and none of it is a Yoruba fact yet: one provider, one
 model, thirty read Wikipedia sentences, all male.
 
@@ -53,9 +54,10 @@ The sidecar's own suite is 42 pytest tests, still run separately.
    107-language sweep is ~$17 by the plan's own arithmetic. Nothing blocks it now: risk 10 is
    closed so a partial sweep is safe, and risk 2's open question is answered (amendment 81 —
    tar order is not measurably biased). Go in tranches; the file accumulates.
-   **Decide first whether the baseline should be measured at a larger `n` than the languages
-   it calibrates** — see the ratio-noise finding below. It is the one thing that would change
-   what a wide sweep publishes.
+   **Run it as `--n 30 --baseline-n 100`.** The baseline is already measured at n=100 and
+   those clips are cached, so it costs **$0.0000** extra per sweep and every ratio divides by
+   the tighter number. A sweep without it publishes ratios against a denominator with ±30% of
+   sampling noise in it.
 2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
    `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
    §5.10 is explicit that the eval imports the real builders and never a copy.
@@ -129,6 +131,15 @@ on reproducing it after somebody changed the estimator. Two traps came with it: 
 to move out of `runAsrEval` (the log is *named* by it and must be open before the first
 billable call), and a budget-stopped language leaves `score` lines behind that the first
 reader happily recomputed into the partial CER the runner deliberately drops.
+
+**The baseline is measured at n=100 and still cannot clear its own `ciHiRatio` gate**
+(1.160 against 1.15; it would need roughly n≥130). Applied to the baseline that rule is the
+relative width of its own interval rather than a comparison with anything — amendment 78's
+category error, unchanged by the extra precision. Exempting the baseline from the ratio gates
+is a product decision, and close to moot while `humanReview` blocks it anyway. Also:
+**`ratio` is computed per run and never re-derived**, so a language only benefits from a
+better baseline by being measured alongside it — which is why `--baseline-n` is a per-run
+option. Amendment 82.
 
 **At n=30 the ratio is noisier than the CER it is computed from, and it moves every
 language at once.** Measured by re-sampling with `--sample-strategy id-seeded`: `my-MM` went
@@ -306,6 +317,10 @@ suite is safe; sharing a template name is not.
 
 ## Known debt, recorded not hidden
 
+- **The dry run overstates a cached run.** It printed `$0.412` for a run that cost `$0.0000`,
+  because the estimate table has no cached column — §5.8's own mock output has one
+  (`30 (free)`). An estimate printed "first and unconditionally" so it is a budget rather
+  than a receipt is undermined by overstating the spend.
 - **The sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment 77's
   wav reader. Fixed forward; the run's log is left as it was written.
 - **A runlog carries provider transcript text.** Fine for FLEURS, which is public. **A
