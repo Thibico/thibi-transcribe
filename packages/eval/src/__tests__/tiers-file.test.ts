@@ -55,6 +55,8 @@ function run(languages: LanguageResult[], over: Partial<AsrRunResult> = {}): Asr
     model: 'chirp_2',
     split: 'dev',
     n: 30,
+    sampleStrategy: 'tar-order',
+    seed: 1,
     baselineCode: 'my-MM',
     baselineAdded: false,
     languages,
@@ -343,5 +345,48 @@ describe('reading and writing', () => {
     const file = build([language()]);
     await writeTiersFile(dir, file);
     expect(await readTiersFile(dir)).toEqual(file);
+  });
+});
+
+/**
+ * Drift means "this measurement moved", so everything defining the measurement has to match
+ * before two baselines are comparable. Both cases below were found by the alarm firing when
+ * nothing had drifted.
+ */
+describe('what counts as a comparable baseline', () => {
+  it('does not compare across providers', () => {
+    const google = build([language({ cerNospace: 0.064 })]);
+    const groq = build([language({ cerNospace: 0.5 })], google, {}, {
+      runId: 'run-groq',
+      provider: 'groq',
+      model: 'whisper-large-v3',
+    });
+    expect(baselineOf(groq).suspect).toBe(false);
+    expect(baselineOf(groq).previousCerNospace).toBeNull();
+  });
+
+  /**
+   * Measured 2026-08-13: switching `--sample-strategy` moved `my-MM` from 0.064 to 0.084 and
+   * blocked the publish with a warning about a baseline that had not drifted at all.
+   */
+  it('does not compare across sampling strategies', () => {
+    const tarOrder = build([language({ cerNospace: 0.064 })]);
+    const idSeeded = build([language({ cerNospace: 0.084 })], tarOrder, {}, {
+      runId: 'run-id-seeded',
+      sampleStrategy: 'id-seeded',
+    });
+    expect(baselineOf(idSeeded).suspect).toBe(false);
+  });
+
+  it('does not compare across sample sizes', () => {
+    const wide = build([language({ cerNospace: 0.064 })]);
+    const narrow = build([language({ cerNospace: 0.3 })], wide, {}, { runId: 'run-small', n: 5 });
+    expect(baselineOf(narrow).suspect).toBe(false);
+  });
+
+  it('still fires when the same measurement genuinely moves', () => {
+    const first = build([language({ cerNospace: 0.064 })]);
+    const second = build([language({ cerNospace: 0.2 })], first, {}, { runId: 'run-3' });
+    expect(baselineOf(second).suspect).toBe(true);
   });
 });

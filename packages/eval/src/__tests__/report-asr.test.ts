@@ -44,6 +44,8 @@ function tiersOf(languages: LanguageResult[], previous: TiersFile | null = null)
     model: 'chirp_2',
     split: 'dev',
     n: 30,
+    sampleStrategy: 'tar-order',
+    seed: 1,
     baselineCode: 'my-MM',
     baselineAdded: false,
     languages,

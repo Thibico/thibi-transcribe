@@ -18,6 +18,7 @@ export {
   describeSample,
   joinTarOrder,
   sampleSeeded,
+  selectSeeded,
   type AsrSample,
   type Deduped,
   type SampleComposition,
@@ -95,4 +96,5 @@ export {
   type RunAsrDeps,
   type RunAsrOptions,
   type RunEvent,
+  type SampleStrategy,
 } from './runner.js';
