@@ -1,3 +1,4 @@
+import { accessSync, constants, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { S3Client } from '@aws-sdk/client-s3';
@@ -16,6 +17,7 @@ import {
   createMemorySettings,
   createSettings,
   createTokenCache,
+  NotConfiguredError,
   systemClock,
   type EngineContext,
   type EventSink,
@@ -225,6 +227,51 @@ export async function resolveServiceAccountJson(
   return null;
 }
 
+/**
+ * Validate `THIBI_TMP_DIR` up front, because `mkdtemp` does not create its parent.
+ *
+ * Unset is the ordinary case and means the system temp directory. Set-but-wrong used to
+ * surface as a raw `ENOENT: no such file or directory, mkdtemp …` stack trace from three
+ * stages into a pipeline — after the probe, after normalize decided what it wanted, and in a
+ * CLI whose entire error taxonomy exists so an operator never reads a trace.
+ *
+ * Checked here rather than at first use so the failure lands **before** any work: a bad
+ * temp directory cannot be discovered halfway through a job that has already spent money.
+ *
+ * It is deliberately **not** created for you. `THIBI_TMP_DIR` is set by an operator, so a
+ * missing directory is either a typo or a volume that failed to mount — and silently
+ * creating it inside a container is how a missing mount becomes a disk that fills up
+ * instead of an error someone reads.
+ */
+export function resolveTempRoot(configured: string | undefined): string {
+  const dir = configured?.trim();
+  if (!dir) return tmpdir();
+
+  let stat;
+  try {
+    stat = statSync(dir);
+  } catch {
+    throw new NotConfiguredError(`THIBI_TMP_DIR is set to a path that does not exist: ${dir}`, {
+      hint:
+        `Create it, or unset THIBI_TMP_DIR to use the system temp directory.\n` +
+        `  mkdir -p ${dir}`,
+    });
+  }
+  if (!stat.isDirectory()) {
+    throw new NotConfiguredError(`THIBI_TMP_DIR is set to something that is not a directory: ${dir}`, {
+      hint: 'Point it at a directory, or unset it to use the system temp directory.',
+    });
+  }
+  try {
+    accessSync(dir, constants.W_OK);
+  } catch {
+    throw new NotConfiguredError(`THIBI_TMP_DIR is set to a directory that is not writable: ${dir}`, {
+      hint: 'Grant write permission, or unset it to use the system temp directory.',
+    });
+  }
+  return dir;
+}
+
 export async function buildContext(options: BuildContextOptions): Promise<CliContext> {
   const env = readEnvironment();
   const logLevel = options.logLevel ?? (env.LOG_LEVEL as Level | undefined) ?? 'info';
@@ -319,7 +366,7 @@ export async function buildContext(options: BuildContextOptions): Promise<CliCon
     events: createCliEvents(logger),
     languages,
     concurrency: { asrChunks: concurrency, ffmpeg: Math.max(2, concurrency) },
-    tmp: createTempDirPort(env.THIBI_TMP_DIR ?? tmpdir()),
+    tmp: createTempDirPort(resolveTempRoot(env.THIBI_TMP_DIR)),
     ...(options.signal ? { signal: options.signal } : {}),
     engineVersion: options.engineVersion,
   };

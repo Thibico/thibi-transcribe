@@ -14,8 +14,7 @@ import { ingestCommand } from './commands/ingest.js';
 import { providersCommand } from './commands/providers.js';
 import { settingsCommand } from './commands/settings.js';
 import { evalCommand } from './commands/eval.js';
-import { ProbeAbort } from './probe/types.js';
-import { JobAssetMismatchError, JobNotFoundError } from '@thibi/engine';
+import { isUserFacing } from '@thibi/engine';
 
 loadDotEnv();
 
@@ -40,18 +39,18 @@ program.addCommand(new Command('probe').description('Measure provider capabiliti
 try {
   await program.parseAsync(process.argv);
 } catch (err) {
-  if (
-    err instanceof ProbeAbort ||
-    err instanceof JobNotFoundError ||
-    err instanceof JobAssetMismatchError
-  ) {
-    // The user got something wrong and the message says what. A stack trace here is noise
-    // in front of the one line that helps — `--job` pointed at another recording, or at a
-    // job that does not exist. Nothing has been written in any of these cases.
+  if (isUserFacing(err)) {
+    // The message says what went wrong and what to do about it. A stack trace here is noise
+    // in front of the one line that helps — `--job` pointed at another recording, a key is
+    // missing, `THIBI_TMP_DIR` points nowhere. Nothing has been written in any of these
+    // cases.
     //
-    // Three of these now. A fourth should become a shared marker rather than a longer
-    // condition.
-    process.stderr.write(`\n${err.message}\n`);
+    // This was an `instanceof` chain of three with a note saying a fourth should become a
+    // shared marker. The fourth was `NotConfiguredError` escaping from `buildContext`,
+    // which is called *outside* every command's try block — so the errors that already had
+    // careful per-command handling still reached here as traces whenever they were raised
+    // while assembling the context. Marking the class fixes every such site at once.
+    process.stderr.write(`\n${err.message}\n${err.hint ? `${err.hint}\n` : ''}`);
     process.exitCode = 2;
   } else {
     process.stderr.write(`\n${err instanceof Error ? (err.stack ?? err.message) : String(err)}\n`);

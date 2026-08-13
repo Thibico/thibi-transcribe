@@ -72,10 +72,13 @@ sharp first task rather than a menu.
    `reconcile.ts`'s five chosen-not-measured thresholds — `purityReviewBelow: 0.6` in
    particular, which is now known to sit at the densest point of a real purity distribution
    (amendment 57) and not merely to be unmeasured.
-4. **Two small defects worth fixing while you are in the CLI** (amendment 59): `thibi diarize
-   run` exits **0** when `SIDECAR_URL` is unset, which Phase 9's queue cannot distinguish from
-   success, and a non-existent `THIBI_TMP_DIR` raises a raw `ENOENT` stack trace in a CLI
-   built around never showing one.
+4. **~~Two small defects in the CLI~~ — done 2026-08-13, and one of the two was never real.**
+   `thibi diarize run` **always exited 2** when `SIDECAR_URL` was unset; the "exit 0" claim
+   came from reading the status of a command piped into `tail`, which reports `tail`'s. The
+   `THIBI_TMP_DIR` stack trace was real and is fixed, along with the larger shape it exposed:
+   `buildContext` throws outside every command's try block, so a `NotConfiguredError` raised
+   while assembling the context bypassed all the careful per-command handling. Amendments 59
+   (corrected) and 72.
 5. **Do not try to benchmark `large-v3` on this machine.** S9 tried: it needs ~6.7 GB, the
    Docker Desktop VM has 7.65 GB total, and with pyannote also resident the container is
    killed mid-transcription. Even alone it thrashes — a 2-second clip took minutes. A real
@@ -403,8 +406,11 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   editorially sensitive, and this repo is public. Measurements taken against it are committed;
   the audio, the transcripts, the filenames and the sources are not. Do not `git add -f` in
   there and do not name a source in any committed file — including this one.
-- **`THIBI_TMP_DIR` must exist before you set it.** `mkdtemp` does not create the parent, and
-  the failure is a raw stack trace rather than the CLI's usual remediation (amendment 59).
+- **`THIBI_TMP_DIR` must exist before you set it**, and the CLI now says so instead of
+  crashing. `mkdtemp` does not create its parent, so a wrong value used to surface as a raw
+  `ENOENT` three stages into a pipeline; it is validated in `buildContext` and fails at exit 2
+  with a `mkdir -p` you can copy. **It is deliberately not created for you** — an unmounted
+  volume must stay an error rather than becoming a disk that fills up. Amendment 72.
 - `.env` carries `DATABASE_URL`, the `S3_*` keys, `APP_SECRET_KEY`, `HF_TOKEN`,
   `OPENAI_API_KEY` and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
 - **Run `pnpm test` with the services up.** With them down, suites skip themselves and one

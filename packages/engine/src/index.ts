@@ -34,8 +34,11 @@ export {
   StagingRefusedError,
   UnsupportedLanguageError,
   UnsupportedMediaError,
+  USER_FACING,
   isReplannable,
   isRetryable,
+  isUserFacing,
+  type UserFacing,
 } from './errors.js';
 
 // ---- staging: the bucket batchRecognize reads from -------------------------------------
