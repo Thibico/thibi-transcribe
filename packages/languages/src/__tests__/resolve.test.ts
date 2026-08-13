@@ -48,17 +48,37 @@ describe('resolveLanguage', () => {
   });
 });
 
+/**
+ * A language the harness has never measured, so its resolved tier is the seeded one however
+ * the last sweep went. Using a measured code here — this file used `ha-NG` — makes an
+ * override test fail the day somebody measures that language, which is what happened on
+ * 2026-08-13.
+ */
+const UNMEASURED = 'af-ZA';
+
 describe('language_support overrides', () => {
   it('beats the seeded tier', () => {
-    expect(resolveLanguage('ha-NG')!.tier).toBe('experimental');
-    const promoted = resolveLanguage('ha-NG', [{ code: 'ha-NG', tier: 'beta', cer: 0.15 }])!;
+    expect(resolveLanguage(UNMEASURED)!.tier).toBe('experimental');
+    const promoted = resolveLanguage(UNMEASURED, [{ code: UNMEASURED, tier: 'beta', cer: 0.15 }])!;
     expect(promoted.tier).toBe('beta');
     expect(promoted.support.cer).toBe(0.15);
+    expect(promoted.tierSource).toBe('override');
   });
 
-  it('can demote the one seeded verified language', () => {
-    expect(resolveLanguage('my-MM')!.tier).toBe('verified');
-    expect(resolveLanguage('my-MM', [{ code: 'my-MM', tier: 'beta' }])!.tier).toBe('beta');
+  it('beats a measurement too, and says which it was', () => {
+    // The precedence that matters for risk 9: an admin who has validated a language on
+    // their own material outranks the harness, and the UI can tell the two apart.
+    const measured = resolveLanguage('yo-NG')!;
+    expect(measured.tierSource).toBe('measured');
+    const promoted = resolveLanguage('yo-NG', [{ code: 'yo-NG', tier: 'beta' }])!;
+    expect(promoted.tier).toBe('beta');
+    expect(promoted.tierSource).toBe('override');
+  });
+
+  it('can demote a language the harness measured', () => {
+    expect(resolveLanguage('my-MM', [{ code: 'my-MM', tier: 'unsupported' }])!.tier).toBe(
+      'unsupported',
+    );
   });
 
   it('is ignored, not thrown, when it names a code the registry does not have', () => {
@@ -74,7 +94,23 @@ describe('language_support overrides', () => {
   it('keeps the seeded notes when the override does not supply any', () => {
     const my = resolveLanguage('my-MM', [{ code: 'my-MM', cer: 0.02 }])!;
     expect(my.support.notes).toContain('operational use');
-    expect(my.support.humanReviewed).toBe(true);
+  });
+
+  /**
+   * `humanReviewed` means *a sign-off backs the tier this language currently has* — not
+   * "somebody looked at this language once". `my-MM` is seeded `humanReviewed: true` from
+   * operational use, and the moment the harness measured it that stopped being the thing
+   * the field is answering: the measurement is a new claim and no sign-off names its run.
+   * Keeping the seeded `true` here would contradict the tier beside it, which is
+   * `beta`, `blocked by humanReview`.
+   */
+  it('reports no human review once a measurement has superseded the seeded one', () => {
+    const my = resolveLanguage('my-MM')!;
+    expect(my.tierSource).toBe('measured');
+    expect(my.support.humanReviewed).toBe(false);
+    expect(my.support.evalN).toBe(30);
+    // The override layer can still assert it, which is the admin's call to make.
+    expect(resolveLanguage('my-MM', [{ code: 'my-MM', humanReviewed: true }])!.support.humanReviewed).toBe(true);
   });
 });
 
@@ -87,7 +123,11 @@ describe('list', () => {
 
   it('filters by tier, script and enabled', () => {
     const registry = createRegistry();
-    expect(registry.list({ tier: ['verified'] }).map((l) => l.code)).toEqual(['my-MM']);
+    // Empty, and deliberately so: `my-MM` was the one seeded `verified` language until the
+    // harness measured it, and a measurement with no sign-off against that run cannot carry
+    // the claim. Promotion is a person's act — `results/human-review/<code>.json`, or an
+    // admin's `language_support` row for their own instance.
+    expect(registry.list({ tier: ['verified'] }).map((l) => l.code)).toEqual([]);
     expect(registry.list({ script: 'Arab' }).map((l) => l.code)).toContain('ps-AF');
     expect(registry.list({ script: 'Arab' }).every((l) => l.direction === 'rtl')).toBe(true);
     expect(registry.list({ enabledOnly: true }).length).toBe(registry.list().length);

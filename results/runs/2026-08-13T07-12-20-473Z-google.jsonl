@@ -1,0 +1,367 @@
+{"t":"run","runId":"2026-08-13T07-12-20-473Z-google","startedAt":"2026-08-13T07:12:20.473Z","argv":["eval","asr","--languages","my-MM,ha-NG,yo-NG,jv-ID,si-LK","--n","30","--budget-usd","1.00"],"engineVersion":"phase-5","provider":"google","model":"chirp_2","split":"dev","n":30,"baselineCode":"my-MM","baselineAdded":false}
+{"t":"clip","lang":"my-MM","id":1601,"filename":"10031156686197511771.wav","clipHash":"sha256:ad4e79fd1a13a3665471f65cd5c8584d8c4aa2fc9a62b768cabac4d8e22b3194","seconds":21.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1601,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"သြစလော့ တောကျောင်းအဝါ သည် တွက်များကို စားရန် သားကောင်အတွက် မြေပြင်ပေါ်တွင် ၎င်းတို့ သွားရောက်ခဲ့သည့် နေရာအား အနံ့ခံခြင်း ဖြင့် အနံ့မှာ တစ်ဆင့် နောက်ယောင်ခံ၍ ရှာဖွေကြောင်း သိပ္ပံပညာရှင်များက ထင်မြင်ကြသည်။"}
+{"t":"score","lang":"my-MM","id":1601,"edits":12,"refLen":182,"editsNospace":12,"refLenNospace":182}
+{"t":"clip","lang":"my-MM","id":1656,"filename":"10073544972710833819.wav","clipHash":"sha256:d406520e11200fed655a36e4413b1c2665f931f97677e96494874947aef00163","seconds":11.64,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1656,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"အလောင်း သည် ယင်း နေရာ တွင် ပေါ်လာ သည်မှာ တစ်ရက် ပင် ရှိပြီ ဟု ရဲဌာနက ဆိုပါသည်။"}
+{"t":"score","lang":"my-MM","id":1656,"edits":0,"refLen":65,"editsNospace":0,"refLenNospace":65}
+{"t":"clip","lang":"my-MM","id":1542,"filename":"10207165333468320061.wav","clipHash":"sha256:36c25f8b1db4ba5ddab8b3edd0bbd8f2b2af1aeb466863f77cfacad95197ee61","seconds":27.6,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1542,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ဘုရှ်၏\"ပြောရေးဆိုခွင့်ရှိသူဂျော်ဒန်ဂျော်ဒရို\"ကမြောက်ကိုရီးယားနိုင်ငံ၏\"ကတိကဝတ်\"သည်ကိုကိုရီးယားကျွန်းဆွယ်အားအတည်ပြုနိုင်သည့်နျူကလီးယားစစ်ဆင်ရေးဒေသဖြစ်စေရေးစွမ်းဆောင်မှုရည်မှန်ချက်ကိုလျှောက်လှမ်းရာတွင်အဓိကကျသောလီကာထစ်တစ်ခုဖြစ်သည်\"ဟုတုံးတုံးပြောဆိုခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1542,"edits":26,"refLen":245,"editsNospace":26,"refLenNospace":245}
+{"t":"clip","lang":"my-MM","id":1595,"filename":"1023367503538201607.wav","clipHash":"sha256:7802336fd4d81a433a269dda538948e771c0f08ae0cbb75176cb13e7c35d68c6","seconds":17.28,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1595,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"တိဗက်လူမျိုးတို့၏ ဗုဒ္ဓဘာသာသည် ဗုဒ္ဓ၏ အဆုံးမှောက်များပေါ်တွင် အခြေခံထားခြင်း ဖြစ်သော လေး ၎င်းကို မေတ္တာ ဖြင့် လျှောက်စမ်းသော မဟာယနလမ်းကြောင်းနှင့် အိန္ဒိယ ရောဂါ ပညာတို့ထံမှ နည်းစနစ် များဖြင့် အကျယ်ဖြန့်ထားပါသည်။"}
+{"t":"score","lang":"my-MM","id":1595,"edits":15,"refLen":189,"editsNospace":15,"refLenNospace":189}
+{"t":"clip","lang":"my-MM","id":1519,"filename":"10289545742032119139.wav","clipHash":"sha256:55a0dc447013157eba85600fa81f418e9529576742e3ca944c3ed24149324546","seconds":15.9,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1519,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"များစွာသော ကိစ္စရပ်များတွင် နိုင်ငံရပ်ခြား တွင် နှစ်ရှည် အနားယူနိုင်သည့် သင်ခန်းစာ ၌ စာရင်းသွင်းခြင်း သည် သင်၏ မိခင် နိုင်ငံ ရှိ ပိုမို မြင့်မားသော ပညာရေး ထံ ပြန်လည် ရွှေ့ပြောင်းနိုင်သော သင်၏ အခွင့်ရေး များ ကို အမှန် တကယ် တိုးတက်စေ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1519,"edits":1,"refLen":208,"editsNospace":1,"refLenNospace":208}
+{"t":"clip","lang":"my-MM","id":1647,"filename":"10320655822221216557.wav","clipHash":"sha256:a548e70a1920391ead9a4ecd7cc3a403f938be2b29fad228d6b416e7efd9adb8","seconds":18.36,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1647,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"တင်ပြထားသည့် ရှုသောက် များ သည် အခြား နေရာ တစ်ခု တွင် ရရှိနိုင်သည် ပိုမို အသေးစိတ်သော အချက်အလက် များ နှင့် နှိုင်းယှဉ် ပါက သမန်ကာရှမ်းကာ ရေပူရ သဘော ဆန့် ပြီး အလေးနက်ထားမှု မရှိ ပေ။"}
+{"t":"score","lang":"my-MM","id":1647,"edits":17,"refLen":158,"editsNospace":17,"refLenNospace":158}
+{"t":"clip","lang":"my-MM","id":1621,"filename":"10381870103415436717.wav","clipHash":"sha256:7d39fc732b7a606ec5eaa90e855a08738b270735d0ad09a70ce1ffd24841e83e","seconds":10.26,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1621,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"အစပိုင်းတွင် ဝတ်စုံကို အရှေ့ဘက်ရှိ ပိုင်ဆံတိုင်းတို့၏ ပုံစံအတိုင်း ချုပ်ထားခဲ့သည်။"}
+{"t":"score","lang":"my-MM","id":1621,"edits":4,"refLen":76,"editsNospace":4,"refLenNospace":76}
+{"t":"clip","lang":"my-MM","id":1639,"filename":"10391944485896067743.wav","clipHash":"sha256:2ceaaac6fa7e3a942757e517d7aeb1e38693838dd8164c62bef153b4556dceae","seconds":16.62,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1639,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ကျောင်းသားများသည် မကြာခဏ ဆိုသလို ဝေဖန်လေ့ရှိကြသော ပရိသတ်များ ဖြစ်သောကြောင့် ဘလော့ဂ်ရေးသားသူက ဝေဖန် ပြစ်တင်မှုကို ရှောင်ရှားနိုင်ရန် ရေးသားကို မြှင့်တင်ရန် စတင် ကြိုးပမ်းသည်။"}
+{"t":"score","lang":"my-MM","id":1639,"edits":6,"refLen":162,"editsNospace":6,"refLenNospace":162}
+{"t":"clip","lang":"my-MM","id":1577,"filename":"10406743972683477081.wav","clipHash":"sha256:0f5596159ca1e135211cef735e90b32a3ca6fade92c6508f9f1d8b1b8a7a0979","seconds":9.18,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1577,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ငါ့အတွက် တော့ ဒါက လုံးဝ အဓိပ္ပာယ် မရှိဘူး လုံးဝ ကို မတရားဘူး"}
+{"t":"score","lang":"my-MM","id":1577,"edits":1,"refLen":52,"editsNospace":1,"refLenNospace":52}
+{"t":"clip","lang":"my-MM","id":1602,"filename":"10419105909360283396.wav","clipHash":"sha256:290e1ab42a74f32155d970d330be64490f368e9267c2f475ef8df7f6b8086f33","seconds":18.84,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1602,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ပင်လယ် ဒေသ နှင့် စုံခြင်း တူသော မကျော် ကန် ၏ ချက်ပြုတ် နေ သည် ပါမှုတ် ဟင်းသီးဟင်းရွက် များ နှင့် အသား အထူးသဖြင့် ဝက်သား တို့ ပေါ် တွင် အခြေခံထားခြင်း ဖြစ်ကာ သံလွင်ဆီ ကို သုံးစွဲ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1602,"edits":22,"refLen":169,"editsNospace":22,"refLenNospace":169}
+{"t":"clip","lang":"my-MM","id":1549,"filename":"10424358911403300174.wav","clipHash":"sha256:0e7804d60904fd9fa068c9f8a105b5b0ecf84f3516017f29cd24757f0a7d0ab3","seconds":13.86,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1549,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ထို သီရိ များက အကြံပြုသည်မှာ လူများသည် လိုအပ်ချက်များနှင့် ဆန္ဒများကို ရင့်ကျက်လာသည်နှင့် အမျှ မသိစိတ်တွင် ကိန်းအောင်းလာကြသည်။"}
+{"t":"score","lang":"my-MM","id":1549,"edits":4,"refLen":118,"editsNospace":4,"refLenNospace":118}
+{"t":"clip","lang":"my-MM","id":1572,"filename":"10561141569222142979.wav","clipHash":"sha256:4ebdd66c9dbfbabbcf3321da24d3992cdb6d8063a539090b1b154edce9f58c52","seconds":10.8,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1572,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1572,"edits":12,"refLen":74,"editsNospace":12,"refLenNospace":74}
+{"t":"clip","lang":"my-MM","id":1540,"filename":"10582951187228980621.wav","clipHash":"sha256:d9ef734fda08121dd0941ab4d501795b9c5e8c099c8a64bacc92c962fa52d884","seconds":17.82,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1540,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"စည်းမျဉ်းအရ တိဗက် ဗုဒ္ဓဘာသာသည် အလွန် ရုပ်ရှင်သည်၊ ၎င်းတွင် ကုန်တလိနိ ရောဂါ တရားကျင့်ကြံခြင်းနှင့် သတ္တဝါ ခပ်သိမ်း အပေါ် ထားရှိသည့် မေတ္တာတရားသို့ ပါဝင်သည်။"}
+{"t":"score","lang":"my-MM","id":1540,"edits":9,"refLen":138,"editsNospace":9,"refLenNospace":138}
+{"t":"clip","lang":"my-MM","id":1588,"filename":"10799917574828079160.wav","clipHash":"sha256:fe04b4e7cb862185289dadc9ce7e174e83d0a02c762610a407ffcee20853a85b","seconds":8.94,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1588,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ရဲများ၏ အဆိုအရ ဓာတ်ပုံဆရာကို ဝန်တိုက်မိသော ယာဉ်မောင်းသည် ပြစ်မှုဆိုင်ရာ တရားစွဲဆိုမှုများကို ရင်ဆိုင်ရနိုင်ခြေမရှိပါ။"}
+{"t":"score","lang":"my-MM","id":1588,"edits":1,"refLen":108,"editsNospace":1,"refLenNospace":108}
+{"t":"clip","lang":"my-MM","id":1516,"filename":"10901148100322779654.wav","clipHash":"sha256:408dc570635e1cdd8465d20d21d16166fdb7f75730ae3221f33139054a75c26a","seconds":12.66,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1516,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"နေရာ ဒေသ ကို ၎င်း နှင့် ထိုက်သန်သော ဂုဏ် သိက္ခာ အစဉ်အလာ နှင့် လေးစားမှု တို့ ဖြင့် ဆက်ဆံပေးပါ။ အစုလိုက် အပြုံလိုက် သတ်ဖြတ်ခြင်း သို့မဟုတ် နာစီ တို့ နှင့် ပတ်သက်၍ အာသ မလုပ် ပါနဲ့။"}
+{"t":"score","lang":"my-MM","id":1516,"edits":7,"refLen":153,"editsNospace":7,"refLenNospace":153}
+{"t":"clip","lang":"my-MM","id":1570,"filename":"10947836665564491935.wav","clipHash":"sha256:1fc6fdd20efec24da0c685a635832bfe1ea3918aa7aaa8c06f2f2de7221e6765","seconds":8.16,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1570,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"၎င်း တွေ ပြည်နယ် များ ကြား ရှိ အခု ဥပဒေ များ နဲ့ တွင်းကုန် စည်းကြမ်းခွန် များ အပေါ် လွှမ်းမိုးသည့် လုပ်ပိုင်ခွင့် အာဏာ လည်း မရှိ ပေ"}
+{"t":"score","lang":"my-MM","id":1570,"edits":12,"refLen":116,"editsNospace":12,"refLenNospace":116}
+{"t":"clip","lang":"my-MM","id":1635,"filename":"10949539563983126573.wav","clipHash":"sha256:6ae450a802fb454caaf0d1061e88b172558cb0a58dbad1ba069fa51c6ede335d","seconds":18.24,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1635,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ကျွန်ုပ်တို့သည် ပတ်ဝန်းကျင်နှင့် ပိုမို ရင်းနှီးကျွမ်းဝင်စား စတင် နေထိုင်နိုင်ပြီး ပတ်ဝန်းကျင်ဆိုင်ရာ လှုပ်ရှားမှု တွင် ပူးပေါင်း ပါဝင်နိုင်ကာ နောင် တွင် အချို့ ဒေဝီများ ၌ ခံစားရခြင်း ကို လျှော့ချရန် အလို့ငှာ လှုပ်ရှား ပြောင်းလဲရေး ဝါဒီဝန် အဖြစ် ပင် လုပ်ဆောင်နိုင်ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1635,"edits":9,"refLen":241,"editsNospace":9,"refLenNospace":241}
+{"t":"clip","lang":"my-MM","id":1604,"filename":"10991180516324768459.wav","clipHash":"sha256:8ce73fbd878c0ed235e3c2c8347e6f9878de152327e51fb6dac89e398eeb8697","seconds":30.84,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1604,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"အနီးဖြင့် သူ သည် ကာတာ ကို ၁၉၇၈ ခုနှစ် ကမ် ဒေးဗစ် သဘောတူညီချက် များ ၁၉၇၀ ပြည့်နှစ် များ တစ်လျှောက် လော အမေရိကန် တရုတ် ဆက်ဆံရေး များ ကို ပုံမှန် ဖြစ်စေရန် ချိတ်ညှိခြင်း ၁၉၇၉ ခုနှစ် ၏ အီရန် တစ်စခန်း အရေးခင်း ကို ဦးတည်စေခဲ့သည့် အီရန် တော်လှန်ရေး နှင့် ၁၉၇၉ ခုနှစ် အာဖဂန်နစ္စတန် နိုင်ငံ အတွင်း ဆိုဖီး ရဲ့ ကျူးကျော်မှု ကဲ့သို့ ကမ္ဘာ့ရေးရာ ကိစ္စရပ်များ အား သံသမန်ရေးရာ အရ ကိုင်တွယ်ရာ တွင် အကူအညီပေးခဲ့ သည်. ဟိုး ဟိုး"}
+{"t":"score","lang":"my-MM","id":1604,"edits":32,"refLen":348,"editsNospace":32,"refLenNospace":348}
+{"t":"clip","lang":"my-MM","id":1630,"filename":"11001796933815060439.wav","clipHash":"sha256:ac8b1470e2ddde96b1aae6725efd084159c3a48fa6a963aede042424f6821706","seconds":22.2,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1630,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"မက်ကဇီကိုမှဧလီဘီလက်စ်ကွက်စ်သည် ထိုင်၍ နှင်လျှောစီးသော အမျိုးသားဆု ပါကီ ပြိုင်ပွဲတွင် ၁၅ ဦးမြောက်အဖြစ် ပါဝင်ခဲ့ပါသည်။ နယူးဇီလန်မှ အဒမ်ဟောလ်သည် မတ်တပ်ရပ်၍ နှင်လျှောစီးသော အမျိုးသား ဆု ပါကီ ပြိုင်ပွဲတွင် ၉ ဦးမြောက်အဖြစ် ပါဝင်ခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1630,"edits":33,"refLen":225,"editsNospace":33,"refLenNospace":225}
+{"t":"clip","lang":"my-MM","id":1557,"filename":"11003204602708991289.wav","clipHash":"sha256:b5084829e31140be0a89c65649c5a20d8bee31acf624267c689c66b8aa252a33","seconds":16.2,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1557,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ပထမ ကမ္ဘာစစ် အတွင်း စစ်ပွဲ ၏ ဆိုးရွားမှုများနှင့် ကြံချုပ်မှုများကို တွေ့မြင်ပြီးနောက် နိုင်ငံများသည် နောင် တွင် ထိုသို့သော အခြေအနေမျိုး ထပ်ပေါ်လာခြင်းကို ရှောင်လွှဲရန် ဆုံးဖြတ်ခဲ့ကြပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1557,"edits":6,"refLen":173,"editsNospace":6,"refLenNospace":173}
+{"t":"clip","lang":"my-MM","id":1514,"filename":"11017193851292593160.wav","clipHash":"sha256:f77f07b548ff67891d2642edd09bcd5e387494d712e6c5810c4f2565efedc41d","seconds":12.06,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1514,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ဒဏ်ရာရသူ များကို ဆေးရုံ သို့ ပို့ ပြီး နောက် ရန် ဖြစ်မှု များ ရပ်ဆဲ သွား ပြီးချိန် တွင် ကျန်ရှိ နေခဲ့သော ထောင်သား အယောက် ၄၀ ခန့် သည် ခြံဝန်း ထဲ တွင် နေခဲ့ကြ ပြီး ၎င်း တို့ ၏ အခန်း များ သို့ ပြန် သွားရန် ငြင်းဆန် ခဲ့ ကြ သည်"}
+{"t":"score","lang":"my-MM","id":1514,"edits":1,"refLen":183,"editsNospace":1,"refLenNospace":183}
+{"t":"clip","lang":"my-MM","id":1643,"filename":"11069233033021893716.wav","clipHash":"sha256:edf40f013793e1449ccbb678998a15a2a9ddbb7cab7d57425fd3e447b82bed49","seconds":14.52,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1643,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ပန်းခြံသည် ၁၉၅၀၀ စတူရီယန် ကီလိုမီတာ ရှိပြီး အီကိုဆိုများ ၁၄ ခု ပိုင်ခြားထားကာ တစ်ခုချင်းစီ တွင် ကွဲပြားသော သုံးရပ် တိရစ္ဆာန်များကို ထားထားသည်။"}
+{"t":"score","lang":"my-MM","id":1643,"edits":17,"refLen":130,"editsNospace":17,"refLenNospace":130}
+{"t":"clip","lang":"my-MM","id":1659,"filename":"11087094451568329246.wav","clipHash":"sha256:ac0c2dcf0bcda381f0d1c863a9f23135d730095001dbecee264e038059794111","seconds":5.88,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1659,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"သိပ္ပံ ပညာရှင် များ အစိုးရ တိုက်မိခြင်း ကြောင့် ဖြစ်လာသည့် ပျောက်ကွယ်မှု သည် ကြီးမား သည်"}
+{"t":"score","lang":"my-MM","id":1659,"edits":6,"refLen":76,"editsNospace":6,"refLenNospace":76}
+{"t":"clip","lang":"my-MM","id":1575,"filename":"11087326203380270351.wav","clipHash":"sha256:b6fb3ea84ee01b6124a079854b500c3bc48128b1fef09fbe470a3b1939a935d8","seconds":20.82,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1575,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ပီအေး က ထို တို့ တော့ သိရှိနေမှု ကို ငါးနှစ်သာ ထွက်ခွာ ပေးရန် သဘောတူစဉ် တွင် သဘောတူညီချက် ကို လက်မှတ်ရေးထိုးလိုက်သည်နှင့် အစ္စရေး သည် တောင်ကြား တွင် စစ်တပ် များကို ဆယ်နှစ်ကြာ ထပ် ၍ တပ်စွဲထားရန် တောင်းဆိုလိုက်ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1575,"edits":7,"refLen":188,"editsNospace":7,"refLenNospace":188}
+{"t":"clip","lang":"my-MM","id":1539,"filename":"11168747678750940530.wav","clipHash":"sha256:8659fac4bd6a2d451b05a4a824dc3d6c788c810d66d07be7893c6e195ae15e1c","seconds":12.48,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1539,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"တူညီသော ရိုးရာ ဓလေ့ဝင်များ သည် ဖက်ရှင်များ、 အပြုအမူများ နှင့် စကားတို့ အပါအဝင် ကွဲပြားပြီး အမှတ်အသားရှိသော အသုံးပြုမှု စက်တိုင် မှ တစ်ဆင့် ၎င်း တို့ ၏ အဖွဲ့ဝင် ဖြစ်မှု ကို အချက်ပြလေ့ရှိ ပါ သည် ။"}
+{"t":"score","lang":"my-MM","id":1539,"edits":4,"refLen":162,"editsNospace":4,"refLenNospace":162}
+{"t":"clip","lang":"my-MM","id":1645,"filename":"11194347463421847271.wav","clipHash":"sha256:c7e77d714dcda43d35b8e0390d1e44f50ebaa60f24d9032898ca181a0bf08b8e","seconds":16.38,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1645,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"၎င်း၏ အားလုံးထံ စုဝင်ပြန့်နှံ့သွားသော စွမ်းအားသည် ဘုရင်မှ သမန်လူအထိ လူတိုင်းလူတိုင်းကို ထိခိုက်စေခဲ့ပါသည်။"}
+{"t":"score","lang":"my-MM","id":1645,"edits":6,"refLen":97,"editsNospace":6,"refLenNospace":97}
+{"t":"clip","lang":"my-MM","id":1585,"filename":"1120429317845809681.wav","clipHash":"sha256:bf40e8259b774b81b5f80a668dcfebe6d457b0c0996cfe93b590c96e5b202bd5","seconds":17.22,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1585,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"အချိန် ကြာလာသည် နှင့် အများ လူဦးရေ အသစ် သည် ၎င်း တို့ ၏ ပတ်ဝန်းကျင် အသစ် နှင့် သဟဇာတ ဖြစ်လာခဲ့ ပြီး ၎င်း တို့ သည် တဖြည်းဖြည်း နှင့် တခြား လူဦးရေ များ နှင့် သိပ်မတူတော့ ပါ။"}
+{"t":"score","lang":"my-MM","id":1585,"edits":6,"refLen":143,"editsNospace":6,"refLenNospace":143}
+{"t":"clip","lang":"my-MM","id":1560,"filename":"11217275853552375891.wav","clipHash":"sha256:bcc0c2be5442f52a8e633de4cbecd68957b18ca5b92d3eb64992a3e40e5db954","seconds":10.14,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1560,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ရေစီးကျောင်းမှ ထွက်လာသည်နှင့် ရေကူးခြင်းသည် ပုံမှန်အားဖြင့် မခက်ခဲတော့ပါ။"}
+{"t":"score","lang":"my-MM","id":1560,"edits":1,"refLen":68,"editsNospace":1,"refLenNospace":68}
+{"t":"clip","lang":"my-MM","id":1650,"filename":"11250276507411811159.wav","clipHash":"sha256:feeca177e55d7e0d2d2425eb1cb35a4e6a9088de224f3c5848aa73b2dfbcfc4c","seconds":14.1,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1650,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ရေငန်မစ်ကျောင်းများသည် သမုဒ္ဒရာ ထဲတွင် သိပ်မနေဘဲ ရော့ခ် ဟန်ဒန် ၏ မြောက်ဘက်ရှိ မြစ်ဝ များတွင် အဓိက ကျက်စားကြပါသည်။"}
+{"t":"score","lang":"my-MM","id":1650,"edits":6,"refLen":100,"editsNospace":6,"refLenNospace":100}
+{"t":"clip","lang":"my-MM","id":1562,"filename":"11251766658996210363.wav","clipHash":"sha256:27bfacc4d450a39d05b1cbaca7efb9376ad175fb859bb984593ea08316d6bb04","seconds":14.58,"gender":"FEMALE"}
+{"t":"asr","lang":"my-MM","id":1562,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"ဤသည်မှာ အသုံးများသည့် လုပ်ထုံးလုပ်နည်း ဖြစ်လာခဲ့ သော်လည်း သံလီ လှည်း များ ၏ သစ်သား ဘီး များ ကို ပိုမို တိုက်စား သည်."}
+{"t":"score","lang":"my-MM","id":1562,"edits":3,"refLen":100,"editsNospace":3,"refLenNospace":100}
+{"t":"summary","lang":"my-MM","result":{"languageCode":"my-MM","cfg":"my_mm","tsvOid":"15b8e8cc455f214dd11ddb3cfc1ef8298f057eb7","n":30,"clipSeconds":465.18,"genderSplit":{"FEMALE":30},"genderUniform":true,"distinctIds":30,"cer":0.06431302001349225,"cerNospace":0.06431302001349225,"cerCi95":[0.04712279111916629,0.07957405614714425],"wer":null,"werKind":null,"scriptIntegrity":1,"ratio":null,"costUsd":0.03649599999999998,"cachedClips":0,"unmatched":1,"example":{"id":1572,"ref":"နှစ်နာရီအတွင်း အစိုးရ အဆောက်အအုံများအနီး၌ နောက်ထပ်ဗုံးသုံးလုံး ပေါက်ကွဲခဲ့ပါသည်","hyp":"၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"}}}
+{"t":"clip","lang":"ha-NG","id":1615,"filename":"10140605325461661233.wav","clipHash":"sha256:52602af2c12281e3e0efd7abd6027d76f83e6cf1c1df4886c393e1ac60d38609","seconds":19.26,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1615,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Dubbanan shekarun da suka gabata, wani mutum da ake kira Aristarchus yace tsarin rana ya zagaye rana."}
+{"t":"score","lang":"ha-NG","id":1615,"edits":3,"refLen":99,"editsNospace":3,"refLenNospace":83}
+{"t":"clip","lang":"ha-NG","id":1581,"filename":"10196261624983995568.wav","clipHash":"sha256:f44b3b0bdf0368171554e29d5d21a4fcc30a3da476fae2fadc43bd98be207f68","seconds":14.46,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1581,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Amazon kuma shi ne kogi mafi girma a duniya, a wasu lokutan nisan mil shida."}
+{"t":"score","lang":"ha-NG","id":1581,"edits":6,"refLen":72,"editsNospace":5,"refLenNospace":59}
+{"t":"clip","lang":"ha-NG","id":1621,"filename":"10255951444507289726.wav","clipHash":"sha256:56dd59c5a626ba819019678983e1600701d5863e6fa2ed1766141083d7f2eeba","seconds":8.04,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1621,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"A farkon lamarin, kabilar Byzantine da ke gabashi ta karfafa suka tufafi."}
+{"t":"score","lang":"ha-NG","id":1621,"edits":2,"refLen":70,"editsNospace":2,"refLenNospace":59}
+{"t":"clip","lang":"ha-NG","id":1633,"filename":"10403460126806275266.wav","clipHash":"sha256:1f332591e4c6aff755256043d76d35fcc4b4895e01b6af38a88b5edc573c151c","seconds":22.5,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1633,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"A cikin wannan na'urar sifiri mai sauyawa kowa na da alaƙa da juna tare da tallafawa, tsarin sifiri ne wanda ya dogara da motocin daidai daidai kun mutane."}
+{"t":"score","lang":"ha-NG","id":1633,"edits":13,"refLen":144,"editsNospace":11,"refLenNospace":119}
+{"t":"clip","lang":"ha-NG","id":1547,"filename":"10493053480703738801.wav","clipHash":"sha256:3dce454576f8224cffb1fc09905259656089e16b614395413251e162b3de8af8","seconds":13.08,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1547,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"INEC ta kuma rawaito cewa, masana'antar samar da makamashin nukiliya ta kashe wa zaki karuwa a kundumar Niger Gata tana aiki yadda ya kamata."}
+{"t":"score","lang":"ha-NG","id":1547,"edits":14,"refLen":131,"editsNospace":10,"refLenNospace":112}
+{"t":"clip","lang":"ha-NG","id":1583,"filename":"10541695474305773697.wav","clipHash":"sha256:05618abe8486a64026f2db72ac3ee4da75fbc2879c2a5d341d8b1e10cb254384","seconds":32.64,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1583,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ya kai ga wannan matsayi ne saboda yawan tofa albarkatun bakin mutane tare da kwarin gwiwa wanda maza da mata ke roƙar cewa amfani da magunguna tana hana haihuwa sun zama dole. 12766"}
+{"t":"score","lang":"ha-NG","id":1583,"edits":13,"refLen":172,"editsNospace":11,"refLenNospace":142}
+{"t":"clip","lang":"ha-NG","id":1592,"filename":"1056418673832587344.wav","clipHash":"sha256:f2be2dc6346a83bc685d0332895d7db183d616376c2c5be23cc751fec7f14acb","seconds":27.96,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1592,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kasancewar a kasar waje a karo na farko na sa matafiya yin haƙuri da nuna fahimta saboda sanin cewa matafiya na buƙatar hakan domin su saba da wajen."}
+{"t":"score","lang":"ha-NG","id":1592,"edits":3,"refLen":147,"editsNospace":3,"refLenNospace":120}
+{"t":"clip","lang":"ha-NG","id":1631,"filename":"10647831178029349649.wav","clipHash":"sha256:ad21aeb2796c4efe79a1a4e04462e6a804f5ae1118dd9e4fef42515813c45c44","seconds":25.86,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1631,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sabuwar daular ta daululin baya na Misira suna yaba yadda kakannin su suka giggina abubuwa na tarihi wadanda ko a wancan lokacin sun haura shekaru dubu."}
+{"t":"score","lang":"ha-NG","id":1631,"edits":6,"refLen":150,"editsNospace":3,"refLenNospace":124}
+{"t":"clip","lang":"ha-NG","id":1645,"filename":"10672551815457404310.wav","clipHash":"sha256:e35b2f10b25bfa3adc5630d25790115fd788a6e5b15ef1e8dcd145f6baa85e9c","seconds":6.84,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1645,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Karfin bernan sa ta shafi kowa daga sarki har na gama gari."}
+{"t":"score","lang":"ha-NG","id":1645,"edits":4,"refLen":56,"editsNospace":2,"refLenNospace":47}
+{"t":"clip","lang":"ha-NG","id":1531,"filename":"10674933498692553496.wav","clipHash":"sha256:4d80c9e094ee53474f24f683c978b77f11698a7c55f09622ed4a9e2760d3dedc","seconds":13.2,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1531,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Tsibiran Gabashin Afirka suna cikin tekun Indiya kusa da Gabar Gabashin Afirka."}
+{"t":"score","lang":"ha-NG","id":1531,"edits":2,"refLen":77,"editsNospace":2,"refLenNospace":66}
+{"t":"clip","lang":"ha-NG","id":1620,"filename":"10733726006528148982.wav","clipHash":"sha256:c2da3e0744a615340112e29d4749040808e9e31fe6080ab0afcd6fbc85c4e646","seconds":20.16,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1620,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Yanzu ana samu a fadin rukunin tsibirayin jerin nau'ikan abinci an Java yawancin kayan kamshin da suka fi sakawa shine na gyada, yaji da sukari musamman sukari kwakwa da kuma wasu kayan kamshin."}
+{"t":"score","lang":"ha-NG","id":1620,"edits":8,"refLen":193,"editsNospace":7,"refLenNospace":160}
+{"t":"clip","lang":"ha-NG","id":1564,"filename":"1074952044173178551.wav","clipHash":"sha256:bfb8b3c0703c887a8a6427f118c2ef32862e075d7254b18347403d12b6e5a45d","seconds":14.76,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1564,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kinan wasu marasa lafiya sun kamu da cutar a asibiti, Dr. Mohammed yana tsammani kuma aƙalla biyu sun kasance ma'aikatan kiwon lafiya na asibiti."}
+{"t":"score","lang":"ha-NG","id":1564,"edits":11,"refLen":139,"editsNospace":9,"refLenNospace":116}
+{"t":"clip","lang":"ha-NG","id":1573,"filename":"10821153721925056044.wav","clipHash":"sha256:86c18808f3e24b3ff743cf13533a5b088247442aeb08d042f631cb3eccd39e08","seconds":19.56,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1573,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Wayar tauraron dan adam a gaba daya ba za ta ma yi gurbin wayar hannu ba domin sai kun kasance a waje tare da yin saiti da tauraron dan adam don yin kiran da waya."}
+{"t":"score","lang":"ha-NG","id":1573,"edits":3,"refLen":162,"editsNospace":2,"refLenNospace":129}
+{"t":"clip","lang":"ha-NG","id":1566,"filename":"10936740582099403670.wav","clipHash":"sha256:bc06958d11c87264da9a878d9df8a8f6186f253985bc8395bb7a9249700f4897","seconds":15.9,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1566,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Duk da haka, kashi 80 cikin kayanmu sun samu haraji a kasashen Amurka ta tsakiya. Za mu kula da kai."}
+{"t":"score","lang":"ha-NG","id":1566,"edits":9,"refLen":102,"editsNospace":7,"refLenNospace":83}
+{"t":"clip","lang":"ha-NG","id":1633,"filename":"10981349753509921173.wav","clipHash":"sha256:fbf46f12b17b6f064fb4bb16fcd7a742c475bc97f95a15b37c8b1d3028d275c3","seconds":14.58,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1633,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"A cikin wannan na'urar sufuri mai sauyawa kowa na da alaƙa ta juna tare da talakawa tarin sufuri ne wanda ya dogara da motocin daidai da kan mutane."}
+{"t":"score","lang":"ha-NG","id":1633,"edits":10,"refLen":144,"editsNospace":8,"refLenNospace":119}
+{"t":"clip","lang":"ha-NG","id":1537,"filename":"11040657459138523578.wav","clipHash":"sha256:2be268ced43c2427c7a9163aaf5a8671f887f5a5ee40988387b35f07b14bb58b","seconds":10.8,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1537,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Zaka iya ganin dala a cikin duhu kuma zaka iya ganin su a tanake kafin shirin ya fara."}
+{"t":"score","lang":"ha-NG","id":1537,"edits":4,"refLen":89,"editsNospace":2,"refLenNospace":70}
+{"t":"clip","lang":"ha-NG","id":1591,"filename":"11128877153935247319.wav","clipHash":"sha256:0fc16eb7ff4bd2a4b70e64f34738a7bc20b003e9bfdebb37f47b44a78322eaf5","seconds":19.08,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1591,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Tsohon kakakin Majalisar New Green Ridge, gwamnan Texas Rick Perry da uwar gidan Majalisar Wakilai Mike Bloomberg sun gama a mataki na hudu na biyar da na shida biyar."}
+{"t":"score","lang":"ha-NG","id":1591,"edits":25,"refLen":167,"editsNospace":22,"refLenNospace":139}
+{"t":"clip","lang":"ha-NG","id":1592,"filename":"11144841766139916225.wav","clipHash":"sha256:7115c4fb7ae9d57014eb40f56d4d08db3290408f267e854e9536667cf0028702","seconds":13.98,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1592,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kasancewa a kasar waje, a karo na farko na sa matafiya yin hakuri da nuna fahimta saboda sanin cewa matafiya na bukata hakan domin su saba da wajen."}
+{"t":"score","lang":"ha-NG","id":1592,"edits":1,"refLen":147,"editsNospace":1,"refLenNospace":120}
+{"t":"clip","lang":"ha-NG","id":1578,"filename":"1123207833508888276.wav","clipHash":"sha256:a1d91800ce2143dceb4c28773e0420a00c3920060de9422269c24ffb9940fe6f","seconds":12.84,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1578,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sannan Sai Lok Hsin ya yi jagora a rera wakar Bhajans."}
+{"t":"score","lang":"ha-NG","id":1578,"edits":7,"refLen":57,"editsNospace":6,"refLenNospace":47}
+{"t":"clip","lang":"ha-NG","id":1593,"filename":"11321429069040044610.wav","clipHash":"sha256:a252b8e34b0dd157dc1f151f7e20a6c0056a5ee91c487c8e2e57d6bb8b755b25","seconds":20.4,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1593,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"daga karshe an sauya tayoyin katako da na karfe a cikin shekarar 1967 an kaddamar da farkon hanyar jirgin kasa kerar karfe"}
+{"t":"score","lang":"ha-NG","id":1593,"edits":10,"refLen":113,"editsNospace":9,"refLenNospace":93}
+{"t":"clip","lang":"ha-NG","id":1546,"filename":"11322088293797781128.wav","clipHash":"sha256:d4f4e601ba3d24283570da2e20a1eed5d98dd4e6f6c3b1af865381aff52577cb","seconds":37.38,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1546,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Tsarin gashin fuka-fukan ya nuna cewa, ba ana amfani da su ba ne domin tashi sama, sai dai domin samar da tsarin daidaiton dumin jiki da kuma motsawa. Bincike ya nuna cewa, duk da cewa jellar ta wani karamin kakan kadangare ce, abin Na nuna cewa gashin balagagge ne ba na dan tsako ba."}
+{"t":"score","lang":"ha-NG","id":1546,"edits":2,"refLen":278,"editsNospace":2,"refLenNospace":225}
+{"t":"clip","lang":"ha-NG","id":1533,"filename":"11373877624310984856.wav","clipHash":"sha256:642bcaf94af9b564360482a36f4531f3f9f286727b310dee1b5b833925bd4fa3","seconds":9.96,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1533,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Yawancin hanyoyin gama gari na yau da kunnen, misali tsarin APAS na iyayen ya kusa da wannan tsari."}
+{"t":"score","lang":"ha-NG","id":1533,"edits":7,"refLen":95,"editsNospace":7,"refLenNospace":78}
+{"t":"clip","lang":"ha-NG","id":1612,"filename":"11400045126021219535.wav","clipHash":"sha256:f2adf12c0f6d12ea2ae1696cb1c1712fffa2120fa81672bb5d1af0561420774f","seconds":11.46,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1612,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ruwa na zubewa kan levy a sashi mai fadin kafa 100."}
+{"t":"score","lang":"ha-NG","id":1612,"edits":2,"refLen":51,"editsNospace":2,"refLenNospace":41}
+{"t":"clip","lang":"ha-NG","id":1561,"filename":"11431931350644684194.wav","clipHash":"sha256:a9b315cfdc2028485940d821870fab452235bdc6187ff22132dc631c40bdd453","seconds":9.48,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1561,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ana iya zuwa yawancin gudunmomi a cikin ƙananan bas waɗanda ke da kwari ga ɗaɗin tafiya."}
+{"t":"score","lang":"ha-NG","id":1561,"edits":6,"refLen":87,"editsNospace":6,"refLenNospace":72}
+{"t":"clip","lang":"ha-NG","id":1559,"filename":"11495923576438887381.wav","clipHash":"sha256:197638e95f0c0afceec445b7659f231cde74090f27eb187533f5b8a6eda90445","seconds":17.94,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1559,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Furce yana da dan sauƙi a cikin Italiyanci, tunda yawancin kalmomi ana furta daidai yadda ake rubuta su."}
+{"t":"score","lang":"ha-NG","id":1559,"edits":4,"refLen":104,"editsNospace":4,"refLenNospace":87}
+{"t":"clip","lang":"ha-NG","id":1642,"filename":"11588977354727341485.wav","clipHash":"sha256:79b3512338e809d5563c8beec29a98fa0e476d20dfbbe7a0ce9d79c8fd031250","seconds":12.3,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1642,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kudaden ɗaukar nauyin yaƙi na na mulkin mallakar Amurka a yaƙin mallakar Philippines mutanen Philippines ne da kansu suka biya."}
+{"t":"score","lang":"ha-NG","id":1642,"edits":9,"refLen":123,"editsNospace":8,"refLenNospace":105}
+{"t":"clip","lang":"ha-NG","id":1557,"filename":"11675716407186208901.wav","clipHash":"sha256:bd37d2132e03fa5a303036bbfafd460b6a8144bb806cc23137c7d61f72385db0","seconds":27.6,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1557,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Bayan ganin munanan abubuwa da munanan yaƙe-yaƙe yayin yakin duniya na ɗaya, al'ummomi sun so su guje wa irin wannan yanayi a nan gaba."}
+{"t":"score","lang":"ha-NG","id":1557,"edits":2,"refLen":132,"editsNospace":2,"refLenNospace":109}
+{"t":"clip","lang":"ha-NG","id":1563,"filename":"11679443473953665342.wav","clipHash":"sha256:f1c465c4506ff5f9d0789c2a94a6a611433f6c9840e3694570401f8d5bac582f","seconds":15,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1563,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Masu bincike sun nuna cewa duk da cewa sun gamsu jalla'a ta kakanin kaɗan gare shi, ta kuma nuna cewa ta balage ce ba jarirai ba."}
+{"t":"score","lang":"ha-NG","id":1563,"edits":14,"refLen":127,"editsNospace":13,"refLenNospace":103}
+{"t":"clip","lang":"ha-NG","id":1536,"filename":"11747975189179552522.wav","clipHash":"sha256:966fa4b1858f86fa0b97fa7898d0613f526bfc0a96058133c9f7052aa26b2b1d","seconds":14.94,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1536,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Mabukatan yankin suna gargaɗin mazauna yankin da ke kusa da masana'antar da su kasance cikin gidajensu. A kashe na'urorin tanyaye ɗaki kuma kada a sha ruwan fanfo."}
+{"t":"score","lang":"ha-NG","id":1536,"edits":7,"refLen":160,"editsNospace":7,"refLenNospace":134}
+{"t":"clip","lang":"ha-NG","id":1577,"filename":"11811410494237242296.wav","clipHash":"sha256:4ea92c8d735bd50d73c21b14f25f071850d8b7bdc994613fc09cea88ddb5b65a","seconds":8.58,"gender":"FEMALE"}
+{"t":"asr","lang":"ha-NG","id":1577,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Na kasa fahimtar abin, hakika babu adalci a ciki."}
+{"t":"score","lang":"ha-NG","id":1577,"edits":0,"refLen":47,"editsNospace":0,"refLenNospace":39}
+{"t":"summary","lang":"ha-NG","result":{"languageCode":"ha-NG","cfg":"ha_ng","tsvOid":"588ddedcbfbe2be0be921318484a6aa9ade466b5","n":30,"clipSeconds":510.54,"genderSplit":{"FEMALE":30},"genderUniform":true,"distinctIds":28,"cer":0.056946354883081154,"cerNospace":0.058666666666666666,"cerCi95":[0.04311893639956881,0.07562189054726368],"wer":0.19097744360902255,"werKind":"spaces","scriptIntegrity":1,"ratio":null,"costUsd":0.03649599999999998,"cachedClips":0,"unmatched":0,"example":{"id":1591,"ref":"tsohon kakakin majalisar newt gingrich gwamnan texas rick perry da uwargidan majalisar wakilai michele bachmann sun gama a mataki na hudu na biyar da na shida bi da bi","hyp":"Tsohon kakakin Majalisar New Green Ridge, gwamnan Texas Rick Perry da uwar gidan Majalisar Wakilai Mike Bloomberg sun gama a mataki na hudu na biyar da na shida biyar."}}}
+{"t":"clip","lang":"yo-NG","id":1576,"filename":"10003175936942512650.wav","clipHash":"sha256:3c03c81ae4007343c53fb689656a8a72822c992ae48bcfc2409cd9e2e054f961","seconds":19.56,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1576,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Eto eko kan yio kari gbogbo isele ti won peke lu ni bi fun ekunrere to ga lopo igba pelu iriri onise."}
+{"t":"score","lang":"yo-NG","id":1576,"edits":49,"refLen":111,"editsNospace":48,"refLenNospace":92}
+{"t":"clip","lang":"yo-NG","id":1542,"filename":"10176590090087071233.wav","clipHash":"sha256:7dda0d6161acde36fdaf0f0dd55785693ed5a1c7d90d234cab88a5e18ed0f7d7","seconds":19.68,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1542,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ẹni to sọrọ fún buṣe godioni John Andor pe ileri kori Korea ariwa ni igbesẹ nla sọna aleba lati yọ irin ogun nukileya kuro ni Irekusu Korea."}
+{"t":"score","lang":"yo-NG","id":1542,"edits":37,"refLen":135,"editsNospace":35,"refLenNospace":111}
+{"t":"clip","lang":"yo-NG","id":1635,"filename":"10277327190226151554.wav","clipHash":"sha256:bef20dbcb3b495c54ac6cc90b84964be296f93a277becdd793fdce2347a9c7f9","seconds":12.36,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1635,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"A le bẹrẹ si ni gbe igbe aye to fara mora, bee si ni a tun le je ajajagbara ki a le mu ki adekunba iya ti o le."}
+{"t":"score","lang":"yo-NG","id":1635,"edits":38,"refLen":114,"editsNospace":36,"refLenNospace":87}
+{"t":"clip","lang":"yo-NG","id":1533,"filename":"10284659619078123674.wav","clipHash":"sha256:f80b43f15cce00a0233a7194c9e679e98b242800474efa8a2022b5b6a2008726","seconds":11.16,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1533,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ọpọlọpọ àwọn ìgùnrégé ìgùnrégé bi APS fún àpẹrẹ dọgba sí tàbí súmọ ìpin naa."}
+{"t":"score","lang":"yo-NG","id":1533,"edits":11,"refLen":80,"editsNospace":11,"refLenNospace":67}
+{"t":"clip","lang":"yo-NG","id":1659,"filename":"10309431960949816341.wav","clipHash":"sha256:9cbfc7326e2a66846ff35f7ddb6cf861f4ad92f57e2f39228048cb5c04b7db0d","seconds":7.14,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1659,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Awon onimo sayensi wipe bubu gbamu ti ikolu naa je ti tobi gan."}
+{"t":"score","lang":"yo-NG","id":1659,"edits":20,"refLen":60,"editsNospace":18,"refLenNospace":50}
+{"t":"clip","lang":"yo-NG","id":1582,"filename":"10329484556822835935.wav","clipHash":"sha256:f7eacc5096c3681c29b970254cef4ed9ce634b08d96c7a1eec11e4239205f157","seconds":9.48,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1582,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Púpọ nínú àyẹ àwọn ẹbi Hebrew sẹlẹ ni afẹfẹ ita."}
+{"t":"score","lang":"yo-NG","id":1582,"edits":15,"refLen":49,"editsNospace":15,"refLenNospace":40}
+{"t":"clip","lang":"yo-NG","id":1638,"filename":"10344632553186011005.wav","clipHash":"sha256:456d565c50a94f3d198e499ca961198e4eeb5d437fa45f062c08392b92529a8f","seconds":12.72,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1638,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Awon saferi lofere je ofunfa irin afe julo ni ile adulawo ati ohun tawon alejo ma n pewo ju."}
+{"t":"score","lang":"yo-NG","id":1638,"edits":39,"refLen":95,"editsNospace":36,"refLenNospace":77}
+{"t":"clip","lang":"yo-NG","id":1553,"filename":"10376433366647605669.wav","clipHash":"sha256:68da297db805bf944d26855ac9a7112fedce75264b97100db1215789087a2329","seconds":9.18,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1553,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kérésimísi jẹọkan lára ẹsìnmi tó ṣe pataki jùlọ nínú ẹsìn kristiẹni, o si tun jẹ ajọyọ ọjọ ibẹ Jesu."}
+{"t":"score","lang":"yo-NG","id":1553,"edits":32,"refLen":107,"editsNospace":31,"refLenNospace":88}
+{"t":"clip","lang":"yo-NG","id":1606,"filename":"10377511664592166435.wav","clipHash":"sha256:1d9de858fbef0bd833788c524d477f83ebe1a1f97f21de41725dd6335d36d3a9","seconds":21.6,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1606,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Àwọn ara ìlú Portugali gbarun wọn si tun ṣe atunkan re pẹlu orukọ Casandra Brams, ko to di pe wọn tun ṣe atunkan lẹ́yìn ìṣẹ̀lẹ̀ ìwárìrì ilẹ̀ ní 1755."}
+{"t":"score","lang":"yo-NG","id":1606,"edits":34,"refLen":140,"editsNospace":33,"refLenNospace":113}
+{"t":"clip","lang":"yo-NG","id":1614,"filename":"10413474360284328474.wav","clipHash":"sha256:bad5d76d76e9efdc9464940b7b763187be114351b6ec681ba1c36fa4b4a82d65","seconds":22.08,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1614,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Wọn rinnà daadaa ni òkùnkun, pẹlu ìran òkùnkun, àti pé wọn ma ń yọ rìn naa. Àwọn ọsilọti ma n pa àwọdà láti ba àyíká rẹ rẹ koba lè ba àlé àwọn ẹranko ti wọn ma jẹ."}
+{"t":"score","lang":"yo-NG","id":1614,"edits":35,"refLen":164,"editsNospace":31,"refLenNospace":127}
+{"t":"clip","lang":"yo-NG","id":1567,"filename":"10417061181809308549.wav","clipHash":"sha256:4b256eaf7ca937cd04dd20964464e8fa085eb42298790a1afcba7733d320cc7d","seconds":18.24,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1567,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Eere eje to tobi julodun maa nwaye ninu osu keji ni papa isere Polo ni Las Sanitas."}
+{"t":"score","lang":"yo-NG","id":1567,"edits":28,"refLen":82,"editsNospace":27,"refLenNospace":65}
+{"t":"clip","lang":"yo-NG","id":1520,"filename":"10444548305603438500.wav","clipHash":"sha256:96350c89e3b9f34c655ecd1c0abea235e6a432165ef25e6d78cd786de8c89c73","seconds":24,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1520,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Nínú àwọn ènìyàn, ẹgbẹjẹ tí wọn ti saájú ètò ìdíbo àpapọ̀ ọdún 2010, àwọn ti o takòdi orílẹ-èdè olómìnira ilẹ̀ Australia láti ọdún 2008 fi ida mẹjọ pọ si."}
+{"t":"score","lang":"yo-NG","id":1520,"edits":19,"refLen":152,"editsNospace":19,"refLenNospace":124}
+{"t":"clip","lang":"yo-NG","id":1623,"filename":"10466985614721359170.wav","clipHash":"sha256:19281de7318db93b0200e9661da01554288da142bbbd8fad4e9f21f113f30437","seconds":23.04,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1623,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Akọle ti bẹrẹ fun ajumọgbọ ijẹho latọdọ awọn ipinlẹ ki wọn to le ṣa tunse si, amọ awọn ipinlẹ fọwọyẹpẹrẹ mu aarin gbogbo ijọba debi wipe awọn aṣojú ki ṣi ni joko."}
+{"t":"score","lang":"yo-NG","id":1623,"edits":63,"refLen":179,"editsNospace":58,"refLenNospace":147}
+{"t":"clip","lang":"yo-NG","id":1602,"filename":"10509363470201177103.wav","clipHash":"sha256:d956f03f7013c2604886dd24d316021f706a8c699e0ca1c1476e9521dfce5235","seconds":18.12,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1602,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ilana idana awon majokan, bi ti awon to wa ni agbegbe omi, lo da lori iburẹdi, ẹfọ, ati ẹran, paapaa julọ ẹran ẹlẹdẹ, ti wọn si ma n lo ororo oliifụ."}
+{"t":"score","lang":"yo-NG","id":1602,"edits":47,"refLen":149,"editsNospace":46,"refLenNospace":118}
+{"t":"clip","lang":"yo-NG","id":1551,"filename":"10515017808642003833.wav","clipHash":"sha256:0f65924e906ef49ebcfef7b9fb0bcfd890a3e5b9edda64761cbb9d32c38a4e47","seconds":10.68,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1551,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Won si n sagbeyewo bi ijamba naa se tobi to ati ipa ti o ma ko lori aye."}
+{"t":"score","lang":"yo-NG","id":1551,"edits":1,"refLen":72,"editsNospace":1,"refLenNospace":55}
+{"t":"clip","lang":"yo-NG","id":1647,"filename":"10535525122808218174.wav","clipHash":"sha256:6bb0124e2f0574a079885287338e73169f792889b2ea8377f855ec796e4b8830","seconds":16.62,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1647,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Àwọn ìwòye tí wọ́n gbé kalẹ̀ lọ́pọ́ ìgbà kìí n tó, o ma ń jẹ́ ti gbogbogbò tàbí kó ti rọrùn ju tí a bá gbe ti àwọn àlàyé tó kúnrẹ̀rẹ níbò míràn."}
+{"t":"score","lang":"yo-NG","id":1647,"edits":13,"refLen":148,"editsNospace":9,"refLenNospace":114}
+{"t":"clip","lang":"yo-NG","id":1624,"filename":"1058870436633198232.wav","clipHash":"sha256:7a24edba75d2c06cd4d740647f9c026043abd53a4ddddd50e5927ff6e2856d95","seconds":11.16,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1624,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Awon ojuona mi, abali le je akoli to dara lati gbe isinmi lenu iselelori."}
+{"t":"score","lang":"yo-NG","id":1624,"edits":31,"refLen":80,"editsNospace":28,"refLenNospace":64}
+{"t":"clip","lang":"yo-NG","id":1654,"filename":"10615218043355611293.wav","clipHash":"sha256:4569e9c09cbf92bfa8b51994f2e2a6ed47af91f28af606731d2cb772e17493e6","seconds":13.92,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1654,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Míko mọbọya o yẹọ tabi kọyẹọ, ṣugbọn ọpọ awọn ẹru ni o de lati aarin gbungbun Amerika wọ orileedeyi lọfe."}
+{"t":"score","lang":"yo-NG","id":1654,"edits":43,"refLen":118,"editsNospace":37,"refLenNospace":93}
+{"t":"clip","lang":"yo-NG","id":1530,"filename":"10641905182868804521.wav","clipHash":"sha256:c5902907015d9e4ab83428fe4e86b1d010e2b0fec7fb12dfc3ca6e5f7f67ced5","seconds":15.6,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1530,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Wọn ti jùmọ̀ọsọ wipe wọn ma ge ni ọjọ ìṣẹgun, ṣùgbọ́n wọn fi pamọọ lẹ́yìn pàjáwìri ẹjẹ ilẹ́ ẹjọ."}
+{"t":"score","lang":"yo-NG","id":1530,"edits":17,"refLen":97,"editsNospace":16,"refLenNospace":79}
+{"t":"clip","lang":"yo-NG","id":1547,"filename":"10741746462437941699.wav","clipHash":"sha256:d2be527d9cb0a6fce0bb520a5682b8af217395ae1954db44ac38ff857c19e908","seconds":15.06,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1547,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"NHK rọyìn pẹ, ilẹ-igbin agbára nukiliya Kashiwazaki kariwa ni Nigata ki n ṣiṣẹ dẹẹdẹ tẹlẹ."}
+{"t":"score","lang":"yo-NG","id":1547,"edits":18,"refLen":87,"editsNospace":17,"refLenNospace":72}
+{"t":"clip","lang":"yo-NG","id":1526,"filename":"10807150811888828583.wav","clipHash":"sha256:0101600757098e58b94c58908eba0cb1196af6bb4f41d18c0ae27d8a2c6f487d","seconds":22.68,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1526,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Bi o ti se abewo si agbegbe Arctic tabi Antarctic ninu otutu, wa a ni iri ale apola eyi ti o tumo si wipe orun ki yo yo loke orun."}
+{"t":"score","lang":"yo-NG","id":1526,"edits":51,"refLen":131,"editsNospace":49,"refLenNospace":103}
+{"t":"clip","lang":"yo-NG","id":1607,"filename":"10844964368978410278.wav","clipHash":"sha256:1c1cbf91cf21d078510cadcabf7c0171c335fb5c0f6a54521c98cad98af14303","seconds":9.9,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1607,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"O to idaji wakati kan lati rin abule iyale nu ja."}
+{"t":"score","lang":"yo-NG","id":1607,"edits":14,"refLen":47,"editsNospace":13,"refLenNospace":38}
+{"t":"clip","lang":"yo-NG","id":1529,"filename":"10876556350863591383.wav","clipHash":"sha256:b18a2155e8a1447127cf6c7f8254595987bcb5720c832e4d54f93181dd7d09fb","seconds":18.12,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1529,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Tẹlẹ̀-ri, olùdarí<0x4A> àgbà ilẹ̀ẹ́ṣẹ́ Ringi, Jẹmi Siminoff, ní ilẹ́ iṣẹ́ náà bẹ̀rẹ̀ iṣẹ́, nígbàtí ago ẹnu ọna ohun pọ̀dún sókè látinú sọọbu dè inu garaji."}
+{"t":"score","lang":"yo-NG","id":1529,"edits":34,"refLen":145,"editsNospace":32,"refLenNospace":120}
+{"t":"clip","lang":"yo-NG","id":1591,"filename":"10928138657982577970.wav","clipHash":"sha256:7f0886ca1963f31b9f51af5da5d5c157b9b6091d9e349ca5f453553bc14759cf","seconds":15.84,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1591,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Agbẹnusọ ti Newt Gingrich tẹlẹ, gọminà Texas Rich Perry àti ọmọ ẹgbẹẹjọba l'obinrin Michael Bachmann parí ipò ẹrin ìkarùn àti ìkẹfà."}
+{"t":"score","lang":"yo-NG","id":1591,"edits":12,"refLen":134,"editsNospace":11,"refLenNospace":113}
+{"t":"clip","lang":"yo-NG","id":1557,"filename":"10944041843075316934.wav","clipHash":"sha256:ad7defbab00be902c0b6645f64a7368c9276ca010899aacf73be2fde377a11e9","seconds":13.68,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1557,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Lẹ́yìn wíwó ìbẹ̀rù àti orísìí abúru tí ogun àgbáyé àkọ́kọ́ fà, gbogbo àgbáyé ti ń gbìyànjú láti yẹra fún irú ìsẹ̀lẹ̀ abúru bẹ́ẹ̀ ni ọjọ́ iwájú."}
+{"t":"score","lang":"yo-NG","id":1557,"edits":10,"refLen":139,"editsNospace":10,"refLenNospace":114}
+{"t":"clip","lang":"yo-NG","id":1629,"filename":"11007656288488902706.wav","clipHash":"sha256:9c2df2c32cbfde4250f59c5563db8a81160a944058222c7d7cc5ad6e8b709890","seconds":19.86,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1629,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Awon iroyin miin wipe bi eyan mejo loku, iroyin o seese jeri pe o to 30 to seese sugbon a o ti mo awon onka ipari."}
+{"t":"score","lang":"yo-NG","id":1629,"edits":8,"refLen":112,"editsNospace":6,"refLenNospace":87}
+{"t":"clip","lang":"yo-NG","id":1656,"filename":"11072038974130040069.wav","clipHash":"sha256:b835e5f075b3039f4c545ab5496e6c982a796ca1e7636410fd03f6ad178a7bef","seconds":9.78,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1656,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Awon olopa sope, o dabi enipe oro naa ti wa nibe fun bi ojo kan."}
+{"t":"score","lang":"yo-NG","id":1656,"edits":32,"refLen":72,"editsNospace":29,"refLenNospace":55}
+{"t":"clip","lang":"yo-NG","id":1613,"filename":"11072347705502090074.wav","clipHash":"sha256:b0748fb0cfc9def57a3fb5632b6bfd9e55dd33f3589095f50c37642f076a339b","seconds":20.04,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1613,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Leyin naa, awon garri paapaa julọ, awon garri ile geesi ni ọpabo ti o fi aye sile fawo lati subu kuro lori garri bi oluwa to fe subu ba fa seyin."}
+{"t":"score","lang":"yo-NG","id":1613,"edits":62,"refLen":152,"editsNospace":61,"refLenNospace":121}
+{"t":"clip","lang":"yo-NG","id":1578,"filename":"11081193011207679343.wav","clipHash":"sha256:8235ea8e320a6e495d5e57ce1c9448916d446963010fdc40e2ef8d7305ab7aaa","seconds":8.28,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1578,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Lẹyin naa, Laxman Singh ni o gba ìdarí kíkọ orin Bajans."}
+{"t":"score","lang":"yo-NG","id":1578,"edits":10,"refLen":56,"editsNospace":10,"refLenNospace":46}
+{"t":"clip","lang":"yo-NG","id":1641,"filename":"11175472301837782542.wav","clipHash":"sha256:288a22c2d6e5c6c8b70599f7620870b6f1785b78f69d370372bf4161d15f4062","seconds":16.5,"gender":"MALE"}
+{"t":"asr","lang":"yo-NG","id":1641,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Àwọn ìgbókéji kìí ṣe ira mangúrúfinikan sá, lára rẹ̀ ni díẹ̀ nínú àwọn ìtẹ́ ìgbókéji ńlá tó kù tí o fìgbà kan bo gbogbo ilẹ̀ gangan gángẹtìkì."}
+{"t":"score","lang":"yo-NG","id":1641,"edits":49,"refLen":131,"editsNospace":47,"refLenNospace":105}
+{"t":"summary","lang":"yo-NG","result":{"languageCode":"yo-NG","cfg":"yo_ng","tsvOid":"76ba4372b0827db61eccfbd50cc10f51c9d1d8fb","n":30,"clipSeconds":466.08,"genderSplit":{"MALE":30},"genderUniform":true,"distinctIds":30,"cer":0.26123427201917315,"cerNospace":0.3054003724394786,"cerCi95":[0.2491961414790997,0.36191626409017713],"wer":0.6998535871156661,"werKind":"spaces","scriptIntegrity":0.984860248447205,"ratio":null,"costUsd":0.03649599999999998,"cachedClips":0,"unmatched":0,"example":{"id":1656,"ref":"àwọn ọlọ́pàá sọ pé ó dàbí ẹni wípé ara náà ti wà níbẹ̀ fún bí i ọjọ́ kan","hyp":"Awon olopa sope, o dabi enipe oro naa ti wa nibe fun bi ojo kan."}}}
+{"t":"clip","lang":"jv-ID","id":1517,"filename":"10023988885249671485.wav","clipHash":"sha256:0f9f2e1f6a96b65cb9467c0cb5d5412f27a3cd7f1fcd476860d4c75c4bbce0b2","seconds":11.34,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1517,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Penelitian ana ing AI kajaba nyiptakke mesin kanggo nggarap tugas kanthi otomatis sing mbutuhake tumindak sing pinter."}
+{"t":"score","lang":"jv-ID","id":1517,"edits":2,"refLen":118,"editsNospace":2,"refLenNospace":102}
+{"t":"clip","lang":"jv-ID","id":1598,"filename":"10058994020911202726.wav","clipHash":"sha256:119c5a5a995aa5a41f7e9cf806de745aa25769bf93ec7e226a0ec281a800ebbf","seconds":7.32,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1598,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sanadyan wong telu ana ing njero omah nalika mobil kuwi nabrak, nanging kabeh slamet."}
+{"t":"score","lang":"jv-ID","id":1598,"edits":2,"refLen":85,"editsNospace":2,"refLenNospace":72}
+{"t":"clip","lang":"jv-ID","id":1536,"filename":"10099440925770748143.wav","clipHash":"sha256:a555e256bde1c46c513f7fcf81426e053aae8ba7f63915c5297a6a54f91d663c","seconds":15.42,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1536,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Pamanitayang daerah ngengetake warga ing sakiwatengene pabrik supaya tetep ing jero rumah mateni piranti sing marai atemelan ora ngombe banyu ledeng."}
+{"t":"score","lang":"jv-ID","id":1536,"edits":11,"refLen":146,"editsNospace":11,"refLenNospace":125}
+{"t":"clip","lang":"jv-ID","id":1551,"filename":"1011429034179659500.wav","clipHash":"sha256:3f5734421eaee179823f4dfab0a112139666438f79d1ed25bae1ce2b41bd3184","seconds":8.22,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1551,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Dheweke isih mutuske sepira gedhene tabrakan iku lan apa pengaruhe marang donya iki."}
+{"t":"score","lang":"jv-ID","id":1551,"edits":0,"refLen":83,"editsNospace":0,"refLenNospace":71}
+{"t":"clip","lang":"jv-ID","id":1630,"filename":"10133426030712406380.wav","clipHash":"sha256:88f8cc87b3801fe267e74a0369406ba970891af78122fe6f7d37951fab15d27c","seconds":21.9,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1630,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Arley Wallace, saka Mexico, rampung ing posisi lima welas ing Super G Lungguh Putra, Adam Hall, saka New Zealand, rampung ing posisi ka-9 ing Super G ngadeg Putra."}
+{"t":"score","lang":"jv-ID","id":1630,"edits":18,"refLen":160,"editsNospace":16,"refLenNospace":135}
+{"t":"clip","lang":"jv-ID","id":1564,"filename":"10219956073456339753.wav","clipHash":"sha256:73752bd096ce105b379021145feceef0c455901592cdf981e1be312c00cb21cd","seconds":16.68,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1564,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sawetara pasien mungkin wis kena penyakit iku ing griya sakit. Dokter Moll mikir, lan paling ora lara yaiku petugas kesarasan griya sakit."}
+{"t":"score","lang":"jv-ID","id":1564,"edits":7,"refLen":131,"editsNospace":7,"refLenNospace":110}
+{"t":"clip","lang":"jv-ID","id":1555,"filename":"10478020797767861802.wav","clipHash":"sha256:f54c8937e0dc5197aea84f253189be9420ef21d0715c89d7d908beb08774c043","seconds":10.32,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1555,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ing latar gereja ana patung neker sing apik saka manuk dara sak ndhuwure Sarean."}
+{"t":"score","lang":"jv-ID","id":1555,"edits":2,"refLen":77,"editsNospace":2,"refLenNospace":64}
+{"t":"clip","lang":"jv-ID","id":1613,"filename":"10500741407108043289.wav","clipHash":"sha256:20a4c3e58ca1c341d3f403d671eabd0cb9179b286520eb6a76b8544d3a66bcce","seconds":13.2,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1613,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sabanjure, sawetara lapak khususe lapak Inggris duwe palang pengaman sing ngindini kulit sangur dipun saka layaki yen ditarik mundur dening pengendara sing tiba."}
+{"t":"score","lang":"jv-ID","id":1613,"edits":10,"refLen":156,"editsNospace":10,"refLenNospace":134}
+{"t":"clip","lang":"jv-ID","id":1605,"filename":"10506101901396864270.wav","clipHash":"sha256:7101d4fc8bebe6432046eeb2e4244a2493274e0671f9c511e98751fa181b6d55","seconds":16.62,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1605,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Amarga jarake sing adoh saka bawana, mamalia ora bisa nglakoni lelungane marakke panyurakseksa dadi kewan pemakan suket ing Galapagos."}
+{"t":"score","lang":"jv-ID","id":1605,"edits":4,"refLen":133,"editsNospace":3,"refLenNospace":114}
+{"t":"clip","lang":"jv-ID","id":1532,"filename":"10518494163142729908.wav","clipHash":"sha256:9c06b3ed9403e1c774156fa1100b347d1a60862dc6f665ce06d93781b9cf41f9","seconds":17.94,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1532,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"108 piring-piringe Chapati ing ajaran Hindu 56 barang sing bisa dipangan kayata permen, woh-wohan, kacang, panganan TC sing dienggo sajen kanggo dewa disuguhke menyang babasiam."}
+{"t":"score","lang":"jv-ID","id":1532,"edits":12,"refLen":180,"editsNospace":10,"refLenNospace":154}
+{"t":"clip","lang":"jv-ID","id":1519,"filename":"10573979818634719456.wav","clipHash":"sha256:b8cc5a0aaa15b184898c3704fb1ed778a562a658dcc9c2573cdc2f247953e984","seconds":14.16,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1519,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ing pirang-pirang kasus, daftar khusus luar negeri ing taun kekosongan bisa ningkatake temenan kesempatan sampeyan nerusake pendhidhikan sing luwih dhuwur maneh ing negara asal sampeyan."}
+{"t":"score","lang":"jv-ID","id":1519,"edits":8,"refLen":186,"editsNospace":8,"refLenNospace":162}
+{"t":"clip","lang":"jv-ID","id":1616,"filename":"10689846461450194222.wav","clipHash":"sha256:62360d22c2ed0b4eefca8d18d3575b2b5fb13d1cbc82a3aa7e84e9197f71d1c4","seconds":15.48,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1616,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Kawruh saiki nuduhake menawa ekonomi karbon gedhen iki wis nolak biosfer saka salah sawijining negara kukuh sing wis ndhukung marga ing manungsa sajrone rong yuta taun kepungkur."}
+{"t":"score","lang":"jv-ID","id":1616,"edits":4,"refLen":176,"editsNospace":4,"refLenNospace":151}
+{"t":"clip","lang":"jv-ID","id":1575,"filename":"1074164459193746195.wav","clipHash":"sha256:0df63355cc7421be69f2820c25b48645e8c7890bf7d26c5fc278a2a60ea8a3ee","seconds":21.54,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1575,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Israel nuntut tekani soro dadu sing mbladreng ing lembah sajrone 10 taun sawise mufakat ditapak asmani nalika PA sarujuk kanggo ninggalake ngersane kasebut mung limang taun."}
+{"t":"score","lang":"jv-ID","id":1575,"edits":16,"refLen":179,"editsNospace":15,"refLenNospace":155}
+{"t":"clip","lang":"jv-ID","id":1624,"filename":"10764669970024278967.wav","clipHash":"sha256:68ab6d13061695661f95a2663055ef0ea007a970e07b43216e63faa3d4107287","seconds":8.1,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1624,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Dalan banyu kampung bisa dadi gagasan sing apik kanggo liburan."}
+{"t":"score","lang":"jv-ID","id":1624,"edits":0,"refLen":62,"editsNospace":0,"refLenNospace":53}
+{"t":"clip","lang":"jv-ID","id":1583,"filename":"10861177663852570665.wav","clipHash":"sha256:3ae5b17bcabdd28e9b4c20ad675a6d7c25d4d7fb4c40403a77fe69fc15c66929","seconds":16.14,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1583,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"\"Dheweke takon pepuntoning iki amarga ana akeh ujaran lan semangat positif sing dikirim menyang dheweke dening individu wanita lan priya sing meksa obat kontrasepsi dianggep minangka kabutuhan pangobatan.\""}
+{"t":"score","lang":"jv-ID","id":1583,"edits":3,"refLen":201,"editsNospace":3,"refLenNospace":174}
+{"t":"clip","lang":"jv-ID","id":1650,"filename":"10897016133364746285.wav","clipHash":"sha256:8acc03d1db7aa49f2c1893f2b2ff0f6d126a72b20f867b3b4c43dc145f0329b1","seconds":15.42,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1650,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Baya segara ora urip kanthi kuwat ing lautan, panggon asal utamane ana ing muara Kali Sisih Lor Richmond."}
+{"t":"score","lang":"jv-ID","id":1650,"edits":7,"refLen":107,"editsNospace":7,"refLenNospace":90}
+{"t":"clip","lang":"jv-ID","id":1648,"filename":"10948993256034765652.wav","clipHash":"sha256:98a7b44d627f4059250670636382b742c52ee06d963e045328a7512e919abc70","seconds":7.92,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1648,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Ora ana alas gedhe ing dhadharan Kanada, mula kayu iku larang banget."}
+{"t":"score","lang":"jv-ID","id":1648,"edits":6,"refLen":66,"editsNospace":6,"refLenNospace":55}
+{"t":"clip","lang":"jv-ID","id":1517,"filename":"10955336578719364305.wav","clipHash":"sha256:1a88dc4680c8dad1425bebdce29c544b824152910b49acd7301c7d6007462ab8","seconds":10.74,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1517,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Penelitian ana ing Al-Kajaba nyiptakke mesin kanggo nggarap tugas kanthi otomatis sing mbutuhke tumindak sing pinter."}
+{"t":"score","lang":"jv-ID","id":1517,"edits":3,"refLen":118,"editsNospace":2,"refLenNospace":102}
+{"t":"clip","lang":"jv-ID","id":1514,"filename":"10980855269822554427.wav","clipHash":"sha256:75f2220aa6d05e54f3cd994f6c79a8564b4e2a1e0e7e79079478b199ea41ec7b","seconds":15.12,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1514,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Nalika gelute mandheg, sawise sing padha cidra diterake menyang rumah sakit, kira-kira 40 saka tawanan liyane tetep ing latar lan wegah bali menyang sel."}
+{"t":"score","lang":"jv-ID","id":1514,"edits":2,"refLen":150,"editsNospace":2,"refLenNospace":127}
+{"t":"clip","lang":"jv-ID","id":1638,"filename":"1103977333570785089.wav","clipHash":"sha256:7cb66c4d2441e79cdca7cf307196fb353b433162df3caf99e6dd8816de7944ea","seconds":9.48,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1638,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Safari bisa uga minangka daya tarik wisata sing paling gedhe ing Afrika lan dadi pucak kanggo para pengunjung."}
+{"t":"score","lang":"jv-ID","id":1638,"edits":1,"refLen":109,"editsNospace":1,"refLenNospace":92}
+{"t":"clip","lang":"jv-ID","id":1561,"filename":"11065740935909248016.wav","clipHash":"sha256:b56a141b09adc5ca840043026933772b0a1e4106500af056851978cf57c265ff","seconds":11.16,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1561,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Akeh kabupaten sing dilayani dening bis kapal pantai Jepang sing kokoh lan nyenengke."}
+{"t":"score","lang":"jv-ID","id":1561,"edits":0,"refLen":84,"editsNospace":0,"refLenNospace":72}
+{"t":"clip","lang":"jv-ID","id":1534,"filename":"11166666558605744669.wav","clipHash":"sha256:3433ba4c69a3bd1f2e02bfa92cfd4b6bc87af99ee3a1c7139d7b71da4745c7d2","seconds":11.28,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1534,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Gabung karo kahanan ora kalebu sesambungan. Timbu kutu wis digunakake minangka sanepa kanggo tlatah sing endah lan adoh."}
+{"t":"score","lang":"jv-ID","id":1534,"edits":2,"refLen":116,"editsNospace":1,"refLenNospace":100}
+{"t":"clip","lang":"jv-ID","id":1652,"filename":"11170099312919985300.wav","clipHash":"sha256:93d828d96bdd86def6000995eb6acf4da0072189b4b92c10ce86eb1c565d0bab","seconds":10.26,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1652,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Agama paling gedhe ing Moldova yaiku Kristen Ortodoks."}
+{"t":"score","lang":"jv-ID","id":1652,"edits":0,"refLen":53,"editsNospace":0,"refLenNospace":46}
+{"t":"clip","lang":"jv-ID","id":1560,"filename":"11245988810304622867.wav","clipHash":"sha256:b2eba9da33ff93ca892c842f32ef421541b47b7e6f189f425d57e2e78f0cbdc6","seconds":11.52,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1560,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Sak nalika sampeyan metu saka ilen-ilen, nglangi mbalik ora luwih angel tinimbang biasane."}
+{"t":"score","lang":"jv-ID","id":1560,"edits":2,"refLen":85,"editsNospace":1,"refLenNospace":74}
+{"t":"clip","lang":"jv-ID","id":1546,"filename":"11298725802860935317.wav","clipHash":"sha256:385523665b7fea7255940f9150c53f190f5edbf3f23dc69bde6414a8f432b8a4","seconds":18,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1546,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Struktur wulune nuduhake menawa iki ora digunakake kanggo mabur, nanging malah kanggo ngatur suhu utawa rupa. Panliti menehi petunjuk, sanadyan iki buntute dinosaurus enom, sampel nuduhake wulu diwasa lan dudu piye."}
+{"t":"score","lang":"jv-ID","id":1546,"edits":4,"refLen":211,"editsNospace":4,"refLenNospace":181}
+{"t":"clip","lang":"jv-ID","id":1551,"filename":"11306343931057226651.wav","clipHash":"sha256:70d26005c4635bb9060255467fc16ed6e4b8353ff29107451a8cdc2794885782","seconds":6.18,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1551,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Dheweke isih mutuske sepira gedhene tabran iku lan apa pengaruhe marang donya iki."}
+{"t":"score","lang":"jv-ID","id":1551,"edits":2,"refLen":83,"editsNospace":2,"refLenNospace":71}
+{"t":"clip","lang":"jv-ID","id":1655,"filename":"11308944227204102564.wav","clipHash":"sha256:936dbbccdc21f7bb9070911b7207e23a2d3b1a3cdda828e5e45662ad8ca1c6ce","seconds":15.6,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1655,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Tuladhane sinau lan sosialisasi iku diusulne minangka motivasi penting kanggo nganggo internet. James Edal 1995"}
+{"t":"score","lang":"jv-ID","id":1655,"edits":2,"refLen":111,"editsNospace":1,"refLenNospace":96}
+{"t":"clip","lang":"jv-ID","id":1583,"filename":"11350222916374565824.wav","clipHash":"sha256:f7639871adfdd65fbd581efdea6423586d2cc0c65f3a3b6c223be5821083b28c","seconds":17.4,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1583,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"\"Dheweke tekan pepuntoning iki amarga ana akeh ujaran lan semangat positif sing dikirim menyang dheweke dening individu wanita lan pria sing maksa obat kontrasepsi dianggep minangka kebutuhan pangobatan.\""}
+{"t":"score","lang":"jv-ID","id":1583,"edits":2,"refLen":201,"editsNospace":2,"refLenNospace":174}
+{"t":"clip","lang":"jv-ID","id":1609,"filename":"11356854695459998627.wav","clipHash":"sha256:a95770b04bbf9e4a31298b39839e2079f49bc0760df54afb52c6f650c3ff45a3","seconds":18.12,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1609,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Robin Uthappa gawe skor paling dhuwur ing babak 70 mlayu namung sajroning 41 bal kanthi nuthuk 11-4 lan 2-6-an."}
+{"t":"score","lang":"jv-ID","id":1609,"edits":12,"refLen":117,"editsNospace":10,"refLenNospace":97}
+{"t":"clip","lang":"jv-ID","id":1515,"filename":"11485338642947502240.wav","clipHash":"sha256:493203878400c31ce631f3e3d1b0f38d69853e62b4ca91008cd088b1a6d18196","seconds":5.16,"gender":"MALE"}
+{"t":"asr","lang":"jv-ID","id":1515,"cacheHit":false,"usd":0.0012165333333333333,"hyp":"Iki CEB kelimane merteli ing patang tahun."}
+{"t":"score","lang":"jv-ID","id":1515,"edits":5,"refLen":41,"editsNospace":5,"refLenNospace":35}
+{"t":"summary","lang":"jv-ID","result":{"languageCode":"jv-ID","cfg":"jv_id","tsvOid":"dfddf02a15743dcd2fd5606983589f6c0c183c19","n":30,"clipSeconds":397.74,"genderSplit":{"MALE":30},"genderUniform":true,"distinctIds":27,"cer":0.04,"cerNospace":0.042973651191969886,"cerCi95":[0.029759891782211702,0.05748233782915864],"wer":0.14638447971781304,"werKind":"spaces","scriptIntegrity":1,"ratio":null,"costUsd":0.03649599999999998,"cachedClips":0,"unmatched":0,"example":{"id":1515,"ref":"iki cep kelimane martelly ing patang taun","hyp":"Iki CEB kelimane merteli ing patang tahun."}}}
+{"t":"summary","lang":"si-LK","result":{"languageCode":"si-LK","cfg":null,"tsvOid":null,"n":0,"clipSeconds":0,"genderSplit":{},"genderUniform":false,"distinctIds":0,"cer":null,"cerNospace":null,"cerCi95":null,"wer":null,"werKind":null,"scriptIntegrity":null,"ratio":null,"costUsd":0,"cachedClips":0,"unmatched":0,"example":null}}
+{"t":"end","finishedAt":"2026-08-13T07:21:37.448Z","spentUsd":0.14598400000000009,"budgetExhausted":false}

@@ -159,11 +159,26 @@ function resolveEntry(
       cerRatio: override?.cerRatio ?? measured?.ratio ?? null,
       evalDate: override?.evalDate ?? measured?.evalDate ?? null,
       evalN: override?.evalN ?? measured?.n ?? null,
+      /**
+       * "A sign-off backs the tier this language currently has" — not "somebody looked at
+       * this language once". The seeded `true` on `my-MM` came from operational use; once
+       * the harness measures it, the claim under review is a different one and no sign-off
+       * names its run. Keeping the seeded value would contradict the tier beside it, which
+       * reads `beta, blocked by humanReview`.
+       */
       humanReviewed: override?.humanReviewed ?? measured?.humanReviewed ?? seed.humanReviewed,
-      notes: override?.notes ?? seed.notes,
+      // Joined, not replaced. The measured note carries what *this sample* was — all
+      // FEMALE, 27 distinct sentences — and the seeded note carries provenance that stays
+      // true. Dropping either leaves a number with half its caveats.
+      notes: override?.notes ?? joinNotes(measured?.notes, seed.notes),
     },
     providers: PROVIDER_MATRIX[entry.code] ?? {},
   };
+}
+
+function joinNotes(measured: string | undefined, seeded: string | null): string | null {
+  const parts = [measured, seeded].filter((s): s is string => typeof s === 'string' && s.length > 0);
+  return parts.length === 0 ? null : parts.join(' ');
 }
 
 function isSupportedBy(language: ResolvedLanguage, provider: ProviderId): boolean {

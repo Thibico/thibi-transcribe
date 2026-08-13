@@ -46,6 +46,8 @@ export { assignTier, THRESHOLDS, type Tier, type TierInput, type TierReason, typ
 
 export { scoreProfileFor, scriptRangesFor } from './profile.js';
 
+export { wavDuration, type WavDuration } from './wav.js';
+
 export {
   isComplete,
   MalformedRunlogError,

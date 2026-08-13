@@ -16,6 +16,7 @@ import {
   runAsrEval,
   RunlogWriter,
   runlogPath,
+  wavDuration,
   type AsrEstimate,
   type AsrRunResult,
   type PublishResult,
@@ -170,7 +171,7 @@ export function evalCommand(): Command {
               // would be a number for a path no user takes: loudnorm changes what the
               // recogniser hears, so it has to be in the measurement.
               const normalized = await runNormalize(cli.ctx, file, tmp.path);
-              const durationMs = wavDurationMs(clip.bytes);
+              const durationMs = wavDuration(clip.bytes).ms;
               const out = await built.provider.transcribe(built.config, {
                 audio: { path: normalized.flacPath },
                 languageCode,
@@ -286,27 +287,6 @@ function formatPublish(p: PublishResult): string {
           .join(', ')}`,
   );
   return lines.join('\n');
-}
-
-/**
- * Duration from the RIFF header rather than ffprobe.
- *
- * FLEURS wavs are 16 kHz mono PCM by construction, and the harness already holds the bytes
- * in memory — shelling out to ffprobe once per clip would add a process spawn to something
- * that is a subtraction and a division. Falls back to the byte-length estimate if the header
- * is not the shape we expect, because a wrong duration must not stop a run: it is used for
- * the provider's `durationMs` and for costing, both of which the provider itself corrects in
- * `usage.audioMs`.
- */
-function wavDurationMs(bytes: Buffer): number {
-  const FALLBACK_BYTES_PER_MS = 32; // 16 kHz * 2 bytes, mono
-  if (bytes.length < 44 || bytes.toString('ascii', 0, 4) !== 'RIFF') {
-    return Math.round(bytes.length / FALLBACK_BYTES_PER_MS);
-  }
-  const byteRate = bytes.readUInt32LE(28);
-  const dataSize = bytes.readUInt32LE(40);
-  if (byteRate === 0) return Math.round(bytes.length / FALLBACK_BYTES_PER_MS);
-  return Math.round((dataSize / byteRate) * 1000);
 }
 
 /** The rate table is optional — a run without one still measures, it just cannot cost. */

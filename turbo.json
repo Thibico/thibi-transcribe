@@ -1,6 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["tsconfig.base.json", ".nvmrc"],
+  // `results/tiers.json` is a global dependency because it lives outside every package and
+  // `gen` compiles it into the language registry. Without it here, turbo replays a cached
+  // `gen` after an eval run and the generated table silently stays empty — which is exactly
+  // what happened on 2026-08-13: the drift guard cannot catch drift it never regenerates.
+  "globalDependencies": ["tsconfig.base.json", ".nvmrc", "results/tiers.json"],
   "tasks": {
     "gen": {
       "inputs": ["data/**", "scripts/**"],
