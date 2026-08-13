@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-13, after risk 10 — `tiers.json` accumulates across runs.
+**Last updated:** 2026-08-13, after the sampling checks.
 
 ---
 
@@ -21,9 +21,9 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #31**. This sitting landed the publishing layer (#30) and the
-handoff correction (#31); risk 10 — `tiers.json` accumulating across runs rather than being
-replaced — is on `phase-5/tiers-merge` and may still be in flight when you read this.
+`main` is at the merge of **PR #32**: the publishing layer (#30), a handoff correction (#31)
+and risk 10 (#32), which made `tiers.json` accumulate across runs. The two sampling checks
+below are on `phase-5/sampling-checks` and may still be in flight when you read this.
 
 **The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
 order, 2026-08-13:
@@ -50,10 +50,12 @@ The sidecar's own suite is 42 pytest tests, still run separately.
 ## Do this next
 
 1. **Widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
-   107-language sweep is ~$17 by the plan's own arithmetic. **Risk 10 is closed**, so a
-   partial sweep is now safe: `tiers.json` accumulates and a run only replaces what it
-   measured. Still open beforehand: whether `--sample-strategy id-seeded` moves any
-   language's CER (risk 2).
+   107-language sweep is ~$17 by the plan's own arithmetic. Nothing blocks it now: risk 10 is
+   closed so a partial sweep is safe, and risk 2's open question is answered (amendment 81 —
+   tar order is not measurably biased). Go in tranches; the file accumulates.
+   **Decide first whether the baseline should be measured at a larger `n` than the languages
+   it calibrates** — see the ratio-noise finding below. It is the one thing that would change
+   what a wide sweep publishes.
 2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
    `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
    §5.10 is explicit that the eval imports the real builders and never a copy.
@@ -127,6 +129,19 @@ on reproducing it after somebody changed the estimator. Two traps came with it: 
 to move out of `runAsrEval` (the log is *named* by it and must be open before the first
 billable call), and a budget-stopped language leaves `score` lines behind that the first
 reader happily recomputed into the partial CER the runner deliberately drops.
+
+**At n=30 the ratio is noisier than the CER it is computed from, and it moves every
+language at once.** Measured by re-sampling with `--sample-strategy id-seeded`: `my-MM` went
+0.064 → 0.084 (+31%, overlapping intervals), which took `ha-NG` from ratio 0.91 to 0.67 and
+`yo-NG` from 4.75 to 3.80 **without either language changing** — because `my-MM` is every
+ratio's denominator. Tar order itself shows no measurable bias, so risk 2's question is
+answered; this is the question that replaced it. Amendment 81.
+
+**A drift alarm that fires on deliberate changes stops being read.** Switching sampling
+strategy blocked a publish over a baseline that had not drifted — the second false positive
+after a Groq baseline compared against a Google one. A comparable baseline now requires the
+same provider, model, split, `n` and strategy, with the honest cost that changing any of them
+leaves the guard silent for that run.
 
 **`tiers.json` separates the evidence from the claim, and only the evidence merges.**
 `runs` and `measurements` accumulate across runs; `languages` is **derived** from them on
@@ -298,10 +313,17 @@ suite is safe; sharing a template name is not.
   public repo**, and nothing enforces the distinction. Decide it before `--manifest` is built.
 - **Only four languages are measured, each on one gender and one provider.** Nothing
   downstream may quote 0.064 as a language-level claim.
-- **`yo-NG` at 0.305 has been measured once.** Before it is repeated anywhere, check it is not
-  an artefact of tar-order sampling or of `letterlikePunct` being empty (amendment 61 — Yoruba
-  is Latin-script with heavy diacritics, and the profile's `letterlikePunct` is `[]` for every
-  language).
+- **`yo-NG`'s 0.305 is 75% diacritics, and must not be quoted as a word-accuracy number.**
+  Ignoring tone marks it is **0.065**, in line with `my-MM` 0.064 and `ha-NG` 0.059; 10 of 30
+  hypotheses came back with no tone marks at all. `experimental` is still the right tier —
+  tone is lexical in Yoruba — but the failure is diacritization, not recognition, which is a
+  Phase 6 prompt rather than a provider problem. Amendment 80. (The earlier guess in this note
+  that `letterlikePunct` was the cause was wrong: tone marks are combining marks and
+  `stripPunct` never touches them.)
+- **A diacritic-blind CER would name that class of failure** the way script integrity names
+  the wrong-alphabet one, and it is unbuilt. It must never be published for a script whose
+  marks are not optional — stripping Burmese's would yield a flattering number meaning
+  nothing.
 - **Phase 4b is built and barely measured.** `tiny`, English, eleven seconds. `large-v3` has
   never been loaded on this box; do not try, S9 explains why (~6.7 GB against a 7.65 GB VM).
 - **`thibi models pull` works by transcribing one second of silence** at a URL that 404s by

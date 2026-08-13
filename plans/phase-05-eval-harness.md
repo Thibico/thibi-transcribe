@@ -759,7 +759,7 @@ act with a diff in the PR.
 
 | Eval | Strategy |
 |---|---|
-| ASR | Tar order. Pull N entries from the byte prefix, join to the TSV by `filename`. Deterministic with no seed; the report says so |
+| ASR | **Tar order** by default: pull N entries from the byte prefix, join to the TSV by `filename`. Deterministic with no seed; the report says so. `--sample-strategy id-seeded` pulls a wider prefix and selects by seeded shuffle over `id` — risk 2 records what it measured |
 | cleanup / translate | No audio. Dedupe rows by `id`, sort by `id`, then `mulberry32(seed)` shuffle and take N. `--seed` defaults to `1` |
 
 `id` dedupe keeps the first row per id in file order. Without it a 30-clip sample can contain 30
@@ -1434,8 +1434,20 @@ re-run of unchanged languages free.
    follow: a `my-MM` CER is measured **entirely on female speech** and every tier claim
    derived from it has to say so, and the report must print the split's *distinctness*, not
    just the split — one value across n rows is a finding, not a column. Overview amendment 68.
-   **Open:** whether id-seeded sampling materially moves any language's CER. Measure once on
-   three languages and record the answer here.
+   ~~**Open:** whether id-seeded sampling materially moves any language's CER.~~ **Measured
+   2026-08-13 on three languages, amendment 81. The answer is no, not measurably — and the
+   baseline is the finding.** `--sample-strategy id-seeded` is built as specified (pull
+   `--oversample × n`, dedupe by sentence id, seeded-shuffle with `--seed`, take n). Against
+   tar order at n=30: `ha-NG` 0.059 → 0.056, `yo-NG` 0.305 → 0.319, **`my-MM` 0.064 →
+   0.084**, every interval overlapping. But `my-MM` is the denominator of every ratio in the
+   file, so `ha-NG` went 0.91 → 0.67 and `yo-NG` 4.75 → 3.80 with neither language changing:
+   **at n=30 the ratio a threshold reads is noisier than the CER under it, and it moves every
+   language at once.** `distinctIds` came back 30/30 under id-seeded against 28 and 27 under
+   tar order — the dedupe doing what amendment 68 asked for. Note what id-seeded is *not*: it
+   selects from the prefix it downloaded, so it breaks the correlation with tar order and
+   nothing more. Sampling the split means downloading the split. **Still open:** whether the
+   ratio thresholds should widen at small n, or the baseline should simply be measured at a
+   larger n than everything it calibrates.
 3. **n=30 gives a wide interval.** That is not a flaw, it is the honest mechanical reason
    `verified` requires human sign-off. Raising n is cheap ($0.16 per 30 clips) and the harness
    supports `--n 100`; the thresholds do not change, the CI just narrows.
