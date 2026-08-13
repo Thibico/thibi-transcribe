@@ -1,4 +1,5 @@
 import { GENERATED_AT, LANGUAGES, PROVIDER_MATRIX, SCRIPTS } from './generated/registry.gen.js';
+import { hasMeasurement, measuredTier } from './tiers.js';
 import type {
   LanguageEntry,
   LanguageFilter,
@@ -15,7 +16,8 @@ import type {
  *
  *   1. `data/*.json`      code-adjacent facts, version controlled
  *   2. `registry.gen.ts`  compiled, deeply frozen, committed, importable from a client component
- *   3. `language_support` tier/CER/enabled, written by the eval harness or an admin
+ *   2b. `tiers.gen.ts`    what the eval harness measured, compiled from `results/tiers.json`
+ *   3. `language_support` tier/CER/enabled, set per instance by an admin
  *
  * This package never touches Postgres. Layer 3 arrives as an argument to `createRegistry`.
  * That is what keeps the dependency direction one-way and the registry importable from
@@ -120,6 +122,19 @@ function resolveEntry(
 ): ResolvedLanguage {
   const { typography: languageTypography, seed, ...rest } = entry;
 
+  /**
+   * Layer 2b: what the harness measured, compiled in from `results/tiers.json`.
+   *
+   * Only a language the harness has *actually measured* has a row here. The
+   * all-experimental fallback in `tiers.ts` answers "what has been measured" and must not
+   * reach this line: applied as a tier it would demote `my-MM` — verified by operational
+   * use, never by the harness — on every checkout where nobody had run an eval.
+   */
+  const measured = hasMeasurement(entry.code) ? measuredTier(entry.code) : null;
+  const baseline = measured?.cerNospace !== null && measured?.ratio
+    ? measured.cerNospace / measured.ratio
+    : null;
+
   return {
     ...rest,
     scriptEntry: script,
@@ -127,17 +142,24 @@ function resolveEntry(
     // Merge order is script defaults -> language overrides. A language never has to restate
     // a whole Typography block to nudge one field.
     typography: { ...script.typography, ...languageTypography },
-    tier: override?.tier ?? seed.tier,
+    tier: override?.tier ?? measured?.tier ?? seed.tier,
+    /**
+     * Risk 9: an admin promoting a language in the database is intended — a newsroom that
+     * has validated Hausa on its own material should be able to say so — but the UI has to
+     * show *how* a tier was arrived at, or the whole measurement discipline leaks through
+     * the one row nobody remembers was hand-set.
+     */
+    tierSource: override?.tier !== undefined ? 'override' : measured ? 'measured' : 'seed',
     enabled: override?.enabled ?? seed.enabled,
     support: {
       ...EMPTY_SUPPORT,
-      cer: override?.cer ?? null,
-      cerNoSpace: override?.cerNoSpace ?? null,
-      cerBaseline: override?.cerBaseline ?? null,
-      cerRatio: override?.cerRatio ?? null,
-      evalDate: override?.evalDate ?? null,
-      evalN: override?.evalN ?? null,
-      humanReviewed: override?.humanReviewed ?? seed.humanReviewed,
+      cer: override?.cer ?? measured?.cer ?? null,
+      cerNoSpace: override?.cerNoSpace ?? measured?.cerNospace ?? null,
+      cerBaseline: override?.cerBaseline ?? baseline,
+      cerRatio: override?.cerRatio ?? measured?.ratio ?? null,
+      evalDate: override?.evalDate ?? measured?.evalDate ?? null,
+      evalN: override?.evalN ?? measured?.n ?? null,
+      humanReviewed: override?.humanReviewed ?? measured?.humanReviewed ?? seed.humanReviewed,
       notes: override?.notes ?? seed.notes,
     },
     providers: PROVIDER_MATRIX[entry.code] ?? {},
