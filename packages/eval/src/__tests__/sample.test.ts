@@ -4,7 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseTsv, type FleursRow } from '../fleurs/tsv.js';
 import type { Clip } from '../fleurs/audio.js';
-import { dedupeById, describeSample, joinTarOrder, sampleSeeded } from '../sample.js';
+import {
+  dedupeById,
+  describeSample,
+  joinTarOrder,
+  sampleSeeded,
+  selectSeeded,
+} from '../sample.js';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '__fixtures__');
 const head = parseTsv(readFileSync(join(FIXTURES, 'my_mm_dev_head.tsv'), 'utf8')).rows;
@@ -149,5 +155,73 @@ describe('describeSample', () => {
     expect(c.genderUniform).toBe(true);
     expect(Object.keys(c.gender)).toEqual(['FEMALE']);
     expect(c.distinctIds).toBeLessThan(c.clips);
+  });
+});
+
+/**
+ * Risk 2's mitigation. Tar order is free and deterministic, and nothing had ever checked
+ * whether it quietly selects something — this is the strategy that makes that checkable.
+ */
+describe('selectSeeded', () => {
+  const pair = (id: number, filename: string) => ({
+    clip: { filename, bytes: Buffer.from(filename) },
+    row: {
+      id,
+      filename,
+      raw: 'x',
+      plain: 'x',
+      graphemes: '',
+      numSamples: 16_000,
+      gender: 'FEMALE',
+    },
+  });
+
+  const wide = Array.from({ length: 20 }, (_, i) => pair(100 + i, `${i}.wav`));
+
+  it('takes N, and the same N for the same seed', () => {
+    const a = selectSeeded(wide, 5, 7);
+    const b = selectSeeded(wide, 5, 7);
+    expect(a).toHaveLength(5);
+    expect(a.map((p) => p.row.id)).toEqual(b.map((p) => p.row.id));
+  });
+
+  it('takes a different sample for a different seed', () => {
+    const a = selectSeeded(wide, 5, 1).map((p) => p.row.id);
+    const b = selectSeeded(wide, 5, 2).map((p) => p.row.id);
+    expect(a).not.toEqual(b);
+  });
+
+  /** The whole point: it must not be the prefix it was handed. */
+  it('does not simply return the first N', () => {
+    const picked = selectSeeded(wide, 5, 1).map((p) => p.row.id);
+    const prefix = wide.slice(0, 5).map((p) => p.row.id);
+    expect(picked).not.toEqual(prefix);
+  });
+
+  /**
+   * `my_mm/dev` carries 380 rows over 148 distinct sentences, so a shuffle over *rows* would
+   * still let one sentence appear several times in a sample. Dedupe first.
+   */
+  it('keeps one clip per sentence id', () => {
+    const dupes = [pair(1, 'a.wav'), pair(1, 'b.wav'), pair(2, 'c.wav'), pair(2, 'd.wav')];
+    const picked = selectSeeded(dupes, 4, 1);
+    expect(picked).toHaveLength(2);
+    expect(new Set(picked.map((p) => p.row.id)).size).toBe(2);
+  });
+
+  it('returns everything it has when asked for more than it was given', () => {
+    expect(selectSeeded(wide.slice(0, 3), 10, 1)).toHaveLength(3);
+  });
+
+  /**
+   * File order varies with whatever FLEURS reshuffled last, so sorting by id before the
+   * shuffle is what makes the seed the only source of order — and therefore what makes a
+   * sample reproducible from a runlog on a machine that fetched a different prefix.
+   */
+  it('depends on the seed rather than on the order it was handed', () => {
+    const shuffledInput = [...wide].reverse();
+    expect(selectSeeded(shuffledInput, 5, 3).map((p) => p.row.id)).toEqual(
+      selectSeeded(wide, 5, 3).map((p) => p.row.id),
+    );
   });
 });

@@ -4,7 +4,7 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-13, after risk 10 — `tiers.json` accumulates across runs.
+**Last updated:** 2026-08-13, after the baseline was measured at n=100.
 
 ---
 
@@ -21,23 +21,24 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #31**. This sitting landed the publishing layer (#30) and the
-handoff correction (#31); risk 10 — `tiers.json` accumulating across runs rather than being
-replaced — is on `phase-5/tiers-merge` and may still be in flight when you read this.
+`main` is at the merge of **PR #32**: the publishing layer (#30), a handoff correction (#31)
+and risk 10 (#32), which made `tiers.json` accumulate across runs. The two sampling checks
+below are on `phase-5/sampling-checks` and may still be in flight when you read this.
 
 **The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
 order, 2026-08-13:
 
 | code | CER (nospace) | CI95 | ratio | script | tier |
 |---|---|---|---|---|---|
-| `my-MM` | 0.064 | [0.047, 0.080] | 1.00 | 1.00 | beta |
+| `my-MM` | **0.076** | [0.064, 0.088] | 1.00 | 0.99 | beta |
 | `ha-NG` | 0.059 | [0.043, 0.076] | 0.91 | 1.00 | beta |
 | `jv-ID` | 0.043 | [0.030, 0.057] | 0.67 | 1.00 | beta |
 | `yo-NG` | 0.305 | [0.249, 0.362] | 4.75 | 0.98 | experimental |
 
-`si-LK` reads `experimental / no-eval-set / cer: null` at exit 0. The n=5 Burmese number from
-earlier the same day (0.072) survives at n=30 as 0.064 — inside the old interval, with an
-interval a third as wide. **Yoruba is the first language measured as clearly worse than the
+`si-LK` reads `experimental / no-eval-set / cer: null` at exit 0. **The baseline row is
+n=100**; the rest are n=30, and each names its own run in `tiers.json`. Burmese has now been
+measured three times — 0.072 (n=5), 0.064 (n=30), **0.076 (n=100, CI [0.064, 0.088])** — each
+inside the previous interval, which is what a converging estimate looks like. **Yoruba is the first language measured as clearly worse than the
 one this product already ships**, and none of it is a Yoruba fact yet: one provider, one
 model, thirty read Wikipedia sentences, all male.
 
@@ -50,10 +51,13 @@ The sidecar's own suite is 42 pytest tests, still run separately.
 ## Do this next
 
 1. **Widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
-   107-language sweep is ~$17 by the plan's own arithmetic. **Risk 10 is closed**, so a
-   partial sweep is now safe: `tiers.json` accumulates and a run only replaces what it
-   measured. Still open beforehand: whether `--sample-strategy id-seeded` moves any
-   language's CER (risk 2).
+   107-language sweep is ~$17 by the plan's own arithmetic. Nothing blocks it now: risk 10 is
+   closed so a partial sweep is safe, and risk 2's open question is answered (amendment 81 —
+   tar order is not measurably biased). Go in tranches; the file accumulates.
+   **Run it as `--n 30 --baseline-n 100`.** The baseline is already measured at n=100 and
+   those clips are cached, so it costs **$0.0000** extra per sweep and every ratio divides by
+   the tighter number. A sweep without it publishes ratios against a denominator with ±30% of
+   sampling noise in it.
 2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
    `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
    §5.10 is explicit that the eval imports the real builders and never a copy.
@@ -127,6 +131,28 @@ on reproducing it after somebody changed the estimator. Two traps came with it: 
 to move out of `runAsrEval` (the log is *named* by it and must be open before the first
 billable call), and a budget-stopped language leaves `score` lines behind that the first
 reader happily recomputed into the partial CER the runner deliberately drops.
+
+**The baseline is measured at n=100 and still cannot clear its own `ciHiRatio` gate**
+(1.160 against 1.15; it would need roughly n≥130). Applied to the baseline that rule is the
+relative width of its own interval rather than a comparison with anything — amendment 78's
+category error, unchanged by the extra precision. Exempting the baseline from the ratio gates
+is a product decision, and close to moot while `humanReview` blocks it anyway. Also:
+**`ratio` is computed per run and never re-derived**, so a language only benefits from a
+better baseline by being measured alongside it — which is why `--baseline-n` is a per-run
+option. Amendment 82.
+
+**At n=30 the ratio is noisier than the CER it is computed from, and it moves every
+language at once.** Measured by re-sampling with `--sample-strategy id-seeded`: `my-MM` went
+0.064 → 0.084 (+31%, overlapping intervals), which took `ha-NG` from ratio 0.91 to 0.67 and
+`yo-NG` from 4.75 to 3.80 **without either language changing** — because `my-MM` is every
+ratio's denominator. Tar order itself shows no measurable bias, so risk 2's question is
+answered; this is the question that replaced it. Amendment 81.
+
+**A drift alarm that fires on deliberate changes stops being read.** Switching sampling
+strategy blocked a publish over a baseline that had not drifted — the second false positive
+after a Groq baseline compared against a Google one. A comparable baseline now requires the
+same provider, model, split, `n` and strategy, with the honest cost that changing any of them
+leaves the guard silent for that run.
 
 **`tiers.json` separates the evidence from the claim, and only the evidence merges.**
 `runs` and `measurements` accumulate across runs; `languages` is **derived** from them on
@@ -291,6 +317,10 @@ suite is safe; sharing a template name is not.
 
 ## Known debt, recorded not hidden
 
+- **The dry run overstates a cached run.** It printed `$0.412` for a run that cost `$0.0000`,
+  because the estimate table has no cached column — §5.8's own mock output has one
+  (`30 (free)`). An estimate printed "first and unconditionally" so it is a budget rather
+  than a receipt is undermined by overstating the spend.
 - **The sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment 77's
   wav reader. Fixed forward; the run's log is left as it was written.
 - **A runlog carries provider transcript text.** Fine for FLEURS, which is public. **A
@@ -298,10 +328,17 @@ suite is safe; sharing a template name is not.
   public repo**, and nothing enforces the distinction. Decide it before `--manifest` is built.
 - **Only four languages are measured, each on one gender and one provider.** Nothing
   downstream may quote 0.064 as a language-level claim.
-- **`yo-NG` at 0.305 has been measured once.** Before it is repeated anywhere, check it is not
-  an artefact of tar-order sampling or of `letterlikePunct` being empty (amendment 61 — Yoruba
-  is Latin-script with heavy diacritics, and the profile's `letterlikePunct` is `[]` for every
-  language).
+- **`yo-NG`'s 0.305 is 75% diacritics, and must not be quoted as a word-accuracy number.**
+  Ignoring tone marks it is **0.065**, in line with `my-MM` 0.064 and `ha-NG` 0.059; 10 of 30
+  hypotheses came back with no tone marks at all. `experimental` is still the right tier —
+  tone is lexical in Yoruba — but the failure is diacritization, not recognition, which is a
+  Phase 6 prompt rather than a provider problem. Amendment 80. (The earlier guess in this note
+  that `letterlikePunct` was the cause was wrong: tone marks are combining marks and
+  `stripPunct` never touches them.)
+- **A diacritic-blind CER would name that class of failure** the way script integrity names
+  the wrong-alphabet one, and it is unbuilt. It must never be published for a script whose
+  marks are not optional — stripping Burmese's would yield a flattering number meaning
+  nothing.
 - **Phase 4b is built and barely measured.** `tiny`, English, eleven seconds. `large-v3` has
   never been loaded on this box; do not try, S9 explains why (~6.7 GB against a 7.65 GB VM).
 - **`thibi models pull` works by transcribing one second of silence** at a URL that 404s by

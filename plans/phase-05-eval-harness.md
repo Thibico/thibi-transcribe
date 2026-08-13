@@ -759,7 +759,7 @@ act with a diff in the PR.
 
 | Eval | Strategy |
 |---|---|
-| ASR | Tar order. Pull N entries from the byte prefix, join to the TSV by `filename`. Deterministic with no seed; the report says so |
+| ASR | **Tar order** by default: pull N entries from the byte prefix, join to the TSV by `filename`. Deterministic with no seed; the report says so. `--sample-strategy id-seeded` pulls a wider prefix and selects by seeded shuffle over `id` — risk 2 records what it measured |
 | cleanup / translate | No audio. Dedupe rows by `id`, sort by `id`, then `mulberry32(seed)` shuffle and take N. `--seed` defaults to `1` |
 
 `id` dedupe keeps the first row per id in file order. Without it a 30-clip sample can contain 30
@@ -920,7 +920,12 @@ boundary above which a language becomes beta — i.e. the verified thresholds th
 phrase in the spec, and because at n=30 the point estimate clears the line long before the
 interval does.
 
-**The Burmese baseline is measured every run, never hardcoded.**
+**The Burmese baseline is measured every run, never hardcoded — and since 2026-08-13 it is
+measured at its own `n`.** `--baseline-n 100` against `--n 30` for everything else: every
+ratio divides by the baseline, so its precision is the one figure every other row inherits,
+and raising `n` for one language is far cheaper than raising it for all. Note that **`ratio`
+is computed within a run and never re-derived**, so a language only benefits from a better
+baseline by being measured alongside it.
 
 ```ts
 const BASELINE_CODE = 'my-MM';
@@ -1434,8 +1439,26 @@ re-run of unchanged languages free.
    follow: a `my-MM` CER is measured **entirely on female speech** and every tier claim
    derived from it has to say so, and the report must print the split's *distinctness*, not
    just the split — one value across n rows is a finding, not a column. Overview amendment 68.
-   **Open:** whether id-seeded sampling materially moves any language's CER. Measure once on
-   three languages and record the answer here.
+   ~~**Open:** whether id-seeded sampling materially moves any language's CER.~~ **Measured
+   2026-08-13 on three languages, amendment 81. The answer is no, not measurably — and the
+   baseline is the finding.** `--sample-strategy id-seeded` is built as specified (pull
+   `--oversample × n`, dedupe by sentence id, seeded-shuffle with `--seed`, take n). Against
+   tar order at n=30: `ha-NG` 0.059 → 0.056, `yo-NG` 0.305 → 0.319, **`my-MM` 0.064 →
+   0.084**, every interval overlapping. But `my-MM` is the denominator of every ratio in the
+   file, so `ha-NG` went 0.91 → 0.67 and `yo-NG` 4.75 → 3.80 with neither language changing:
+   **at n=30 the ratio a threshold reads is noisier than the CER under it, and it moves every
+   language at once.** `distinctIds` came back 30/30 under id-seeded against 28 and 27 under
+   tar order — the dedupe doing what amendment 68 asked for. Note what id-seeded is *not*: it
+   selects from the prefix it downloaded, so it breaks the correlation with tar order and
+   nothing more. Sampling the split means downloading the split. **Answered in part 2026-08-13 (amendment
+   82): the baseline is now measured at a larger n than everything it calibrates.**
+   `--baseline-n 100` put `my-MM` at **0.076, CI [0.064, 0.088]** — 27% narrower than the
+   n=30 interval, and containing both n=30 estimates. Every future sweep gets those clips
+   from cache for $0.0000. **Still open:** even at n=100 the baseline's `ciHi / cer` is
+   **1.160** against a 1.15 gate, so it stays `blocked: ciHiRatio>1.15` — a rule that, applied
+   to the baseline, is the relative width of its own interval rather than a comparison with
+   anything (amendment 78). Exempting the baseline from the ratio gates is a product decision
+   and is close to moot while `humanReview` blocks it anyway.
 3. **n=30 gives a wide interval.** That is not a flaw, it is the honest mechanical reason
    `verified` requires human sign-off. Raising n is cheap ($0.16 per 30 clips) and the harness
    supports `--n 100`; the thresholds do not change, the CI just narrows.

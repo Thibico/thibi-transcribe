@@ -101,6 +101,44 @@ export function joinTarOrder(clips: readonly Clip[], rows: readonly FleursRow[])
   return { pairs, unmatched };
 }
 
+/**
+ * Choose N of the fetched pairs by seeded shuffle over sentence `id` — risk 2's mitigation.
+ *
+ * Deduping by `id` first is the part that matters and the reason this is not just a shuffle:
+ * `my_mm/dev` carries 380 rows over 148 distinct sentences (amendment 68), so a shuffle over
+ * rows would still let one sentence appear several times in a 30-clip sample. Sorting before
+ * shuffling makes the seed the only source of order — file order varies with whatever FLEURS
+ * reshuffled last, and a sample that silently depends on it is not reproducible from a
+ * runlog.
+ *
+ * **What this does not do**: make the sample representative of the split. It selects from
+ * whatever prefix was downloaded, so it breaks the correlation with tar order and nothing
+ * more. Sampling the split itself means downloading the split.
+ */
+export function selectSeeded(
+  pairs: ReadonlyArray<{ clip: Clip; row: FleursRow }>,
+  n: number,
+  seed = 1,
+): Array<{ clip: Clip; row: FleursRow }> {
+  const seen = new Set<number>();
+  const unique: Array<{ clip: Clip; row: FleursRow }> = [];
+  for (const p of pairs) {
+    if (seen.has(p.row.id)) continue;
+    seen.add(p.row.id);
+    unique.push(p);
+  }
+  unique.sort((a, b) => a.row.id - b.row.id);
+
+  const rnd = mulberry32(seed);
+  for (let i = unique.length - 1; i > 0; i--) {
+    const j = (rnd() * (i + 1)) | 0;
+    const t = unique[i]!;
+    unique[i] = unique[j]!;
+    unique[j] = t;
+  }
+  return unique.slice(0, n);
+}
+
 export interface SampleComposition {
   clips: number;
   /** How many distinct sentences the sample really covers. */

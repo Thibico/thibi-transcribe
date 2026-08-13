@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-13T07:21:37.448Z",
-  "latestRunId": "2026-08-13T07-12-20-473Z-google",
+  "generatedAt": "2026-08-13T15:22:41.876Z",
+  "latestRunId": "2026-08-13T15-17-34-278Z-google",
   "runs": {
     "2026-08-13T07-12-20-473Z-google": {
       "runId": "2026-08-13T07-12-20-473Z-google",
@@ -27,6 +27,32 @@
         "suspect": false,
         "previousCerNospace": null
       }
+    },
+    "2026-08-13T15-17-34-278Z-google": {
+      "runId": "2026-08-13T15-17-34-278Z-google",
+      "engineVersion": "phase-5",
+      "provider": "google",
+      "model": "chirp_2",
+      "startedAt": "2026-08-13T15:17:34.278Z",
+      "finishedAt": "2026-08-13T15:22:41.876Z",
+      "sampling": {
+        "strategy": "tar-order",
+        "split": "dev",
+        "n": 100,
+        "deterministic": true,
+        "seed": 1
+      },
+      "baseline": {
+        "code": "my-MM",
+        "cerNospace": 0.07586530721760129,
+        "n": 100,
+        "ci95": [
+          0.0641399416909621,
+          0.08797842281017211
+        ],
+        "suspect": false,
+        "previousCerNospace": null
+      }
     }
   },
   "measurements": {
@@ -34,37 +60,37 @@
       "code": "my-MM",
       "provider": "google",
       "model": "chirp_2",
-      "runId": "2026-08-13T07-12-20-473Z-google",
+      "runId": "2026-08-13T15-17-34-278Z-google",
       "evalDate": "2026-08-13",
       "tier": "beta",
       "reason": "measured",
-      "n": 30,
-      "clipSeconds": 465.18,
+      "n": 100,
+      "clipSeconds": 1617.12,
       "genderSplit": {
-        "FEMALE": 30
+        "FEMALE": 100
       },
       "genderUniform": true,
-      "distinctIds": 30,
-      "cer": 0.06431302001349225,
-      "cerNospace": 0.06431302001349225,
+      "distinctIds": 82,
+      "cer": 0.07586530721760129,
+      "cerNospace": 0.07586530721760129,
       "cerCi95": [
-        0.04712279111916629,
-        0.07957405614714425
+        0.0641399416909621,
+        0.08797842281017211
       ],
       "wer": null,
       "werKind": null,
       "ratio": 1,
-      "scriptIntegrity": 1,
+      "scriptIntegrity": 0.9917478354978355,
       "example": {
-        "id": 1572,
-        "ref": "နှစ်နာရီအတွင်း အစိုးရ အဆောက်အအုံများအနီး၌ နောက်ထပ်ဗုံးသုံးလုံး ပေါက်ကွဲခဲ့ပါသည်",
-        "hyp": "၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"
+        "id": 1622,
+        "ref": "အမေရိကန်ပြည်ထောင်စု သမ္မတ ဂျီရောဂျီဒဘလူဘက်ဟ် က ကြေညာချက်ကို ကြိုဆိုထောက်ခံသည်",
+        "hyp": "အမေရိကန် ပြည်ထောင်စု သမ္မတ G. R. G. W. Batch က ကြေညာချက် ကို ကြိုဆိုထောက်ခံ သည် ။"
       },
       "blockedFromVerifiedBy": [
         "ciHiRatio>1.15",
         "humanReview"
       ],
-      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 1 fetched clip(s) had no reference text and were dropped."
+      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 100 clips cover 82 distinct sentences. 1 fetched clip(s) had no reference text and were dropped."
     },
     "ha-NG|google|chirp_2": {
       "code": "ha-NG",
@@ -210,30 +236,30 @@
       "provider": "google",
       "model": "chirp_2",
       "chosenProvider": "google",
-      "n": 30,
-      "clipSeconds": 465.18,
+      "n": 100,
+      "clipSeconds": 1617.12,
       "genderSplit": {
-        "FEMALE": 30
+        "FEMALE": 100
       },
       "genderUniform": true,
-      "distinctIds": 30,
-      "cer": 0.06431302001349225,
-      "cerNospace": 0.06431302001349225,
+      "distinctIds": 82,
+      "cer": 0.07586530721760129,
+      "cerNospace": 0.07586530721760129,
       "cerCi95": [
-        0.04712279111916629,
-        0.07957405614714425
+        0.0641399416909621,
+        0.08797842281017211
       ],
       "wer": null,
       "werKind": null,
       "ratio": 1,
-      "scriptIntegrity": 1,
-      "evalRunId": "2026-08-13T07-12-20-473Z-google",
+      "scriptIntegrity": 0.9917478354978355,
+      "evalRunId": "2026-08-13T15-17-34-278Z-google",
       "evalDate": "2026-08-13",
       "split": "dev",
       "example": {
-        "id": 1572,
-        "ref": "နှစ်နာရီအတွင်း အစိုးရ အဆောက်အအုံများအနီး၌ နောက်ထပ်ဗုံးသုံးလုံး ပေါက်ကွဲခဲ့ပါသည်",
-        "hyp": "၂:၀၀ အတွင်း အစိုးရ အဆောက်အဦးများ အနီး၌ နောက်ထပ် ဗုံ သုံးလုံး ပေါက်ကွဲခဲ့ပါသည်။"
+        "id": 1622,
+        "ref": "အမေရိကန်ပြည်ထောင်စု သမ္မတ ဂျီရောဂျီဒဘလူဘက်ဟ် က ကြေညာချက်ကို ကြိုဆိုထောက်ခံသည်",
+        "hyp": "အမေရိကန် ပြည်ထောင်စု သမ္မတ G. R. G. W. Batch က ကြေညာချက် ကို ကြိုဆိုထောက်ခံ သည် ။"
       },
       "humanReview": null,
       "blockedFromVerifiedBy": [
@@ -241,7 +267,7 @@
         "humanReview"
       ],
       "otherProviders": [],
-      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 1 fetched clip(s) had no reference text and were dropped."
+      "notes": "Every clip in this sample is FEMALE; the split cannot show speaker concentration. 100 clips cover 82 distinct sentences. 1 fetched clip(s) had no reference text and were dropped."
     },
     "ha-NG": {
       "tier": "beta",

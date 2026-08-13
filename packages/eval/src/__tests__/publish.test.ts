@@ -45,6 +45,8 @@ const run = (languages: LanguageResult[], runId = 'run-1'): AsrRunResult => ({
   model: 'chirp_2',
   split: 'dev',
   n: 30,
+  sampleStrategy: 'tar-order',
+  seed: 1,
   baselineCode: 'my-MM',
   baselineAdded: false,
   languages,

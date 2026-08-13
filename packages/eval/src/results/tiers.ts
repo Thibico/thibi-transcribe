@@ -119,10 +119,18 @@ export interface TiersRun {
   model: string;
   startedAt: string;
   finishedAt: string;
-  sampling: { strategy: 'tar-order'; split: string; n: number; deterministic: true };
+  sampling: {
+    strategy: 'tar-order' | 'id-seeded';
+    split: string;
+    n: number;
+    /** Both strategies are reproducible; `id-seeded` needs the seed to be so. */
+    deterministic: true;
+    seed: number;
+  };
   baseline: {
     code: string;
     cerNospace: number | null;
+    /** May exceed `sampling.n`: the baseline is what every ratio divides by. */
     n: number;
     ci95: readonly [number, number] | null;
     /** True when this run's baseline moved more than 25% from the previous run's. */
@@ -191,7 +199,7 @@ export function buildTiersFile(input: BuildTiersInput): TiersFile {
   const { run, engineVersion, previous } = input;
   const reviews = input.humanReviews ?? {};
   const baselineResult = run.languages.find((l) => l.languageCode === run.baselineCode);
-  const previousBaseline = previousBaselineFor(previous, run.provider, run.model);
+  const previousBaseline = previousBaselineFor(previous, run);
   const evalDate = run.finishedAt.slice(0, 10);
 
   const thisRun: TiersRun = {
@@ -201,7 +209,13 @@ export function buildTiersFile(input: BuildTiersInput): TiersFile {
     model: run.model,
     startedAt: run.startedAt,
     finishedAt: run.finishedAt,
-    sampling: { strategy: 'tar-order', split: run.split, n: run.n, deterministic: true },
+    sampling: {
+      strategy: run.sampleStrategy,
+      split: run.split,
+      n: run.n,
+      deterministic: true,
+      seed: run.seed,
+    },
     baseline: {
       code: run.baselineCode,
       cerNospace: baselineResult?.cerNospace ?? null,
@@ -239,21 +253,33 @@ export function buildTiersFile(input: BuildTiersInput): TiersFile {
 }
 
 /**
- * The baseline to compare drift against: **the last run that used the same provider and
- * model**, not simply the last run.
+ * The baseline to compare drift against: the last run that measured **the same thing** —
+ * same provider, model, split, sample size and sampling strategy.
  *
- * Comparing a Groq baseline against a Google one would fire the drift alarm on every
- * provider switch — which is not drift, it is a different measurement of a different thing,
- * and an alarm that cries wolf on a routine action stops being read.
+ * Drift means "this measurement moved", so everything that defines the measurement has to
+ * match or the alarm fires on changes that are not drift. Two of those were found by firing
+ * it: a Groq baseline against a Google one, and — measured 2026-08-13 — switching
+ * `--sample-strategy` from `tar-order` to `id-seeded`, which moved `my-MM` from 0.064 to
+ * 0.084 and blocked the publish with a warning about a baseline that had not drifted at all.
+ * An alarm that cries wolf on a deliberate, documented action is an alarm that gets ignored
+ * on the day it is right.
+ *
+ * The cost is real and worth stating: change `--n` or the strategy and this run has nothing
+ * comparable to check against, so the drift guard is silent for it. That is the honest
+ * behaviour — there is no previous measurement of this thing — but it does mean a strategy
+ * change is a good moment to look at the baseline yourself.
  */
-function previousBaselineFor(
-  previous: TiersFile | null,
-  provider: string,
-  model: string,
-): number | null {
+function previousBaselineFor(previous: TiersFile | null, run: AsrRunResult): number | null {
   if (!previous) return null;
   const candidates = Object.values(previous.runs)
-    .filter((r) => r.provider === provider && r.model === model)
+    .filter(
+      (r) =>
+        r.provider === run.provider &&
+        r.model === run.model &&
+        r.sampling.split === run.split &&
+        r.sampling.n === run.n &&
+        r.sampling.strategy === run.sampleStrategy,
+    )
     .sort((a, b) => (a.finishedAt < b.finishedAt ? 1 : -1));
   return candidates[0]?.baseline.cerNospace ?? null;
 }

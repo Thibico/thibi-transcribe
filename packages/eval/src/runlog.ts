@@ -33,6 +33,9 @@ export interface RunHeader {
   model: string;
   split: string;
   n: number;
+  /** Absent in logs written before 2026-08-13; a replay then assumes the default. */
+  sampleStrategy?: 'tar-order' | 'id-seeded';
+  seed?: number;
   baselineCode: string;
   baselineAdded: boolean;
 }
@@ -159,6 +162,10 @@ export function reconstructRun(
     model: header.model,
     split: header.split as AsrRunResult['split'],
     n: header.n,
+    // Older logs predate the field. `tar-order` is what they were: it was the only strategy
+    // that existed, so assuming it is a fact about those runs rather than a default.
+    sampleStrategy: header.sampleStrategy ?? 'tar-order',
+    seed: header.seed ?? 1,
     baselineCode: header.baselineCode,
     baselineAdded: header.baselineAdded,
     languages: results,

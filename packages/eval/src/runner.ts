@@ -15,7 +15,7 @@ import {
   type FleursRow,
   type Split,
 } from './fleurs/tsv.js';
-import { joinTarOrder, describeSample } from './sample.js';
+import { joinTarOrder, describeSample, selectSeeded } from './sample.js';
 import { clipHashOf, paramsHashOf, responseKey, type ResponseCache } from './cache.js';
 import { scoreProfileFor, scriptRangesFor } from './profile.js';
 import { assignTier, type TierResult } from './tier.js';
@@ -53,6 +53,19 @@ export type LoadTsvFn = (
 /** The ranged-tarball pull, injected. Same signature as `fetchClips`. */
 export type FetchClipsFn = (cfg: string, split: string, n: number) => Promise<Clip[]>;
 
+/**
+ * How the N clips are chosen.
+ *
+ * - `tar-order` — the first N entries of the tarball. Free: one ranged request rather than a
+ *   281 MB download, deterministic with no seed, and correlated with nothing in the data
+ *   *as far as anyone has checked*. The default, and the strategy every published number so
+ *   far was measured with.
+ * - `id-seeded` — pull a wider prefix, dedupe by sentence `id`, seeded-shuffle, take N. Risk
+ *   2's mitigation, and the only way to find out whether tar order is quietly selecting
+ *   something. It costs a larger download and a fresh set of billable clips.
+ */
+export type SampleStrategy = 'tar-order' | 'id-seeded';
+
 export interface RunAsrOptions {
   languages: readonly string[];
   n: number;
@@ -60,6 +73,31 @@ export interface RunAsrOptions {
   cacheDir: string;
   provider: string;
   model: string;
+  /**
+   * Clips for the baseline language, when it should be measured more precisely than the
+   * languages it calibrates.
+   *
+   * Every ratio in a run divides by the baseline, so the baseline's own sampling noise is
+   * multiplied across every language at once — measured: re-sampling moved `my-MM` 31% and
+   * took `ha-NG` from ratio 0.91 to 0.67 with Hausa unchanged (amendment 81). Raising `n`
+   * for one language is far cheaper than raising it for all of them, and it is the only one
+   * whose precision every other row inherits. Defaults to `n`.
+   */
+  baselineN?: number;
+  /** Defaults to `tar-order`. */
+  sampleStrategy?: SampleStrategy;
+  /** `id-seeded` only: the shuffle seed, written to the runlog so a sample is reproducible. */
+  seed?: number;
+  /**
+   * `id-seeded` only: how many times N to pull before selecting.
+   *
+   * The whole split would be the ideal frame to sample from, and it is a 281 MB download per
+   * language. §5 risk 2 specifies "a larger prefix" precisely because the point is to break
+   * any correlation with tar order, and a prefix several times the sample does that without
+   * paying for the whole tarball. It does **not** make the sample representative of the
+   * split — nothing short of the split can — and a report may not claim otherwise.
+   */
+  oversample?: number;
   /** Stop before the call that would exceed this. Null means no ceiling. */
   budgetUsd?: number | null;
   /**
@@ -158,6 +196,9 @@ export interface AsrRunResult {
   model: string;
   split: Split;
   n: number;
+  sampleStrategy: SampleStrategy;
+  /** Meaningful only for `id-seeded`; recorded either way so a run is reproducible. */
+  seed: number;
   baselineCode: string;
   baselineAdded: boolean;
   languages: LanguageResult[];
@@ -257,6 +298,8 @@ export async function runAsrEval(deps: RunAsrDeps, opts: RunAsrOptions): Promise
     model: opts.model,
     split,
     n: opts.n,
+    sampleStrategy: opts.sampleStrategy ?? 'tar-order',
+    seed: opts.seed ?? 1,
     baselineCode: BASELINE_CODE,
     baselineAdded,
     languages: results,
@@ -331,23 +374,52 @@ async function runOne(
     throw err;
   }
 
+  const strategy = opts.sampleStrategy ?? 'tar-order';
+  const seed = opts.seed ?? 1;
+  // The baseline may be measured at a larger n than the languages it calibrates: every ratio
+  // divides by it, so its precision is the one every other row inherits.
+  const n = code === BASELINE_CODE ? (opts.baselineN ?? opts.n) : opts.n;
+
   // Over-fetch. A tar-order sample walks into the records that have audio and no reference
   // at a rate of `dropped / total`, so asking for exactly n returns fewer than n scoreable
   // pairs — measured: 30 fetched, 29 usable (amendment 70). Ask for the shortfall plus one,
   // then take the first n that joined.
   const totalRecords = rows.length + dropped;
-  const expectedLoss = totalRecords === 0 ? 0 : (opts.n * dropped) / totalRecords;
-  const overFetch = Math.min(rows.length + dropped, opts.n + Math.ceil(expectedLoss) + 1);
+  const expectedLoss = totalRecords === 0 ? 0 : (n * dropped) / totalRecords;
+  const tarOrderFetch = Math.min(totalRecords, n + Math.ceil(expectedLoss) + 1);
+  const overFetch =
+    strategy === 'id-seeded'
+      ? Math.min(totalRecords, n * (opts.oversample ?? 3))
+      : tarOrderFetch;
 
   const clips = await fetchClips(cfg, split, overFetch);
   const joined = joinTarOrder(clips, rows);
-  const pairs = joined.pairs.slice(0, opts.n);
+  const pairs =
+    strategy === 'id-seeded'
+      ? selectSeeded(joined.pairs, n, seed)
+      : joined.pairs.slice(0, n);
 
   const profile = scoreProfileFor(code);
   const ranges = scriptRangesFor(code);
   if (!profile) return emptyResult(code, `no scoring profile for ${code}`, cfg);
 
-  const paramsHash = paramsHashOf({ split, n: opts.n, model: opts.model, scoring: SCORE_OPTIONS });
+  /**
+   * The key covers everything that could change the response and **nothing that could not**.
+   *
+   * The cache answers "what did this provider say about this clip", and the key already
+   * carries `clipHash`. Neither the sampling strategy nor the sample size can change that
+   * answer, so neither belongs here: including them splits the cache and re-bills every clip
+   * two runs have in common, which between a 30-clip and a 100-clip sample of the same
+   * tar-order prefix is all thirty.
+   *
+   * `n` **was** in this key until 2026-08-13 and is the reason measuring the baseline at a
+   * larger n could not reuse the clips already paid for at the smaller one. Removing it
+   * orphans the entries written under the old key — a one-time re-bill, taken deliberately
+   * rather than carried forever. (The sampling strategy nearly went in for the opposite
+   * reason: two samples *are* different measurements, but they are different measurements
+   * over the same per-clip answers.)
+   */
+  const paramsHash = paramsHashOf({ split, model: opts.model, scoring: SCORE_OPTIONS });
   const perClip: EditStats[] = [];
   const perClipNospace: EditStats[] = [];
   let hypAll = '';

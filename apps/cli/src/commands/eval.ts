@@ -52,6 +52,23 @@ export function evalCommand(): Command {
       'print exact clip counts, estimated audio and estimated USD. Downloads no audio.',
     )
     .option('--budget-usd <usd>', 'stop before the call that would exceed this', Number)
+    .option(
+      '--sample-strategy <strategy>',
+      'tar-order (default, free) | id-seeded (wider prefix, seeded shuffle over sentence id)',
+      'tar-order',
+    )
+    .option('--seed <n>', 'id-seeded only: the shuffle seed', (v) => Number.parseInt(v, 10), 1)
+    .option(
+      '--baseline-n <count>',
+      'clips for my-MM specifically — every ratio divides by it, so its precision is inherited',
+      (v) => Number.parseInt(v, 10),
+    )
+    .option(
+      '--oversample <n>',
+      'id-seeded only: how many times --n to pull before selecting',
+      (v) => Number.parseInt(v, 10),
+      3,
+    )
     .option('--no-cache', 'ignore cached provider responses on read; still writes them')
     .action(async (opts: Record<string, unknown>) => {
       const codes = String(opts['languages'])
@@ -149,6 +166,8 @@ export function evalCommand(): Command {
           model: built.model,
           split,
           n,
+          sampleStrategy: String(opts['sampleStrategy']) === 'id-seeded' ? 'id-seeded' : 'tar-order',
+          seed: Number(opts['seed'] ?? 1),
           baselineCode: 'my-MM',
           baselineAdded: !codes.includes('my-MM'),
         });
@@ -193,6 +212,10 @@ export function evalCommand(): Command {
             provider,
             model: built.model,
             budgetUsd: opts['budgetUsd'] === undefined ? null : Number(opts['budgetUsd']),
+            sampleStrategy: String(opts['sampleStrategy']) === 'id-seeded' ? 'id-seeded' : 'tar-order',
+            seed: Number(opts['seed'] ?? 1),
+            oversample: Number(opts['oversample'] ?? 3),
+            ...(opts['baselineN'] === undefined ? {} : { baselineN: Number(opts['baselineN']) }),
             usdPerMinute: runRate,
             onProgress: (line) => process.stderr.write(`${line}\r`),
           },
@@ -320,7 +343,9 @@ function formatRunSummary(r: AsrRunResult): string {
   const lines: string[] = [];
   lines.push(`run ${r.runId}`);
   lines.push(
-    `  ${r.provider}/${r.model} · split ${r.split} · n=${r.n} · baseline ${r.baselineCode}` +
+    `  ${r.provider}/${r.model} · split ${r.split} · n=${r.n} · ${r.sampleStrategy}` +
+      (r.sampleStrategy === 'id-seeded' ? ` seed=${r.seed}` : '') +
+      ` · baseline ${r.baselineCode}` +
       (r.baselineAdded ? ' (added to this run)' : ''),
   );
   lines.push('');
