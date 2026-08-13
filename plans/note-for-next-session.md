@@ -278,13 +278,29 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
    score against. **Hand-labelling a few minutes of that file is now the cheapest unblock in
    the project** — it converts an existing asset into the first real diarization measurement
    and gives amendment 57's threshold something to tune against.
-3. **~~Is an ElevenLabs Scribe key worth getting?~~ Answered 2026-08-12: no, not for now.**
-   `scribe.ts` is not built and every document that promised a hosted diarization fallback is
-   corrected — amendment 48, Phase 3 open question 7, Phase 14's provider table, Phase 15
-   §"Why `sidecar` and `worker-heavy` share a profile" and its tier note. **The consequence
-   is question 1's, and it got sharper**: pyannote's CPU realtime factor had two honest
-   mitigations and now has one, the GPU tier. A newsroom that can run neither does no
-   diarization, which is supported and must never be described as a fallback.
+3. **Is a hosted diarization service worth evaluating? Reopened 2026-08-13 by the user** —
+   as a question about the *category*, not about ElevenLabs, which was closed 2026-08-12 and
+   stays closed on its own merits. Amendments 48 and 71; criteria in Phase 3 open question 7.
+
+   What changed: throughput is measured rather than estimated (**0.656×**, so an hour of audio
+   is ~90 minutes — amendment 56), the memory floor is pyannote **plus** the resident ASR
+   model (amendment 54), and **accuracy is still unmeasured**, so nothing establishes that the
+   90-minute wait buys a good answer. The trigger amendment 48 named — a newsroom that cannot
+   host pyannote — looks less like an edge case than it did.
+
+   **Evaluate in this order, because it kills candidates fastest:** long-tail language
+   coverage first (a diarizer serving only the languages we already have alternatives for
+   solves nothing, and an accepted language code proves nothing — S7); then **data
+   residency**, which is the one amendment 48 never had to weigh — self-hosted, audio that
+   never leaves the building, is the product's premise, so for a sensitive recording a hosted
+   diarizer is disqualifying rather than a trade, and any hosted source ships **off by
+   default, per-instance opt-in, named in the UI at the point of use**; then whether it
+   re-transcribes; then cost and duration cap against the live API; then quality against
+   pyannote, which needs question 2's RTTM before it can mean anything.
+
+   **This reopens an evaluation, not a promise.** `scribe.ts` is unbuilt and no document may
+   describe a hosted fallback as existing. A box that can run neither pyannote nor a GPU does
+   no diarization — supported, and never to be called a fallback.
 4. **Risk 8, from Phase 2**: nothing yet proves a `DYNAMIC_BATCHING` submission is billed
    against the Dynamic Batch SKU rather than Recognition. Needs a real invoice. Phase 14.
 5. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
@@ -305,10 +321,12 @@ the `delete` on the dedupe path in `ingest/upload.ts`.
   the real path — but it does mean a *successful* pull ends in a `bad_audio` task, and
   anything that later tightens that error handling has to keep knowing why.
 - **Phase 3 has no open Definition-of-done items.** `scribe.ts` was the last and is descoped,
-  not forgotten: the design survives in Phase 3 §2 and amendment 48 says what has to be true
-  for it to come back. **The debt it leaves is in the docs, not the code** — every place that
-  described a hosted diarization fallback has been corrected, and nothing written from here
-  on may reintroduce one.
+  not forgotten: the design survives in Phase 3 §2, and open question 7 — **reopened
+  2026-08-13** — now carries the criteria a hosted source has to clear. **The debt it leaves
+  is in the docs, not the code** — every place that described a hosted diarization fallback
+  has been corrected, and **reopening the question does not license reintroducing one**. An
+  evaluation is not a promise, and nothing may describe a hosted fallback as existing until
+  something is built and measured.
 - **The contract test costs ~40 s** of the suite whenever the sidecar is up, because it runs
   a genuine 11-second diarization (see amendment 47 for why it is not a canned pipeline). It
   skips itself, naming the missing service, when the sidecar is unreachable or its model is
