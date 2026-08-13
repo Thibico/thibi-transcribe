@@ -1,3 +1,4 @@
+import { USER_FACING } from '@thibi/engine';
 import type { ProviderId } from '@thibi/languages';
 
 /** What one request to one provider, for one language code, actually returned. */
@@ -52,6 +53,7 @@ export interface ProbeProvider {
 
 /** Thrown for 401/403 and for missing configuration: abort the run, write nothing. */
 export class ProbeAbort extends Error {
+  readonly [USER_FACING] = true as const;
   constructor(message: string) {
     super(message);
     this.name = 'ProbeAbort';

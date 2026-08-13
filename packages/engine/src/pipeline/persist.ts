@@ -1,5 +1,6 @@
 import type { Segment } from '@thibi/core';
 import { copyWords, type WordRow } from '@thibi/db';
+import { USER_FACING } from '../errors.js';
 import type { EngineContext } from '../context.js';
 import type { ChunkPlan } from '../audio/plan.js';
 import type { RunPipeline } from '@thibi/db';
@@ -50,6 +51,7 @@ export interface CreateRunInput {
 }
 
 export class JobNotFoundError extends Error {
+  readonly [USER_FACING] = true as const;
   constructor(jobId: string) {
     super(`No job ${jobId}.`);
     this.name = 'JobNotFoundError';
@@ -66,6 +68,7 @@ export class JobNotFoundError extends Error {
  * complaining once.
  */
 export class JobAssetMismatchError extends Error {
+  readonly [USER_FACING] = true as const;
   constructor(jobId: string, jobAssetId: string, fileAssetId: string) {
     super(
       `Job ${jobId} is a different recording: its audio is asset ${jobAssetId}, and this ` +

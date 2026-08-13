@@ -7,6 +7,32 @@
  * guess is exactly what made a misconfigured project look like a regional restriction.
  */
 
+/**
+ * Marks an error whose `message` is the whole story for a human.
+ *
+ * The CLI's top-level handler prints a stack trace for anything it does not recognise,
+ * which is right for a bug and wrong for "your key is missing" — a trace over a sentence
+ * that already says what to do is how a good message gets ignored. That handler grew an
+ * `instanceof` chain and a comment saying a fourth case should become a shared marker; this
+ * is that marker, added when the fourth case arrived (`THIBI_TMP_DIR` pointing nowhere).
+ *
+ * `Symbol.for` rather than a class check on purpose: the marked classes live in three
+ * different packages, and a registered symbol survives duplicate module instances where
+ * `instanceof` quietly does not.
+ */
+export const USER_FACING = Symbol.for('thibi.user-facing');
+
+/** An error that should reach a human as its message, never as a trace. */
+export interface UserFacing {
+  readonly [USER_FACING]: true;
+  readonly message: string;
+  readonly hint?: string;
+}
+
+export function isUserFacing(err: unknown): err is Error & UserFacing {
+  return err instanceof Error && (err as Partial<UserFacing>)[USER_FACING] === true;
+}
+
 export abstract class EngineError extends Error {
   abstract readonly retryable: boolean;
   /** Advice for a human, when there is something actionable to say. */
@@ -57,6 +83,9 @@ export class ChunkTooLargeError extends EngineError {
 /** Credentials missing, wrong, or lacking a role. Always an operator problem. */
 export class NotConfiguredError extends EngineError {
   readonly retryable = false;
+  // Always actionable and never a bug in this code: the message plus its hint is the entire
+  // useful output, so it must not arrive wrapped in a trace from wherever it was thrown.
+  readonly [USER_FACING] = true as const;
 }
 
 /** Anything else the provider said. Its message travels verbatim. */
