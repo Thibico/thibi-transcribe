@@ -1662,6 +1662,13 @@ written. The whole check cost **$0.0089**.
       language as a promotion.
 - [~] `.github/workflows/eval.yml` runs parity + the cleanup gate on every PR touching
       `packages/core/src/metrics`, `packages/eval`, or `packages/engine/src/llm/prompts`.
-      **Written 2026-08-14 and never triggered** — it needs a PR touching those paths and a
-      `GROQ_API_KEY` repository secret, which is not set. It fails loudly rather than skipping
-      when the key is absent, on the grounds that "skipped" reads as green in a checks list.
+      **Written, fixed, triggered once, and then parked on 2026-08-14 by decision.** Its first
+      version did not parse — `secrets` is not a valid context in an `if`, and GitHub rejects
+      the whole file rather than the step, so for a day it was a gate that did not exist. With
+      that fixed and the secret set, a six-language n=10 dispatch passed **three hours** on a
+      runner without finishing at Groq's free-tier rate limit. The `pull_request` trigger is
+      commented out and the file says why in its header; `workflow_dispatch` still works. **The
+      version-bump guard and the parity fixture are unaffected** — `ci.yml` runs `pnpm test` on
+      every push and both live there, so a prompt edited without a version bump still fails CI
+      for free. Restore the trigger when Phase 6 is being built, or when the key sits on a tier
+      that makes a run take minutes.

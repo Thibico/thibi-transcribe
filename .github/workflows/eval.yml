@@ -11,13 +11,31 @@ name: Eval
 # configured has nothing to call. Both print why and both fail — a gate that quietly turns
 # into a no-op is the failure this whole phase exists to prevent, and "skipped" reads as
 # green in the checks list.
+# **Parked 2026-08-14: manual dispatch only.** The `pull_request` trigger below is commented
+# out, deliberately and by decision rather than by oversight.
+#
+# The reason is throughput, not doubt about the gate. Groq's free tier gives this model 8000
+# tokens a minute, one segment costs about 2000, and a six-language run is 120 calls — which
+# came out at three hours on a GitHub runner without finishing. A gate that adds three hours
+# to a pull request is a gate people route around, and the project has more valuable work in
+# front of it than making this one fast.
+#
+# **What is not lost.** `ci.yml` runs `pnpm test` on every push, and that includes the metrics
+# parity fixture, the prompt-snapshot tests and the **prompt version guard** — so a prompt
+# edited without a version bump still fails CI for free. What is parked is only the part that
+# spends money: measuring the edited prompt against a live model.
+#
+# **When to restore it**, by uncommenting the trigger: when the editorial passes are actually
+# being built (Phase 6), or when the key sits on a tier whose rate limit makes a run take
+# minutes. Until then `thibi eval cleanup --gate` is run by hand before a prompt change ships,
+# which is step 4 of phase-06 §6.5 and always was.
 on:
-  pull_request:
-    paths:
-      - 'packages/engine/src/llm/**'
-      - 'packages/eval/src/llm/**'
-      - 'packages/core/src/metrics/**'
-      - '.github/workflows/eval.yml'
+  # pull_request:
+  #   paths:
+  #     - 'packages/engine/src/llm/**'
+  #     - 'packages/eval/src/llm/**'
+  #     - 'packages/core/src/metrics/**'
+  #     - '.github/workflows/eval.yml'
   workflow_dispatch:
     inputs:
       languages:

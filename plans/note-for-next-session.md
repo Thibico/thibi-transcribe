@@ -5,7 +5,14 @@ things you would otherwise have to rediscover. It is rewritten at the end of eve
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
 **Last updated:** 2026-08-14. The LLM evals are built, run for the first time, and the first
-run found three defects in them. All of it is merged; **nothing is in flight**.
+run found five defects in them. All of it is merged; **nothing is in flight**.
+
+> **Decision, 2026-08-14: the eval work is parked and the next work is the app.** The user
+> called it — measurement had consumed a full sitting and the product still has no UI. The CI
+> gate is **manual-dispatch only** (see `.github/workflows/eval.yml`, which says why in its
+> header), `thibi eval translate` stays unrun, and `--manifest` stays unbuilt. **Do not pick
+> the eval items up again as "next" unless asked**; the build order below is the answer to
+> "what now".
 
 ---
 
@@ -31,7 +38,12 @@ run found three defects in them. All of it is merged; **nothing is in flight**.
 5. `31a5221` the same entity-regex defect in its second branch
 6. `4af051c` the six-language measurement, the diary and this note
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1119 tests across 70
+Plus three follow-ups on `main` after the merge: `a96ad10` a reporting convention in
+`AGENTS.md`, `c112134` the eval workflow, **which did not parse at all** and therefore was
+never a gate until it was fixed, and `2295686` a cap on how long a provider's `Retry-After`
+may be believed.
+
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1125 tests across 71
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
 The sidecar's own suite is 42 pytest tests, still run separately.
 
@@ -73,21 +85,32 @@ tolerance.
 
 ## Do this next
 
-1. **Close the Burmese gap, which is Phase 6 work and is now measured rather than predicted.**
+**Build the app.** Phase 5 is as done as it needs to be for now — the measuring instrument
+exists and has produced one real finding. What the product does not have is a way for anyone
+to use it. From the build order in [`00-overview.md`](./00-overview.md) the shortest path to
+something a newsroom can open is **9 → 10 → 11 → 12**: the queue and worker, then auth and
+settings, then the UI shell, then the editor. Phases 6 (LLM passes) and 7 (export) can be
+taken in either order around them, and 6 now has measured evidence waiting for it.
+
+Start by reading [`plans/phase-09-queue-and-worker.md`](./phase-09-queue-and-worker.md) in
+full, including its Risks section, and settle anything it says to decide on day one.
+
+### Parked, and why — do not restart these without being asked
+
+1. **The Burmese restraint gap.** Phase 6 work and now measured rather than predicted.
    See the table above. Phase 6 risk 1 said Burmese restraint would fail on first run because
    the research's own table has it at 0.019 against a 0.016 control; it does. **Do not relax
    the gate.** The cache makes iteration free on everything except the segments a new prompt
    version actually changes — and bumping `promptVersion` is what makes them a genuine miss.
-2. **Run `thibi eval translate` at all.** It is built, unit-tested and has never been run
-   against a real model. It adds its own ceiling and bar to every run, so a first run is
+2. **`thibi eval translate` has never been run against a real model.** A first run is
    `--languages ceb-PH,jv-ID,xh-ZA,yo-NG --target en-US`, which is six languages of calls
-   including the two controls.
+   including the two controls it adds itself.
 3. **Widen the ASR sweep.** Unchanged from the last note and still the largest single piece of
    value: S7's 68 accepted-but-unmeasured codes are the queue, a 107-language sweep is ~$17,
    and nothing blocks it. **Run it as `--n 30 --baseline-n 100`** — the n=100 baseline clips
    are cached, so the tighter denominator costs **$0.0000** extra.
 4. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See below — a
-   decision, not a task.
+   decision, not a task, and the only parked item that costs nothing to resolve.
 
 ---
 
@@ -305,10 +328,14 @@ against `progress?: number`. `noUncheckedIndexedAccess` is on too; the house pat
   from a running mean of calls so far, so the ceiling is one call late exactly once. Seeding
   real token prices means reading them off a vendor page and dating them, the way
   `seed/rates.ts` already does for audio.
-- **`.github/workflows/eval.yml` has never been triggered.** It needs a PR touching the prompt
-  or metric paths **and** a `GROQ_API_KEY` repository secret, which is not set. It fails
-  loudly rather than skipping when the key is absent, on the grounds that "skipped" reads as
-  green.
+- **`.github/workflows/eval.yml` is manual-dispatch only, by decision.** The `GROQ_API_KEY`
+  secret **is** set, and the file's first version **did not parse at all** — `secrets` is not
+  a valid context in an `if`, and GitHub rejects the whole file rather than the step, so for a
+  day it was a gate that did not exist. Fixed, then triggered, then parked: a six-language
+  n=10 run passed three hours on a GitHub runner without finishing, at Groq's 8000-tokens-per-
+  minute free tier. **What still runs free on every push** is `ci.yml`, which includes the
+  parity fixture, the prompt snapshots and the **version-bump guard** — so a prompt edited
+  without a version bump still fails CI. Only the part that spends money is parked.
 - **`thibi eval translate` has never been run.** Built, unit-tested against a fake model, zero
   live evidence.
 - **The cleanup run is n=10, not the plan's 30**, because of the TPM ceiling below. Read every
@@ -360,12 +387,24 @@ against `progress?: number`. `noUncheckedIndexedAccess` is on too; the house pat
 
 ## Environment notes
 
-- **Groq's on-demand tier caps `openai/gpt-oss-20b` at 8000 tokens per minute, and one cleanup
-  segment costs about 2000.** That is roughly **two to four calls a minute**, so a
-  six-language n=10 run of two arms — 120 calls — takes about an hour of wall clock, almost
-  all of it waiting. The harness retries and honours the wait Groq states in its 429 body, so
-  this is slow rather than broken; plan around it, or pay for a tier with a larger bucket. A
-  run's second pass is instant because every response is cached.
+- **Groq's free tier caps `openai/gpt-oss-20b` at 8000 tokens per minute, and one cleanup
+  segment costs about 2000.** Locally that is two to four calls a minute; **on a GitHub runner
+  it was closer to one**, and a 120-call run passed three hours without finishing. Plan around
+  it or pay for a bigger bucket. A second pass is near-instant because every response is
+  cached — but only responses that *succeeded* are cached, so a run full of failures gets no
+  cheaper on repeat.
+- **`openai/gpt-oss-20b` is a reasoning model**, confirmed against the live API: responses
+  carry `completion_tokens_details.reasoning_tokens`, so with no cap it spends an unbounded
+  number of them before writing the JSON. `max_completion_tokens` is now 4000 in
+  `apps/cli/src/llm.ts`. Unbounded, it is both slow and the provider's own stated cause of the
+  `json_validate_failed` 400s. **Check this before choosing any new model**: a reasoning model
+  with no output cap will look like a rate-limit problem.
+- **A `Retry-After` is now believed only up to 60 seconds.** `withRetry` honours it
+  unconditionally, which is right for a window measured in seconds and dangerous for one
+  measured in hours: a 40-minute wait, obeyed three times, is **indistinguishable from a hang**
+  from outside the process — no output, no error, and a CI job killed at six hours having
+  measured nothing. Past the ceiling the wait is dropped, the retry budget is spent in under
+  two minutes, and the segment fails with the provider's message attached.
 - **Groq returns HTTP 400 `json_validate_failed` on a minority of calls**, more often on
   Burmese, Yoruba, Somali and Xhosa than on Hausa. It is counted as a failed segment and the
   message reaches the report, and it is the reason a 10-segment arm can score 7. **At least
