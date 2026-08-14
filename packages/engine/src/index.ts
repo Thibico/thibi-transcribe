@@ -510,6 +510,7 @@ export {
 // in common is a collision worth renaming out of even where the compiler tolerates it —
 // `reconcileRun` and `reconcile.speakers` say which one they are.
 export { reconcile as reconcileRun, stepFraction } from './queue/reconcile.js';
+export { PgBossDoorbell, type CreateDoorbellOptions } from './queue/boss.js';
 export {
   CoalescingEventSink,
   insertAndNotify,
