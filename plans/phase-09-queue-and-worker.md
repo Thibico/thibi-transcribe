@@ -13,6 +13,20 @@ the stages existed would have meant guessing at their inputs. It sits *before* t
 phases 11–14 consume the SSE stream and `/admin/queue`, and because "kill the worker, it
 resumes" is a claim best proved with a CLI and `docker kill`, not a browser.
 
+> **Corrected 2026-08-14 against what was built.** The schema, planner, retry policy and
+> reconciler are implemented and the sketches below are wrong in five places, each corrected
+> inline where it appears and recorded as overview amendments 86–89. In summary:
+>
+> 1. **`partial` was unreachable, twice over** — §3's `hardFailed` test and its
+>    dependency-poisoning rule each independently turned one dead chunk into a failed run.
+>    §3 and §9 now describe the casualty rule that fixes both.
+> 2. **The `worker` queue is missing from §6** — §2's kind table routes two kinds to it and
+>    nothing subscribes to it. Added to the queue table, `SUBSCRIPTIONS`, and `WORKER_QUEUES`.
+> 3. **§4's `array_agg` has no `ORDER BY`**, which makes replanning non-idempotent
+>    intermittently.
+> 4. **§-Tests' concurrency assertion is wrong** — reconcile re-rings `ready` steps on purpose.
+> 5. **`step_state` is a Postgres enum and `cost_usd` is `double precision`** — see amendment 89.
+
 ## Prerequisites
 
 | Needs | From |
@@ -108,6 +122,10 @@ the cut-list option a two-day job instead of a rewrite.
 ### 2. `run_steps`
 
 ```sql
+-- Built as written: a real Postgres enum, against this schema's `text(…, { enum })`
+-- convention, because most writes to this table are hand-written SQL that no TypeScript type
+-- can constrain. `cost_usd` went the other way — `double precision`, matching every other money
+-- column. Amendment 89.
 CREATE TYPE step_state AS ENUM (
   'pending',            -- created, dependencies not yet satisfied
   'ready',              -- dependencies satisfied, doorbell rung
@@ -207,6 +225,16 @@ import { sql, inArray } from 'drizzle-orm';
 const TERMINAL: StepState[] = ['done', 'skipped', 'failed', 'dead', 'cancelled'];
 const SATISFYING: StepState[] = ['done', 'skipped'];
 
+// CORRECTED. `SATISFYING` alone makes a `partial` run impossible: `normalize.text` depends on
+// ['asr.chunk','*'], so the poisoning branch below marks it `failed` the moment one shard dies
+// and the seven survivors are never assembled. A `dead` step of a casualty kind satisfies its
+// dependents and does not count toward `hardFailed`, PROVIDED a sibling shard succeeded — if
+// none did, nothing was transcribed and the run really has failed. See amendment 86.
+const CASUALTY_KINDS = new Set<StepKind>(['asr.chunk']);
+const isCasualty = (s: StepRow) =>
+  s.state === 'dead' && CASUALTY_KINDS.has(s.kind) && siblingSucceeded(steps, s.kind);
+const satisfies = (s: StepRow) => SATISFYING.includes(s.state) || isCasualty(s);
+
 export async function reconcile(ctx: EngineContext, runId: string): Promise<void> {
   const sends: PendingSend[] = [];
   const events: RunEventDraft[] = [];
@@ -243,10 +271,11 @@ export async function reconcile(ctx: EngineContext, runId: string): Promise<void
       if (run.cancelRequestedAt) continue;
 
       const deps = s.dependsOn.map((id) => byId.get(id)).filter(Boolean) as StepRow[];
-      if (deps.some((d) => !SATISFYING.includes(d.state))) {
+      if (!deps.every(satisfies)) {                       // CORRECTED: was !SATISFYING.includes
         // A hard-failed required dependency poisons its dependents immediately;
         // leaving them 'pending' forever is how runs hang.
-        if (deps.some((d) => d.state === 'failed' || d.state === 'dead' || d.state === 'cancelled')) {
+        // CORRECTED: a casualty is not a poison.
+        if (deps.some((d) => ['failed','dead','cancelled'].includes(d.state) && !isCasualty(d))) {
           await markStep(tx, s, {
             state: s.optional ? 'skipped' : 'failed',
             error: { code: 'DEPENDENCY_FAILED', dependsOn: s.dependsOn },
@@ -291,14 +320,17 @@ export async function reconcile(ctx: EngineContext, runId: string): Promise<void
     const allTerminal = steps.every((s) => TERMINAL.includes(s.state));
     let nextState = run.state;
     if (allTerminal) {
-      const hardFailed = steps.some((s) => !s.optional && (s.state === 'failed' || s.state === 'dead'));
+      // CORRECTED throughout. `hardFailed` without the casualty exclusion is true whenever any
+      // chunk died — asr.chunk is not `optional` — so `failed` was chosen before `partial` was
+      // ever tested, and the branch below was dead code.
+      const hardFailed = steps.some(
+        (s) => !s.optional && (s.state === 'failed' || s.state === 'dead') && !isCasualty(s));
       const anyCancelled = steps.some((s) => s.state === 'cancelled');
-      const chunkCasualties = steps.filter((s) => s.kind === 'asr.chunk' && s.state === 'dead');
-      const anySucceeded = steps.some((s) => s.kind.startsWith('asr.') && s.state === 'done');
+      const casualties = steps.filter(isCasualty);
 
       if (run.cancelRequestedAt && anyCancelled) nextState = 'cancelled';
       else if (hardFailed) nextState = 'failed';
-      else if (chunkCasualties.length > 0 && anySucceeded) nextState = 'partial';
+      else if (casualties.length > 0) nextState = 'partial';
       else nextState = 'done';
     }
 
@@ -457,7 +489,11 @@ WITH spec AS (
        AS d(dep_kind text, dep_shard text)          -- '-1' | '<n>' | '*'
 ),
 resolved AS (
-  SELECT s.kind, s.shard, array_remove(array_agg(dep.id), NULL) AS deps
+  -- CORRECTED: `ORDER BY dep.id` inside array_agg. Without it Postgres may aggregate a
+  -- wildcard's matches in any order, so replanning an unchanged run rewrites depends_on with
+  -- the same uuids in a new sequence, `IS DISTINCT FROM` stops suppressing the update, and the
+  -- idempotence test below fails intermittently. Amendment 87.
+  SELECT s.kind, s.shard, array_remove(array_agg(dep.id ORDER BY dep.id), NULL) AS deps
   FROM   spec s
   LEFT JOIN run_steps dep
          ON dep.run_id = $1
@@ -606,6 +642,7 @@ Note the retry goes back to `pending`, not `ready` — the reconciler owns promo
 | Queue | Kinds | Container | Why |
 |---|---|---|---|
 | `media` | `media.*`, `plan.chunks`, `staging.cleanup` | `worker` | ffmpeg: CPU-bound, bounded |
+| `worker` | `normalize.text`, `reconcile.speakers` | `worker` | **Added 2026-08-14.** In-process CPU work with no external dependency. §2's kind table routed these two kinds here and this table, `SUBSCRIPTIONS` and `WORKER_QUEUES` all omitted it — so every run planned two steps onto a queue nothing subscribed to, and they would sit `ready` forever while the queue reported depth 0. Amendment 87 |
 | `asr.cloud` | `asr.chunk` (cloud), `asr.batch.submit`, `asr.fetch` | `worker` | Network-bound; the concurrency limit is the provider's |
 | `asr.poll` | `asr.poll`, `diarize.poll` | `worker` | Sub-second work; must never queue behind a 40-minute diarize |
 | `editorial` | `editorial.pass` | `worker` | LLM calls; network-bound |
@@ -623,6 +660,7 @@ the mistake that makes a batch run look hung.
 ```ts
 const SUBSCRIPTIONS: Record<QueueName, { batchSize: number; pollingIntervalSeconds: number }> = {
   media:       { batchSize: 2, pollingIntervalSeconds: 1 },
+  worker:      { batchSize: 2, pollingIntervalSeconds: 1 },   // added; see the table above
   'asr.cloud': { batchSize: 8, pollingIntervalSeconds: 1 },
   'asr.poll':  { batchSize: 4, pollingIntervalSeconds: 2 },
   editorial:   { batchSize: 4, pollingIntervalSeconds: 2 },
@@ -1275,7 +1313,7 @@ async function runStep(ctx, registry, { stepId, attempt }: StepJob) {
 
 | Env var | Default | Meaning |
 |---|---|---|
-| `WORKER_QUEUES` | `media,asr.cloud,asr.poll,editorial,export,maintenance` | Comma-separated; validated against `ALL_QUEUES` |
+| `WORKER_QUEUES` | `media,worker,asr.cloud,asr.poll,editorial,export,maintenance` | Comma-separated; validated against `ALL_QUEUES` |
 | `WORKER_CONCURRENCY` | `1` | Multiplier over per-queue `batchSize` |
 | `WORKER_HEALTH_PORT` | `8081` | `/healthz` (process alive) and `/readyz` (503 while draining) |
 | `GPU_SLOTS` | `1` | Global advisory-lock slots for `diarize` |
@@ -1330,7 +1368,7 @@ instance) plus `FakeClock`.
 | `progress-weighting` | Weighted, not step-counted: `media.normalize` (w=8) done ≫ `media.probe` (w=1) done |
 | `progress-monotonic` | Property test over 500 random transition orders: progress never decreases |
 | `terminal-idempotent` | `reconcile` on a `done` run is a no-op and emits nothing |
-| `concurrent-reconcile` | 20 parallel `reconcile(runId)` calls → exactly one send per step (advisory lock holds) |
+| `concurrent-reconcile` | **CORRECTED**: 20 parallel calls → every send for a step carries the *same singleton key*. Not "one send per step" — reconcile deliberately re-rings anything already `ready` to cover the COMMIT→`sendStep` window, so several sends is the design. A second *key* is what would be a second execution. Amendment 87 |
 | `send-after-commit` | A `sendStep` that throws leaves committed state intact; the next tick re-sends |
 | `cancel-mid-dag` | Pending/ready → `cancelled`; running left alone; run terminal only after it drains |
 

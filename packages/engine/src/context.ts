@@ -3,6 +3,7 @@ import type { Db } from '@thibi/db';
 import type { LanguageRegistry } from '@thibi/languages';
 import type { ObjectStore, TempDir } from '@thibi/storage';
 import type { StagingStore } from './staging/types.js';
+import type { Doorbell } from './queue/queues.js';
 
 /**
  * Everything the engine needs, supplied by its caller.
@@ -35,6 +36,15 @@ export interface EngineContext {
   /** Phase 3/4. */
   sidecar?: unknown;
   ffmpeg: FfmpegPort;
+  /**
+   * Phase 9. Present in the worker and in whatever creates runs; absent in the CLI's
+   * single-process path, which drives the stages directly and has nothing to notify.
+   *
+   * Optional so that the fifty existing call sites that build a context need not all learn
+   * about the queue. `reconcile` asserts it, so the failure is a `MissingCapabilityError`
+   * naming the port rather than a `TypeError` on `undefined`.
+   */
+  doorbell?: Doorbell;
   clock: Clock;
   logger: Logger;
   events: EventSink;

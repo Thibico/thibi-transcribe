@@ -57,6 +57,26 @@ export const segments = pgTable(
     needsSpeakerReview: boolean('needs_speaker_review').notNull().default(false),
 
     /**
+     * Set on a segment that stands in for audio nobody transcribed, and NULL on every real
+     * one.
+     *
+     * A three-hour transcript with one bad 55-second chunk is still valuable; losing it
+     * because chunk 94 of 180 hit five consecutive 500s is the behaviour that makes people
+     * stop trusting the tool. So a dead `asr.chunk` step inserts an empty segment spanning
+     * the chunk's interval instead of leaving a hole.
+     *
+     * The placeholder keeps the timeline **contiguous**, which every downstream consumer
+     * already assumes: subtitle reflow, export, the editor's virtualiser and speaker
+     * reconciliation all iterate segments in order, and a hole would make each of them grow
+     * a special case. Exporters render these as `[audio not transcribed 01:34:20–01:35:15]`
+     * in text formats and **omit the cue entirely** in SRT/VTT — a subtitle track must not
+     * display an error.
+     */
+    placeholderReason: text('placeholder_reason', {
+      enum: ['chunk_failed', 'chunk_cancelled'],
+    }),
+
+    /**
      * Human-split lineage. A human — never an LLM, never a pipeline stage — may split a
      * segment at an existing word boundary. The invariant is "the machine's output is never
      * overwritten", and lineage preserves that better than a hard no-split rule.
