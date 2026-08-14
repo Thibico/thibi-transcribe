@@ -128,7 +128,13 @@ export class StagingRefusedError extends EngineError {
   readonly retryable = false;
 }
 
-/** The run was cancelled — by an operator, or by the process shutting down. */
+/**
+ * The run was cancelled — by an operator, or by the process shutting down.
+ *
+ * Phase 9's design calls this `CancelledError`; it is this class, and there is deliberately
+ * not a second one. Cancellation must be non-retryable, and without that rule cancelling a
+ * run schedules five more attempts of the thing you just cancelled.
+ */
 export class AbortedError extends EngineError {
   readonly retryable = false;
   constructor(message = 'Aborted') {
@@ -136,12 +142,97 @@ export class AbortedError extends EngineError {
   }
 }
 
+/**
+ * A handler asserting finality about something the taxonomy cannot classify.
+ *
+ * The escape hatch for "this failed for a reason that will still be true in thirty seconds"
+ * — a deadline exceeded, a response that parsed but made no sense. Use it sparingly: the
+ * typed classes above carry more information to the operator than this does.
+ */
+export class NonRetryableError extends EngineError {
+  readonly retryable = false;
+  constructor(
+    message: string,
+    readonly detail?: Record<string, unknown>,
+  ) {
+    super(message);
+  }
+}
+
+/**
+ * Another worker claimed this step while we were working on it.
+ *
+ * Raised by the heartbeat when its conditional `UPDATE … AND lease_owner = $me` matches no
+ * row, which means the recovery sweep decided we were dead and handed the step on. Not
+ * retryable by *this* worker: the step is already running somewhere else, and retrying is how
+ * a resurrected step and its zombie predecessor both write segments and the run ends up with
+ * duplicates.
+ */
+export class LeaseLostError extends EngineError {
+  readonly retryable = false;
+  constructor(readonly stepId: string) {
+    super(`lease on step ${stepId} was taken by another worker`);
+  }
+}
+
+/**
+ * Node and undici report connection failures on `err.code`, not in the message.
+ *
+ * The original predicate only regex-matched `err.message`, which silently missed every
+ * `UND_ERR_*` — that is, every connect and headers timeout from `fetch`, which is the most
+ * common transient failure this project actually sees.
+ */
+const NET_CODES = new Set([
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'EPIPE',
+  'EAI_AGAIN',
+  'ENOTFOUND',
+  'EHOSTUNREACH',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_SOCKET',
+]);
+
+/**
+ * Is another attempt worth anything?
+ *
+ * The taxonomy answers first and is the intended path: providers map their statuses into
+ * `RateLimitedError` / `ProviderUnavailableError` / `ProviderError` at the edge, so by the
+ * time an error reaches here the classification has usually already been made by code that
+ * could see the response body.
+ *
+ * The status and code branches below are for errors that never went through a mapper — a
+ * bare `{ status }` thrown by a helper, an undici socket error. The rule that matters is the
+ * negative one: **4xx from Google is a configuration or payload error.** Retrying one cannot
+ * succeed, burns quota, and delays the operator seeing the real message by the length of the
+ * backoff. The exceptions are 408 (the server timed out waiting for us), 425 (too early) and
+ * 429 (explicitly "later"), all of which say to try again in as many words. 413 never is:
+ * a chunk that is too large is too large, and the answer is to re-cut it.
+ *
+ * Kept from `lib/queue.ts:52-53`, whose entire body was
+ * `status === 429 || (status !== undefined && status >= 500)` — correct as far as it went,
+ * and the reason travels with it.
+ */
 export function isRetryable(err: unknown): boolean {
   if (err instanceof EngineError) return err.retryable;
   // An AbortError from fetch is a cancellation, not a failure to retry.
   if (err instanceof Error && err.name === 'AbortError') return false;
+
+  const status = (err as { status?: unknown } | null)?.status;
+  if (typeof status === 'number') {
+    return status === 408 || status === 425 || status === 429 || status >= 500;
+  }
+
+  const code = (err as { code?: unknown } | null)?.code;
+  if (typeof code === 'string' && NET_CODES.has(code)) return true;
+
   // Unknown failures — a socket reset, a DNS blip — are worth one more try.
-  return err instanceof Error && /ECONNRESET|ETIMEDOUT|EAI_AGAIN|socket hang up/i.test(err.message);
+  return (
+    err instanceof Error &&
+    /ECONNRESET|ETIMEDOUT|EAI_AGAIN|socket hang up|fetch failed/i.test(err.message)
+  );
 }
 
 export function isReplannable(err: unknown): err is ChunkTooLargeError {

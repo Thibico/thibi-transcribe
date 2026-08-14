@@ -1,5 +1,7 @@
 import type { Clock } from './context.js';
 import { AbortedError, EngineError, isRetryable } from './errors.js';
+import { POLICY } from './queue/retry.js';
+import type { StepKind } from './queue/queues.js';
 
 /**
  * Retry with **full jitter**.
@@ -22,16 +24,33 @@ export interface RetryPolicy {
   capMs: number;
 }
 
-/** Per step kind, from the overview. */
+/**
+ * The five kinds the CLI drives in one process, **derived from `queue/retry.ts`'s `POLICY`**
+ * rather than restated here.
+ *
+ * These were two hand-maintained tables until Phase 9, and they had already drifted: this one
+ * capped `asr.chunk` at 30 s and `diarize` at 60 s where the phase-9 table says 120 s and
+ * 300 s. Neither number came from a measurement — the overview specifies attempts and base
+ * delay per kind and never specified a cap, so each file invented one. Derivation makes the
+ * question "which table is right?" unaskable, which is the only durable answer to it.
+ *
+ * The remaining ten kinds are not listed because nothing in-process retries them; the queue
+ * does, from the same source.
+ */
 export const RETRY_POLICIES = {
-  'media.normalize': { attempts: 2, baseMs: 5_000, capMs: 5_000 },
-  'asr.chunk': { attempts: 5, baseMs: 2_000, capMs: 30_000 },
-  'asr.batch.submit': { attempts: 3, baseMs: 30_000, capMs: 30_000 },
-  diarize: { attempts: 2, baseMs: 60_000, capMs: 60_000 },
-  'editorial.pass': { attempts: 4, baseMs: 5_000, capMs: 30_000 },
-} as const satisfies Record<string, RetryPolicy>;
+  'media.normalize': fromPolicy('media.normalize'),
+  'asr.chunk': fromPolicy('asr.chunk'),
+  'asr.batch.submit': fromPolicy('asr.batch.submit'),
+  diarize: fromPolicy('diarize'),
+  'editorial.pass': fromPolicy('editorial.pass'),
+} satisfies Record<string, RetryPolicy>;
 
 export type RetryKind = keyof typeof RETRY_POLICIES;
+
+function fromPolicy(kind: StepKind): RetryPolicy {
+  const spec = POLICY[kind];
+  return { attempts: spec.maxAttempts, baseMs: spec.baseMs, capMs: spec.capMs };
+}
 
 export interface RetryOptions {
   policy: RetryPolicy;
