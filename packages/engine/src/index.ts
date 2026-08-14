@@ -134,6 +134,29 @@ export {
   zawgyiToUnicode,
 } from './text/normalize.js';
 
+// ---- LLM prompts: the text the eval harness measures and Phase 6 will send ---------------
+export {
+  buildCleanupPrompt,
+  buildTranslatePrompt,
+  casingRule,
+  marksLine,
+  promptVars,
+  renderSegments,
+  spacingRule,
+  UnknownLanguageError,
+  CLEANUP_CURRENT,
+  CLEANUP_RESTRAINT,
+  CLEANUP_VERSIONS,
+  TRANSLATE_DEFAULT,
+  TRANSLATE_VERSION,
+  type BuildCleanupInput,
+  type BuildTranslateInput,
+  type CleanupVariant,
+  type LlmPrompt,
+  type PromptLanguageVars,
+  type PromptSegment,
+} from './llm/index.js';
+
 export {
   createMemorySettings,
   createSettings,

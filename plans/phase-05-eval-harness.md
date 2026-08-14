@@ -56,14 +56,16 @@ document got wrong about it and are folded in inline below.
 | `packages/eval/src/runlog.ts` | **Built.** `results/runs/<runId>.jsonl` writer, and a reader that *recomputes* rather than reading back aggregates — see §5.13 |
 | ~~`packages/eval/src/asr.ts`~~ `runner.ts` | **Built.** The ASR eval. `loadTsv`, `fetchClips` and `transcribe` are all injected (amendment 75) |
 | `packages/eval/src/wav.ts` | **Built, and not in the original plan.** Clip duration by walking the RIFF chunk list. Amendment 77 is why it is a file rather than a line |
-| `packages/eval/src/cleanup.ts` | The cleanup eval: arms, `content_delta`, `entity_drift`, the gate |
-| `packages/eval/src/translate.ts` | The translation eval: n-way join on `id`, chrF2, the two controls |
+| ~~`packages/eval/src/cleanup.ts`~~ `llm/cleanup.ts` | **Built.** The cleanup eval: arms, `content_delta`, `entity_drift`. A directory rather than a file — the metrics, the response parser, the ledger and the gate are separate modules, and `llm/gate.ts` is where the gate went |
+| ~~`packages/eval/src/translate.ts`~~ `llm/translate.ts` | **Built.** The translation eval: inner join on `id`, chrF2, and the two controls **measured rather than quoted** — the ceiling and the bar are languages the run adds to itself, the way the ASR runner adds its baseline |
+| `packages/engine/src/llm/prompts/` | **Built, and not in this table before.** §5.10 requires the harness to import the real prompt builder; it did not exist. `cleanup.current`, `cleanup.restraint`, `translate.default`, rendered from registry vars, with six-language snapshots and a version-bump digest guard |
+| `apps/cli/src/llm.ts` | **Built.** The chat-completions client, in the CLI because that is the environment reader. Not §6.1's gateway |
 | `packages/eval/src/tier.ts` | **Built.** Thresholds, CI and the tier rules. `tiers.json`, baseline drift and the `humanReview` merge went to `results/tiers.ts`, and publishing to `results/publish.ts` — one function with two callers, so a live run and a replay cannot answer "what tier is this" differently |
 | `packages/eval/src/report/asr.ts` | **Built.** Dated ASR markdown, tier changes first |
-| `packages/eval/src/report/llm.ts` | Dated LLM markdown in the research doc's table shape |
-| `apps/cli/src/commands/eval.ts` | **`asr` and `report` built**; `cleanup`, `translate` and `init-manifest` are not |
+| `packages/eval/src/report/llm.ts` | **Built.** `llm-cleanup-<date>.md` and `llm-translate-<date>.md` — one path per eval kind, so an afternoon translation run cannot replace the morning's gate evidence |
+| `apps/cli/src/commands/eval.ts` | **`asr`, `report`, `cleanup` and `translate` built**; `init-manifest` is not |
 | `results/human-review/<code>.json` | Committed human sign-off blocks; the only route to `verified`. **Read and matched against the run id**; none exists yet |
-| `.github/workflows/eval.yml` | CI: parity assertions + `thibi eval cleanup --gate` |
+| `.github/workflows/eval.yml` | **Built.** Parity + the prompt version guard, then `thibi eval cleanup --gate`. Fails loudly when no key is available rather than skipping — a fork PR has no secrets, and "skipped" reads as green |
 | `packages/languages/src/tiers.ts` | **Built** — via `scripts/gen-tiers.ts` and a committed `generated/tiers.gen.ts`, not a JSON import: `resolveJsonModule` is off repo-wide. All-experimental fallback, and see the trap in amendment 78 about not letting that fallback reach a tier |
 
 ## Design
@@ -1082,7 +1084,21 @@ Three metrics:
 //    deletion; strongly positive means the model wrote something.
 
 // 3. entity_drift — the acronym / numeral / foreign-token metric.
-const ENTITY = /\p{Lu}{2,}|\d[\d.,:/٫٬]*|(?<=^|\s)\p{Script=Latin}[\p{Script=Latin}\p{M}'’-]*(?=$|\s)/gu;
+//
+// CORRECTED 2026-08-14 by the first live run (amendment 83). The digit alternative was
+// `\d[\d.,:/٫٬]*`, which is greedy over its separator class — so a compliant pass adding a
+// full stop turned `…kasa a 1755` into `…kasa a 1755.`, `1755` left the multiset, `1755.`
+// joined it, and the arm scored entity_drift 2.0 against a 0.02 gate. Every arm in every
+// language would have failed the gate for making the one edit the prompt exists to make.
+// A separator now needs a digit after it, which keeps `1,000.50`, `12:30` and `1/2` whole.
+//
+// The Latin-token branch had the same defect one line down, and the same run found it:
+// Burmese `ring ၏ ceo` came back as `ring၊ ၏ ceo၊` — a clause mark inserted and nothing
+// else — and the `(?=$|\s)` lookahead stopped matching, so both tokens "left the text" and
+// the restraint arm scored entity_drift 0.25 for words it had not altered. The boundary is
+// the absence of another Latin character, not the presence of whitespace: punctuation
+// attached to a token is exactly what a typesetting pass is for.
+const ENTITY = /\p{Lu}{2,}|\d+(?:[.,:/٫٬]\d+)*|(?<![\p{Script=Latin}\p{M}])\p{Script=Latin}[\p{Script=Latin}\p{M}'’-]*/gu;
 /**
  * Extract from input and hypothesis the multiset of: ALL-CAPS runs, digit strings, and — when
  * the language's script is not Latin — Latin-script tokens. Drift is the symmetric difference
@@ -1127,18 +1143,43 @@ Exits non-zero if, for any language:
 | `cer_punct(arm) > cer_punct(control)` | The pass is worse than doing nothing. The exact regression the research found in **every** language tested |
 | `content_delta(arm) > 0.005` | The pass rewrote content. Tolerance is not 0 only because Unicode normalization differences across providers are real; 0.005 is ~1 character in 200 |
 | `entity_drift(arm) > 0.02` | Named entities moved |
+| **`not_measured`** | The run asked for this language and produced no scoreable arm |
 
 Output on failure names the language, the metric, both numbers and the delta, and prints the
 worst offending pair. Without `--gate` the same run reports and exits 0, so local iteration is
 not a fight.
 
+**The fourth condition was added 2026-08-14 and is the one the first run needed** (amendment
+83). A six-language run lost five languages to one provider rate-limit each and one to a 400,
+so every language finished with zero arms — and the gate printed *"pass — every arm is at or
+below its control"* and exited 0, because it skipped every language it had nothing to compare.
+A check that cannot distinguish "clean" from "did not run" is not a check. A language FLEURS
+has no eval set for is still not a failure: that is a fact about FLEURS, and `thibi eval asr`
+exits 0 on it too.
+
 The gate is only real because of one line in §5.8: **`paramsHash` includes `promptId` and
 `promptVersion`.** A bumped prompt is a cache miss and must be re-measured. Without that the
 gate passes on the previous prompt's cached numbers and the whole mechanism is theatre.
 
-The second thing that keeps it real: `packages/eval/src/cleanup.ts` imports
+The second thing that keeps it real: `packages/eval/src/llm/cleanup.ts` imports
 `buildCleanupPrompt` from `packages/engine` and renders it with the same registry vars the
 worker uses. It never contains a prompt string of its own.
+
+**Built 2026-08-14, with four departures from the sketch above.**
+
+1. **One call per segment**, not per batch, which is what the cost arithmetic at the end of
+   this section already assumed. It also makes the cache key per sentence, so changing `--n`
+   re-bills nothing.
+2. **A failed call costs its segment, not its language**, and an unparseable reply is counted
+   rather than replaced by the input — a fallback to the input would score identically to
+   `control`, so an arm failing on every segment would come out level with doing nothing.
+3. **The budget projects from a running mean** of the calls made so far, because `rates`
+   carries no LLM token units. The ceiling is therefore one call late exactly once, at the
+   start of a run, which is weaker than the ASR path's duration × rate projection and is said
+   so rather than dressed up.
+4. **The prompts live in `packages/engine/src/llm/prompts/`**, which did not exist. They are
+   Phase 5 deliverables in everything but the plan: without them there is nothing to import,
+   and §6.5's first property is that the harness imports the real one.
 
 **`thibi eval translate --target en`**
 
@@ -1576,14 +1617,35 @@ written. The whole check cost **$0.0089**.
       rather than merging, so doing this against `results/` would have dropped the four
       measured languages from the published file. See *Risks* 10.
 - [ ] `--manifest` runs the full pipeline on a hand-built 7-column file with local audio.
-- [ ] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
-      the control in every language tested.
-- [ ] `--gate` exits 2 on a CER regression, on `content_delta > 0.005`, and on
-      `entity_drift > 0.02`, naming the language and the numbers.
-- [ ] The cache key changes when `promptVersion` changes, asserted by a test.
-- [ ] `packages/eval` imports the prompt builders from `packages/engine`; a grep for a prompt
-      string literal in `packages/eval` returns nothing.
-- [ ] `thibi eval translate --target en` prints both controls in every table.
+- [~] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
+      the control in every language tested. **Run 2026-08-14** against
+      `groq/openai/gpt-oss-20b` at n=10 over `my-MM,yo-NG,ps-AF,so-SO,ha-NG,xh-ZA`: `current`
+      is worse than the control in **five of six** — Hausa is the exception at 0.028 against
+      0.036 — and `content_delta` says the same thing more sharply, the shipped prompt
+      rewriting **9.5% of Yoruba's characters**, 2.4% of Somali's and 2.0% of Xhosa's.
+      Carried as `[~]` rather than ticked because "every language tested" is five of six here
+      and the plan's `n` is 30; the direction reproduces, the universal claim does not, and
+      the difference may be n=10 or may be the model.
+- [x] `--gate` exits 2 on a CER regression, on `content_delta > 0.005`, and on
+      `entity_drift > 0.02`, naming the language and the numbers. **Built and unit-tested
+      2026-08-14**, boundaries included — 0.004 passes, 0.005 passes, 0.006 fails — and the
+      failure prints both numbers, the delta, the entity tokens that left the text and the
+      offending pair in full. **A fourth condition was added by the first live run**: a
+      language the run asked for and did not measure fails as `not_measured`, because the
+      gate had otherwise printed "pass" over a run in which nothing was measured at all
+      (amendment 83).
+- [x] The cache key changes when `promptVersion` changes, asserted by a test. **Done
+      2026-08-14, twice over**: `paramsHashOf` is asserted directly, and the runner is
+      asserted end to end by reading its own cache back under a key built from a bumped
+      version and finding nothing there.
+- [x] `packages/eval` imports the prompt builders from `packages/engine`; a grep for a prompt
+      string literal in `packages/eval` returns nothing. **Done 2026-08-14** — `llm/cleanup.ts`
+      and `llm/translate.ts` import `buildCleanupPrompt` and `buildTranslatePrompt`, and the
+      only strings either file holds are metric names.
+- [ ] `thibi eval translate --target en` prints both controls in every table. Built and
+      unit-tested; **never run against a real model**. The two controls are measured rather
+      than quoted — the ceiling is the target translated into itself and the bar is the
+      language already in production, both added to every run.
 - [x] `results/tiers.json` validates against its schema and is consumed by
       `packages/languages/src/tiers.ts` at build time, with an all-experimental fallback when
       absent. **Done 2026-08-13.** Via `scripts/gen-tiers.ts` and a committed
@@ -1598,5 +1660,8 @@ written. The whole check cost **$0.0089**.
       before the run metadata, asserted by an ordering test rather than by eye, with the
       one-line "No tier changes." case and a first-run case that does not report every
       language as a promotion.
-- [ ] `.github/workflows/eval.yml` runs parity + the cleanup gate on every PR touching
+- [~] `.github/workflows/eval.yml` runs parity + the cleanup gate on every PR touching
       `packages/core/src/metrics`, `packages/eval`, or `packages/engine/src/llm/prompts`.
+      **Written 2026-08-14 and never triggered** — it needs a PR touching those paths and a
+      `GROQ_API_KEY` repository secret, which is not set. It fails loudly rather than skipping
+      when the key is absent, on the grounds that "skipped" reads as green in a checks list.

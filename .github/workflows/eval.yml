@@ -1,0 +1,122 @@
+name: Eval
+
+# The prompt gate — Phase 5 §5.10, Phase 6 §6.5 step 6.
+#
+# Split from ci.yml because the two answer different questions and cost different amounts.
+# `ci.yml` proves the tree builds and its tests pass on every push, free. This one proves an
+# editorial prompt is not worse than doing nothing, and it spends money to do it.
+#
+# So it runs when a prompt actually changes, and it is honest about the two ways it can end
+# up not enforcing anything: a fork PR has no secrets, and a repository with no key
+# configured has nothing to call. Both print why and both fail — a gate that quietly turns
+# into a no-op is the failure this whole phase exists to prevent, and "skipped" reads as
+# green in the checks list.
+on:
+  pull_request:
+    paths:
+      - 'packages/engine/src/llm/**'
+      - 'packages/eval/src/llm/**'
+      - 'packages/core/src/metrics/**'
+      - '.github/workflows/eval.yml'
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: 'Comma-separated language codes'
+        default: 'my-MM,yo-NG,ps-AF,so-SO,ha-NG,xh-ZA'
+      models:
+        description: 'Comma-separated chat model ids'
+        required: true
+      n:
+        description: 'Segments per language'
+        default: '30'
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Free, always runs, and first. If the metrics themselves have drifted from jiwer and
+  # sacrebleu then every number the gate would print is meaningless, so there is no point
+  # spending anything before this is green.
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Metrics parity against jiwer and sacrebleu
+        run: pnpm exec vitest run --project @thibi/core
+
+      # The version-bump guard. A prompt edited without bumping `promptVersion` is a cache
+      # *hit* in the eval harness, so the gate below would pass on the previous prompt's
+      # numbers. This check is why that cannot happen quietly.
+      - name: Prompt snapshots and the version guard
+        run: pnpm exec vitest run --project @thibi/engine llm
+
+      - name: The LLM harness itself
+        run: pnpm exec vitest run --project @thibi/eval llm
+
+  gate:
+    needs: metrics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: A key is required to enforce anything
+        if: ${{ !secrets.GROQ_API_KEY }}
+        run: |
+          echo "::error::EVAL gate cannot run: no GROQ_API_KEY is available to this workflow."
+          echo "A pull request from a fork has no access to repository secrets, and a gate"
+          echo "that silently becomes a no-op is worse than no gate. Run it locally and paste"
+          echo "results/reports/llm-cleanup-<date>.md into the PR, or re-run this workflow"
+          echo "from the base repository with workflow_dispatch."
+          exit 1
+
+      # Cached responses cost nothing, so the expensive part of this job is only ever the
+      # prompts that actually changed. The cache is keyed by the prompt digests, which move
+      # exactly when a prompt version moves.
+      - name: Restore the response cache
+        uses: actions/cache@v4
+        with:
+          path: .thibi-cache
+          key: eval-cache-${{ hashFiles('packages/engine/src/llm/prompts/prompt-versions.json') }}
+          restore-keys: eval-cache-
+
+      - name: thibi eval cleanup --gate
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          node apps/cli/dist/index.js eval cleanup \
+            --provider groq \
+            --languages "${{ inputs.languages || 'my-MM,yo-NG,ps-AF,so-SO,ha-NG,xh-ZA' }}" \
+            --models "${{ inputs.models || 'openai/gpt-oss-20b' }}" \
+            --arms control,current,restraint \
+            --n "${{ inputs.n || 30 }}" \
+            --budget-usd 5 \
+            --gate
+
+      # Written whether or not the gate passed: a failing gate's report is the artefact
+      # somebody has to read to fix it, and `if: always()` is the difference between a
+      # failure you can diagnose and one you have to reproduce.
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-eval-report
+          path: |
+            results/reports/llm-*.md
+            results/runs/*.jsonl
+          if-no-files-found: warn

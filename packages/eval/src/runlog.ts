@@ -2,6 +2,7 @@ import { appendFile, mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { bootstrapCi, type EditStats } from '@thibi/core';
 import { applyBaselineAndTiers, type AsrRunResult, type LanguageResult, type RunEvent } from './runner.js';
+import type { LlmRunEvent, LlmRunHeader } from './llm/types.js';
 
 /**
  * The runlog — `results/runs/<runId>.jsonl`, append-only, one JSON object per line.
@@ -48,7 +49,15 @@ export interface RunFooter {
   budgetExhausted: boolean;
 }
 
-export type RunlogLine = RunHeader | RunFooter | RunEvent;
+/**
+ * One line of a runlog, ASR or LLM.
+ *
+ * The two eval families share the writer, the footer and the `budget` line, and diverge in
+ * what they record per unit of work. An LLM header carries `evalKind` and an ASR header does
+ * not, which is what lets `reconstructRun` refuse a log it should not be reading rather than
+ * reconstructing an ASR run out of cleanup lines and finding no `score` lines to recompute.
+ */
+export type RunlogLine = RunHeader | RunFooter | RunEvent | LlmRunHeader | LlmRunEvent;
 
 export const runlogPath = (resultsDir: string, runId: string): string =>
   join(resultsDir, 'runs', `${runId}.jsonl`);
@@ -114,8 +123,18 @@ export function reconstructRun(
   path = '<memory>',
   humanReviews: Readonly<Record<string, unknown>> = {},
 ): AsrRunResult {
-  const header = lines.find((l): l is RunHeader => l.t === 'run');
-  if (!header) throw new MalformedRunlogError(path, 'no run header line');
+  const anyHeader = lines.find((l) => l.t === 'run');
+  if (!anyHeader) throw new MalformedRunlogError(path, 'no run header line');
+  if ('evalKind' in anyHeader) {
+    // An LLM log read as an ASR one would find no `score` lines, recompute nothing, and
+    // return a run with zero languages — a wrong answer rather than an error. §5.13's whole
+    // point is that the reader recomputes, so it has to refuse input it cannot recompute.
+    throw new MalformedRunlogError(
+      path,
+      `this is a '${anyHeader.evalKind}' runlog, not an ASR one — read it with the LLM reader`,
+    );
+  }
+  const header = anyHeader as RunHeader;
   const footer = lines.find((l): l is RunFooter => l.t === 'end');
 
   const statsByLang = new Map<string, { plain: EditStats[]; nospace: EditStats[] }>();

@@ -11,7 +11,7 @@
 
 import type { LanguageEntry, ProviderLanguageCapability, ProviderId, ScriptEntry } from '../types.js';
 
-export const GENERATED_AT = "2026-08-12";
+export const GENERATED_AT = "2026-08-14";
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -26,6 +26,10 @@ function deepFreeze<T>(value: T): T {
 export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
   {
   "Arab": {
+    "clausePunct": [
+      "،",
+      "؛"
+    ],
     "clusters": "codepoint",
     "code": "Arab",
     "complex": true,
@@ -37,6 +41,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "rtl",
+    "hasCase": false,
     "nameEn": "Arabic",
     "typography": {
       "cssStack": "'Noto Naskh Arabic', system-ui, sans-serif",
@@ -290,6 +295,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Armn": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Armn",
     "complex": false,
@@ -298,6 +306,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": true,
     "nameEn": "Armenian",
     "typography": {
       "cssStack": "'Noto Sans Armenian', system-ui, sans-serif",
@@ -331,6 +340,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Beng": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Beng",
     "complex": true,
@@ -341,6 +353,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Bengali",
     "typography": {
       "cssStack": "'Noto Sans Bengali', system-ui, sans-serif",
@@ -414,6 +427,11 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Cyrl": {
+    "clausePunct": [
+      ",",
+      ";",
+      ":"
+    ],
     "clusters": "grapheme",
     "code": "Cyrl",
     "complex": false,
@@ -422,6 +440,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": true,
     "nameEn": "Cyrillic",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -479,6 +498,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Deva": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Deva",
     "complex": true,
@@ -489,6 +511,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Devanagari",
     "typography": {
       "cssStack": "'Noto Sans Devanagari', system-ui, sans-serif",
@@ -526,6 +549,10 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Ethi": {
+    "clausePunct": [
+      "፣",
+      "፤"
+    ],
     "clusters": "grapheme",
     "code": "Ethi",
     "complex": false,
@@ -534,6 +561,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Ethiopic",
     "typography": {
       "cssStack": "'Noto Sans Ethiopic', system-ui, sans-serif",
@@ -695,6 +723,11 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Geor": {
+    "clausePunct": [
+      ",",
+      ";",
+      ":"
+    ],
     "clusters": "grapheme",
     "code": "Geor",
     "complex": false,
@@ -703,6 +736,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Georgian",
     "typography": {
       "cssStack": "'Noto Sans Georgian', system-ui, sans-serif",
@@ -760,6 +794,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Grek": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Grek",
     "complex": false,
@@ -768,6 +805,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": true,
     "nameEn": "Greek",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -929,6 +967,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Gujr": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Gujr",
     "complex": true,
@@ -939,6 +980,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Gujarati",
     "typography": {
       "cssStack": "'Noto Sans Gujarati', system-ui, sans-serif",
@@ -1012,6 +1054,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Guru": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Guru",
     "complex": true,
@@ -1022,6 +1067,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Gurmukhi",
     "typography": {
       "cssStack": "'Noto Sans Gurmukhi', system-ui, sans-serif",
@@ -1103,6 +1149,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Hang": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Hang",
     "complex": false,
@@ -1111,6 +1160,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Hangul",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -1272,6 +1322,10 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Hani": {
+    "clausePunct": [
+      "，",
+      "、"
+    ],
     "clusters": "grapheme",
     "code": "Hani",
     "complex": false,
@@ -1280,6 +1334,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Han",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -1385,6 +1440,11 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Hebr": {
+    "clausePunct": [
+      ",",
+      ";",
+      ":"
+    ],
     "clusters": "codepoint",
     "code": "Hebr",
     "complex": false,
@@ -1393,6 +1453,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "rtl",
+    "hasCase": false,
     "nameEn": "Hebrew",
     "typography": {
       "cssStack": "'Noto Sans Hebrew', system-ui, sans-serif",
@@ -1446,6 +1507,10 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Jpan": {
+    "clausePunct": [
+      "，",
+      "、"
+    ],
     "clusters": "grapheme",
     "code": "Jpan",
     "complex": false,
@@ -1454,6 +1519,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Japanese",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -1631,6 +1697,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Khmr": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Khmr",
     "complex": true,
@@ -1641,6 +1710,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Khmer",
     "typography": {
       "cssStack": "'Noto Sans Khmer', system-ui, sans-serif",
@@ -1674,6 +1744,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Knda": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Knda",
     "complex": true,
@@ -1684,6 +1757,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Kannada",
     "typography": {
       "cssStack": "'Noto Sans Kannada', system-ui, sans-serif",
@@ -1753,6 +1827,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Laoo": {
+    "clausePunct": [],
     "clusters": "grapheme",
     "code": "Laoo",
     "complex": true,
@@ -1763,6 +1838,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Lao",
     "typography": {
       "cssStack": "'Noto Sans Lao', system-ui, sans-serif",
@@ -1824,6 +1900,11 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Latn": {
+    "clausePunct": [
+      ",",
+      ";",
+      ":"
+    ],
     "clusters": "grapheme",
     "code": "Latn",
     "complex": false,
@@ -1832,6 +1913,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": true,
     "nameEn": "Latin",
     "typography": {
       "cssStack": "system-ui, sans-serif",
@@ -2005,6 +2087,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Mlym": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Mlym",
     "complex": true,
@@ -2015,6 +2100,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Malayalam",
     "typography": {
       "cssStack": "'Noto Sans Malayalam', system-ui, sans-serif",
@@ -2060,6 +2146,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Mymr": {
+    "clausePunct": [
+      "၊"
+    ],
     "clusters": "grapheme",
     "code": "Mymr",
     "complex": true,
@@ -2070,6 +2159,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Myanmar",
     "typography": {
       "cssStack": "'Noto Sans Myanmar', system-ui, sans-serif",
@@ -2103,6 +2193,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Orya": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Orya",
     "complex": true,
@@ -2113,6 +2206,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Odia",
     "typography": {
       "cssStack": "'Noto Sans Oriya', system-ui, sans-serif",
@@ -2186,6 +2280,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Sinh": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Sinh",
     "complex": true,
@@ -2194,6 +2291,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Sinhala",
     "typography": {
       "cssStack": "'Noto Sans Sinhala', system-ui, sans-serif",
@@ -2263,6 +2361,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Taml": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Taml",
     "complex": true,
@@ -2273,6 +2374,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Tamil",
     "typography": {
       "cssStack": "'Noto Sans Tamil', system-ui, sans-serif",
@@ -2362,6 +2464,9 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Telu": {
+    "clausePunct": [
+      ","
+    ],
     "clusters": "grapheme",
     "code": "Telu",
     "complex": true,
@@ -2372,6 +2477,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Telugu",
     "typography": {
       "cssStack": "'Noto Sans Telugu', system-ui, sans-serif",
@@ -2441,6 +2547,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Thaa": {
+    "clausePunct": [],
     "clusters": "codepoint",
     "code": "Thaa",
     "complex": true,
@@ -2449,6 +2556,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       "native": []
     },
     "direction": "rtl",
+    "hasCase": false,
     "nameEn": "Thaana",
     "typography": {
       "cssStack": "'Noto Sans Thaana', system-ui, sans-serif",
@@ -2470,6 +2578,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
     }
   },
   "Thai": {
+    "clausePunct": [],
     "clusters": "grapheme",
     "code": "Thai",
     "complex": true,
@@ -2480,6 +2589,7 @@ export const SCRIPTS: Readonly<Record<string, ScriptEntry>> = deepFreeze(
       ]
     },
     "direction": "ltr",
+    "hasCase": false,
     "nameEn": "Thai",
     "typography": {
       "cssStack": "'Noto Sans Thai', system-ui, sans-serif",
