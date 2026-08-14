@@ -1,5 +1,5 @@
 {
-  "name": "@thibi/cli",
+  "name": "@thibi/runtime",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,9 +15,6 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "thibi": "./dist/index.js"
-  },
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist *.tsbuildinfo"
@@ -27,15 +24,7 @@
     "@thibi/core": "workspace:*",
     "@thibi/db": "workspace:*",
     "@thibi/engine": "workspace:*",
-    "@thibi/eval": "workspace:*",
     "@thibi/languages": "workspace:*",
-    "@thibi/runtime": "workspace:*",
-    "@thibi/storage": "workspace:*",
-    "commander": "^14.0.2",
-    "google-auth-library": "^11.0.0",
-    "pg": "^8.23.0"
-  },
-  "devDependencies": {
-    "@types/pg": "^8.21.0"
+    "@thibi/storage": "workspace:*"
   }
 }

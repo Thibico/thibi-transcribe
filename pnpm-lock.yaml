@@ -59,6 +59,9 @@ importers:
       '@thibi/languages':
         specifier: workspace:*
         version: link:../../packages/languages
+      '@thibi/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       '@thibi/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -75,6 +78,27 @@ importers:
       '@types/pg':
         specifier: ^8.21.0
         version: 8.21.0
+
+  apps/runtime:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1106.0
+        version: 3.1106.0
+      '@thibi/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@thibi/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@thibi/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+      '@thibi/languages':
+        specifier: workspace:*
+        version: link:../../packages/languages
+      '@thibi/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
 
   apps/web:
     dependencies:
