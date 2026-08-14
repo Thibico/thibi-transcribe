@@ -1091,7 +1091,14 @@ Three metrics:
 // joined it, and the arm scored entity_drift 2.0 against a 0.02 gate. Every arm in every
 // language would have failed the gate for making the one edit the prompt exists to make.
 // A separator now needs a digit after it, which keeps `1,000.50`, `12:30` and `1/2` whole.
-const ENTITY = /\p{Lu}{2,}|\d+(?:[.,:/٫٬]\d+)*|(?<=^|\s)\p{Script=Latin}[\p{Script=Latin}\p{M}'’-]*(?=$|\s)/gu;
+//
+// The Latin-token branch had the same defect one line down, and the same run found it:
+// Burmese `ring ၏ ceo` came back as `ring၊ ၏ ceo၊` — a clause mark inserted and nothing
+// else — and the `(?=$|\s)` lookahead stopped matching, so both tokens "left the text" and
+// the restraint arm scored entity_drift 0.25 for words it had not altered. The boundary is
+// the absence of another Latin character, not the presence of whitespace: punctuation
+// attached to a token is exactly what a typesetting pass is for.
+const ENTITY = /\p{Lu}{2,}|\d+(?:[.,:/٫٬]\d+)*|(?<![\p{Script=Latin}\p{M}])\p{Script=Latin}[\p{Script=Latin}\p{M}'’-]*/gu;
 /**
  * Extract from input and hypothesis the multiset of: ALL-CAPS runs, digit strings, and — when
  * the language's script is not Latin — Latin-script tokens. Drift is the symmetric difference

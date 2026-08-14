@@ -96,6 +96,19 @@ describe('entity_drift', () => {
     expect('it cost 1,000.50 at 12:30'.match(re)).toEqual(['1,000.50', '12:30']);
   });
 
+  it('does not fire when punctuation is attached to a Latin token in a non-Latin script', () => {
+    /**
+     * Measured on the first six-language run, 2026-08-14, and the same defect as the digit
+     * one a line above. Burmese `ring ၏ ceo` came back as `ring၊ ၏ ceo၊` — a clause mark
+     * inserted, nothing else changed — and the plan's `(?=$|\s)` lookahead stopped matching,
+     * so both tokens "left the text" and the arm scored entity_drift 0.25 against a 0.02
+     * gate for words it had not altered.
+     */
+    const s = score(BURMESE, 'ယခင်က ring ၏ ceo', 'ယခင်က ring၊ ၏ ceo၊', 'ယခင်က Ring ၏ CEO', false);
+    expect(s.entitiesLost).toEqual([]);
+    expect(s.entityDiff).toBe(0);
+  });
+
   it('counts digits, and a digit system change as drift', () => {
     const s = score(BURMESE, 'ခုနှစ် ၁၉၉၅ တွင်', 'ခုနှစ် 1995 တွင်။', 'ခုနှစ် ၁၉၉၅ တွင်။', false);
     expect(s.entityDiff).toBeGreaterThan(0);

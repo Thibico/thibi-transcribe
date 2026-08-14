@@ -60,7 +60,18 @@ export function entityPattern(isLatinScript: boolean): RegExp {
     '\\d+(?:[.,:/\\u066B\\u066C]\\d+)*',
   ];
   if (!isLatinScript) {
-    alts.push("(?<=^|\\s)\\p{Script=Latin}[\\p{Script=Latin}\\p{M}'’-]*(?=$|\\s)");
+    /**
+     * A Latin token embedded in a non-Latin script.
+     *
+     * §5.10 bounds this with `(?<=^|\s)` and `(?=$|\s)`, and the first live run showed the
+     * same defect as the digit branch above, one line apart. The Burmese restraint arm put a
+     * clause mark straight after a token — `ring ၏` became `ring၊ ၏` — and the lookahead
+     * stopped matching, so `ring` and `ceo` "left the text" and the arm scored entity_drift
+     * **0.25 against a 0.02 gate** for two words it had not altered at all. The boundary is
+     * the absence of another Latin character, not the presence of whitespace: punctuation
+     * attached to a token is exactly what a typesetting pass is for.
+     */
+    alts.push("(?<![\\p{Script=Latin}\\p{M}])\\p{Script=Latin}[\\p{Script=Latin}\\p{M}'’-]*");
   }
   return new RegExp(alts.join('|'), 'gu');
 }
