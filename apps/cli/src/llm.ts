@@ -66,6 +66,42 @@ export class LlmCallError extends Error {
   }
 }
 
+/**
+ * The output ceiling, and why there is one at all.
+ *
+ * `openai/gpt-oss-20b` is a **reasoning** model: its responses carry a
+ * `completion_tokens_details.reasoning_tokens` count, and with no cap it will spend an
+ * unbounded number of them thinking before it writes the JSON. Two consequences, both
+ * measured on 2026-08-14. It is slow — every extra reasoning token is latency and burns the
+ * per-minute token bucket that the whole run is rate-limited by. And it is the documented
+ * cause of a share of the failures: Groq's own 400 says
+ * `failed_generation: "max completion tokens reached before generating a valid document"`,
+ * i.e. the model reasoned past its default budget and never got to the answer.
+ *
+ * 4000 is generous for the task — a cleanup segment is one sentence in and one sentence out —
+ * and deliberately not tight: a truncated response is a *failed* segment, and failing a
+ * segment to save tokens would trade the measurement for the bill.
+ */
+const MAX_OUTPUT_TOKENS = 4000;
+
+/**
+ * How long a provider's own "wait this long" is allowed to be believed.
+ *
+ * `withRetry` honours `Retry-After` unconditionally — "it knows when its window resets and we
+ * do not" — which is right for a window measured in seconds and dangerous for one measured in
+ * hours. A daily-quota 429 that reports a 40-minute reset turns a single segment into a
+ * 40-minute sleep, three times over, and **a sleep is indistinguishable from a hang** from
+ * outside the process: no output, no progress, no error, and a CI job that gets killed at six
+ * hours having measured nothing.
+ *
+ * Past this ceiling the wait is dropped rather than obeyed, so the jittered curve takes over,
+ * the four attempts are spent in under two minutes, and the segment is **recorded as failed
+ * with the provider's own message attached**. For a measurement harness that is the better
+ * outcome by a long way: a report that says "the provider asked us to wait 40 minutes" is
+ * actionable, and a run that is quietly asleep is not.
+ */
+const MAX_HONOURED_RETRY_MS = 60_000;
+
 export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
   const key = options.env[KEY_FOR[options.provider]];
   if (!key) {
@@ -92,6 +128,7 @@ export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
       body: JSON.stringify({
         model,
         temperature: TEMPERATURE,
+        max_completion_tokens: MAX_OUTPUT_TOKENS,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -157,13 +194,16 @@ export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
  * and the body is the only place the window length appears. Falling through to `undefined`
  * lets the jittered curve take over rather than guessing.
  */
-function retryAfterMs(response: Response, body: string): number | undefined {
+export function retryAfterMs(response: Response, body: string): number | undefined {
   const header = response.headers.get('retry-after');
   if (header) {
     const seconds = Number(header);
-    if (Number.isFinite(seconds)) return Math.ceil(seconds * 1000);
+    if (Number.isFinite(seconds)) return cap(Math.ceil(seconds * 1000));
   }
   const inBody = /try again in ([\d.]+)s/iu.exec(body);
-  if (inBody?.[1]) return Math.ceil(Number(inBody[1]) * 1000);
+  if (inBody?.[1]) return cap(Math.ceil(Number(inBody[1]) * 1000));
   return undefined;
 }
+
+/** Beyond the ceiling, report no wait at all — see `MAX_HONOURED_RETRY_MS`. */
+const cap = (ms: number): number | undefined => (ms > MAX_HONOURED_RETRY_MS ? undefined : ms);
