@@ -1,3 +1,10 @@
+import {
+  ProviderUnavailableError,
+  RateLimitedError,
+  RETRY_POLICIES,
+  systemClock,
+  withRetry,
+} from '@thibi/engine';
 import type { LlmComplete } from '@thibi/eval';
 import { TEMPERATURE } from '@thibi/eval';
 import type { EnvKey } from './context.js';
@@ -71,7 +78,14 @@ export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
   const inRate = options.usdPerInputToken ?? 0;
   const outRate = options.usdPerOutputToken ?? 0;
 
-  return async ({ system, user, model }) => {
+  const clock = systemClock();
+
+  const once = async (system: string, user: string, model: string): Promise<{
+    text: string;
+    inputTokens: number;
+    outputTokens: number;
+    costUsd: number;
+  }> => {
     const response = await fetchImpl(`${BASE_URL[options.provider]}/chat/completions`, {
       method: 'POST',
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -89,6 +103,14 @@ export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
       }),
     });
     const text = await response.text();
+    if (response.status === 429) {
+      const wait = retryAfterMs(response, text);
+      throw new RateLimitedError(
+        `rate limited: ${text.slice(0, 300)}`,
+        wait === undefined ? undefined : { retryAfterMs: wait },
+      );
+    }
+    if (response.status >= 500) throw new ProviderUnavailableError(`HTTP ${response.status}: ${text.slice(0, 300)}`);
     if (!response.ok) throw new LlmCallError(response.status, text);
 
     const body = JSON.parse(text) as {
@@ -104,4 +126,44 @@ export function buildLlmComplete(options: BuildLlmOptions): LlmComplete {
       costUsd: inputTokens * inRate + outputTokens * outRate,
     };
   };
+
+  /**
+   * Retry on 429 and 5xx, with the engine's own ladder.
+   *
+   * Measured 2026-08-14 and not a hypothetical: a 6-language n=30 run against Groq's
+   * on-demand tier hit `tokens per minute (TPM): Limit 8000` on the fifth call and lost
+   * **five of six languages** to a single 429 each, because nothing retried. The eval is
+   * one sequential process, so the thing it needs is not a token bucket but the patience to
+   * wait out a window the provider tells it the length of.
+   *
+   * `editorial.pass` is the right policy by name and by shape: four attempts, 5 s base,
+   * 30 s cap — and `Retry-After` overrides the curve whenever the provider supplied one,
+   * because it knows when its window resets and we do not.
+   */
+  return async ({ system, user, model }) =>
+    withRetry(() => once(system, user, model), {
+      policy: RETRY_POLICIES['editorial.pass'],
+      clock,
+      onRetry: ({ attempt, delayMs }) =>
+        process.stderr.write(`\n  rate limited; waiting ${Math.round(delayMs / 1000)}s (attempt ${attempt})\n`),
+    });
+}
+
+/**
+ * How long to wait, in the provider's own words.
+ *
+ * `Retry-After` first, then Groq's `retry-after` variant, then the number in the message
+ * body — `Please try again in 9.2625s` — because Groq's 429 does not always carry a header
+ * and the body is the only place the window length appears. Falling through to `undefined`
+ * lets the jittered curve take over rather than guessing.
+ */
+function retryAfterMs(response: Response, body: string): number | undefined {
+  const header = response.headers.get('retry-after');
+  if (header) {
+    const seconds = Number(header);
+    if (Number.isFinite(seconds)) return Math.ceil(seconds * 1000);
+  }
+  const inBody = /try again in ([\d.]+)s/iu.exec(body);
+  if (inBody?.[1]) return Math.ceil(Number(inBody[1]) * 1000);
+  return undefined;
 }

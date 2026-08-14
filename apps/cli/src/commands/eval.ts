@@ -384,6 +384,14 @@ export function evalCommand(): Command {
         process.exitCode = 3;
         return;
       }
+      // A run that measured nothing is a failed run whether or not anyone asked for a gate.
+      // Without this it exits 0 with a table of dashes, which is what a six-language run
+      // that lost every language to rate limits did on 2026-08-14.
+      if (run.languages.every((l) => l.arms.every((a) => a.n === 0))) {
+        process.stderr.write('\nNothing was measured: every language failed or has no eval set.\n');
+        process.exitCode = 1;
+        return;
+      }
       // Without --gate the same conditions are evaluated and printed, and the command exits
       // 0. Local iteration is not a fight; CI runs the same command with the flag.
       if (gated && failures.length > 0) process.exitCode = 2;
@@ -486,7 +494,14 @@ export function evalCommand(): Command {
       );
       process.stdout.write(`${markdown}\n`);
       process.stdout.write(`runlog  ${runlogPath(resultsDir, runId)}\nreport  ${written}\n`);
-      if (run.budgetExhausted) process.exitCode = 3;
+      if (run.budgetExhausted) {
+        process.exitCode = 3;
+        return;
+      }
+      if (run.languages.every((l) => l.arms.every((a) => a.scored === 0))) {
+        process.stderr.write('\nNothing was measured: every language failed or has no eval set.\n');
+        process.exitCode = 1;
+      }
     });
 
   cmd

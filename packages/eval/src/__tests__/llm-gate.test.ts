@@ -96,10 +96,35 @@ describe('gateCleanup', () => {
     expect(failures[0]!.metric).toBe('cer_punct');
   });
 
-  it('skips a language that produced no arms at all', () => {
-    const empty = run([]);
-    empty.languages[0]!.error = 'stopped part-way: budget exhausted';
-    expect(gateCleanup(empty)).toEqual([]);
+  it('fails a language the run asked for and did not measure', () => {
+    /**
+     * Measured 2026-08-14, on the first six-language run. Five languages lost to one 429
+     * apiece and one to a 400, so every language ended with zero arms — and the gate printed
+     * "pass — every arm is at or below its control" and exited 0, because it skipped every
+     * language it had nothing to compare. A gate that reads "nothing measured" as "nothing
+     * wrong" is a green check over an unmeasured prompt.
+     */
+    const notMeasured = run([]);
+    notMeasured.languages[0]!.error = 'stopped part-way: budget exhausted';
+    const failures = gateCleanup(notMeasured);
+    expect(failures.map((f) => f.metric)).toEqual(['not_measured']);
+    expect(failures[0]!.reason).toContain('budget');
+  });
+
+  it('fails a language whose arm ran but scored nothing', () => {
+    // Every response unparseable is not the same as no response, and both are "unmeasured".
+    const allFailed = run([control, arm({ n: 0, cerPunct: null, failed: 30, failure: 'HTTP 400' })]);
+    const failures = gateCleanup(allFailed);
+    expect(failures.map((f) => f.metric)).toEqual(['not_measured']);
+    expect(failures[0]!.reason).toBe('HTTP 400');
+  });
+
+  it('says nothing about a language FLEURS has no eval set for', () => {
+    // Not a failure to measure — a fact about FLEURS. `thibi eval asr` exits 0 on the five
+    // Google locales that have none, and the gate must agree.
+    const noSet = run([]);
+    noSet.languages[0]!.cfg = null;
+    expect(gateCleanup(noSet)).toEqual([]);
   });
 });
 

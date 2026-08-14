@@ -51,6 +51,8 @@ export interface TranslateArmResult {
   costUsd: number;
   cachedSegments: number;
   failed: number;
+  /** The provider's own words for the first call that failed, when one did. */
+  failure?: string;
   examples: Array<{ id: number; source: string; output: string; reference: string }>;
 }
 
@@ -223,6 +225,8 @@ async function runLanguage(
     let cost = 0;
     let cached = 0;
     let failed = 0;
+    /** The first call error, kept so a run that measured nothing can say why. */
+    let failure: string | undefined;
 
     for (const [i, row] of sample.entries()) {
       const reference = targetById.get(row.id)!.raw;
@@ -246,13 +250,21 @@ async function runLanguage(
         cached++;
       } else {
         ledger.checkBefore();
-        const out = await deps.complete({ system: prompt.system, user: prompt.user, model });
-        text = out.text;
-        cacheHit = false;
-        segCost = out.costUsd;
-        cost += out.costUsd;
-        ledger.add(out.costUsd);
-        await deps.cache.set(key, { text }, deps.now());
+        try {
+          const out = await deps.complete({ system: prompt.system, user: prompt.user, model });
+          text = out.text;
+          cacheHit = false;
+          segCost = out.costUsd;
+          cost += out.costUsd;
+          ledger.add(out.costUsd);
+          await deps.cache.set(key, { text }, deps.now());
+        } catch (err) {
+          // A failed call costs this segment, not the language — see the cleanup runner for
+          // the run that established the rule.
+          failed++;
+          failure ??= err instanceof Error ? err.message : String(err);
+          continue;
+        }
       }
 
       const hyp = parseSegmentsResponse(text)?.get(0) ?? null;
@@ -290,6 +302,7 @@ async function runLanguage(
       cachedSegments: cached,
       failed,
       examples,
+      ...(failure === undefined ? {} : { failure }),
     });
   }
 

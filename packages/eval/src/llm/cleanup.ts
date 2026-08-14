@@ -48,6 +48,8 @@ export interface CleanupArmResult extends CleanupAggregate {
    * its input would score identically to `control` and read as harmless.
    */
   failed: number;
+  /** The provider's own words for the first call that failed, when one did. */
+  failure?: string;
   /** Up to two segments the arm rewrote, rendered in full. A rate is not a diagnosis. */
   examples: Array<{ id: number; input: string; output: string }>;
   /** Entity tokens that left the multiset, deduped. `UN` is what this is for. */
@@ -230,6 +232,8 @@ async function runLanguage(
       let cost = 0;
       let cached = 0;
       let failed = 0;
+      /** The first call error, kept so a run that measured nothing can say why. */
+      let failure: string | undefined;
 
       for (const [i, row] of sample.entries()) {
         const vars = promptVars(code);
@@ -253,13 +257,40 @@ async function runLanguage(
           cached++;
         } else {
           ledger.checkBefore();
-          const out = await deps.complete({ system: prompt.system, user: prompt.user, model });
-          text = out.text;
-          cacheHit = false;
-          segCost = out.costUsd;
-          cost += out.costUsd;
-          ledger.add(out.costUsd);
-          await deps.cache.set(key, { text }, deps.now());
+          try {
+            const out = await deps.complete({ system: prompt.system, user: prompt.user, model });
+            text = out.text;
+            cacheHit = false;
+            segCost = out.costUsd;
+            cost += out.costUsd;
+            ledger.add(out.costUsd);
+            await deps.cache.set(key, { text }, deps.now());
+          } catch (err) {
+            /**
+             * A failed call costs this segment, not the language.
+             *
+             * Measured 2026-08-14: one 429 propagated out of `runLanguage` and took the
+             * whole language with it, so a six-language run reported five languages as
+             * errors over one rate-limit apiece. The provider's own message is kept — the
+             * habit this repo does not have is replacing it with a guess.
+             */
+            failed++;
+            failure ??= err instanceof Error ? err.message : String(err);
+            await deps.onEvent?.({
+              t: 'llm',
+              evalKind: 'cleanup',
+              lang: code,
+              id: row.id,
+              arm,
+              model,
+              promptId,
+              promptVersion,
+              cacheHit: false,
+              usd: 0,
+              hyp: null,
+            });
+            continue;
+          }
         }
 
         const parsed = parseSegmentsResponse(text);
@@ -285,7 +316,9 @@ async function runLanguage(
         log(`  ${code} ${arm}/${model} ${i + 1}/${sample.length}${cacheHit ? ' (cached)' : ''}`);
       }
 
-      arms.push(finishArm(arm, model, promptId, promptVersion, scored, cost, cached, failed));
+      arms.push(
+        finishArm(arm, model, promptId, promptVersion, scored, cost, cached, failed, failure),
+      );
     }
   }
 
@@ -322,6 +355,7 @@ export function finishArm(
   costUsd: number,
   cachedSegments: number,
   failed: number,
+  failure?: string,
 ): CleanupArmResult {
   const rewritten = scored
     .filter((x) => x.stats.content.edits > 0)
@@ -343,6 +377,7 @@ export function finishArm(
     failed,
     examples: rewritten.map((x) => ({ id: x.row.id, input: x.row.plain, output: x.hyp })),
     entitiesLost: [...lost],
+    ...(failure === undefined ? {} : { failure }),
   };
 }
 

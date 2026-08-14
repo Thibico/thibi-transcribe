@@ -21,7 +21,12 @@ export const GATE_LIMITS = {
   entityDrift: 0.02,
 } as const;
 
-export type GateMetric = 'cer_punct' | 'content_delta' | 'entity_drift' | 'control_missing';
+export type GateMetric =
+  | 'cer_punct'
+  | 'content_delta'
+  | 'entity_drift'
+  | 'control_missing'
+  | 'not_measured';
 
 export interface GateFailure {
   code: string;
@@ -36,13 +41,48 @@ export interface GateFailure {
   /** The worst pair this arm produced, so a failure names a string and not only a number. */
   example: { id: number; input: string; output: string } | null;
   entitiesLost: readonly string[];
+  /** Why a language went unmeasured: the run's error, or the provider's own words. */
+  reason?: string;
 }
 
 export function gateCleanup(run: CleanupRunResult): GateFailure[] {
   const failures: GateFailure[] = [];
+  const wanted = run.arms.filter((a) => a !== 'control');
 
   for (const language of run.languages) {
-    if (language.arms.length === 0) continue;
+    // A language with no eval set is a fact about FLEURS, not a failure to measure: the ASR
+    // command exits 0 on the five Google locales that have none, and so does this.
+    if (language.cfg === null && !language.error) continue;
+
+    /**
+     * A language the run asked for and did not measure fails the gate.
+     *
+     * Measured 2026-08-14, and it is the failure this whole mechanism exists to prevent. A
+     * six-language run lost five languages to one rate-limit error each and one to a 400,
+     * so every language ended with zero arms — and the gate printed **"pass — every arm is
+     * at or below its control"** and exited 0, because it had nothing to compare and
+     * skipped them all. A gate that treats "nothing measured" as "nothing wrong" is a green
+     * check over an unmeasured prompt.
+     */
+    const scoredCandidates = language.arms.filter((a) => a.arm !== 'control' && a.n > 0);
+    if (wanted.length > 0 && scoredCandidates.length < wanted.length * run.models.length) {
+      const reason =
+        language.error ?? language.arms.find((a) => a.failure !== undefined)?.failure;
+      failures.push({
+        code: language.languageCode,
+        arm: wanted.join(','),
+        model: run.models.join(','),
+        metric: 'not_measured',
+        value: null,
+        against: null,
+        delta: null,
+        example: null,
+        entitiesLost: [],
+        ...(reason === undefined ? {} : { reason }),
+      });
+      continue;
+    }
+
     const control = language.arms.find((a) => a.arm === 'control');
     const candidates = language.arms.filter((a) => a.arm !== 'control');
     if (candidates.length === 0) continue;
@@ -113,6 +153,15 @@ export function formatGateFailures(failures: readonly GateFailure[]): string {
   if (failures.length === 0) return 'gate: pass — every arm is at or below its control.';
   const out: string[] = [`gate: FAIL — ${failures.length} condition(s)`, ''];
   for (const f of failures) {
+    if (f.metric === 'not_measured') {
+      out.push(
+        `  ${f.code}  asked for ${f.arm} and measured nothing. A gate cannot pass a language ` +
+          `it did not measure.`,
+      );
+      if (f.reason) out.push(`    ${f.reason}`);
+      out.push('');
+      continue;
+    }
     if (f.metric === 'control_missing') {
       out.push(
         `  ${f.code}  ${f.arm}: no control arm in this run. The gate compares against a ` +

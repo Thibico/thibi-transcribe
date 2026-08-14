@@ -127,6 +127,20 @@ function languageSection(language: CleanupLanguageResult): string[] {
   out.push('');
 
   for (const arm of language.arms) {
+    if (arm.failure) {
+      out.push(
+        `**${arm.arm}${arm.model ? `/${arm.model}` : ''}** — ${arm.failed} call(s) failed. ` +
+          `First failure, in the provider's own words:`,
+        '',
+        '```',
+        arm.failure,
+        '```',
+        '',
+      );
+    }
+  }
+
+  for (const arm of language.arms) {
     if (arm.arm === 'control' || arm.examples.length === 0) continue;
     out.push(`**${arm.arm}${arm.model ? `/${arm.model}` : ''} — segments it rewrote**`, '');
     if (arm.entitiesLost.length > 0) {
