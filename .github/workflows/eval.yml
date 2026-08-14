@@ -65,6 +65,12 @@ jobs:
   gate:
     needs: metrics
     runs-on: ubuntu-latest
+    # Mapped here rather than read as `secrets.GROQ_API_KEY` in the step below, because the
+    # `secrets` context is **not available in an `if` expression** — the whole file fails to
+    # parse with "Unrecognized named-value: 'secrets'", which takes the workflow down rather
+    # than the step. `env` is available in `if`, so the presence check tests this instead.
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -76,7 +82,7 @@ jobs:
       - run: pnpm build
 
       - name: A key is required to enforce anything
-        if: ${{ !secrets.GROQ_API_KEY }}
+        if: ${{ env.GROQ_API_KEY == '' }}
         run: |
           echo "::error::EVAL gate cannot run: no GROQ_API_KEY is available to this workflow."
           echo "A pull request from a fork has no access to repository secrets, and a gate"
@@ -95,9 +101,9 @@ jobs:
           key: eval-cache-${{ hashFiles('packages/engine/src/llm/prompts/prompt-versions.json') }}
           restore-keys: eval-cache-
 
+      # GROQ_API_KEY comes from the job-level `env` above; the CLI reads it from the
+      # environment, which is the one place in this repo that reads one.
       - name: thibi eval cleanup --gate
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           node apps/cli/dist/index.js eval cleanup \
             --provider groq \
