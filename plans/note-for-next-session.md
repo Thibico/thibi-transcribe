@@ -5,7 +5,7 @@ things you would otherwise have to rediscover. It is rewritten at the end of eve
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
 **Last updated:** 2026-08-14. The LLM evals are built, run for the first time, and the first
-run found three defects in them. Branch `phase-5/llm-evals` is **not merged**.
+run found three defects in them. All of it is merged; **nothing is in flight**.
 
 ---
 
@@ -22,14 +22,14 @@ run found three defects in them. Branch `phase-5/llm-evals` is **not merged**.
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #34**. This session's work is five commits on
-**`phase-5/llm-evals`**, unmerged and unpushed:
+`main` is at the merge of **PR #35**, which is this session's six commits:
 
 1. `1b5152c` the prompts and the two registry fields they need
 2. `d49e58b` `packages/eval/src/llm/` — metrics, runners, gate
 3. `db8ccab` the CLI commands, and the first defect the first live run found
 4. `c783483` the gate failing when it measured nothing, plus retry and CI
 5. `31a5221` the same entity-regex defect in its second branch
+6. `4af051c` the six-language measurement, the diary and this note
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1119 tests across 70
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
