@@ -5,8 +5,7 @@ things you would otherwise have to rediscover. It is rewritten at the end of eve
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
 **Last updated:** 2026-08-14, second sitting. **Phase 9 has started.** The run DAG, its
-planner and its reconciler are built and tested. Three commits sit on
-`phase-9/dag-and-reconciler`, **which is not yet pushed or merged** — see below.
+planner and its reconciler are built, tested and **merged. Nothing is in flight.**
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only,
 > `thibi eval translate` stays unrun, `--manifest` stays unbuilt. **Do not pick those up as
@@ -44,14 +43,12 @@ plus `segments.placeholder_reason` (migration `0004_run_steps.sql`); and in
 `apps/worker` (it is still a one-line stub), no SSE route, no `/api/admin/queue`, no
 `thibi run status|retry|cancel`. `apps/web` is a stub too.
 
-`main` is at `bce19ff`. The branch adds:
+`main` is at `016d9d1`, the merge of **PR #36**, which is this sitting's four commits:
 
 1. `77352e8` the three tables and the migration
 2. `1a53409` the queue surface, and the merge of two retry tables that had drifted
 3. `4cf54b3` the planner, the reconciler, event emission, and four plan corrections
-
-Plus uncommitted-at-time-of-writing plan amendments 86–89, the inline phase-09 corrections and
-the diary entry — **commit those before anything else if they are still dirty.**
+4. `10feddb` amendments 86–89, the inline phase-09 corrections, the diary, this note
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1202 tests across 76
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1125 across 71. The
