@@ -4,8 +4,11 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-14, second sitting. **Phase 9 has started.** The run DAG, its
-planner and its reconciler are built, tested and **merged. Nothing is in flight.**
+**Last updated:** 2026-08-14, third sitting. **Phase 9 is most of the way there.** The DAG,
+the doorbell, the execution path and a bootable worker all exist. **What is missing is
+handlers** — so the worker runs, and transcribes nothing.
+
+Four commits sit on `phase-9/worker`, pushed with a PR open. The two before them are merged.
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only,
 > `thibi eval translate` stays unrun, `--manifest` stays unbuilt. **Do not pick those up as
@@ -26,75 +29,104 @@ planner and its reconciler are built, tested and **merged. Nothing is in flight.
 | 5 — eval harness | ASR half published; LLM half built and measured once. **Parked by decision** |
 | 6–7 | not started. 6 has measured evidence waiting for it |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
-| **9 — queue and worker** | **the DAG is done; the worker is not.** See the split below |
+| **9 — queue and worker** | **the machinery is done; the handlers are not.** See the split below |
 | 10–15 | not started |
 
 ### What Phase 9 has and has not got
 
-**Built, tested, committed** — `packages/db` tables `run_steps`, `run_events`, `rate_buckets`
-plus `segments.placeholder_reason` (migration `0004_run_steps.sql`); and in
-`packages/engine/src/`: `queue/queues.ts` (kinds, routing, weights, `SUBSCRIPTIONS`, the
-`Doorbell` interface), `queue/retry.ts` (`POLICY`, `backoffMs`, `parseRetryAfter`),
-`queue/plan.ts` (`planRun`, `materialisePlan`), `queue/reconcile.ts`, `events/emit.ts`
-(`insertAndNotify`, `CoalescingEventSink`).
+**Built and tested** — the tables (`run_steps`, `run_events`, `rate_buckets`,
+`segments.placeholder_reason`, migration `0004`); in `packages/engine/src/`: `queue/queues.ts`,
+`queue/retry.ts`, `queue/plan.ts`, `queue/reconcile.ts`, `queue/boss.ts` (pg-boss v12 behind
+`Doorbell`), `queue/lease.ts` (heartbeat, stolen-lease detection), `queue/run-step.ts` (claim,
+apply, fail), `queue/recover.ts` (the sweep), `events/emit.ts`; `@thibi/runtime` (the shared
+composition root, moved out of `apps/cli`); and `apps/worker` — env parsing, health server,
+boot recovery, subscriptions, the 30 s and 60 s ticks, SIGTERM drain.
 
-**Not built** — everything that actually runs work. No pg-boss adapter, no
-`queue/handlers/**`, no `queue/lease.ts`, `recover.ts`, `cancel.ts`, `rate-bucket.ts`, no
-`apps/worker` (it is still a one-line stub), no SSE route, no `/api/admin/queue`, no
-`thibi run status|retry|cancel`. `apps/web` is a stub too.
+**Not built** — **handlers**, first and most importantly: `createHandlerRegistry()` returns
+`{}`, so the worker subscribes to seven queues and any step it picks up lands `dead` naming
+its kind. Also missing: `queue/cancel.ts` (the NOTIFY listener and `requestCancel`),
+`queue/rate-bucket.ts` (`takeTokens`), the global advisory-lock slots in `lease.ts`, the SSE
+route, `/api/admin/queue`, `thibi run status|retry|cancel`, and the compose services.
+`apps/web` is still a stub.
 
-`main` is at `016d9d1`, the merge of **PR #36**, which is this sitting's four commits:
+`main` is at `dc5fccd` (PR #36 merged). On `phase-9/worker`, awaiting review:
 
-1. `77352e8` the three tables and the migration
-2. `1a53409` the queue surface, and the merge of two retry tables that had drifted
-3. `4cf54b3` the planner, the reconciler, event emission, and four plan corrections
-4. `10feddb` amendments 86–89, the inline phase-09 corrections, the diary, this note
+1. `41c370e` the pg-boss v12 adapter behind `Doorbell`
+2. `853b973` the execution path — claim, lease, apply, recover
+3. `83ee0f5` `@thibi/runtime`, one composition root for the CLI and the worker
+4. `2587bf4` `apps/worker` as a real process — and the bug that starting it found
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1202 tests across 76
-files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1125 across 71. The
-reconciler suite is stable across six consecutive runs. The sidecar's own 42 pytest tests are
-still run separately.
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1240 tests across 79
+files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1125 across 71 at the
+start of the day. The reconciler suite is stable across six consecutive runs. The sidecar's own
+42 pytest tests are still run separately.
+
+**The worker has been started for real** against the dev Postgres: it recovers, declares all
+nine queues on the `short` policy, subscribes to seven, answers `/healthz` and `/readyz`,
+drains on SIGTERM and exits 0. A typo'd `WORKER_QUEUES` prints two lines and no stack trace.
 
 ---
 
 ## Do this next
 
-**Finish Phase 9, in this order.** Each is a commit-sized piece and the order is by what
-unblocks what.
+**Write the handlers, then run a real file through the worker.** Everything else in Phase 9
+is scaffolding for that, and until it happens the phase's central claim — kill the worker
+mid-job and it resumes without re-billing — is a claim.
 
-1. **The pg-boss adapter** — `queue/boss.ts`, the only file that imports pg-boss. Pin the
-   version. `sendStep()` pins `retryLimit: 0` and the raw `boss.send` is not re-exported.
-   **pg-boss is at v12, not the v10 the plan assumes** (see below).
-2. **`apps/worker`** — env parsing, the `runStep` claim-and-lease path, `withHeartbeat`,
-   `onStepError`, health port, SIGTERM drain. This is what makes the DAG move.
-3. **`recover.ts`** — the boot and 60 s sweep. Statement (b), *never reset
-   `awaiting_external`*, is the single most valuable line in the phase: a
-   `docker compose restart` during a two-hour `batchRecognize` costs a poll cycle, and the
-   naive alternative costs $19 and two hours, silently, showing up only on the bill.
-4. **Handlers**, one file per kind, each a thin wrapper over an existing Phase 1–8 stage
-   function. Start with `media.probe` → `media.normalize` → `plan.chunks` → `asr.chunk`,
-   which is a complete chunked run.
-5. **`cancel.ts`, `lease.ts`, `rate-bucket.ts`** — the three concurrency and control layers.
-6. **The SSE route and `/api/admin/queue`**, which is where `apps/web` stops being a stub.
-
-Then prove it with the plan's live checklist — `docker kill` mid-chunk, restart during
-`awaiting_external`, `--scale worker-heavy=3`. **The claim "kill the worker and it resumes" is
-worth nothing until it has been done to a real run**, and this project's record is that every
-defect in the last five sittings came from running something rather than from re-reading code.
+1. **`apps/worker/src/handlers/`**, one file per kind, each a thin wrapper over an existing
+   Phase 1–8 stage function. A handler gets `(ctx, step, signal)`, returns a `StepResult`, and
+   never touches pg-boss, `reconcile`, or its own retry. Start with
+   `media.probe` → `media.normalize` → `plan.chunks` → `asr.chunk`, which together are a
+   complete chunked run. `plan.chunks` is the interesting one: its handler calls `planRun`
+   again with the real chunk count, **in the same transaction that writes `run_chunks`**.
+2. **Create the run and its DAG.** Something has to call `materialisePlan` and build a
+   `PipelineSpec` from a run — today nothing does, so no step exists to be picked up. Probably
+   a `thibi run start <jobId>` alongside the existing `transcribe`, or a flag on it.
+3. **Then run a real file end to end**, and do the plan's live checklist: `docker kill` the
+   worker mid-chunk and watch it resume; restart during `awaiting_external` and assert
+   `submitBatch` was called once. **Do this before building anything else.**
+4. `queue/cancel.ts`, the advisory-lock slots, `rate-bucket.ts`.
+5. The SSE route and `/api/admin/queue`, where `apps/web` stops being a stub.
 
 ### The alternative that was considered
 
-Doing Phase 10 (auth) first, so the SSE route is not written against a stub. Rejected: the
-plan already specifies a `TODO(phase-10)` shim returning a fixed system user, and Phase 9's
-own reasoning for sitting before the UI is that "kill the worker, it resumes" is best proved
-with a CLI and `docker kill` rather than a browser. That is still right.
+Building the SSE route next, so there is something to look at. Rejected for the same reason
+the plan gives for putting Phase 9 before the UI: "kill the worker, it resumes" is best proved
+with a CLI and `docker kill`, and a progress bar over a worker with no handlers would be a
+demo of nothing.
 
 ---
 
 ## What you would otherwise rediscover
 
-**The phase-09 plan is wrong in five places, all now corrected inline and recorded as
-amendments 86–89.** Read the corrected file, not your memory of it. In summary:
+**The phase-09 plan is wrong in eight places, all now corrected inline and recorded as
+amendments 86–93.** Read the corrected file, not your memory of it. The three found this
+sitting come first, then the five from the sitting before.
+
+**pg-boss's default queue policy makes the re-ring design silently wrong, and the library is
+two majors past what the plan assumes** (v12.27.0, not v10). `reconcile` re-rings every `ready`
+step on every 30-second pass and the plan says the singleton key makes that free. Under the
+default `standard` policy it is not deduplicated at all — dedup there needs `singletonSeconds`,
+because it is a throttling feature. Forty ticks would queue forty jobs for one step. Every
+queue is declared **`short`** and a test asserts the policy. Three more v10→v12 changes: `PgBoss`
+is a named export; `StopOptions.wait` is gone because `stop()` blocks until drained; and
+`stop()` returns early on a second call, so the plan's `stop({close:false})`-then-close would
+silently leak every connection.
+
+**`reconcile` must return early on a run with no steps, and only starting the worker showed
+it.** The CLI drives the same stages in one process and never plans a DAG, so its runs have
+zero `run_steps` — and the tick reconciles every live run, those included. It fell through to
+the `pending` → `running` transition and marked a run no worker will ever touch as running at
+0%, permanently. **Every test in that suite plans a DAG first, which is exactly why none could
+have produced it.**
+
+**Two apps needing the same context meant one composition root, not two copies.**
+`apps/cli/src/context.ts` is now `@thibi/runtime`, shared with the worker. It is under `apps/`
+and not `packages/` on purpose: an ESLint rule bans `process.env` under every package's `src`,
+and putting an env reader there would mean carving an exemption into a rule the repo calls
+architecture. `runtime` is in the layer rule's app list, so no package may import it.
+
+In summary, from the sitting before:
 
 **`partial` was unreachable, twice over, in the design that exists to deliver it.** §9 is
 entirely about a three-hour transcript with one bad chunk still being worth having.
@@ -282,10 +314,22 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 
 ### Phase 9
 
-- **Nothing in Phase 9 has run against a real run.** The reconciler is tested against a real
-  Postgres with steps driven by hand; no handler exists, so no step has ever executed. Every
-  claim about crash recovery and re-billing is still a claim.
+- **No step has ever executed.** `createHandlerRegistry()` returns `{}`. The worker boots,
+  subscribes and would pick a step up, but every kind lands `dead` for want of a handler. Every
+  claim about crash recovery and not re-billing a `batchRecognize` is still a claim.
+- **Nothing creates a DAG.** No caller builds a `PipelineSpec` and calls `materialisePlan`, so
+  there are no steps for the worker to find. That, not the handlers, is the true first blocker.
 - **`runs.cancel_requested_by` does not exist** and §10's `requestCancel` writes it.
+- **The advisory-lock global slots are unbuilt**, so `GPU_SLOTS` and `LOCAL_ASR_SLOTS` are
+  parsed and ignored. `--scale worker-heavy=3` on a one-GPU box would currently OOM the card.
+- **`MAX_BUCKET_WAIT_MS` is parsed and ignored** too — `rate-bucket.ts` does not exist, so the
+  `rate_buckets` table is empty and every provider is unthrottled.
+- **The worker's error path for an unexpected startup failure is a raw stack trace.** A missing
+  table printed a full `DrizzleQueryError` when the dev database was a migration behind; "run
+  `thibi db migrate`" would have been the useful sentence.
+- **`infra/compose.yml` has no `worker` or `worker-heavy` service**, and no
+  `stop_grace_period: 120s`. Docker's default grace is 10 seconds, which turns a graceful drain
+  into the crash path on every deploy.
 - **The fourth routing rule is still unbuilt and undesigned.** The overview lists "sync quota
   exhausted / sustained 429s → batch"; `planMode` takes no quota input and would have to. The
   rate-bucket table is the only component that knows that state. Two things to settle first: it

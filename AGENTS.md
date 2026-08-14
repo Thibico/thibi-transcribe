@@ -203,8 +203,8 @@ Enforced by ESLint, tests and CI. Full reasoning in `plans/00-overview.md`.
 | Rule | Enforced by |
 |---|---|
 | Engine packages read no ambient configuration — no `process.env`, `process.cwd()`, `__dirname` | ESLint + CI grep + `tests/lint-rules.test.ts` |
-| Dependency direction is one-way: `core ← languages ← db ← engine ← apps` | same |
-| `apps/cli/src/context.ts` is the only environment reader, with an exhaustive key list | review |
+| Dependency direction is one-way: `core ← languages ← db ← engine ← runtime ← apps` | same |
+| `apps/runtime` is the only environment reader, with an exhaustive key list; each app adds at most its own small one (`apps/worker/src/env.ts`) | review |
 | No region constraint asserted in code | CI grep + a provider test |
 | The language is data, never a literal | review |
 | `drizzle-kit push` is banned; migrations are forward-only and never edited after being applied | checksum in the migration runner |
