@@ -529,6 +529,7 @@ export {
   liveRunIds,
   nudgeExternalWork,
   reclaimStaleLeases,
+  reconcileAllLive,
   recoverTick,
   type RecoveryReport,
 } from './queue/recover.js';

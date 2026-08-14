@@ -96,6 +96,22 @@ export async function reconcile(
      * cost of getting it wrong would be a slow run, never a wrong one.
      */
     const steps = await tx.select().from(runSteps).where(eq(runSteps.runId, runId));
+
+    /**
+     * A run with no steps is not this reconciler's business, and saying so is load-bearing.
+     *
+     * The CLI drives the same stages in one process and never plans a DAG, so every run it
+     * creates has zero `run_steps` rows — and the worker's 30-second tick reconciles *every*
+     * live run, CLI-created ones included. Without this guard the terminal check finds
+     * nothing outstanding, the `pending` → `running` transition below fires, and a worker
+     * that will never do any work on that run marks it as running at 0% forever.
+     *
+     * Found by booting the worker against the dev database, where one such run had been
+     * sitting since before this phase existed. It is exactly the class of bug no unit test
+     * would have produced, because every test here plans a DAG first.
+     */
+    if (steps.length === 0) return;
+
     steps.sort((a, b) => a.ordinal - b.ordinal || a.shard - b.shard);
 
     const byId = new Map(steps.map((s) => [s.id, s]));

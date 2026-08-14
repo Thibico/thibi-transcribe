@@ -117,6 +117,9 @@ importers:
       '@thibi/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@thibi/runtime':
+        specifier: workspace:*
+        version: link:../runtime
 
   packages/core: {}
 

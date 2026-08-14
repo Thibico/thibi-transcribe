@@ -90,17 +90,30 @@ export async function liveRunIds(ctx: EngineContext): Promise<string[]> {
 export async function recoverTick(ctx: EngineContext): Promise<RecoveryReport> {
   const reclaimed = await reclaimStaleLeases(ctx);
   const nudged = await nudgeExternalWork(ctx);
-  const live = await liveRunIds(ctx);
+  const reconciled = await reconcileAllLive(ctx);
+  return { reclaimed: reclaimed.length, nudged: nudged.length, reconciled };
+}
 
+/**
+ * Reconcile every run that has not finished.
+ *
+ * The 30-second tick, and the reason `reconcile` is allowed to ring its doorbells *after*
+ * committing rather than inside its transaction: a crash in that window leaves a promoted
+ * step nobody was told about, and this is what finds it. Also the backstop for a doorbell
+ * that pg-boss lost, a worker that died between claim and heartbeat, and any other gap where
+ * the database is right and the queue is stale.
+ *
+ * **One wedged run must not stop the others from being repaired.** A run whose reconcile
+ * throws is logged and skipped; it gets another chance in thirty seconds.
+ */
+export async function reconcileAllLive(ctx: EngineContext): Promise<number> {
+  const live = await liveRunIds(ctx);
   for (const runId of live) {
     try {
       await reconcile(ctx, runId);
     } catch (err) {
-      // One wedged run must not stop the sweep from repairing the others. It will be tried
-      // again in sixty seconds, and the failure is worth seeing every time it happens.
-      ctx.logger?.error({ err, runId }, 'reconcile failed during recovery sweep');
+      ctx.logger?.error({ err, runId }, 'reconcile failed during sweep');
     }
   }
-
-  return { reclaimed: reclaimed.length, nudged: nudged.length, reconciled: live.length };
+  return live.length;
 }
