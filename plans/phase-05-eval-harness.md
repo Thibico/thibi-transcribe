@@ -1617,8 +1617,15 @@ written. The whole check cost **$0.0089**.
       rather than merging, so doing this against `results/` would have dropped the four
       measured languages from the published file. See *Risks* 10.
 - [ ] `--manifest` runs the full pipeline on a hand-built 7-column file with local audio.
-- [ ] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
-      the control in every language tested.
+- [~] `thibi eval cleanup --arms control,current` reproduces the research finding: worse than
+      the control in every language tested. **Run 2026-08-14** against
+      `groq/openai/gpt-oss-20b` at n=10 over `my-MM,yo-NG,ps-AF,so-SO,ha-NG,xh-ZA`: `current`
+      is worse than the control in **five of six** — Hausa is the exception at 0.028 against
+      0.036 — and `content_delta` says the same thing more sharply, the shipped prompt
+      rewriting **9.5% of Yoruba's characters**, 2.4% of Somali's and 2.0% of Xhosa's.
+      Carried as `[~]` rather than ticked because "every language tested" is five of six here
+      and the plan's `n` is 30; the direction reproduces, the universal claim does not, and
+      the difference may be n=10 or may be the model.
 - [x] `--gate` exits 2 on a CER regression, on `content_delta > 0.005`, and on
       `entity_drift > 0.02`, naming the language and the numbers. **Built and unit-tested
       2026-08-14**, boundaries included — 0.004 passes, 0.005 passes, 0.006 fails — and the
@@ -1635,7 +1642,10 @@ written. The whole check cost **$0.0089**.
       string literal in `packages/eval` returns nothing. **Done 2026-08-14** — `llm/cleanup.ts`
       and `llm/translate.ts` import `buildCleanupPrompt` and `buildTranslatePrompt`, and the
       only strings either file holds are metric names.
-- [ ] `thibi eval translate --target en` prints both controls in every table.
+- [ ] `thibi eval translate --target en` prints both controls in every table. Built and
+      unit-tested; **never run against a real model**. The two controls are measured rather
+      than quoted — the ceiling is the target translated into itself and the bar is the
+      language already in production, both added to every run.
 - [x] `results/tiers.json` validates against its schema and is consumed by
       `packages/languages/src/tiers.ts` at build time, with an all-experimental fallback when
       absent. **Done 2026-08-13.** Via `scripts/gen-tiers.ts` and a committed

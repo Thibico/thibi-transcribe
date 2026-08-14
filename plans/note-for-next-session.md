@@ -4,8 +4,8 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-14. Everything from the 08-13 sitting is merged; the LLM evals
-are specified below and unstarted.
+**Last updated:** 2026-08-14. The LLM evals are built, run for the first time, and the first
+run found three defects in them. Branch `phase-5/llm-evals` is **not merged**.
 
 ---
 
@@ -18,97 +18,76 @@ are specified below and unstarted.
 | 2 — batchRecognize, GCS staging, rates | done |
 | 3 — diarization | **done.** `scribe.ts` descoped (amendment 48); open question 7 reopened as a question about hosted diarization *as a category*, not a promise |
 | 4 — Whisper providers | **built end to end**, barely measured. `large-v3` has never been loaded on this box |
-| **5 — eval harness** | **measuring and publishing.** `thibi eval asr` and `thibi eval report` produce `results/tiers.json`, a dated report and a runlog; `packages/languages` compiles the tiers in. **Four languages measured at n=30.** Unbuilt: the LLM evals, `--manifest`, `init-manifest`, `.github/workflows/eval.yml` |
+| **5 — eval harness** | **ASR half done and published. LLM half built and measured once.** `thibi eval asr`, `report`, `cleanup` and `translate` all exist; `cleanup` has run for real against six languages. Unbuilt: `--manifest`, `init-manifest`, the LLM runlog **replay**, and a `translate` run of any size |
 | 6–7, 9–15 | not started |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
 
-`main` is at the merge of **PR #32**: the publishing layer (#30), a handoff correction (#31)
-and risk 10 (#32), which made `tiers.json` accumulate across runs. The two sampling checks
-(#33) are merged too. **Nothing is in flight.**
+`main` is at the merge of **PR #34**. This session's work is five commits on
+**`phase-5/llm-evals`**, unmerged and unpushed:
 
-**The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
-order, 2026-08-13:
+1. `1b5152c` the prompts and the two registry fields they need
+2. `d49e58b` `packages/eval/src/llm/` — metrics, runners, gate
+3. `db8ccab` the CLI commands, and the first defect the first live run found
+4. `c783483` the gate failing when it measured nothing, plus retry and CI
+5. `31a5221` the same entity-regex defect in its second branch
 
-| code | CER (nospace) | CI95 | ratio | script | tier |
-|---|---|---|---|---|---|
-| `my-MM` | **0.076** | [0.064, 0.088] | 1.00 | 0.99 | beta |
-| `ha-NG` | 0.059 | [0.043, 0.076] | 0.91 | 1.00 | beta |
-| `jv-ID` | 0.043 | [0.030, 0.057] | 0.67 | 1.00 | beta |
-| `yo-NG` | 0.305 | [0.249, 0.362] | 4.75 | 0.98 | experimental |
-
-`si-LK` reads `experimental / no-eval-set / cer: null` at exit 0. **The baseline row is
-n=100**; the rest are n=30, and each names its own run in `tiers.json`. Burmese has now been
-measured three times — 0.072 (n=5), 0.064 (n=30), **0.076 (n=100, CI [0.064, 0.088])** — each
-inside the previous interval, which is what a converging estimate looks like. **Yoruba is the first language measured as clearly worse than the
-one this product already ships**, and none of it is a Yoruba fact yet: one provider, one
-model, thirty read Wikipedia sentences, all male.
-
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1012 tests across 63
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1119 tests across 70
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. `pnpm gen` is idempotent.
 The sidecar's own suite is 42 pytest tests, still run separately.
+
+**The first cleanup measurement this project has produced** — `groq/openai/gpt-oss-20b`,
+n=10, dev split, seed 1, 2026-08-14, `cer_punct` (lower is better, control = doing nothing):
+
+| code | control | current | restraint | content_delta (current → restraint) |
+|---|---|---|---|---|
+| `my-MM` | **0.016** | 0.021 | **0.027** | 0.0024 → 0.0000 |
+| `yo-NG` | 0.032 | **0.096** | 0.018 | **0.0952** → 0.0011 |
+| `ps-AF` | 0.017 | 0.030 | 0.014 | 0.0064 → 0.0000 |
+| `so-SO` | 0.043 | 0.044 | 0.030 | 0.0239 → 0.0021 |
+| `ha-NG` | 0.036 | 0.028 | 0.022 | 0.0094 → 0.0009 |
+| `xh-ZA` | 0.042 | 0.051 | 0.029 | 0.0201 → 0.0051 |
+
+**The research direction reproduces, and the restraint prompt reverses it.** `current` is worse
+than doing nothing in **five of six** languages — Hausa is the exception — and `restraint`
+beats the control in **five of six**. `content_delta` is the clearer signal: the shipped prompt
+rewrote **9.5% of Yoruba's characters**, 2.4% of Somali's and 2.0% of Xhosa's, and the
+restraint prompt is at or near zero everywhere. The magnitudes differ from the research table
+(it has Yoruba `current` at 0.148 and `restraint` at 0.035) because this is a different model
+at n=10; the ordering is what was worth checking, and it holds.
+
+**Burmese is the exception, exactly where phase-06 risk 1 predicted it.** Restraint 0.027
+against a 0.016 control — above it, and further above than the research's own 0.019. **Do not
+relax the gate**; closing that gap is Phase 6 work. What the run shows it doing is inserting
+`၊` at every phrase boundary: `ဖြစ်သူ ဂျမီစီမင်အော့ဖ် သည်` came back as
+`ဖြစ်သူ ဂျမီစီမင်အော့ဖ်၊ သည်`, which is a clause mark where the reference has a space.
+`content_delta` is **0.0000** for that arm, so the prompt's contract held perfectly — it
+changed only punctuation, and the punctuation it chose was wrong. That is a prompt problem
+with a clear shape.
+
+`thibi eval cleanup --gate` **exits 2 with 12 failing conditions**, which is the correct
+answer for a run containing an arm that is meant to fail. With `--arms control,restraint` only
+two would remain: `my-MM` on CER and `xh-ZA` on `content_delta` at 0.0051 against a 0.0050
+tolerance.
 
 ---
 
 ## Do this next
 
-1. **Widen the sweep.** S7's 68 accepted-but-unmeasured codes are the queue, and a
-   107-language sweep is ~$17 by the plan's own arithmetic. Nothing blocks it now: risk 10 is
-   closed so a partial sweep is safe, and risk 2's open question is answered (amendment 81 —
-   tar order is not measurably biased). Go in tranches; the file accumulates.
-   **Run it as `--n 30 --baseline-n 100`.** The baseline is already measured at n=100 and
-   those clips are cached, so it costs **$0.0000** extra per sweep and every ratio divides by
-   the tighter number. A sweep without it publishes ratios against a denominator with ±30% of
-   sampling noise in it.
-2. **The LLM evals — and do them locally.** `cleanup`, `translate`, the `--gate`,
-   `report/llm.ts`, then `.github/workflows/eval.yml`. **Delegating this to a cloud agent was
-   tried on 2026-08-13 and the agent stalled after the reading phase, producing nothing** — no
-   branch, no commits. Treat it as local work rather than retrying the delegation; the brief
-   below is what that agent was given and it is the brief to work from.
-
-   **The prerequisite:** `packages/engine/src/llm/` does not exist. §5.10 requires
-   `packages/eval` to import the **real** `buildCleanupPrompt` from the engine and never hold
-   a prompt string of its own, so stub builders land in Phase 5 and Phase 6 replaces the
-   prompt *text*. Each returns `{ promptId, promptVersion, system, user }` rendered from
-   registry variables, not from hardcoded language facts. Build `cleanup.current`,
-   `cleanup.restraint`, `translate.to-en`.
-
-   **The four things that are load-bearing rather than stylistic:**
-   - **The LLM call is an injected dependency**, exactly like `RunAsrDeps.transcribe`. Amendment
-     75 is the argument: the one module here that took a direct import instead was the one no
-     test could reach, and it carried a real defect for a day.
-   - **`paramsHash` must include `promptId` and `promptVersion`, with a test.** §5.10: "the gate
-     is only real because of one line in §5.8". Without it a bumped prompt is a cache hit and
-     the gate passes on the previous prompt's numbers.
-   - **`content_delta` is a contract check, not a quality score.** A compliant cleanup pass
-     changes punctuation, case and whitespace and nothing else, so it must be exactly 0.000.
-     It is the metric that names the Pashto and Somali in-script substitutions that
-     `entity_drift` cannot see.
-   - **The research numbers are the expected shape of a run, not results.** Cebuano 80.4,
-     Yoruba 51.6, the 87.0 ceiling, the 65.6 bar — none of them may be written into a report,
-     a comment or a test as though they had been observed here.
-
-   **Then a real run**, which needs keys and a few dollars: §5.10 puts a 15-language sweep at
-   under $10 uncached and ~$0 thereafter. The gate's acceptance criterion — reproducing the
-   research finding that `current` is worse than `control` in **every** language tested — can
-   only be checked after that run, and the plan's own Verification section expects Burmese
-   restraint to fail on first pass (phase-06 risk 1). That is Phase 6 work, not a number to
-   be excused.
-
-   **Yoruba is the language to watch here.** Amendment 80 measured its error as 75%
-   diacritics, and a diacritization pass is precisely the kind of thing a cleanup prompt could
-   fix — so `yo-NG` is the first place the LLM evals would show a real product gain rather
-   than a regression.
-3. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See the next
-   section — this is a decision, not a task.
-
-**Phase 5's ASR half has no open Definition-of-done items.** All four that were `[~]` were run
-through the CLI on 2026-08-13 for a total of **$0.0089**: exit 3 with the runlog written and
-`tiers.json` withheld, exit 4 with the previous file left byte-for-byte intact, a replay that
-`diff` calls byte-identical, and all five non-FLEURS locales at exit 0 and $0.0000. What
-remains open in the phase is the LLM half and `--manifest`.
-
-**Do not** start windowed diarization, whatever a memory limit suggests. Phase 3 §5 argues it
-out: it reintroduces exactly the identity problem whole-file diarization removes.
+1. **Close the Burmese gap, which is Phase 6 work and is now measured rather than predicted.**
+   See the table above. Phase 6 risk 1 said Burmese restraint would fail on first run because
+   the research's own table has it at 0.019 against a 0.016 control; it does. **Do not relax
+   the gate.** The cache makes iteration free on everything except the segments a new prompt
+   version actually changes — and bumping `promptVersion` is what makes them a genuine miss.
+2. **Run `thibi eval translate` at all.** It is built, unit-tested and has never been run
+   against a real model. It adds its own ceiling and bar to every run, so a first run is
+   `--languages ceb-PH,jv-ID,xh-ZA,yo-NG --target en-US`, which is six languages of calls
+   including the two controls.
+3. **Widen the ASR sweep.** Unchanged from the last note and still the largest single piece of
+   value: S7's 68 accepted-but-unmeasured codes are the queue, a 107-language sweep is ~$17,
+   and nothing blocks it. **Run it as `--n 30 --baseline-n 100`** — the n=100 baseline clips
+   are cached, so the tighter denominator costs **$0.0000** extra.
+4. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See below — a
+   decision, not a task.
 
 ---
 
@@ -116,297 +95,263 @@ out: it reintroduces exactly the identity problem whole-file diarization removes
 
 **`my-MM` is no longer `verified`, and `listLanguages({tier:['verified']})` is empty.**
 
-Resolution order is now seed < measured < `language_support`. A measurement supersedes a
-seeded tier, and `my-MM`'s seeded `verified` came from operational use rather than the
-harness. The measurement is good — CER 0.064, ratio 1.00, ciHi 0.080 — and the only thing
-blocking `verified` is `humanReview`, which **the harness may never supply**. That is the
-design working, not a regression, and the route back is a person writing
-`results/human-review/my-MM.json` naming run `2026-08-13T07-12-20-473Z-google`, with
-`verdict: "pass"`. Amendment 78.
+Resolution order is seed < measured < `language_support`. A measurement supersedes a seeded
+tier, and `my-MM`'s seeded `verified` came from operational use rather than the harness. The
+measurement is good — CER 0.076 at n=100, ratio 1.00 — and the only thing blocking `verified`
+is `humanReview`, which **the harness may never supply**. That is the design working, and the
+route back is a person writing `results/human-review/my-MM.json` naming run
+`2026-08-13T15-17-34-278Z-google` with `verdict: "pass"`. Amendment 78.
 
-One related fact, from the same amendment. **The baseline language can essentially never
-clear its own `ciHiRatio > 1.15` gate**, because for the baseline that ratio is the relative
-width of its own interval (1.24 at n=30) rather than a comparison with anything — applied to
-`my-MM` the rule quietly becomes a precision requirement. Left as-is, since nothing reaches
-`verified` without a human anyway, but do not read it as a quality signal.
+**The baseline language can essentially never clear its own `ciHiRatio > 1.15` gate**, because
+for the baseline that ratio is the relative width of its own interval (1.160 at n=100) rather
+than a comparison with anything. Left as-is, since nothing reaches `verified` without a human
+anyway, but do not read it as a quality signal.
 
 ---
 
 ## What you would otherwise rediscover
 
-**A wrong number derived from real bytes is the hardest kind to see, and regularity is the
-signal.** The sweep costed all 120 clips at exactly 4.56 seconds, so four languages with
-visibly different total audio all billed $0.0365. `wavDurationMs` read the data size from
-offset 40, which is right only for a canonical 44-byte header — FLEURS wavs have an 18-byte
-`fmt `, a 4-byte `fact`, and `data` at byte 50, so offset 40 returned the same 291939 from
-every file in the dataset. 291939 / 64000 = 4.56. They are 32-bit float too, so the fallback
-constant was wrong by 2× as well. Fixed in `packages/eval/src/wav.ts`, which walks the chunk
-list. **The recorded spend of that run is understated ~3.5× and is left standing with a note**
-— correcting it means paying for the sweep twice. CERs are unaffected; `durationMs` never
-touches the transcript. Amendment 77.
+**A check that cannot distinguish "clean" from "did not run" is not a check.** The first
+six-language cleanup run measured **nothing** — five languages lost to a single Groq 429
+apiece, one to a `json_validate_failed` 400 — and the gate printed *"pass — every arm is at or
+below its control"* and exited 0, because it skipped every language it had nothing to compare.
+It now fails with `not_measured`, and a run that measured nothing exits non-zero with or
+without `--gate`. Amendment 83. A language FLEURS has no eval set for is still not a failure:
+that is a fact about FLEURS, and `thibi eval asr` exits 0 on it too.
 
-**The one module that spends money was the one module no test could reach**, and taking the
-seam found a real defect in twenty minutes. `runner.ts` took `transcribe` as a dependency
-while importing `loadTsv` and `fetchClips` directly, so 84 eval tests covered everything
-except the code that decides how often a provider is called. **`--budget-usd` was checking
-`spent >= budget`** — which permits the call that crosses the ceiling and refuses the next
-one, unbounded in the bad case. Amendment 75. Ask of any dependency that is imported rather
-than injected: what can no longer be tested because of it?
+**A metric that tokenises the text it scores must tokenise it the same way after the edit as
+before.** §5.10's `entity_drift` regex had the same defect in two of its three branches, and
+one live run found both. `\d[\d.,:/٫٬]*` is greedy over its separators, so adding a full stop
+moved `1755` out of the multiset and `1755.` in — **drift 2.0 against a 0.02 gate**. The
+Latin-token branch is bounded by `(?=$|\s)`, so `ring ၏ ceo` becoming `ring၊ ၏ ceo၊` dropped
+both tokens — **drift 0.25** — for words the model had not altered. Anything anchored on the
+characters a pass is *licensed to change* will fire on the licence. Amendment 83.
+
+**Two registry fields the prompt design assumes do not exist, and one cannot be derived from
+Unicode.** §6.4's mapping table reads `script.hasCase` and `text.punctuation.clause`. Both are
+now hand judgements in `gen-scripts.ts`. Georgian Mtavruli capitals carry `Lu`, so deriving
+case from character properties would tell a model to capitalise Georgian sentences; cased is
+Latn, Cyrl, Grek, Armn. And `sentenceEnders` is one flat list that several languages fill with
+both kinds of mark — **Burmese lists `၊` beside `။`, Amharic `፣` beside `።`** — so `promptVars`
+subtracts the clause set from it, once, rather than in 116 rows. **Empty `clausePunct` means
+not recorded, not "none exist"**, and an empty set omits the permission line entirely.
+Amendment 84.
+
+**A prompt-version guard has to be a digest file, not a snapshot.** A snapshot test fails on
+any change and is fixed with `vitest -u` — which is exactly how a prompt edit ships with a
+stale `promptVersion`, and the response cache keys on `promptId` + `promptVersion`, so a stale
+version makes a bumped prompt a cache *hit* and the gate passes on the previous prompt's
+numbers. `packages/engine/src/llm/prompts/prompt-versions.json` records the version and a
+sha256 over the six rendered snapshots, and the test asserts both directions.
+
+**The eval must traverse the code the user traverses**, which is why `packages/eval` imports
+`buildCleanupPrompt` from `packages/engine` and holds no prompt string of its own. That is
+also why `cleanup.current` still contains the two lines phase-06 forbids: §6.5 step 4 requires
+the old prompt to keep failing the gate, and a regression test with no regression in it is
+decoration.
+
+**`content_delta` sees what `entity_drift` cannot.** Measured on the very first two segments:
+`casa branca` came back as `casa blanca`, a proper name rewritten in a language the model
+half-knows, and the entity metric is blind to it because both tokens are in-script and
+lowercase. `content_delta` caught it at 0.0049 — *below* the 0.005 gate, because one such edit
+in two sentences is under a tolerance sized for Unicode normalization noise.
+
+**A wrong number derived from real bytes is the hardest kind to see, and regularity is the
+signal.** The ASR sweep costed all 120 clips at exactly 4.56 seconds because `wavDurationMs`
+read the data size from offset 40, which is right only for a canonical 44-byte header. Fixed
+in `packages/eval/src/wav.ts`. **The recorded spend of that run is understated ~3.5× and is
+left standing with a note.** Amendment 77.
+
+**The one module that spends money was the one module no test could reach.** `runner.ts` took
+`transcribe` as a dependency while importing `loadTsv` and `fetchClips` directly, and
+`--budget-usd` was checking `spent >= budget` — which permits the call that crosses the
+ceiling. Amendment 75. Ask of any dependency that is imported rather than injected: what can no
+longer be tested because of it?
 
 **Every FLEURS dev split is single-gender in its entirety.** `my_mm` 384 FEMALE, `ha_ng` 296
-FEMALE, `yo_ng` 378 MALE, `jv_id` 295 MALE — the whole split, not the sample. Amendment 68
-recorded this for Burmese and it read as a quirk; it is the shape of the dataset, so risk 2's
-mitigation ("report the gender split") reports a constant for every language and the speaker
-concentration it was meant to surface stays invisible everywhere. **`distinctIds` is the
-column doing that work**: at n=30 it caught `ha-NG` covering 28 sentences and `jv-ID` 27.
-Amendment 76.
+FEMALE, `yo_ng` 378 MALE, `jv_id` 295 MALE — the whole split, not the sample, so risk 2's
+"report the gender split" mitigation reports a constant. **`distinctIds` is the column doing
+that work.** Amendment 76.
 
-**A replay that trusts stored aggregates is not a replay.** The runlog's `score` lines carry
-per-clip edit counts, not rates, and `reconstructRun` recomputes the CER, the interval and the
-tier. A reader that read back the stored `cer` would reproduce the old report perfectly and go
-on reproducing it after somebody changed the estimator. Two traps came with it: the run id had
-to move out of `runAsrEval` (the log is *named* by it and must be open before the first
-billable call), and a budget-stopped language leaves `score` lines behind that the first
-reader happily recomputed into the partial CER the runner deliberately drops.
+**A replay that trusts stored aggregates is not a replay.** The ASR runlog's `score` lines
+carry per-clip edit counts, not rates, and `reconstructRun` recomputes. The LLM runlog follows
+the same rule harder: a `seg` line carries the input and reference once, `llm` lines carry each
+arm's output, and every metric is recomputable from those strings. **The reader is unbuilt** —
+see the debt list.
 
-**The baseline is measured at n=100 and still cannot clear its own `ciHiRatio` gate**
-(1.160 against 1.15; it would need roughly n≥130). Applied to the baseline that rule is the
-relative width of its own interval rather than a comparison with anything — amendment 78's
-category error, unchanged by the extra precision. Exempting the baseline from the ratio gates
-is a product decision, and close to moot while `humanReview` blocks it anyway. Also:
-**`ratio` is computed per run and never re-derived**, so a language only benefits from a
-better baseline by being measured alongside it — which is why `--baseline-n` is a per-run
-option. Amendment 82.
+**At n=30 the ratio is noisier than the CER it is computed from, and it moves every language at
+once.** `my-MM` went 0.064 → 0.084 under a different sampling strategy, which took `ha-NG` from
+0.91 to 0.67 **without either language changing**, because `my-MM` is every ratio's
+denominator. Tar order itself shows no measurable bias. Amendment 81.
 
-**At n=30 the ratio is noisier than the CER it is computed from, and it moves every
-language at once.** Measured by re-sampling with `--sample-strategy id-seeded`: `my-MM` went
-0.064 → 0.084 (+31%, overlapping intervals), which took `ha-NG` from ratio 0.91 to 0.67 and
-`yo-NG` from 4.75 to 3.80 **without either language changing** — because `my-MM` is every
-ratio's denominator. Tar order itself shows no measurable bias, so risk 2's question is
-answered; this is the question that replaced it. Amendment 81.
+**`tiers.json` separates the evidence from the claim, and only the evidence merges.** `runs`
+and `measurements` accumulate; `languages` is **derived** from them on every publish. **A
+measurement only sets a tier if it came from the provider `chooseProvider` would use** —
+otherwise deliberately probing Groq on Burmese, which this project does, would publish
+romanized non-words as Burmese's tier. Amendment 79.
 
-**A drift alarm that fires on deliberate changes stops being read.** Switching sampling
-strategy blocked a publish over a baseline that had not drifted — the second false positive
-after a Groq baseline compared against a Google one. A comparable baseline now requires the
-same provider, model, split, `n` and strategy, with the honest cost that changing any of them
-leaves the guard silent for that run.
-
-**`tiers.json` separates the evidence from the claim, and only the evidence merges.**
-`runs` and `measurements` accumulate across runs; `languages` is **derived** from them on
-every publish, so it is a pure function of the evidence and republishing an untouched file is
-a no-op. Two rules live in that derivation and the first is load-bearing: **a measurement only
-sets a tier if it came from the provider `chooseProvider` would use** — otherwise deliberately
-probing Groq on Burmese, which this project does, would publish romanized non-words as
-Burmese's tier. Amendment 79.
-
-**Turbo will replay a cached `gen` and leave a generated file stale.** After the sweep,
-`results/tiers.json` was full and `tiers.gen.ts` was empty, because `results/` was not an
-input to the task. A drift guard cannot catch drift it never regenerates. Now a
+**Turbo will replay a cached `gen` and leave a generated file stale.** `results/` is now a
 `globalDependencies` entry — ask the same question of any generated file whose source lives
 outside its own package.
 
-**A test that hard-codes a seeded tier breaks the day that language is measured.** Three
-registry tests used `ha-NG`'s seeded `experimental` as the no-override default and went red on
-the sweep. They use `af-ZA` now, chosen because nothing has measured it: **a test about
-override precedence must not depend on which languages somebody last swept.**
-
-**The eval must traverse the code the user traverses.** `runNormalize` applies
-`loudnorm=I=-16:TP=-1.5:LRA=11` before every production request and loudnorm changes what the
-recogniser hears, so a CER measured without it is a number for a path that does not exist in
-the product. Amendment 73. The general form: **a shortcut that happens to work is worse than
-one that fails, because only the second one tells you.**
+**A test that hard-codes a seeded tier breaks the day that language is measured.** Registry
+tests use `af-ZA` now, chosen because nothing has measured it.
 
 **A refusal to score beat a plausible number, twice in one run.** `normalizeForScoring` threw
-rather than treat Burmese as Unicode with no Zawgyi converter supplied — scoring Zawgyi as
-Unicode reports a *correct* transcript as ~100% error. And `wer()` returned `null` for Burmese
-rather than a whitespace-tokenized fiction.
+rather than treat Burmese as Unicode with no Zawgyi converter supplied, and `wer()` returned
+`null` for Burmese rather than a whitespace-tokenized fiction.
 
 **Every throughput number here was measured on a clip too short to mean anything.** A
-16.6-minute recording diarized at **0.656×** against 0.36–0.51× for every 11–34 s clip: at
-that length the model load is amortised over nothing. Phase 3 §6 item 4 asks for the pre-run
-estimate to be the mean of the last five runs — unweighted, that tracks how long recent jobs
-happened to be. **Weight by duration.** Amendment 56.
+16.6-minute recording diarized at **0.656×** against 0.36–0.51× for every 11–34 s clip.
+**Weight by duration.** Amendment 56.
 
 **Real audio is where the reconcile thresholds fail, and `purityReviewBelow: 0.6` fails
-worst.** The sub-0.7 purities on that recording were 0.589, 0.595, 0.60, 0.60, 0.64, then a
-gap to 0.70. Two flagged, three not, **0.006 apart** — the line sits at the densest point of
-the distribution. Amendment 57.
-
-**Google on real Burmese is the first evidence for a tier this product was asserting.** Script
-integrity 0.99, 2 555 words with full timings, 99 % of the audio covered, 57 s of wall clock
-for 16.6 minutes, $0.27. Amendment 58 carries the offsetting half: **four of 19 chunk seams
-were hard cuts**, against a fixture set tuned on English where they were rare.
+worst** — the sub-0.7 purities were 0.589, 0.595, 0.60, 0.60, 0.64, then a gap to 0.70. Two
+flagged, three not, **0.006 apart**. Amendment 57.
 
 **A high per-word confidence is not evidence the words are real.** S9's Vietnamese
-hallucination over Burmese audio scored a mean word probability of **0.892**, from the one
-provider whose per-word confidence is its reason for being here. Amendment 53, and it
-constrains every confidence-shaped feature in Phase 12.
+hallucination over Burmese audio scored a mean word probability of **0.892**. Amendment 53.
 
 **A `mem_limit` larger than the host's memory is not headroom, it is a disabled limit.**
-`mem_limit: 16g` on a 7.65 GB VM means the cgroup never fires and Docker reports
-`exit 0, OOMKilled: false` — a clean exit for an OOM.
 
-**A comment is not an install line.** The sidecar Dockerfile's header claimed faster-whisper
-for weeks before the `pip install` three lines below it contained it (amendment 49). **Check
-the list, not the prose above the list.**
+**A comment is not an install line.** Check the list, not the prose above the list
+(amendment 49).
 
-**A registry that grows a second workload grows a second unit.** `TaskRegistry` kept one
-rolling window of realtime factors; adding ASR would have blended 0.4× with 2.0× into a number
-describing neither (amendment 50).
+**A registry that grows a second workload grows a second unit** (amendment 50).
 
-**Run it. Build it. Start it.** Every defect in the last three sittings came from doing that
-and none from re-reading code.
+**Run it. Build it. Start it.** Every defect in the last four sittings came from doing that and
+none from re-reading code — and this sitting is the clearest case yet: 44 unit tests were green
+while two branches of one regex would have failed every arm in every language.
 
 **Ask what shape the real caller passes, not what shape is convenient to construct.**
-`persist.test.ts` built a *new run* per pass because that is the easy fixture; the real caller
-re-diarizes **in place**, so the Hungarian solver had never once run against a non-empty
-prior with the suite green throughout.
 
 **A test the system can answer from cache is not a test.** The sidecar contract test mints a
-fresh idempotency key every run: a stable one makes it forty seconds faster and worthless.
+fresh idempotency key every run.
 
-**A race-sensitive assertion belongs in `beforeAll`, not a test body.** The "second key gets
-429" check is only meaningful while the slot is held.
+**A race-sensitive assertion belongs in `beforeAll`, not a test body.**
 
 **A `spikes/*.mjs` that imports `@thibi/*` cannot be run from anywhere.** ESM resolves bare
-specifiers from the importing *file's* directory; only `packages/engine` and `apps/cli` have
-the symlink. The file has to be copied into one of them.
+specifiers from the importing *file's* directory; copy it into `packages/engine` or `apps/cli`.
 
-**A timing assertion nobody deliberately chose is a test of the machine.** Five times now, and
-the newest had a cause worth generalising: **the assertion count *was* the load** —
-`bootstrap.test.ts` wrote two `expect()`s inside a 5000-iteration loop, 10 000 assertions,
-~800 ms alone and a blown 5 s timeout inside a 53-file run. **Assert on the aggregate, not
-inside the loop.**
+**A timing assertion nobody deliberately chose is a test of the machine.** **Assert on the
+aggregate, not inside the loop.**
 
 **`hookTimeout` and `testTimeout` in `vitest.config.ts` do nothing** once `test.projects` is
-used. Proved inert 2026-08-11 by setting both to 1 ms and watching every suite pass. Put the
-timeout on the individual `beforeAll`/`afterAll`/`it`.
+used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 
 **One probe is not a measurement, and S7 is the proof.** `gpt-4o-transcribe-diarize` on
 `language=mya` returned correct Myanmar script once and then twenty distinct wrong-script
 transcripts over twenty identical requests. **1 in 21.**
 
 **Plans predate the code — check the deliverables table against the tree first.** Amendments
-28–78 in [`00-overview.md`](./00-overview.md) are the running record. Worth the two minutes
-every single time.
+28–84 in [`00-overview.md`](./00-overview.md) are the running record.
 
 **A merge must retire a speaker from identity matching.** `persistDiarization` filters
-`is_merged_into is null`; without it the next diarization matches a cluster back onto a row a
-human retired.
+`is_merged_into is null`.
 
-**Speaker keys never reuse a gap.** `allocateSpeakerKeys` continues past the job's highest
-`speaker-NN`, because the key appears in exports and renames.
-
-**Diarization must never gate the transcript.** In `transcribe.ts` the `--diarize` block sits
-*after* the transcript is persisted and written out. §6 is an invariant.
-
-**Reconcile sorts words itself, and must.** Database order is `(segment idx, word idx)`, which
-is not guaranteed temporal across a merged chunk seam — and the failure is a wrong answer, not
-an error.
+**Speaker keys never reuse a gap.** **Diarization must never gate the transcript.**
+**Reconcile sorts words itself, and must.**
 
 **`exactOptionalPropertyTypes` is on**, so `{ progress: x ?? undefined }` does not type-check
 against `progress?: number`. `noUncheckedIndexedAccess` is on too; the house pattern is `!`.
 
-**`resolveJsonModule` is off repo-wide.** A JSON `import` type-checks under vitest's esbuild
-and then fails `tsc -b`. This is why `tiers.json` is compiled by a gen script rather than
-imported. Read fixtures with `readFileSync`.
+**`resolveJsonModule` is off repo-wide.** Read fixtures with `readFileSync`.
 
-**Script integrity is a screen, not a guarantee.** It catches wrong-*alphabet* output and
-scores in-script non-words 1.00. Only CER can call those wrong.
+**Script integrity is a screen, not a guarantee.** It scores in-script non-words 1.00.
 
-**`SettingsPort` is a flat key/value port.** Any plan reading `ctx.settings.<ns>.<key>` is wrong.
-
-**Two storage key schemes coexist deliberately.** Phase 1 writes content-addressed
-`assets/{sha[0:2]}/{sha}/source.{ext}`; Phase 8 writes `media/{uuid}/source.{ext}`, because a
-streamed upload does not know its hash until the last byte.
-
-**Test-DB templates are per process**, named `thibi_test_template_${pid}`. Adding a DB-backed
-suite is safe; sharing a template name is not.
+**`SettingsPort` is a flat key/value port.** **Two storage key schemes coexist deliberately.**
+**Test-DB templates are per process**, named `thibi_test_template_${pid}`.
 
 ---
 
 ## Open questions the user has to answer
 
-1. **Does anyone sign off `my-MM`?** New, and the most immediate. Nothing is `verified` until
-   a person writes `results/human-review/my-MM.json` against the current run id. The
-   alternative is accepting that the product ships with no verified language and saying so in
-   the UI, which is defensible and is a choice rather than a default.
-2. **Typical recording length and deadline pressure** for the target newsrooms. Decides whether
+1. **Does anyone sign off `my-MM`?** Nothing is `verified` until a person writes
+   `results/human-review/my-MM.json` against the current run id. The alternative is accepting
+   that the product ships with no verified language and saying so in the UI, which is
+   defensible and is a choice rather than a default.
+2. **Which LLM provider and model should the editorial passes actually use?** This session
+   measured `openai/gpt-oss-20b` on Groq because those keys exist here and it is small, which
+   §6.1 argues for on the evidence that restraint beats capability. Nothing has compared it
+   against anything. The gate makes that comparison cheap and it is a product decision.
+3. **Typical recording length and deadline pressure** for the target newsrooms. Decides whether
    a 1 h 38 m diarization wait is acceptable, and therefore whether the GPU tier is a
    requirement or an upsell.
-3. **Is there a real multi-speaker recording in a long-tail language** to use as a diarization
+4. **Is there a real multi-speaker recording in a long-tail language** to use as a diarization
    reference? Half-answered: there is a 16.6-minute Burmese recording in local `testdata/` and
-   the pipeline has run on it, but **there is no reference RTTM**, so none of it is *accuracy*.
-   **Hand-labelling a few minutes of it is still the cheapest unblock in the project.**
-4. **Is a hosted diarization service worth evaluating?** Reopened 2026-08-13 as a question
-   about the *category*. Evaluate in this order, because it kills candidates fastest: long-tail
-   coverage, then **data residency** (self-hosted audio that never leaves the building is the
-   product's premise, so a hosted diarizer is disqualifying for a sensitive recording rather
-   than a trade), then whether it re-transcribes, then cost, then quality against pyannote —
-   which needs question 3's RTTM first. Amendments 48 and 71. **An evaluation is not a
-   promise**; nothing may describe a hosted fallback as existing.
-5. **Risk 8, from Phase 2**: nothing proves a `DYNAMIC_BATCHING` submission is billed against
+   the pipeline has run on it, but **there is no reference RTTM**. **Hand-labelling a few
+   minutes of it is still the cheapest unblock in the project.**
+5. **Is a hosted diarization service worth evaluating?** Evaluate in this order, because it
+   kills candidates fastest: long-tail coverage, then **data residency**, then whether it
+   re-transcribes, then cost, then quality against pyannote — which needs question 4's RTTM
+   first. **An evaluation is not a promise.**
+6. **Risk 8, from Phase 2**: nothing proves a `DYNAMIC_BATCHING` submission is billed against
    the Dynamic Batch SKU. Needs a real invoice. Phase 14.
-6. **Which Groq tier is this project's key on?** Live headers say 2000 requests/day and 7200
-   audio-seconds/hour; the docs describe 300 RPM and 200k ASH.
+7. **Which Groq tier is this project's key on?** Now partly answered for LLM work and it is
+   the binding constraint: see the environment notes.
 
 ---
 
 ## Known debt, recorded not hidden
 
+- **The LLM runlog has no reader.** `thibi eval report --run <id>` handles ASR only, and
+  refuses an LLM log by name rather than reconstructing nonsense out of it. Everything needed
+  is in the file — a `seg` line per segment with input and reference, an `llm` line per arm
+  with the output — so a replay would recompute every metric for $0.0000. Until it exists,
+  **changing a metric means re-running the command**, which is nearly free because the
+  responses are cached, but only while the cache survives.
+- **`rates` carries no LLM token units**, so every LLM run reports `$0.0000` and says the
+  spend is UNMEASURED rather than free. `--budget-usd` degrades with it: the ledger projects
+  from a running mean of calls so far, so the ceiling is one call late exactly once. Seeding
+  real token prices means reading them off a vendor page and dating them, the way
+  `seed/rates.ts` already does for audio.
+- **`.github/workflows/eval.yml` has never been triggered.** It needs a PR touching the prompt
+  or metric paths **and** a `GROQ_API_KEY` repository secret, which is not set. It fails
+  loudly rather than skipping when the key is absent, on the grounds that "skipped" reads as
+  green.
+- **`thibi eval translate` has never been run.** Built, unit-tested against a fake model, zero
+  live evidence.
+- **The cleanup run is n=10, not the plan's 30**, because of the TPM ceiling below. Read every
+  number in it as a direction, not a magnitude.
+- **An arm is scored over the segments that came back, and the control over all of them.**
+  Groq 400s cost `yo-NG current` three of its ten segments, so a 7-segment arm was compared
+  against a 10-segment control — and the three that failed are not a random three. The fix is
+  to score every arm of a language over the **intersection** of the segments all arms
+  returned, and to say how many that is. Until then, read any row whose `failed` count is
+  non-zero as approximate, and note that this cuts the way that flatters the arm if the hard
+  segments are the ones that fail.
 - **The dry run overstates a cached run.** It printed `$0.412` for a run that cost `$0.0000`,
-  because the estimate table has no cached column — §5.8's own mock output has one
-  (`30 (free)`). An estimate printed "first and unconditionally" so it is a budget rather
-  than a receipt is undermined by overstating the spend.
-- **The sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment 77's
-  wav reader. Fixed forward; the run's log is left as it was written.
+  because the estimate table has no cached column.
+- **The ASR sweep's recorded spend is wrong.** $0.146 against a real ~$0.49, from amendment
+  77's wav reader. Fixed forward; the run's log is left as it was written.
 - **A runlog carries provider transcript text.** Fine for FLEURS, which is public. **A
   `--manifest` run over newsroom audio would put transcripts of `/testdata/` material into a
-  public repo**, and nothing enforces the distinction. Decide it before `--manifest` is built.
-- **Only four languages are measured, each on one gender and one provider.** Nothing
-  downstream may quote 0.064 as a language-level claim.
+  public repo**, and nothing enforces the distinction. The LLM runlog now carries reference
+  text too, on the same terms.
+- **Only four languages have an ASR measurement, each on one gender and one provider.**
 - **`yo-NG`'s 0.305 is 75% diacritics, and must not be quoted as a word-accuracy number.**
-  Ignoring tone marks it is **0.065**, in line with `my-MM` 0.064 and `ha-NG` 0.059; 10 of 30
-  hypotheses came back with no tone marks at all. `experimental` is still the right tier —
-  tone is lexical in Yoruba — but the failure is diacritization, not recognition, which is a
-  Phase 6 prompt rather than a provider problem. Amendment 80. (The earlier guess in this note
-  that `letterlikePunct` was the cause was wrong: tone marks are combining marks and
-  `stripPunct` never touches them.)
-- **A diacritic-blind CER would name that class of failure** the way script integrity names
-  the wrong-alphabet one, and it is unbuilt. It must never be published for a script whose
-  marks are not optional — stripping Burmese's would yield a flattering number meaning
-  nothing.
-- **Phase 4b is built and barely measured.** `tiny`, English, eleven seconds. `large-v3` has
-  never been loaded on this box; do not try, S9 explains why (~6.7 GB against a 7.65 GB VM).
+  Ignoring tone marks it is **0.065**. Amendment 80. This is the language the cleanup eval was
+  expected to help most, and the first run says the restraint prompt does help it.
+- **A diacritic-blind CER would name that class of failure** and is unbuilt. It must never be
+  published for a script whose marks are not optional.
+- **Phase 4b is built and barely measured.** `large-v3` has never been loaded on this box; do
+  not try, S9 explains why (~6.7 GB against a 7.65 GB VM).
 - **`thibi models pull` works by transcribing one second of silence** at a URL that 404s by
-  design: the model loads before the audio is fetched. A *successful* pull ends in a
-  `bad_audio` task, and anything tightening that error handling has to keep knowing why.
-- **Phase 3 has no open Definition-of-done items.** `scribe.ts` is descoped, not forgotten;
-  reopening open question 7 does not license describing a hosted fallback as existing.
-- **The contract test costs ~40 s** whenever the sidecar is up, because it runs a genuine
-  11-second diarization. It skips itself, naming the missing service, when the sidecar is
-  unreachable.
-- **The container's 0.51× realtime is a macOS artifact**, not a deployment number. S6's native
-  0.74–0.79× on the identical file is ~1.5× faster.
-- **The estimate shown before a diarization is still S6's 0.6× constant**, and it is now
-  measured to be the better of the two options on offer. Weight by duration before reading
-  `diarization_runs.realtime_factor`.
-- **`persistDiarization` is not idempotent per run.** Two calls insert two `diarization_runs`
-  rows. Honest, but Phase 9's retry loop has to decide whether it should dedupe.
-- **`thibi speakers merge` has no unmerge.** The lineage is kept precisely so it is reversible.
+  design.
+- **The contract test costs ~40 s** whenever the sidecar is up.
+- **The container's 0.51× realtime is a macOS artifact.** **The estimate shown before a
+  diarization is still S6's 0.6× constant.**
+- **`persistDiarization` is not idempotent per run.** **`thibi speakers merge` has no unmerge.**
 - **The sidecar suite is not in `pnpm test`.** Run it by hand:
   `cd services/sidecar && uv run --python 3.11 --with 'fastapi>=0.115' --with
   'pydantic-settings>=2.5' --with 'pytest>=8.3' --with 'httpx>=0.27' python -m pytest`.
 - **S7 has no throughput number at length**, and its 68 accepted codes are a Phase 5 queue.
 - **`GENERATED_AT` is misnamed.** It means "the date of the freshest input".
-- **`ProviderCapabilities.limits.rpm` cannot express Groq's limits** — a daily request bucket
-  and an hourly audio-seconds bucket.
-- **`transcribe` logs `plan: mode=…` twice**, the second time claiming `--mode sync` when the
-  user passed nothing. Cosmetic, pre-existing since Phase 1.
-- **`research/language-support-whisper-vs-google.md` is cited in four places and is not in
-  this repo.** Either import it or stop citing it.
-- **Phase 8's web routes are not built**; a live URL *download* has never been run end to end;
-  the 2 GB flat-RSS memory test is not in CI.
+- **`ProviderCapabilities.limits.rpm` cannot express Groq's limits.**
+- **`transcribe` logs `plan: mode=…` twice.** Cosmetic, pre-existing since Phase 1.
+- **`research/language-support-whisper-vs-google.md` is cited in four places and is not in this
+  repo.** Either import it or stop citing it.
+- **Phase 8's web routes are not built**; a live URL *download* has never been run end to end.
 - **pyannote's GPU figure (8–20×) is inherited and unmeasured**, marked do-not-publish.
 - **A storage test flakes.** `contract.test.ts > 's3' > accepts a stream exactly at maxBytes`
   failed once at 21.5 s against MinIO and passed on re-run. Seen once.
@@ -415,69 +360,56 @@ suite is safe; sharing a template name is not.
 
 ## Environment notes
 
-- **A cloud agent was dispatched to build the LLM evals on 2026-08-13 and stalled**, with the
-  watchdog reporting no progress for 600 s. It had reached the end of the reading phase and
-  written nothing: no branch, no commits, nothing to salvage. One data point rather than a
-  verdict on delegation — but the brief was long and front-loaded with five documents to read,
-  which is a plausible way to spend a watchdog window without producing an edit. If it is
-  tried again, give it something to write early.
-
-- **This machine ran out of disk on 2026-08-13, and the way it presented is worth knowing.**
-  At 99 % full the `rates` query *hung* rather than failing, and so did `docker ps`,
-  `docker logs` and `docker stats`; a CLI command died on an unexplained `Failed query` with
-  no cause attached. The actual event was in
-  `~/Library/Containers/com.docker.docker/Data/log/host/com.docker.backend.log`:
-
-      engine linux/virtualization-framework run error:
-        write .../Data/log/vm/init.log: no space left on device
-
-  Docker Desktop had put up a *"disk full — free up space and start Docker Desktop again"*
-  dialog and quit its VM, **leaving `com.docker.backend` resident and holding the socket** —
-  which is why every client hung instead of erroring. **Freeing space is not enough; the
-  leftover backend must be killed and the app relaunched.** What worked:
-  `osascript -e 'quit app "Docker Desktop"'`, then `pkill -f com.docker.backend` (and
-  `kill -9` the two that survive it), then `open -a Docker`. All three containers came back
-  healthy in under a minute with every named volume intact.
-  Space came from `uv cache clean` (8.1 GB), `pip cache purge` (2.4 GB), staged Electron
-  updates under `~/Library/Caches/*ShipIt*` (2.5 GB), and the Adobe/Playwright/Cypress caches
-  (6.6 GB) — 6.9 GB free became 20 GB. **`Docker.raw` reading 60 GB in `ls` is sparse**; `du`
-  says ~7.7 GB, so it is not the culprit and must not be deleted on that evidence.
-  **If a database hangs rather than refusing, check `df` before anything else.**
+- **Groq's on-demand tier caps `openai/gpt-oss-20b` at 8000 tokens per minute, and one cleanup
+  segment costs about 2000.** That is roughly **two to four calls a minute**, so a
+  six-language n=10 run of two arms — 120 calls — takes about an hour of wall clock, almost
+  all of it waiting. The harness retries and honours the wait Groq states in its 429 body, so
+  this is slow rather than broken; plan around it, or pay for a tier with a larger bucket. A
+  run's second pass is instant because every response is cached.
+- **Groq returns HTTP 400 `json_validate_failed` on a minority of calls**, more often on
+  Burmese, Yoruba, Somali and Xhosa than on Hausa. It is counted as a failed segment and the
+  message reaches the report, and it is the reason a 10-segment arm can score 7. **At least
+  some of them say why**: `failed_generation: "max completion tokens reached before generating
+  a valid document"`. Nothing sets `max_completion_tokens` in `apps/cli/src/llm.ts`, so the
+  provider's default cap applies — and a non-Latin script costs several tokens per character,
+  so the languages this product exists for are exactly the ones that hit it. **Setting an
+  explicit, generous cap is the first thing to try**, and it is cheap to check because a
+  segment that failed was never cached. Others come back with `failed_generation: ""` and are
+  still unexplained.
+- **The chat models this key can reach** (checked 2026-08-14): `llama-3.1-8b-instant`,
+  `llama-3.3-70b-versatile`, `openai/gpt-oss-20b`, `openai/gpt-oss-120b`, `qwen/qwen3.6-27b`,
+  `groq/compound`. `--models` is required and has no default, deliberately.
+- **This machine ran out of disk on 2026-08-13, and the way it presented is worth knowing.** At
+  99 % full the `rates` query *hung* rather than failing, and so did `docker ps`. Docker
+  Desktop had quit its VM **leaving `com.docker.backend` resident and holding the socket**.
+  Freeing space is not enough: `osascript -e 'quit app "Docker Desktop"'`, then
+  `pkill -f com.docker.backend` (and `kill -9` the survivors), then `open -a Docker`.
+  **`Docker.raw` reading 60 GB in `ls` is sparse** — `du` says ~7.7 GB. **If a database hangs
+  rather than refusing, check `df` before anything else.**
 - `docker compose -f infra/compose.dev.yml up -d` brings up Postgres (5433) and MinIO (9000).
   The sidecar is behind a profile and needs the repo-root `.env` passed explicitly:
   `docker compose --env-file .env -f infra/compose.dev.yml --profile diarize up -d sidecar`.
 - On macOS prefix docker commands with
-  `PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"` — the credential helper is not
-  on a minimal PATH. There is no `timeout` on this machine either.
-- **`SIDECAR_URL` unset means this box does no diarization**, which is supported and prints a
-  remediation rather than a stack trace.
-- **Run `thibi db migrate` against the dev database after pulling.** The test suites migrate
-  their own databases and will not tell you the dev one is stale.
-- **`thibi eval asr` caches into `.thibi-cache`**, gitignored. Delete it freely; a rerun
-  refetches. `--cache-dir` moves it, `--results-dir` moves the outputs — use the latter for
-  any sweep you do not want published.
+  `PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"`. There is no `timeout` here.
+- **`SIDECAR_URL` unset means this box does no diarization**, which is supported.
+- **Run `thibi db migrate` against the dev database after pulling.**
+- **`thibi eval asr` and the LLM evals cache into `.thibi-cache`**, gitignored. Delete it
+  freely; a rerun refetches — and for the LLM evals that means paying again. `--results-dir`
+  moves the outputs; use it for any run you do not want published.
 - **`/testdata/` is gitignored and holds real recordings.** Third-party, some editorially
   sensitive, and this repo is public. Do not `git add -f` in there and do not name a source in
   any committed file — including this one.
-- **`THIBI_TMP_DIR` must exist before you set it**, and is deliberately not created for you:
-  an unmounted volume must stay an error rather than becoming a disk that fills up.
+- **`THIBI_TMP_DIR` must exist before you set it.**
 - `.env` carries `DATABASE_URL`, the `S3_*` keys, `APP_SECRET_KEY`, `HF_TOKEN`,
-  `OPENAI_API_KEY` and `GROQ_API_KEY`. `GROQ_TIER=dev` raises the request cap to 100 MB.
-  **A CLI eval run needs it exported** — `set -a && source .env && set +a`.
-- **Run `pnpm test` with the services up.** With them down, suites skip themselves and one
-  file reports as failed rather than skipped, which reads like a real failure.
-- **A cold `pnpm test` after a big build reports failures that a warm one does not.** Measured
-  this sitting: 13 failures, then 4, then 0 across three consecutive runs of an unchanged
-  tree. Every one was a `beforeAll`/`afterAll` hook timeout in a DB-backed suite with all
-  assertions passing — vitest's transform cost competing with Postgres for CPU. Standalone,
-  `createTestDb` takes 1.1 s. **Re-run before believing a red DB suite.**
-- **`git` leaves a stale `.git/index.lock`, and it is now routine** — five times. Always a
-  zero-byte file timestamped at the *previous* successful command. Run
+  `OPENAI_API_KEY` and `GROQ_API_KEY`. **A CLI eval run needs it exported** —
+  `set -a && source .env && set +a`.
+- **Run `pnpm test` with the services up**, and **re-run before believing a red DB suite**: a
+  cold run after a big build reported 3 hook timeouts that a warm run did not, again this
+  sitting.
+- **`git` leaves a stale `.git/index.lock`, and it is now routine.** Run
   `ps aux | grep "[g]it"` — the bracket matters — and remove the lock when nothing is there.
-- **A stacked PR merges into its base, not into `main`.** Check
-  `gh pr view <n> --json baseRefName` before merging the second one.
+- **A stacked PR merges into its base, not into `main`.**
 - Merging PRs is frequently blocked by the permission classifier. Push and open the PR, then
   ask the user to run `! gh pr merge <n> --merge` themselves — and do not re-check afterwards.
 - This machine is x86 macOS: torch stops at 2.2.2, so pyannote 4.x cannot be installed here.
-  The Linux sidecar image runs torch 2.13.0 / pyannote 4.0.7.
 - `say -v Samantha -o out.aiff "…"` plus ffmpeg makes English test audio.
