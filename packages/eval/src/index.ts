@@ -84,6 +84,61 @@ export { publishRun, type PublishResult } from './results/publish.js';
 export { renderAsrReport, reportPath, writeAsrReport, type AsrReportInput } from './report/asr.js';
 
 export {
+  llmReportPath,
+  renderCleanupReport,
+  renderTranslateReport,
+  writeLlmReport,
+  type CleanupReportInput,
+} from './report/llm.js';
+
+// ---- the LLM evals: no audio, and the only gate in the harness --------------------------
+export {
+  aggregateCleanup,
+  entityPattern,
+  scoreCleanup,
+  type CleanupAggregate,
+  type CleanupStats,
+} from './llm/metrics.js';
+export { parseSegmentsResponse } from './llm/parse.js';
+export { BudgetExhausted, Ledger } from './llm/ledger.js';
+export {
+  finishArm,
+  runCleanupEval,
+  type CleanupArmResult,
+  type CleanupLanguageResult,
+  type CleanupRunResult,
+  type RunCleanupOptions,
+  type ScoredSegment,
+} from './llm/cleanup.js';
+export {
+  runTranslateEval,
+  BAR_CODE,
+  CEILING_ROLE,
+  type RunTranslateOptions,
+  type TranslateArmResult,
+  type TranslateLanguageResult,
+  type TranslateRunResult,
+} from './llm/translate.js';
+export {
+  formatGateFailures,
+  gateCleanup,
+  GATE_LIMITS,
+  type GateFailure,
+  type GateMetric,
+} from './llm/gate.js';
+export {
+  TEMPERATURE,
+  type CleanupArm,
+  type LlmComplete,
+  type LlmRequest,
+  type LlmResponse,
+  type LlmRunDeps,
+  type LlmRunEvent,
+  type LlmRunHeader,
+  type LlmRunOptions,
+} from './llm/types.js';
+
+export {
   applyBaselineAndTiers,
   makeRunId,
   runAsrEval,
