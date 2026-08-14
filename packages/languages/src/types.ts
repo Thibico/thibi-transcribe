@@ -42,6 +42,25 @@ export interface ScriptEntry {
    * string would silently leave one of them unfolded.
    */
   digits: { native: string[]; foldToLatin: boolean };
+  /**
+   * Does this script distinguish case in ordinary running text? Read by the LLM prompt
+   * builders, which turn it into either a capitalisation rule or a flat "this script has no
+   * letter case" instruction.
+   *
+   * Orthographic rather than a Unicode property: Georgian Mtavruli capitals carry `Lu`, so a
+   * derivation from character categories would tell a model to capitalise Georgian sentences.
+   */
+  hasCase: boolean;
+  /**
+   * Clause-internal punctuation, kept apart from a language's `text.punctuation.sentenceEnders`
+   * because a cleanup prompt has to name the two permissions separately. Some languages list a
+   * clause mark among their sentence enders (Burmese `၊`, Amharic `፣`); `promptVars` subtracts
+   * this set from that one.
+   *
+   * **Empty means not recorded, not "none exist."** A prompt omits the clause permission
+   * entirely rather than claiming a script has no commas.
+   */
+  clausePunct: string[];
 }
 
 export interface Typography {

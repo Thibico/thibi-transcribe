@@ -1,0 +1,14 @@
+{
+  "cleanup.current": {
+    "version": 1,
+    "sha256": "5eb497366d80df0cedb7d31fdffc9d3e44b02ac05002480e0261c105d455a7a0"
+  },
+  "cleanup.restraint": {
+    "version": 3,
+    "sha256": "c7bef06a0759d2d7991637c8ae45d7684dc2e3402429e1827206e92104230bb1"
+  },
+  "translate.default": {
+    "version": 2,
+    "sha256": "9fb10309a68e1566ae00b11f0ea93a05704f2f0b92fcc7390e5fa6ea1edd849d"
+  }
+}

@@ -46,6 +46,10 @@ const ScriptEntry = z.object({
     native: z.array(z.string().refine((s) => [...s].length === 10, 'a digit set is ten characters')),
     foldToLatin: z.boolean(),
   }),
+  hasCase: z.boolean(),
+  // Single characters, because a prompt renders them as a list of marks. A multi-character
+  // entry would print as one token and license the model to insert a string.
+  clausePunct: z.array(z.string().refine((s) => [...s].length === 1, 'a clause mark is one character')),
 });
 
 const NormalizerId = z.enum(['nfc', 'collapse-ws', 'zero-width', 'digits', 'zawgyi']);
