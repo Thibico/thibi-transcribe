@@ -47,9 +47,17 @@ export function entityPattern(isLatinScript: boolean): RegExp {
   const alts = [
     // Two or more uppercase letters: acronyms. UN, NGO, ASEAN.
     '\\p{Lu}{2,}',
-    // A digit run with the separators that occur inside numbers, dates and times, including
-    // the Arabic decimal and thousands separators.
-    '\\d[\\d.,:/\\u066B\\u066C]*',
+    /**
+     * A digit run, with separators only where a digit follows them.
+     *
+     * §5.10 writes this as `\d[\d.,:/٫٬]*`, and the first live run showed why it cannot be:
+     * a cleanup pass **adds a full stop**, so `…kasa a 1755` became `…kasa a 1755.` and the
+     * greedy class swallowed the new period. `1755` left the multiset, `1755.` joined it, and
+     * a compliant arm scored entity_drift 2.0 against a 0.02 gate. Requiring a digit after
+     * every separator keeps `1,000.50`, `12:30` and `1/2` intact and stops the metric firing
+     * on the one edit the prompt is *for*.
+     */
+    '\\d+(?:[.,:/\\u066B\\u066C]\\d+)*',
   ];
   if (!isLatinScript) {
     alts.push("(?<=^|\\s)\\p{Script=Latin}[\\p{Script=Latin}\\p{M}'’-]*(?=$|\\s)");

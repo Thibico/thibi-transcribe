@@ -5,6 +5,15 @@ import { LANGUAGES } from '@thibi/languages';
 import { resolveRate, type Db } from '@thibi/db';
 import {
   estimateAsr,
+  formatGateFailures,
+  gateCleanup,
+  renderCleanupReport,
+  renderTranslateReport,
+  runCleanupEval,
+  runTranslateEval,
+  writeLlmReport,
+  type CleanupArm,
+  type CleanupRunResult,
   formatDryRun,
   loadHumanReviews,
   loadTsv,
@@ -24,6 +33,7 @@ import {
 import { buildContext, readEnvironment } from '../context.js';
 import { runNormalize } from '@thibi/engine';
 import { buildProvider } from '../providers.js';
+import { buildLlmComplete, isLlmProvider } from '../llm.js';
 
 const ENGINE_VERSION = 'phase-5';
 
@@ -251,6 +261,235 @@ export function evalCommand(): Command {
     });
 
   cmd
+    .command('cleanup')
+    .description('Score an editorial cleanup prompt against doing nothing. No audio.')
+    .requiredOption('-l, --languages <codes>', 'comma-separated language codes')
+    .requiredOption(
+      '-m, --models <ids>',
+      'comma-separated chat model ids. Required and undefaulted: a model id this repo has ' +
+        'not measured is not a default it can offer.',
+    )
+    .option('-p, --provider <id>', 'openai | groq', 'openai')
+    .option('--arms <arms>', 'control,current,restraint', 'control,current,restraint')
+    .option('-n, --n <count>', 'segments per language', (v) => Number.parseInt(v, 10), 30)
+    .option('--split <split>', 'dev | test | train', 'dev')
+    .option('--seed <n>', 'the sampler shuffle seed', (v) => Number.parseInt(v, 10), 1)
+    .option('--cache-dir <path>', 'where FLEURS TSVs and LLM responses are cached')
+    .option('--results-dir <path>', 'where the runlog and report are written', 'results')
+    .option('--budget-usd <usd>', 'stop before the call that would exceed this', Number)
+    .option('--gate', 'exit 2 if any arm is worse than its control or rewrites content')
+    .option('--no-cache', 'ignore cached responses on read; still writes them')
+    .action(async (opts: Record<string, unknown>) => {
+      const codes = list(opts['languages']);
+      const models = list(opts['models']);
+      const arms = list(opts['arms']) as CleanupArm[];
+      const provider = String(opts['provider']);
+      const n = Number(opts['n']);
+      const seed = Number(opts['seed'] ?? 1);
+      const split = String(opts['split']) as 'dev' | 'test' | 'train';
+      const cacheDir = String(opts['cacheDir'] ?? '.thibi-cache');
+      const resultsDir = String(opts['resultsDir'] ?? 'results');
+      const gated = opts['gate'] === true;
+
+      const bad = arms.filter((a) => a !== 'control' && a !== 'current' && a !== 'restraint');
+      if (bad.length > 0) {
+        process.stderr.write(`  unknown arm(s): ${bad.join(', ')}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      if (!isLlmProvider(provider)) {
+        process.stderr.write(
+          `  unknown LLM provider '${provider}'. Phase 5 speaks chat-completions: openai | groq.\n`,
+        );
+        process.exitCode = 1;
+        return;
+      }
+
+      // Printed first and unconditionally, as an upper bound: the cache is what decides how
+      // many of these are billable and it is not consulted until the run. An estimate that
+      // does not announce which it is, is the failure this phase exists to prevent.
+      const billable = arms.filter((a) => a !== 'control').length * models.length * codes.length * n;
+      process.stderr.write(
+        `up to ${billable} billable call(s): ${codes.length} language(s) × ${n} segment(s) × ` +
+          `${arms.filter((a) => a !== 'control').length} arm(s) × ${models.length} model(s). ` +
+          `Cached responses cost nothing.\n`,
+      );
+      process.stderr.write(
+        '`rates` carries no LLM token units, so spend is reported as $0.0000 and is ' +
+          'UNMEASURED, not free. --budget-usd degrades with it.\n\n',
+      );
+
+      const now = (): Date => new Date();
+      const startedAt = now();
+      const runId = makeRunId(startedAt, provider);
+      const runlog = new RunlogWriter(runlogPath(resultsDir, runId));
+      await runlog.write({
+        t: 'run',
+        evalKind: 'cleanup',
+        runId,
+        startedAt: startedAt.toISOString(),
+        argv: process.argv.slice(2),
+        engineVersion: ENGINE_VERSION,
+        provider,
+        models,
+        arms,
+        split,
+        n,
+        seed,
+      });
+
+      const run = await runCleanupEval(
+        {
+          now,
+          cache: new ResponseCache(cacheDir, { read: opts['noCache'] !== true }),
+          onEvent: (event) => runlog.write(event),
+          complete: buildLlmComplete({ provider, env: readEnvironment() }),
+        },
+        {
+          languages: codes,
+          models,
+          arms,
+          n,
+          seed,
+          split,
+          cacheDir,
+          provider,
+          runId,
+          budgetUsd: opts['budgetUsd'] === undefined ? null : Number(opts['budgetUsd']),
+          onProgress: (line) => process.stderr.write(`${line}\r`),
+        },
+      );
+      await runlog.write({
+        t: 'end',
+        finishedAt: run.finishedAt,
+        spentUsd: run.spentUsd,
+        budgetExhausted: run.budgetExhausted,
+      });
+      process.stderr.write('\n');
+
+      const failures = gateCleanup(run);
+      const markdown = renderCleanupReport({ run, failures, gated });
+      const reportPathWritten = await writeLlmReport(
+        resultsDir,
+        run.finishedAt.slice(0, 10),
+        'cleanup',
+        markdown,
+      );
+
+      process.stdout.write(`${formatCleanupSummary(run)}\n`);
+      process.stdout.write(`\nrunlog  ${runlogPath(resultsDir, runId)}\nreport  ${reportPathWritten}\n\n`);
+      process.stdout.write(`${formatGateFailures(failures)}\n`);
+
+      if (run.budgetExhausted) {
+        process.exitCode = 3;
+        return;
+      }
+      // Without --gate the same conditions are evaluated and printed, and the command exits
+      // 0. Local iteration is not a fight; CI runs the same command with the flag.
+      if (gated && failures.length > 0) process.exitCode = 2;
+    });
+
+  cmd
+    .command('translate')
+    .description('chrF2 against FLEURS parallel text, with a measured ceiling and bar. No audio.')
+    .requiredOption('-l, --languages <codes>', 'comma-separated source language codes')
+    .requiredOption('-m, --models <ids>', 'comma-separated chat model ids')
+    .option('-t, --target <code>', 'target language', 'en-US')
+    .option('-p, --provider <id>', 'openai | groq', 'openai')
+    .option('-n, --n <count>', 'segments per language, after the join', (v) => Number.parseInt(v, 10), 30)
+    .option('--split <split>', 'dev | test | train', 'dev')
+    .option('--seed <n>', 'the sampler shuffle seed', (v) => Number.parseInt(v, 10), 1)
+    .option('--cache-dir <path>', 'where FLEURS TSVs and LLM responses are cached')
+    .option('--results-dir <path>', 'where the runlog and report are written', 'results')
+    .option('--budget-usd <usd>', 'stop before the call that would exceed this', Number)
+    .option('--no-cache', 'ignore cached responses on read; still writes them')
+    .action(async (opts: Record<string, unknown>) => {
+      const codes = list(opts['languages']);
+      const models = list(opts['models']);
+      const provider = String(opts['provider']);
+      const target = String(opts['target']);
+      const n = Number(opts['n']);
+      const seed = Number(opts['seed'] ?? 1);
+      const split = String(opts['split']) as 'dev' | 'test' | 'train';
+      const cacheDir = String(opts['cacheDir'] ?? '.thibi-cache');
+      const resultsDir = String(opts['resultsDir'] ?? 'results');
+
+      if (!isLlmProvider(provider)) {
+        process.stderr.write(`  unknown LLM provider '${provider}': openai | groq.\n`);
+        process.exitCode = 1;
+        return;
+      }
+
+      // The ceiling and the bar are added to every run, so the arithmetic has to count them.
+      const withControls = new Set([...codes, target, 'my-MM']);
+      process.stderr.write(
+        `up to ${withControls.size * n * models.length} billable call(s), including the ` +
+          `${target} ceiling and the my-MM bar this run measures for itself. ` +
+          'Cached responses cost nothing.\n\n',
+      );
+
+      const now = (): Date => new Date();
+      const startedAt = now();
+      const runId = makeRunId(startedAt, provider);
+      const runlog = new RunlogWriter(runlogPath(resultsDir, runId));
+      await runlog.write({
+        t: 'run',
+        evalKind: 'translate',
+        runId,
+        startedAt: startedAt.toISOString(),
+        argv: process.argv.slice(2),
+        engineVersion: ENGINE_VERSION,
+        provider,
+        models,
+        arms: ['translate'],
+        split,
+        n,
+        seed,
+        target,
+      });
+
+      const run = await runTranslateEval(
+        {
+          now,
+          cache: new ResponseCache(cacheDir, { read: opts['noCache'] !== true }),
+          onEvent: (event) => runlog.write(event),
+          complete: buildLlmComplete({ provider, env: readEnvironment() }),
+        },
+        {
+          languages: codes,
+          models,
+          target,
+          n,
+          seed,
+          split,
+          cacheDir,
+          provider,
+          runId,
+          budgetUsd: opts['budgetUsd'] === undefined ? null : Number(opts['budgetUsd']),
+          onProgress: (line) => process.stderr.write(`${line}\r`),
+        },
+      );
+      await runlog.write({
+        t: 'end',
+        finishedAt: run.finishedAt,
+        spentUsd: run.spentUsd,
+        budgetExhausted: run.budgetExhausted,
+      });
+      process.stderr.write('\n');
+
+      const markdown = renderTranslateReport(run);
+      const written = await writeLlmReport(
+        resultsDir,
+        run.finishedAt.slice(0, 10),
+        'translate',
+        markdown,
+      );
+      process.stdout.write(`${markdown}\n`);
+      process.stdout.write(`runlog  ${runlogPath(resultsDir, runId)}\nreport  ${written}\n`);
+      if (run.budgetExhausted) process.exitCode = 3;
+    });
+
+  cmd
     .command('report')
     .description('Recompute tiers.json and the dated report from a runlog. Makes no API calls.')
     .requiredOption('--run <runId>', 'the run to re-derive from')
@@ -320,6 +559,53 @@ function formatPublish(p: PublishResult): string {
     `${total} language(s) published — ${fresh} measured by this run` +
       (total > fresh ? `, ${total - fresh} carried over from earlier runs` : ''),
   );
+  return lines.join('\n');
+}
+
+const list = (value: unknown): string[] =>
+  String(value)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+/**
+ * The cleanup run, as a terminal table.
+ *
+ * The control row is printed first and marked, because every other row is only meaningful
+ * beside it — an arm at cer_punct 0.03 is excellent against a 0.08 control and a regression
+ * against a 0.02 one, and a table that made a reader hunt for the comparison would be read
+ * as absolute numbers.
+ */
+function formatCleanupSummary(run: CleanupRunResult): string {
+  const lines: string[] = [`run ${run.runId}`];
+  lines.push(
+    `  ${run.provider} · models ${run.models.join(', ')} · arms ${run.arms.join(',')} · ` +
+      `split ${run.split} · n=${run.n} · seed ${run.seed}`,
+  );
+  for (const language of run.languages) {
+    lines.push('');
+    if (language.error) {
+      lines.push(`${language.languageCode}  ${language.error}`);
+      continue;
+    }
+    if (language.cfg === null) {
+      lines.push(`${language.languageCode}  no eval set`);
+      continue;
+    }
+    lines.push(`${language.languageCode}  n=${language.n}  distinct=${language.distinctIds}`);
+    lines.push('  arm/model            cer_punct  content_delta  entity_drift  len_delta  rewritten  failed');
+    for (const arm of language.arms) {
+      const label = arm.arm === 'control' ? 'control' : `${arm.arm}/${arm.model}`;
+      lines.push(
+        `  ${label.padEnd(20)}${fmt(arm.cerPunct).padStart(9)}` +
+          `${fmt(arm.contentDelta, 4).padStart(15)}${fmt(arm.entityDrift, 4).padStart(14)}` +
+          `${fmt(arm.lengthDelta, 4).padStart(11)}` +
+          `${`${arm.rewritten}/${arm.n}`.padStart(11)}${String(arm.failed).padStart(8)}`,
+      );
+    }
+  }
+  lines.push('');
+  lines.push(`spent $${run.spentUsd.toFixed(4)} (unmeasured while \`rates\` carries no LLM token units)`);
   return lines.join('\n');
 }
 

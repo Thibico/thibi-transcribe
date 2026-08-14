@@ -20,15 +20,24 @@ import type { TranslateRunResult } from '../llm/translate.js';
  * and `UN tún ní ìrètí… → Wọ́n tún ní ìrètí…` is a quotation being altered.
  */
 
-export const llmReportPath = (resultsDir: string, date: string): string =>
-  join(resultsDir, 'reports', `llm-${date}.md`);
+/**
+ * One path per eval kind, not one per day. Both LLM evals produce a dated markdown file and
+ * a shared `llm-<date>.md` would mean a translation run silently replacing the morning's
+ * cleanup report — with the gate's evidence in it.
+ */
+export const llmReportPath = (
+  resultsDir: string,
+  date: string,
+  kind: 'cleanup' | 'translate',
+): string => join(resultsDir, 'reports', `llm-${kind}-${date}.md`);
 
 export async function writeLlmReport(
   resultsDir: string,
   date: string,
+  kind: 'cleanup' | 'translate',
   markdown: string,
 ): Promise<string> {
-  const path = llmReportPath(resultsDir, date);
+  const path = llmReportPath(resultsDir, date, kind);
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, markdown, 'utf8');
   return path;

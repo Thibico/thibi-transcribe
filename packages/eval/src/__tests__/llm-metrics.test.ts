@@ -76,6 +76,26 @@ describe('entity_drift', () => {
     expect('မြန်မာ ASEAN စာ'.match(nonLatin)).toContain('ASEAN');
   });
 
+  it('does not fire when a full stop is added after a number', () => {
+    /**
+     * Measured on the first live run, 2026-08-14. The plan's own regex, `\d[\d.,:/٫٬]*`, is
+     * greedy over the separators, so `…kasa a 1755` cleaned to `…kasa a 1755.` moved `1755`
+     * out of the multiset and `1755.` in: entity_drift 2.0 against a 0.02 gate, for the one
+     * edit a cleanup prompt exists to make.
+     */
+    const s = score(
+      HAUSA,
+      'girgizar kasa a 1755',
+      'Girgizar kasa a 1755.',
+      'Girgizar kasa a 1755.',
+    );
+    expect(s.entityDiff).toBe(0);
+    expect(s.entitiesLost).toEqual([]);
+    // Separators inside a number still hold it together.
+    const re = entityPattern(true);
+    expect('it cost 1,000.50 at 12:30'.match(re)).toEqual(['1,000.50', '12:30']);
+  });
+
   it('counts digits, and a digit system change as drift', () => {
     const s = score(BURMESE, 'ခုနှစ် ၁၉၉၅ တွင်', 'ခုနှစ် 1995 တွင်။', 'ခုနှစ် ၁၉၉၅ တွင်။', false);
     expect(s.entityDiff).toBeGreaterThan(0);
