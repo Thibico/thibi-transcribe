@@ -4,7 +4,8 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-13, after the baseline was measured at n=100.
+**Last updated:** 2026-08-14. Everything from the 08-13 sitting is merged; the LLM evals
+are specified below and unstarted.
 
 ---
 
@@ -23,7 +24,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
 `main` is at the merge of **PR #32**: the publishing layer (#30), a handoff correction (#31)
 and risk 10 (#32), which made `tiers.json` accumulate across runs. The two sampling checks
-below are on `phase-5/sampling-checks` and may still be in flight when you read this.
+(#33) are merged too. **Nothing is in flight.**
 
 **The first tier table this project has produced** — `google/chirp_2`, n=30, dev split, tar
 order, 2026-08-13:
@@ -58,9 +59,45 @@ The sidecar's own suite is 42 pytest tests, still run separately.
    those clips are cached, so it costs **$0.0000** extra per sweep and every ratio divides by
    the tighter number. A sweep without it publishes ratios against a denominator with ±30% of
    sampling noise in it.
-2. **Then the LLM evals** — `cleanup`, `translate`, the `--gate`, `report/llm.ts` and
-   `.github/workflows/eval.yml`. These need Phase 6's prompt builders to exist as stubs;
-   §5.10 is explicit that the eval imports the real builders and never a copy.
+2. **The LLM evals — and do them locally.** `cleanup`, `translate`, the `--gate`,
+   `report/llm.ts`, then `.github/workflows/eval.yml`. **Delegating this to a cloud agent was
+   tried on 2026-08-13 and the agent stalled after the reading phase, producing nothing** — no
+   branch, no commits. Treat it as local work rather than retrying the delegation; the brief
+   below is what that agent was given and it is the brief to work from.
+
+   **The prerequisite:** `packages/engine/src/llm/` does not exist. §5.10 requires
+   `packages/eval` to import the **real** `buildCleanupPrompt` from the engine and never hold
+   a prompt string of its own, so stub builders land in Phase 5 and Phase 6 replaces the
+   prompt *text*. Each returns `{ promptId, promptVersion, system, user }` rendered from
+   registry variables, not from hardcoded language facts. Build `cleanup.current`,
+   `cleanup.restraint`, `translate.to-en`.
+
+   **The four things that are load-bearing rather than stylistic:**
+   - **The LLM call is an injected dependency**, exactly like `RunAsrDeps.transcribe`. Amendment
+     75 is the argument: the one module here that took a direct import instead was the one no
+     test could reach, and it carried a real defect for a day.
+   - **`paramsHash` must include `promptId` and `promptVersion`, with a test.** §5.10: "the gate
+     is only real because of one line in §5.8". Without it a bumped prompt is a cache hit and
+     the gate passes on the previous prompt's numbers.
+   - **`content_delta` is a contract check, not a quality score.** A compliant cleanup pass
+     changes punctuation, case and whitespace and nothing else, so it must be exactly 0.000.
+     It is the metric that names the Pashto and Somali in-script substitutions that
+     `entity_drift` cannot see.
+   - **The research numbers are the expected shape of a run, not results.** Cebuano 80.4,
+     Yoruba 51.6, the 87.0 ceiling, the 65.6 bar — none of them may be written into a report,
+     a comment or a test as though they had been observed here.
+
+   **Then a real run**, which needs keys and a few dollars: §5.10 puts a 15-language sweep at
+   under $10 uncached and ~$0 thereafter. The gate's acceptance criterion — reproducing the
+   research finding that `current` is worse than `control` in **every** language tested — can
+   only be checked after that run, and the plan's own Verification section expects Burmese
+   restraint to fail on first pass (phase-06 risk 1). That is Phase 6 work, not a number to
+   be excused.
+
+   **Yoruba is the language to watch here.** Amendment 80 measured its error as 75%
+   diacritics, and a diacritization pass is precisely the kind of thing a cleanup prompt could
+   fix — so `yo-NG` is the first place the LLM evals would show a real product gain rather
+   than a regression.
 3. **Someone has to sign off `my-MM`, or accept that nothing is verified.** See the next
    section — this is a decision, not a task.
 
@@ -377,6 +414,13 @@ suite is safe; sharing a template name is not.
 ---
 
 ## Environment notes
+
+- **A cloud agent was dispatched to build the LLM evals on 2026-08-13 and stalled**, with the
+  watchdog reporting no progress for 600 s. It had reached the end of the reading phase and
+  written nothing: no branch, no commits, nothing to salvage. One data point rather than a
+  verdict on delegation — but the brief was long and front-loaded with five documents to read,
+  which is a plausible way to spend a watchdog window without producing an edit. If it is
+  tried again, give it something to write early.
 
 - **This machine ran out of disk on 2026-08-13, and the way it presented is worth knowing.**
   At 99 % full the `rates` query *hung* rather than failing, and so did `docker ps`,
