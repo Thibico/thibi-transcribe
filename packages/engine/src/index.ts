@@ -466,3 +466,53 @@ export {
   type SpeakerSummary,
 } from './diarize/speakers.js';
 export { parseRttm, scoreDiarization, type DerScore, type RttmTurn } from './diarize/score.js';
+
+// ---- queue: the run DAG, its planner, and its reconciler (Phase 9) ---------------------
+//
+// `run_steps` is the source of truth and pg-boss is a doorbell. Deleting the pg-boss tables
+// and restarting must lose nothing but latency, which is why every retry count, dependency
+// and dead letter in this surface lives in our own columns — all of it is something a
+// newsroom admin has to be able to *see* next to the step that failed.
+export {
+  ALL_QUEUES,
+  HEAVY_QUEUES,
+  LIGHT_QUEUES,
+  ROUTE,
+  STEP_KINDS,
+  SUBSCRIPTIONS,
+  WEIGHT,
+  isQueueName,
+  isStepKind,
+  routeOf,
+  type Doorbell,
+  type PendingSend,
+  type QueueName,
+  type QueueSubscription,
+  type StepJob,
+  type StepKind,
+} from './queue/queues.js';
+export {
+  MAX_RETRY_AFTER_MS,
+  POLICY,
+  backoffMs,
+  parseRetryAfter,
+  type RetrySpec,
+} from './queue/retry.js';
+export {
+  materialisePlan,
+  planRun,
+  type DependencyRef,
+  type PipelineSpec,
+  type StepSpec,
+} from './queue/plan.js';
+// `reconcileRun`, not `reconcile`: this package already exports a `reconcile`, which is the
+// word↔turn diarization algorithm from Phase 3. Two functions with the same name and nothing
+// in common is a collision worth renaming out of even where the compiler tolerates it —
+// `reconcileRun` and `reconcile.speakers` say which one they are.
+export { reconcile as reconcileRun, stepFraction } from './queue/reconcile.js';
+export {
+  CoalescingEventSink,
+  insertAndNotify,
+  type CoalescingEventSinkOptions,
+  type RunEventDraft,
+} from './events/emit.js';
