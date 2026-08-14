@@ -1,6 +1,9 @@
 export { mediaAssets, mediaDerivatives, mediaAccessLog } from './media.js';
 export { projects, jobs } from './jobs.js';
 export { runs, runChunks, type RunPipeline } from './runs.js';
+export { runSteps, stepState, type RunStepRow, type StepState } from './run-steps.js';
+export { runEvents, type RunEventRow } from './run-events.js';
+export { rateBuckets, type RateBucketRow } from './rate-buckets.js';
 export { segments, words, segmentTexts } from './segments.js';
 export { speakers, diarizationRuns, speakerTurns } from './speakers.js';
 export { settings } from './settings.js';
