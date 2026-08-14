@@ -152,6 +152,27 @@ anything that stopped being true.
   test and the `FakeFfmpeg` e2e harness open, and said so.
 - Prefer plain statements of outcome. If tests fail, show the output.
 
+**Every report back ends with a plain-language summary**, written for a product manager who
+does not read code — one short section, after the technical detail, never instead of it.
+
+It answers three questions and nothing else: **what was this for**, **what changed**, and
+**what is still missing**. No file paths, no function names, no metric names without their
+meaning attached. "The clean-up step makes transcripts worse than leaving them alone in five
+of six languages" rather than "`cer_punct(current) > cer_punct(control)` for 5/6 codes".
+
+Two rules keep it honest rather than promotional:
+
+- **The gaps go in it too.** A summary that reports only what works is the mechanism by which
+  a half-finished phase gets counted as finished. If something was built but never run
+  against the real thing, that sentence belongs here in words a PM can act on — *"it has
+  never been pointed at a real model"*, not *"unit-tested only"*.
+- **Numbers keep their caveats.** A measurement quoted without its sample size, its provider
+  or its known limits reads as settled fact the moment it leaves this document, and it is the
+  quoted version that reaches a customer.
+
+The audience test: could this person decide what to do next, and explain the decision to
+somebody else, without opening the repo?
+
 ---
 
 ## Comments carry findings
