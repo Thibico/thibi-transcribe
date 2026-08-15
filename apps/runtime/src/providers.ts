@@ -27,13 +27,20 @@ import { chooseProvider, PROVIDER_MATRIX, type ProviderId } from '@thibi/languag
 import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from './config.js';
 import { resolveServiceAccountJson, type EnvKey } from './context.js';
 
+
 /**
  * Build a provider from the environment.
  *
- * One place that knows how each provider is configured, because there are now three of them
+ * One place that knows how each provider is configured, because there are now four of them
  * and `transcribe` is no longer the only command that needs one. The engine still learns
  * nothing about the environment: this file reads what `context.ts` collected and hands the
  * result down as a `ProviderConfig`.
+ *
+ * It was `apps/cli/src/providers.ts` until the worker needed it: an `asr.chunk` handler has a
+ * run row naming a provider and a model, and has to turn that into something it can call. A
+ * second builder in `apps/worker` would have been the retry-table mistake again — two tables
+ * of the same constants, drifting in whichever one was corrected — so it moved to the
+ * composition root the apps already share rather than being copied into the second one.
  */
 
 export const PROVIDER_IDS = ['google', 'openai', 'groq', 'faster-whisper'] as const;

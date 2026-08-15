@@ -6,6 +6,16 @@
 // `packages/*/src`, and the right response to needing an env reader in two apps was to give
 // them one to share, not to carve an exemption into an architectural rule.
 
+export { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from './config.js';
+
+export {
+  buildProvider,
+  isProviderId,
+  PROVIDER_IDS,
+  type BuildProviderInput,
+  type BuiltProvider,
+} from './providers.js';
+
 export {
   buildContext,
   createLoggingEvents,

@@ -32,7 +32,7 @@ import {
 } from '@thibi/eval';
 import { buildContext, readEnvironment } from '../context.js';
 import { runNormalize } from '@thibi/engine';
-import { buildProvider } from '../providers.js';
+import { buildProvider } from '@thibi/runtime';
 import { buildLlmComplete, isLlmProvider } from '../llm.js';
 
 const ENGINE_VERSION = 'phase-5';

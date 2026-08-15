@@ -4,23 +4,15 @@
  */
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from '@thibi/runtime';
 
 /**
- * The default Google region.
- *
- * This is the ONLY file in source permitted to name a region, and CI enforces that. The
- * old app carried a doctrine that Chirp 2 plus my-MM worked only in a narrow overlap of
- * regions and that us-central1 failed outright — repeated in four places, including an
- * error-message hint. It is measured false twice: the 2026-07-30 provider probe accepted
- * all 117 locale codes in asia-southeast1, europe-west4 and us-central1, and spike S3 on
- * 2026-08-09 got a 200 with identical correct Burmese from all three.
- *
- * Region is a latency and data-residency choice. This value is simply the one nearest the
- * primary user. Do not restore the justification.
+ * The Google defaults live in `@thibi/runtime`, which is the only file in source permitted to
+ * name a region — and they moved there the day the worker needed them too. Re-exported rather
+ * than re-declared: two constants copied into two apps is how the *No region doctrine* grep
+ * came to fail on `main`.
  */
-export const DEFAULT_GOOGLE_REGION = 'asia-southeast1';
-
-export const DEFAULT_GOOGLE_MODEL = 'chirp_2';
+export { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION };
 
 /** Load `.env` from the repo root if present. Node's own loader; no dotenv dependency. */
 export function loadDotEnv(cwd: string = process.cwd()): void {
