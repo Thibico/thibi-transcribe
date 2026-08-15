@@ -457,7 +457,10 @@ export interface StepSpec {
   input: Record<string, unknown>;                  // key NAMES for secrets, never values
 }
 
-export function planRun(p: Pipeline, chunkCount: number): StepSpec[] {
+// CORRECTED: `number | null`. `null` means the chunk count is not known yet, which is a
+// different statement from `0`, and conflating them made the first real run transcribe
+// nothing and report success. See the table below §4 and amendment 94.
+export function planRun(p: Pipeline, chunkCount: number | null): StepSpec[] {
   const out: StepSpec[] = [];
   const add = (s: Partial<StepSpec> & Pick<StepSpec, 'kind'>) =>
     out.push({ shard: -1, queue: routeOf(s.kind), dependsOn: [], optional: false,
@@ -521,7 +524,11 @@ SELECT $1, x.kind, x.ordinal, x.shard, x.queue, x.optional, x.weight, x.max_atte
 FROM   jsonb_to_recordset($2::jsonb) AS x(
          kind text, ordinal int, shard int, queue text,
          optional boolean, weight int, max_attempts int, input jsonb)
-ON CONFLICT (run_id, kind, shard) DO NOTHING;
+-- CORRECTED: was `DO NOTHING`, which left rows from the first pass on the first pass's
+-- ordinals once the second pass inserted the shards ahead of them. Amendment 95.
+ON CONFLICT (run_id, kind, shard) DO UPDATE
+  SET ordinal = excluded.ordinal
+  WHERE run_steps.ordinal IS DISTINCT FROM excluded.ordinal;
 
 -- 2. Resolve dependencies by natural key, wildcards included.
 --    Idempotent because it assigns the full array, not an append.
@@ -556,7 +563,26 @@ known until it has run. Two options were considered and the second is chosen.
 | Option | Verdict |
 |---|---|
 | Plan the whole DAG up front, probing duration at run creation | Rejected. Duration comes from `media.probe`; a URL import has no duration until download completes. Planning would have to guess and re-plan anyway. |
-| **Two-stage plan** — plan through `plan.chunks`, then have the `plan.chunks` handler call `planRun` again with the real `chunkCount` in the same transaction that writes `run_chunks` | **Chosen.** The `ON CONFLICT DO NOTHING` insert makes the second call a pure extension of the first. One code path, no special cases, and the chunk rows and the steps that consume them commit together. |
+| **Two-stage plan** — plan through `plan.chunks`, then have the `plan.chunks` handler call `planRun` again with the real `chunkCount` in the same transaction that writes `run_chunks` | **Chosen.** The convergent insert makes the second call a pure extension of the first. One code path, no special cases, and the chunk rows and the steps that consume them commit together. |
+
+**Two corrections to the two-stage plan, both found on the first real file. Amendments 94-95.**
+
+**The first pass must pass `null`, and must stop at `plan.chunks`.** Passing `0` emits zero
+`asr.chunk` shards *and* everything downstream of them, including `normalize.text` — whose
+`['asr.chunk','*']` dependency then resolves to an **empty array**. A step with no dependencies
+is a root, so the reconciler promotes it on the first tick, a worker assembles a transcript out
+of nothing, and the run reaches `done` at progress 1 with zero segments while twenty
+`asr.chunk` steps sit queued behind it. `batch` is exempt because its ASR steps are not sharded.
+The reconciler cannot defend against this itself: by the time it reads `depends_on` the array is
+`uuid[]`, and a collapsed wildcard is indistinguishable from a genuine root. **Ask this of any
+new wildcard dependency.**
+
+**The insert must be `DO UPDATE SET ordinal`, not `DO NOTHING`.** The second pass inserts the
+shards *between* `plan.chunks` and `normalize.text`, so every ordinal after them moves — and
+`DO NOTHING` leaves the already-inserted rows on the first pass's numbering. `normalize.text`
+landed at ordinal 3 beside `asr.chunk` shard 0. Ordinal order is a topological order and
+`reconcile` walks it. The `WHERE ordinal IS DISTINCT FROM` guard is what keeps planning a
+genuine no-op, which is why the idempotence tests assert on `xmin`.
 
 ### 5. Retry policy
 
@@ -1025,11 +1051,18 @@ A three-hour transcript with one bad 55-second chunk is still valuable. Losing i
 94 of 180 hit five consecutive 500s is the behaviour the current app has and the behaviour that
 makes people stop trusting the tool.
 
+**CORRECTED: steps 2 and 3 happen in `normalize.text`, not in the dead step's handler.
+Amendment 96.** Nothing is persisted to `segments` until the transcript is assembled, because
+the seam merge needs both sides of every cut — see the porting note on `lib/queue.ts:112-113`.
+`normalize.text` is therefore the only thing that knows the whole timeline, and `segments.idx`
+is assigned across it, so it is the only thing that can place a placeholder correctly. A handler
+inserting one at chunk-death time would have to guess an index it could not know.
+
 When an `asr.chunk` step exhausts `max_attempts`:
 
 1. Step → `dead` (not `failed`; `failed` is reserved for run-fatal).
-2. Its `run_chunks` row → `status = 'failed'`, `attempts` recorded.
-3. A **placeholder segment** is inserted spanning the chunk's interval:
+2. `normalize.text` sets its `run_chunks` row to `status = 'failed'`.
+3. `normalize.text` inserts a **placeholder segment** spanning the chunk's interval:
 
 ```sql
 ALTER TABLE segments ADD COLUMN placeholder_reason text;   -- 'chunk_failed' | 'chunk_cancelled'
@@ -1358,7 +1391,7 @@ async function runStep(ctx, registry, { stepId, attempt }: StepJob) {
 |---|---|---|
 | `WORKER_QUEUES` | `media,worker,asr.cloud,asr.poll,editorial,export,maintenance` | Comma-separated; validated against `ALL_QUEUES` |
 | `WORKER_CONCURRENCY` | `1` | Multiplier over per-queue `batchSize` |
-| `WORKER_HEALTH_PORT` | `8081` | `/healthz` (process alive) and `/readyz` (503 while draining) |
+| `WORKER_HEALTH_PORT` | **`8090`** | `/healthz` (process alive) and `/readyz` (503 while draining). **Was 8081 here, which is the diarization sidecar's published port in `infra/compose.dev.yml`** — the worker refused to start with `EADDRINUSE` on every box that can diarize. Amendment 95 |
 | `GPU_SLOTS` | `1` | Global advisory-lock slots for `diarize` |
 | `LOCAL_ASR_SLOTS` | `1` | Global slots for `asr.local` |
 | `DATABASE_URL_DIRECT` | = `DATABASE_URL` | Listener connection; must bypass any pooler |
@@ -1380,9 +1413,9 @@ imports of `boss.ts` and `reconcile.ts` from `handlers/**`.
 | `lib/queue.ts:52-53` `RETRYABLE` | 2 | **Verbatim as the core predicate**, wrapped by `isRetryable` which adds network codes, 408/425, `CancelledError`, and the explicit "400 is not retryable" rule. Keep the original expression visible in a comment — it is correct and the reason should travel. |
 | `lib/queue.ts:55-69` `withRetry` | 15 | **Concept ported, code discarded.** In-loop `setTimeout` retries hold the process; retries are now step state with `poll_after`. Fixed `[2000,4000,8000]` becomes `POLICY` + full jitter. |
 | `lib/queue.ts:35-41` `runEvents()` / `emit()` | 7 | **Shape ported verbatim** — one `EventEmitter` per process, `setMaxListeners(50)`, `.on('run', …)`. The source changes from an in-process chain to a Postgres LISTEN client. The consumer API is deliberately unchanged so the SSE route and hooks port cleanly. |
-| `lib/queue.ts:112-113` comment | 2 | **Keep the comment.** "Insert per chunk rather than at the end, so a long file shows partial results as it goes and a late failure doesn't discard earlier work." That is the design rationale for `partial` runs; it belongs in `handlers/asr-chunk.ts`. |
+| `lib/queue.ts:112-113` comment | 2 | **Keep half the comment, and the half that matters. CORRECTED — amendment 96.** "Insert per chunk rather than at the end, so a long file shows partial results as it goes and a late failure doesn't discard earlier work." The second clause survives exactly; the first cannot, because of a feature the old app did not have. Chunks start 1200 ms early so the LCS merge can de-duplicate each seam, so a chunk's **leading** words are not final until its predecessor's are known — rows written per chunk would have to be deleted and renumbered at every seam, on the one table whose defining rule is that the machine's output is never overwritten. `asr.chunk` therefore writes its *parsed result* to `runs/{id}/results/{idx}.json` and `normalize.text` writes the segments once, in order, which is what the overview's pipeline diagram (`ASR → reconcile → normalize-text → persist`) always said. A late failure still discards nothing, and the artifact doubles as the re-billing guard: committed before the step row, so a worker killed between "the provider answered" and "the step was marked done" does not pay twice. Measured — `kill -9` with five chunks running, two logged `already transcribed; not re-sending` on recovery. |
 | `lib/queue.ts:17-33` `getQueue()` / `globalForQueue` | 17 | **Must not survive.** The HMR-surviving global promise chain is the whole thing being replaced. Concurrency 1 across an entire instance is not a design, it is a laptop. |
-| `lib/queue.ts:71-150` `executeRun` | 80 | **Decomposed, not ported.** Becomes `handlers/media-normalize.ts`, `plan-chunks.ts`, `asr-chunk.ts`. The `fail()` closure is replaced by `onStepError`. |
+| `lib/queue.ts:71-150` `executeRun` | 80 | **Decomposed, not ported.** Becomes `handlers/media-probe.ts`, `media-normalize.ts`, `plan-chunks.ts`, `asr-chunk.ts` and `normalize-text.ts` — five, not three, because probing and assembling are steps in their own right. The `fail()` closure is replaced by `onStepError`. |
 | `lib/queue.ts:126` `normalizeMyanmarText` in the insert loop | 1 | **Must not survive in that position.** Normalising in place loses `text_raw`. Normalisation is its own step (`normalize.text`) writing both columns — see the overview's normalize-text section. |
 | `lib/queue.ts:74` `if (run.status !== 'queued') return` | 1 | Ported in spirit as the conditional-UPDATE claim in `runStep`. Same intent — do not execute work someone else already moved on — implemented atomically instead of read-then-act. |
 | `lib/db.ts:63-66` boot sweep | 4 | **DELETE. Must not survive the port.** `UPDATE runs SET status='error' WHERE status IN ('queued','chunking','running')` at every startup is precisely the behaviour this phase exists to eliminate: it converts a restart into total data loss. Its replacement is §8. A test asserts no string matching `interrupted by server restart` exists in the repo. |
