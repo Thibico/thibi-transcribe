@@ -428,6 +428,56 @@ describe.skipIf(!reachable)('reconcile', () => {
     expect(doorbell.keys[0], 'a retry gets its own key, or it dedupes against its own past').toMatch(/:1$/);
   });
 
+  /**
+   * The state was unreachable until `asr.poll` was written, and nothing noticed.
+   *
+   * `runStep` has always claimed `state in ('ready','awaiting_external')` and the table has
+   * always carried a partial index on `poll_after where state = 'awaiting_external'` — both
+   * written for a caller that did not exist, because until the batch handlers landed no
+   * handler ever returned that state. A step that entered it would have parked forever with a
+   * `poll_after` no mechanism read.
+   */
+  it('rings the next poll of a step waiting on someone else’s computer', async () => {
+    const runId = await plant(CHUNKED, 1);
+    await reconcile(ctx, runId);
+    await t.db.$client.query(
+      `update run_steps
+       set state = 'awaiting_external', external_ref = 'projects/x/operations/y', attempt = 2,
+           poll_after = now() + interval '90 seconds'
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId],
+    );
+    doorbell.clear();
+
+    await reconcile(ctx, runId);
+
+    const send = doorbell.sends.find((s) => s.data.kind === 'media.probe');
+    expect(send, 'nothing else in this function sends a non-ready step').toBeDefined();
+    // The delay is held by pg-boss rather than by a sleeping worker, which is the whole point
+    // of the state: a two-hour operation must not occupy a worker slot for two hours.
+    expect(send!.startAfter!.getTime()).toBeGreaterThan(Date.now() + 60_000);
+    // Polling is not a retry, so the key does not advance with each poll — the `short` policy
+    // dedupes a re-ring that arrives while the previous poll is still queued.
+    expect(send!.singletonKey).toMatch(/:2$/);
+  });
+
+  it('leaves an awaiting_external step alone when it has no poll_after', async () => {
+    // The guard against a tight loop: a re-ring with no `startAfter` would poll instantly,
+    // return `awaiting_external`, and be rung again. `nudgeExternalWork` picks these up on the
+    // next boot, which is slow and bounded rather than fast and unbounded.
+    const runId = await plant(CHUNKED, 1);
+    await reconcile(ctx, runId);
+    await t.db.$client.query(
+      `update run_steps set state = 'awaiting_external', poll_after = null
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId],
+    );
+    doorbell.clear();
+
+    await reconcile(ctx, runId);
+    expect(doorbell.sends.filter((s) => s.data.kind === 'media.probe')).toHaveLength(0);
+  });
+
   it('emits a terminal event exactly once', async () => {
     const runId = await plant(CHUNKED, 2);
     await driveAll(runId);

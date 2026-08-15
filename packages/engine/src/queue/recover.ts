@@ -3,6 +3,14 @@ import type { EngineContext } from '../context.js';
 import { reconcile } from './reconcile.js';
 import { STALE_AFTER_SECONDS } from './lease.js';
 
+export interface RecoverOptions {
+  /**
+   * Pull every scheduled poll forward to now. **Boot only.** See `nudgeExternalWork` for why
+   * a periodic nudge would silently flatten the poll backoff to the tick interval.
+   */
+  nudgeExternal?: boolean;
+}
+
 export interface RecoveryReport {
   /** Steps whose worker stopped heartbeating and which are now someone else's to run. */
   reclaimed: number;
@@ -54,6 +62,15 @@ export async function reclaimStaleLeases(ctx: EngineContext): Promise<string[]> 
  * All this does is drop `poll_after` to now, so the first poll after a restart is immediate
  * rather than up to five minutes away. A `docker compose restart` during a two-hour
  * `batchRecognize` therefore costs one poll cycle.
+ *
+ * **It is a boot statement, and running it periodically would be a bug.** `least(poll_after,
+ * now())` drags a *future* poll forward, so calling it on the 60-second tick would pull every
+ * scheduled poll back to now once a minute — a capped backoff of 30 s → 300 s would become a
+ * flat 60 s, and a batch run that takes two hours would make 120 pointless requests against a
+ * quota the sync path also needs. It was on the tick until the first handler that returns
+ * `awaiting_external` was written; nothing could have noticed before, because nothing had ever
+ * put a step in that state. `recoverTick` now takes it as an option and only the boot call
+ * passes it.
  */
 export async function nudgeExternalWork(ctx: EngineContext): Promise<string[]> {
   const result = await ctx.db.execute<{ run_id: string }>(sql`
@@ -87,9 +104,12 @@ export async function liveRunIds(ctx: EngineContext): Promise<string[]> {
  * run whose doorbell was lost in the window between COMMIT and `sendStep`, so this doubles as
  * the backstop that lets `reconcile` ring after committing rather than inside its transaction.
  */
-export async function recoverTick(ctx: EngineContext): Promise<RecoveryReport> {
+export async function recoverTick(
+  ctx: EngineContext,
+  options: RecoverOptions = {},
+): Promise<RecoveryReport> {
   const reclaimed = await reclaimStaleLeases(ctx);
-  const nudged = await nudgeExternalWork(ctx);
+  const nudged = options.nudgeExternal === true ? await nudgeExternalWork(ctx) : [];
   const reconciled = await reconcileAllLive(ctx);
   return { reclaimed: reclaimed.length, nudged: nudged.length, reconciled };
 }
