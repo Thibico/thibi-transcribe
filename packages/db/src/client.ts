@@ -4,6 +4,16 @@ import * as schema from './schema/index.js';
 
 export type Db = NodePgDatabase<typeof schema> & { $client: pg.Pool };
 
+/**
+ * A checked-out connection, named here so callers need not depend on `pg` for a type.
+ *
+ * `COPY … FROM STDIN` and any multi-statement transaction need the raw client rather than the
+ * Drizzle handle, and `db.$client.connect()` is how they get one — but `connect` is overloaded
+ * with a callback form, so `Awaited<ReturnType<…>>` resolves to `void` at every call site that
+ * tries to derive this itself. Once, here.
+ */
+export type DbClient = pg.PoolClient;
+
 export interface CreateDbOptions {
   url: string;
   /** Default 10. The worker sizes this to its concurrency; the CLI needs very few. */

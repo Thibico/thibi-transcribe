@@ -42,6 +42,18 @@ export function rawResponseKey(runId: string, idx: number): string {
   return `runs/${runId}/raw/${pad3(idx)}.json`;
 }
 
+/**
+ * One `asr.chunk` step's parsed output, waiting for the step that assembles the transcript.
+ *
+ * Separate from `rawResponseKey` because the two answer different questions and have different
+ * lifetimes. The raw response is the audit trail — what the provider actually said, kept so a
+ * disputed transcript can be checked rather than argued about. This is the parsed shape the
+ * next step consumes, so it is provider-agnostic and deletable the moment the segments exist.
+ */
+export function chunkResultKey(runId: string, idx: number): string {
+  return `runs/${runId}/results/${pad3(idx)}.json`;
+}
+
 /** Everything scratch for a run. Swept when the run completes; the chunks are re-cuttable. */
 export function runChunksPrefix(runId: string): string {
   return `runs/${runId}/chunks/`;

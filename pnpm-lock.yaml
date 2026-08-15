@@ -114,12 +114,27 @@ importers:
 
   apps/worker:
     dependencies:
+      '@thibi/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@thibi/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@thibi/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@thibi/languages':
+        specifier: workspace:*
+        version: link:../../packages/languages
       '@thibi/runtime':
         specifier: workspace:*
         version: link:../runtime
+      '@thibi/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.21.0)(pg@8.23.0)
 
   packages/core: {}
 

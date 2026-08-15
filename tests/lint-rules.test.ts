@@ -76,6 +76,31 @@ describe('dependency direction', () => {
   }, LINT_TIMEOUT_MS);
 });
 
+describe('handlers own nothing', () => {
+  /**
+   * A rule nobody has seen fire is a rule that might not be wired up. This one guards the
+   * property the whole phase rests on — one promotion path, one send path, one retry count —
+   * and the failure it prevents is invisible: a step that ran six times while `/admin/queue`
+   * said three.
+   */
+  it.each([
+    ['reconcileRun', `import { reconcileRun } from '@thibi/engine';\n`],
+    ['withRetry', `import { withRetry } from '@thibi/engine';\n`],
+    ['pg-boss', `import { PgBoss } from 'pg-boss';\n`],
+  ])('rejects a handler importing %s', async (_label, code) => {
+    const messages = await messagesFor('apps/worker/src/handlers/probe.ts', code);
+    expect(messages.filter((m) => m.ruleId === 'no-restricted-imports')).toHaveLength(1);
+  }, LINT_TIMEOUT_MS);
+
+  it('allows the stage functions a handler is meant to wrap', async () => {
+    const messages = await messagesFor(
+      'apps/worker/src/handlers/probe.ts',
+      `import { probe, cutChunk, stitch } from '@thibi/engine';\n`,
+    );
+    expect(messages.filter((m) => m.ruleId === 'no-restricted-imports')).toHaveLength(0);
+  }, LINT_TIMEOUT_MS);
+});
+
 describe('ambient configuration ban', () => {
   // lib/db.ts:5 in the old app is `DATA_DIR = process.cwd()/data`. It must not survive
   // the port, and this is what stops it.

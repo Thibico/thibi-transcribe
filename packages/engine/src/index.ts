@@ -100,6 +100,7 @@ export {
 export { cutChunk, cutChunks } from './audio/cut.js';
 export {
   ensureNormalized,
+  normalizedKeyFor,
   normalizeUncached,
   type NormalizedDerivative,
 } from './audio/derivative.js';
@@ -311,14 +312,23 @@ export {
 } from './pipeline/asr.js';
 export {
   createRun,
+  insertChunks,
   JobAssetMismatchError,
   JobNotFoundError,
   persistChunks,
   persistResult,
+  writeTranscript,
   type CreateRunInput,
   type CreateRunResult,
   type PersistResultInput,
+  type WriteTranscriptInput,
 } from './pipeline/persist.js';
+export {
+  readChunkResult,
+  toChunkResult,
+  writeChunkResult,
+  type ChunkResult,
+} from './pipeline/chunk-result.js';
 export {
   transcribe,
   storeNormalized,
@@ -505,6 +515,22 @@ export {
   type PipelineSpec,
   type StepSpec,
 } from './queue/plan.js';
+export {
+  JobNotStartableError,
+  startRun,
+  type StartRunInput,
+  type StartRunResult,
+} from './queue/start.js';
+export {
+  loadRunChunks,
+  loadRunContext,
+  mergePipeline,
+  readPipelineSpec,
+  RunNotLoadableError,
+  type RunAsset,
+  type RunChunkRow,
+  type RunContext,
+} from './queue/run-context.js';
 // `reconcileRun`, not `reconcile`: this package already exports a `reconcile`, which is the
 // word↔turn diarization algorithm from Phase 3. Two functions with the same name and nothing
 // in common is a collision worth renaming out of even where the compiler tolerates it —

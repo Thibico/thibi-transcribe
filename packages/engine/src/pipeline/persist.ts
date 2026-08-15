@@ -1,5 +1,6 @@
+import { sql } from 'drizzle-orm';
 import type { Segment } from '@thibi/core';
-import { copyWords, type WordRow } from '@thibi/db';
+import { copyWords, type DbClient, type WordRow } from '@thibi/db';
 import { USER_FACING } from '../errors.js';
 import type { EngineContext } from '../context.js';
 import type { ChunkPlan } from '../audio/plan.js';
@@ -117,7 +118,16 @@ export async function createRun(
           input.mime ?? null,
           input.bytes,
           input.durationMs,
-          JSON.stringify(input.probeRaw ?? null),
+          /**
+           * SQL NULL when there is no probe, not the JSON document `null`.
+           *
+           * `JSON.stringify(x ?? null)` yields the four characters `null`, which Postgres
+           * stores as a jsonb *null value* — and `probe_raw is not null` is then true for
+           * every asset ever inserted. Phase 9's `media.probe` asks exactly that question to
+           * decide whether it can skip downloading a 2 GB file, so the old expression made it
+           * skip always, on every asset, including the ones nothing had ever probed.
+           */
+          input.probeRaw == null ? null : JSON.stringify(input.probeRaw),
         ],
       );
       assetId = inserted.rows[0]!.id;
@@ -182,35 +192,59 @@ export async function persistChunks(
   runId: string,
   plans: readonly ChunkPlan[],
 ): Promise<void> {
-  if (plans.length === 0) return;
-  const client = await ctx.db.$client.connect();
-  try {
-    const values: unknown[] = [];
-    const tuples = plans.map((p, i) => {
-      const base = i * 6;
-      values.push(runId, p.idx, p.offsetMs, p.contentStartMs, p.endMs, p.overlapLeadMs);
-      return `($${base + 1},$${base + 2},$${base + 3},$${base + 4},$${base + 5},$${base + 6})`;
-    });
-    await client.query(
-      `insert into run_chunks (run_id, idx, offset_ms, content_start_ms, end_ms, overlap_lead_ms)
-       values ${tuples.join(',')}
-       on conflict (run_id, idx) do nothing`,
-      values,
-    );
-  } finally {
-    client.release();
-  }
+  await insertChunks(ctx.db, runId, plans);
 }
 
-export interface PersistResultInput {
+/** Anything with `execute`: the pool, or a transaction handle. */
+type Executor = Pick<EngineContext['db'], 'execute'>;
+
+/**
+ * The same insert, in the caller's transaction.
+ *
+ * `plan.chunks` needs it: its handler writes the chunk rows and *re-plans the DAG with the
+ * real chunk count in the same transaction*, so the `asr.chunk` steps and the chunks they
+ * consume become visible together. A worker that saw the steps first would find no chunk to
+ * cut; one that saw the chunks first would simply wait. Only one of those two orderings is
+ * survivable, and a transaction removes the question.
+ */
+export async function insertChunks(
+  tx: Executor,
+  runId: string,
+  plans: readonly ChunkPlan[],
+): Promise<void> {
+  if (plans.length === 0) return;
+  const payload = JSON.stringify(
+    plans.map((p) => ({
+      idx: p.idx,
+      offset_ms: p.offsetMs,
+      content_start_ms: p.contentStartMs,
+      end_ms: p.endMs,
+      overlap_lead_ms: p.overlapLeadMs,
+    })),
+  );
+  await tx.execute(sql`
+    insert into run_chunks (run_id, idx, offset_ms, content_start_ms, end_ms, overlap_lead_ms)
+    select ${runId}::uuid, x.idx, x.offset_ms, x.content_start_ms, x.end_ms, x.overlap_lead_ms
+    from   jsonb_to_recordset(${payload}::jsonb) as x(
+             idx int, offset_ms int, content_start_ms int, end_ms int, overlap_lead_ms int)
+    on conflict (run_id, idx) do nothing
+  `);
+}
+
+/** What both endings need: the rows themselves. */
+export interface WriteTranscriptInput {
   runId: string;
-  jobId: string;
   segments: readonly Segment[];
+  /** Chunks that died. Their rows go `failed`; everything still `pending` goes `done`. */
+  failedChunks: ReadonlySet<number>;
+}
+
+export interface PersistResultInput extends WriteTranscriptInput {
+  jobId: string;
   wordTimingQuality: 'full' | 'partial' | 'none';
   pipeline: RunPipeline;
   costUsd: number;
   partial: boolean;
-  failedChunks: ReadonlySet<number>;
 }
 
 export interface PersistResultOutput {
@@ -219,10 +253,129 @@ export interface PersistResultOutput {
 }
 
 /**
- * Write segments, words and the verbatim text layer, in one transaction.
+ * Write segments, words and the verbatim text layer. **The caller owns the transaction.**
+ *
+ * Split out of `persistResult` when Phase 9 gave the queue a second caller with a different
+ * ending. Both write the same rows; only one of them may also declare the run finished, and
+ * it is not the queue's. `reconcile` is the sole writer of `runs.state` and `runs.progress`,
+ * so a handler that set them here would be the second promotion path this phase exists to
+ * avoid — with the worse property that it would be right most of the time, and wrong exactly
+ * when an optional step was still running.
  *
  * Words go in with `COPY … FROM STDIN`: a three-hour file is ~30,000 rows per run, and
  * individual inserts are far slower and hold the transaction open long enough to matter.
+ */
+export async function writeTranscript(
+  client: DbClient,
+  input: WriteTranscriptInput,
+): Promise<PersistResultOutput> {
+  // Map chunk index → chunk row id, so each segment points at the request it came from.
+  const chunkRows = await client.query<{ id: string; idx: number }>(
+    'select id, idx from run_chunks where run_id = $1',
+    [input.runId],
+  );
+  const chunkIdByIdx = new Map(chunkRows.rows.map((r): [number, string] => [r.idx, r.id]));
+
+  const segmentIds: string[] = [];
+  if (input.segments.length > 0) {
+    const COLUMNS = 11;
+    const values: unknown[] = [];
+    const tuples = input.segments.map((s, i) => {
+      values.push(
+        input.runId,
+        s.idx,
+        s.startMs,
+        s.endMs,
+        s.text,
+        s.textRaw,
+        s.confidence,
+        s.chunkIdx === null || s.chunkIdx === undefined
+          ? null
+          : (chunkIdByIdx.get(s.chunkIdx) ?? null),
+        // Derived here rather than trusted from the caller: it must agree with the word
+        // rows actually written, because every consumer branches on it.
+        s.words.length > 0,
+        s.placeholderReason ?? null,
+        // A placeholder stands for audio nobody heard, so nobody can say who was speaking.
+        // Flagged unconditionally rather than left for the reconciler, which will not run at
+        // all on a pipeline without diarization.
+        s.placeholderReason != null,
+      );
+      const base = i * COLUMNS;
+      return `(${Array.from({ length: COLUMNS }, (_, c) => `$${base + c + 1}`).join(',')})`;
+    });
+
+    // `returning id` on a multi-row INSERT yields ids in the order the rows were
+    // supplied, which is what lets words be attached by position below.
+    const inserted = await client.query<{ id: string }>(
+      `insert into segments
+         (run_id, idx, start_ms, end_ms, text, text_raw, confidence, chunk_id, has_words,
+          placeholder_reason, needs_speaker_review)
+       values ${tuples.join(',')}
+       returning id`,
+      values,
+    );
+    segmentIds.push(...inserted.rows.map((r): string => r.id));
+  }
+
+  const wordRows: WordRow[] = [];
+  input.segments.forEach((segment, i) => {
+    const segmentId = segmentIds[i]!;
+    for (const word of segment.words) {
+      wordRows.push({
+        segmentId,
+        runId: input.runId,
+        idx: word.idx,
+        startMs: word.startMs,
+        endMs: word.endMs,
+        text: word.text,
+        confidence: word.confidence,
+      });
+    }
+  });
+  await copyWords(client, wordRows);
+
+  /**
+   * One `(verbatim, '', origin='asr')` row per segment, duplicating `segments.text`.
+   *
+   * Redundant on purpose. `resolveLayer` then has one uniform path, and a human edit
+   * *supersedes an existing row* rather than inventing the first one. The cost is about
+   * 1 MB per audio-hour; the alternative puts a special case in the editor's hottest
+   * read path.
+   */
+  if (input.segments.length > 0) {
+    const values: unknown[] = [];
+    const tuples = input.segments.map((s, i) => {
+      const b = i * 3;
+      values.push(segmentIds[i], input.runId, s.text);
+      return `($${b + 1},$${b + 2},'verbatim','','asr',$${b + 3})`;
+    });
+    await client.query(
+      `insert into segment_texts (segment_id, run_id, layer, target_lang, origin, text)
+       values ${tuples.join(',')}`,
+      values,
+    );
+  }
+
+  for (const idx of input.failedChunks) {
+    await client.query(
+      `update run_chunks set status = 'failed' where run_id = $1 and idx = $2`,
+      [input.runId, idx],
+    );
+  }
+  await client.query(
+    `update run_chunks set status = 'done' where run_id = $1 and status = 'pending'`,
+    [input.runId],
+  );
+
+  return { segmentsInserted: segmentIds.length, wordsInserted: wordRows.length };
+}
+
+/**
+ * The CLI's ending: write the transcript **and** declare the run finished, in one transaction.
+ *
+ * Only for the single-process path, which has no DAG and therefore no reconciler to do it.
+ * The queue path calls `writeTranscript` and leaves `runs.state` alone.
  */
 export async function persistResult(
   ctx: EngineContext,
@@ -231,99 +384,7 @@ export async function persistResult(
   const client = await ctx.db.$client.connect();
   try {
     await client.query('begin');
-
-    // Map chunk index → chunk row id, so each segment points at the request it came from.
-    const chunkRows = await client.query<{ id: string; idx: number }>(
-      'select id, idx from run_chunks where run_id = $1',
-      [input.runId],
-    );
-    const chunkIdByIdx = new Map(chunkRows.rows.map((r) => [r.idx, r.id]));
-
-    const segmentIds: string[] = [];
-    if (input.segments.length > 0) {
-      const COLUMNS = 9;
-      const values: unknown[] = [];
-      const tuples = input.segments.map((s, i) => {
-        values.push(
-          input.runId,
-          s.idx,
-          s.startMs,
-          s.endMs,
-          s.text,
-          s.textRaw,
-          s.confidence,
-          s.chunkIdx === null || s.chunkIdx === undefined
-            ? null
-            : (chunkIdByIdx.get(s.chunkIdx) ?? null),
-          // Derived here rather than trusted from the caller: it must agree with the word
-          // rows actually written, because every consumer branches on it.
-          s.words.length > 0,
-        );
-        const base = i * COLUMNS;
-        return `(${Array.from({ length: COLUMNS }, (_, c) => `$${base + c + 1}`).join(',')})`;
-      });
-
-      // `returning id` on a multi-row INSERT yields ids in the order the rows were
-      // supplied, which is what lets words be attached by position below.
-      const inserted = await client.query<{ id: string }>(
-        `insert into segments
-           (run_id, idx, start_ms, end_ms, text, text_raw, confidence, chunk_id, has_words)
-         values ${tuples.join(',')}
-         returning id`,
-        values,
-      );
-      segmentIds.push(...inserted.rows.map((r) => r.id));
-    }
-
-    const wordRows: WordRow[] = [];
-    input.segments.forEach((segment, i) => {
-      const segmentId = segmentIds[i]!;
-      for (const word of segment.words) {
-        wordRows.push({
-          segmentId,
-          runId: input.runId,
-          idx: word.idx,
-          startMs: word.startMs,
-          endMs: word.endMs,
-          text: word.text,
-          confidence: word.confidence,
-        });
-      }
-    });
-    await copyWords(client, wordRows);
-
-    /**
-     * One `(verbatim, '', origin='asr')` row per segment, duplicating `segments.text`.
-     *
-     * Redundant on purpose. `resolveLayer` then has one uniform path, and a human edit
-     * *supersedes an existing row* rather than inventing the first one. The cost is about
-     * 1 MB per audio-hour; the alternative puts a special case in the editor's hottest
-     * read path.
-     */
-    if (input.segments.length > 0) {
-      const values: unknown[] = [];
-      const tuples = input.segments.map((s, i) => {
-        const b = i * 3;
-        values.push(segmentIds[i], input.runId, s.text);
-        return `($${b + 1},$${b + 2},'verbatim','','asr',$${b + 3})`;
-      });
-      await client.query(
-        `insert into segment_texts (segment_id, run_id, layer, target_lang, origin, text)
-         values ${tuples.join(',')}`,
-        values,
-      );
-    }
-
-    for (const idx of input.failedChunks) {
-      await client.query(
-        `update run_chunks set status = 'failed' where run_id = $1 and idx = $2`,
-        [input.runId, idx],
-      );
-    }
-    await client.query(
-      `update run_chunks set status = 'done' where run_id = $1 and status = 'pending'`,
-      [input.runId],
-    );
+    const written = await writeTranscript(client, input);
 
     // A run with one bad chunk is `partial`, not `failed`: a three-hour transcript missing
     // 55 seconds is still valuable.
@@ -358,7 +419,7 @@ export async function persistResult(
     ]);
 
     await client.query('commit');
-    return { segmentsInserted: segmentIds.length, wordsInserted: wordRows.length };
+    return written;
   } catch (err) {
     await client.query('rollback').catch(() => {});
     throw err;

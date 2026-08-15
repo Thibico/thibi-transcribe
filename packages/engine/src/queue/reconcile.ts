@@ -240,6 +240,28 @@ export async function reconcile(
         })
         .where(eq(runs.id, runId));
 
+      /**
+       * A job shows the state of the run it currently presents.
+       *
+       * Written here because this function is the only thing that knows a run has ended, and
+       * without it `jobs.status` sticks at whatever `createRun` set — `running` — forever, on
+       * every run the queue drives. `/jobs` reads that column, so the visible symptom would be
+       * a finished transcript listed as still working, which is the failure mode this phase
+       * exists to remove rather than relocate.
+       *
+       * Predicated on `primary_run_id`: a re-transcription that has not been promoted must not
+       * be able to declare the job done on the strength of its own ending.
+       */
+      if (terminal) {
+        // Keyed on `run.jobId`, which the select above already returned, rather than on a
+        // sub-select. This statement runs inside the run's advisory lock, so its cost is time
+        // every other reconciler of this run spends waiting.
+        await tx.execute(sql`
+          update jobs set status = ${nextState}, updated_at = now()
+          where id = ${run.jobId}::uuid and primary_run_id = ${runId}::uuid
+        `);
+      }
+
       events.push({ runId, kind: 'run.progress', data: { state: nextState, progress } });
       if (terminal) events.push({ runId, kind: 'run.finished', data: { state: nextState } });
     }

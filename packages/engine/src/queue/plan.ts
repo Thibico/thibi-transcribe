@@ -21,6 +21,14 @@ export interface PipelineSpec {
     mode: 'sync' | 'sync_chunked' | 'batch';
     /** faster-whisper on this box, which routes ASR to the GPU-contended queue. */
     local: boolean;
+    /**
+     * How much earlier each chunk starts than its boundary, for the seam merge. 0 disables it.
+     *
+     * On the spec rather than a constant in the handler because it is a property of *this run*:
+     * a run planned with no overlap must still assemble with no overlap when `normalize.text`
+     * picks it up in a different process, possibly after a redeploy that changed the default.
+     */
+    overlapMs?: number;
   };
   diarize?: { providerId: string; required: boolean };
   editorial: Array<{ kind: 'cleanup' | 'translate' | 'entities' | 'document'; targetLang?: string }>;

@@ -61,6 +61,23 @@ async function selectDerivative(
   }
 }
 
+/**
+ * Where this asset's normalized FLAC lives, or null if it has not been produced.
+ *
+ * The read half of the cache, exposed because Phase 9 split producing the derivative
+ * (`media.normalize`) from consuming it (`plan.chunks`, `asr.chunk`, `diarize`) into separate
+ * steps in separate processes. The consumers must not re-derive on a miss: that would turn a
+ * violated dependency into eight concurrent ffmpeg runs of the same hour of audio, which looks
+ * like slowness rather than like the DAG error it is.
+ */
+export async function normalizedKeyFor(
+  ctx: EngineContext,
+  assetId: string,
+): Promise<string | null> {
+  const hit = await selectDerivative(ctx, assetId);
+  return hit?.storage_key ?? null;
+}
+
 export async function ensureNormalized(
   ctx: EngineContext,
   input: EnsureNormalizedInput,

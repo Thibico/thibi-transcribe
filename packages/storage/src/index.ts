@@ -21,6 +21,7 @@ export {
   assertSafeKey,
   assetKey,
   chunkKey,
+  chunkResultKey,
   derivativeKey,
   extensionOf,
   rawResponseKey,
