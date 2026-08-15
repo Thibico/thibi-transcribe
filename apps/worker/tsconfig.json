@@ -9,7 +9,22 @@
   ],
   "references": [
     {
+      "path": "../../packages/core"
+    },
+    {
+      "path": "../../packages/languages"
+    },
+    {
+      "path": "../../packages/storage"
+    },
+    {
+      "path": "../../packages/db"
+    },
+    {
       "path": "../../packages/engine"
+    },
+    {
+      "path": "../runtime"
     }
   ]
 }

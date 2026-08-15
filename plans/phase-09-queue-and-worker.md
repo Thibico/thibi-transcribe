@@ -26,6 +26,16 @@ resumes" is a claim best proved with a CLI and `docker kill`, not a browser.
 >    intermittently.
 > 4. **§-Tests' concurrency assertion is wrong** — reconcile re-rings `ready` steps on purpose.
 > 5. **`step_state` is a Postgres enum and `cost_usd` is `double precision`** — see amendment 89.
+>
+> **Corrected again after the doorbell and the worker were built** (amendments 90–93):
+>
+> 6. **pg-boss is v12, and its default queue policy makes §3's re-ring design wrong.** A
+>    `singletonKey` does not deduplicate on the `standard` policy. Every queue is declared
+>    `short`. Three more v10→v12 signature changes are noted in §1.
+> 7. **`reconcile` must return early on a run with no steps.** The CLI never plans a DAG, and
+>    the tick was marking its runs `running` at 0% forever.
+> 8. **The context builder is `@thibi/runtime`**, shared by the CLI and the worker, and
+>    `WORKER_QUEUES` now defaults to a set that includes `worker`.
 
 ## Prerequisites
 
@@ -118,6 +128,32 @@ becomes a problem, the escape is a `Doorbell` interface with `sendStep`/`work` a
 `PgDoorbell` implementation; `reconcile.ts` does not change. Define that interface now, in
 `queues.ts`, with pg-boss as the only implementation — it costs ten lines and it is what makes
 the cut-list option a two-day job instead of a rewrite.
+
+> **Built 2026-08-14 against pg-boss 12.27.0, not the v10 this section assumes.** Risk 1 was
+> version churn and it had already happened. Four differences, all found by compiling and
+> running rather than by reading a changelog, and all contained to `queue/boss.ts`:
+>
+> 1. **The default queue policy makes the re-ring in §3 silently wrong.** `singletonKey` does
+>    **not** deduplicate under `standard` — dedup there needs `singletonSeconds`, because it is
+>    a throttling feature. A run whose reconciler ticked forty times would queue forty jobs for
+>    one step. Every queue is declared with policy **`short`**: at most one job *queued* per
+>    key, enforced by a unique index predicated on the policy. Not `stately` or `exclusive`,
+>    which also exclude the active job and would block a legitimate retry behind a job still
+>    finishing — a re-ring during execution is already harmless, because the claim's
+>    `attempt = $n` predicate finds `running` and does nothing.
+> 2. `PgBoss` is a **named export**; it was `export default`.
+> 3. **`StopOptions.wait` is gone** — `stop()` now blocks until the drain completes, which is
+>    an improvement — but `stop()` also returns early on a second call, so the
+>    `stop({close:false})`-then-close sequence in §13 would silently leak every connection.
+>    One `stop()` drains and releases.
+> 4. **v10+ requires a queue to exist before a send.** All nine are declared on every boot, not
+>    just the ones a container works: a `worker` that does no diarization still has to promote a
+>    `diarize` step for `worker-heavy` to pick up.
+>
+> pg-boss owns its **own pool**, not `ctx.db`'s: it polls every subscribed queue on a
+> one-to-five-second timer, and sharing would put that in contention with handler queries so a
+> saturated pool takes out both at once. Node's floor rose to 22.12.0 to match pg-boss's own
+> `engines`, since `.npmrc` sets `engine-strict=true`.
 
 ### 2. `run_steps`
 
@@ -250,6 +286,13 @@ export async function reconcile(ctx: EngineContext, runId: string): Promise<void
     if (!run || isTerminalRun(run.state)) return;
 
     const steps = await tx.select().from(runSteps).where(eq(runSteps.runId, runId));
+
+    // CORRECTED. A run with no steps is not this reconciler's business. The CLI drives the
+    // same stages in one process and never plans a DAG, so its runs have zero rows here — and
+    // the 30-second tick reconciles every live run, those included. Without this the terminal
+    // check finds nothing outstanding, the pending → running transition fires, and a run no
+    // worker will ever touch is marked running at 0% forever. Amendment 91.
+    if (steps.length === 0) return;
     const byId = new Map(steps.map((s) => [s.id, s]));
 
     // ---- cancellation short-circuits everything -------------------------------

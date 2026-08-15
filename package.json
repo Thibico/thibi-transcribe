@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.18.3",
+  "_engines_note": "Raised from >=22.11 on 2026-08-14: pg-boss 12 declares >=22.12.0, and .npmrc sets engine-strict=true, so the old floor was a claim this repo could not honour — an install on 22.11 fails, and it fails pointing at pg-boss rather than at us.",
   "engines": {
-    "node": ">=22.11"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "build": "turbo run build",

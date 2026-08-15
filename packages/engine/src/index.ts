@@ -510,6 +510,29 @@ export {
 // in common is a collision worth renaming out of even where the compiler tolerates it —
 // `reconcileRun` and `reconcile.speakers` say which one they are.
 export { reconcile as reconcileRun, stepFraction } from './queue/reconcile.js';
+export { PgBossDoorbell, type CreateDoorbellOptions } from './queue/boss.js';
+export {
+  HEARTBEAT_INTERVAL_MS,
+  STALE_AFTER_SECONDS,
+  abortReason,
+  withHeartbeat,
+} from './queue/lease.js';
+export {
+  NoHandlerError,
+  runStep,
+  serialiseError,
+  type HandlerRegistry,
+  type StepHandler,
+  type StepResult,
+} from './queue/run-step.js';
+export {
+  liveRunIds,
+  nudgeExternalWork,
+  reclaimStaleLeases,
+  reconcileAllLive,
+  recoverTick,
+  type RecoveryReport,
+} from './queue/recover.js';
 export {
   CoalescingEventSink,
   insertAndNotify,

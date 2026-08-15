@@ -310,6 +310,37 @@ describe.skipIf(!reachable)('reconcile', () => {
     }
   });
 
+  it('leaves a run it did not plan completely alone', async () => {
+    // The CLI drives the same stages in one process and never plans a DAG, so its runs have
+    // zero steps — and the worker's tick reconciles every live run, those included. Without
+    // the guard the terminal check finds nothing outstanding, the pending → running
+    // transition fires, and a worker that will never touch that run marks it running at 0%
+    // forever. Found by booting the worker against the dev database, not by a test.
+    const hex = String(sha++).padStart(64, '0');
+    const { runId } = await createRun(
+      { db: t.db, engineVersion: '0.1.0' } as unknown as EngineContext,
+      {
+        sha256: hex,
+        storageKey: `assets/${hex.slice(0, 2)}/${hex}/source.flac`,
+        filename: 'cli-run.flac',
+        bytes: 1234,
+        durationMs: 1000,
+        probeRaw: null,
+        title: 'a run the CLI drives itself',
+        languageCode: 'my-MM',
+        providerId: 'google',
+        model: 'chirp_2',
+        mode: 'sync',
+      },
+    );
+    const before = await run(runId);
+    await reconcile(ctx, runId);
+
+    expect(await run(runId)).toEqual(before);
+    expect(doorbell.sends).toHaveLength(0);
+    expect(await t.db.$client.query(`select 1 from run_events where run_id = $1`, [runId]).then((r) => r.rowCount)).toBe(0);
+  });
+
   it('does nothing to a run that has already finished', async () => {
     const runId = await plant(CHUNKED, 2);
     await driveAll(runId);

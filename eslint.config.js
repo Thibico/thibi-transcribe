@@ -10,7 +10,7 @@ import tseslint from 'typescript-eslint';
 /**
  * The one-way dependency direction from 00-overview.md:
  *
- *     core <- languages <- db <- engine <- { web, cli, worker }
+ *     core <- languages <- db <- engine <- runtime <- { web, cli, worker }
  *     core <- storage --------- ^
  *
  * `core` is importable from React client components — that is why subtitle re-flow and
@@ -26,7 +26,10 @@ const LAYERS = {
 };
 
 const ALL_PACKAGES = Object.keys(LAYERS);
-const APPS = ['web', 'worker', 'cli'];
+// `runtime` is in this list although it is not an app: it is the composition root the apps
+// share, it reads the environment, and a package that imported it would be reaching for
+// exactly the ambient configuration the layer rules exist to keep out.
+const APPS = ['web', 'worker', 'cli', 'runtime'];
 
 /** Every @thibi/* specifier a package in `pkg` is not allowed to reach for. */
 function forbiddenFor(pkg) {

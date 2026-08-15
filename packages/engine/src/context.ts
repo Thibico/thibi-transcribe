@@ -45,6 +45,15 @@ export interface EngineContext {
    * naming the port rather than a `TypeError` on `undefined`.
    */
   doorbell?: Doorbell;
+  /**
+   * `${hostname}:${pid}:${bootId}` — who holds a step's lease. Phase 9.
+   *
+   * Built by the worker and passed in, rather than read here from `os.hostname()` and
+   * `process.pid`. Those are ambient identity, and the rule that the engine reads no ambient
+   * configuration is what makes `runStep` testable with two fake workers in one process —
+   * which is exactly how the stolen-lease path is covered.
+   */
+  workerId?: string;
   clock: Clock;
   logger: Logger;
   events: EventSink;
