@@ -9,8 +9,9 @@ Burmese interview went through a real worker end to end, and a `kill -9` mid-run
 re-billing two chunks that had already been paid for. What is missing is everything the *other*
 ten step kinds need, plus cancellation, rate buckets, the SSE route and the compose services.
 
-**PR #38 is open and unmerged** — branch `phase-9/handlers`, three commits. Ask the user to run
-`! gh pr merge 38 --merge` and do not re-check afterwards.
+Everything is merged. **Nothing is in flight.** `main` is at the merge of **PR #38**, which is
+this sitting's four commits — the region-grep fix and the shared provider builder, the five
+handlers and `thibi runs start`, the live run and the defect it found, and the record.
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only, `thibi eval translate`
 > stays unrun, `--manifest` stays unbuilt. **Do not pick those up as "next" unless asked.**
