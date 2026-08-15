@@ -65,6 +65,15 @@ export interface Segment {
   words: Word[];
   chunkIdx?: number | null;
   speakerId?: string | null;
+  /**
+   * Set on a segment that stands in for audio nobody transcribed, and absent on every real one.
+   *
+   * A chunk that exhausted its retries leaves an empty segment spanning its interval rather
+   * than a hole, so the timeline stays contiguous: subtitle reflow, export, the editor's
+   * virtualiser and speaker reconciliation all iterate segments in order, and a hole would
+   * make each of them grow a special case.
+   */
+  placeholderReason?: 'chunk_failed' | 'chunk_cancelled' | null;
 }
 
 /** Editorial layers, addressed by `(segment, layer, targetLang)`. */

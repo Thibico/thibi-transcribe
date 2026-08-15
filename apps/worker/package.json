@@ -20,8 +20,13 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@thibi/core": "workspace:*",
+    "@thibi/db": "workspace:*",
     "@thibi/engine": "workspace:*",
-    "@thibi/runtime": "workspace:*"
+    "@thibi/languages": "workspace:*",
+    "@thibi/runtime": "workspace:*",
+    "@thibi/storage": "workspace:*",
+    "drizzle-orm": "^0.45.2"
   },
   "bin": {
     "thibi-worker": "./dist/main.js"

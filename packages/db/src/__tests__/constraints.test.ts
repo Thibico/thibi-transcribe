@@ -76,12 +76,15 @@ describe.skipIf(!reachable)('schema constraints', () => {
       })
       .returning();
     runId = run!.id;
-  });
+  }, 60_000);
 
-  // 60 s, matching the `beforeAll` above. `drop database … with (force)` is slow when the
-  // machine is busy and is not the thing under test. It must be set HERE rather than in
-  // vitest.config.ts: root-level `test.hookTimeout` is silently ignored when `test.projects`
-  // is used — verified 2026-08-11 by setting it to 1 ms and watching every suite still pass.
+  // 60 s, matching the `beforeAll` above — which, until 2026-08-15, it did not: the comment
+  // said so and the hook had no budget at all, so it inherited the 10 s default and failed
+  // whenever the machine was loaded. `create database … template` and `drop database … with
+  // (force)` are both slow under load and neither is the thing under test. It must be set HERE
+  // rather than in vitest.config.ts: root-level `test.hookTimeout` is silently ignored when
+  // `test.projects` is used — verified 2026-08-11 by setting it to 1 ms and watching every
+  // suite still pass.
   afterAll(async () => {
     await t?.drop();
   }, 60_000);

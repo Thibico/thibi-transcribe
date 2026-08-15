@@ -94,7 +94,15 @@ export function parseWorkerEnv(env: NodeJS.ProcessEnv): WorkerEnv {
   return {
     queues: queues as QueueName[],
     concurrency,
-    healthPort: intOf(env['WORKER_HEALTH_PORT'], 8081, 'WORKER_HEALTH_PORT'),
+    /**
+     * 8090, not the 8081 the phase-9 plan specifies.
+     *
+     * 8081 is the diarization sidecar's port, published by this repo's own
+     * `infra/compose.dev.yml` and named in `.env` as `SIDECAR_URL`. The worker refuses to
+     * start with `EADDRINUSE` on any box where diarization is available — which is every box
+     * the phase after this one cares about. Found by starting it. Amendment 95.
+     */
+    healthPort: intOf(env['WORKER_HEALTH_PORT'], 8090, 'WORKER_HEALTH_PORT'),
     gpuSlots: intOf(env['GPU_SLOTS'], 1, 'GPU_SLOTS'),
     localAsrSlots: intOf(env['LOCAL_ASR_SLOTS'], 1, 'LOCAL_ASR_SLOTS'),
     maxBucketWaitMs: intOf(env['MAX_BUCKET_WAIT_MS'], 30_000, 'MAX_BUCKET_WAIT_MS'),

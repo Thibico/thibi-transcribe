@@ -7,7 +7,14 @@
 // `drizzle-kit push` is banned and appears in no script.
 
 export * from './schema/index.js';
-export { closeDb, createDb, withTransaction, type CreateDbOptions, type Db } from './client.js';
+export {
+  closeDb,
+  createDb,
+  withTransaction,
+  type CreateDbOptions,
+  type Db,
+  type DbClient,
+} from './client.js';
 export {
   migrate,
   migrationStatus,

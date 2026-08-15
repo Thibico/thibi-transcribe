@@ -25,6 +25,7 @@ import {
   type SettingsPort,
   type StagingStore,
 } from '@thibi/engine';
+import { DEFAULT_GOOGLE_MODEL, DEFAULT_GOOGLE_REGION } from './config.js';
 
 /**
  * **The composition root: the only place the environment is read.**
@@ -153,8 +154,14 @@ export interface BuildContextOptions {
    */
   appName: string;
 
-  /** Region and model to fall back to when neither a settings row nor the environment says. */
-  googleDefaults: { region: string; model: string };
+  /**
+   * Region and model to fall back to when neither a settings row nor the environment says.
+   *
+   * Optional, and defaulted from `config.ts`, because the alternative is every app naming a
+   * region — which is exactly what happened to the worker, and what the *No region doctrine*
+   * grep caught on `main`.
+   */
+  googleDefaults?: { region: string; model: string };
 
   /**
    * Where engine progress goes.
@@ -303,6 +310,10 @@ export function resolveTempRoot(configured: string | undefined): string {
 
 export async function buildContext(options: BuildContextOptions): Promise<RuntimeContext> {
   const env = readEnvironment();
+  const googleDefaults = options.googleDefaults ?? {
+    region: DEFAULT_GOOGLE_REGION,
+    model: DEFAULT_GOOGLE_MODEL,
+  };
   const logLevel = options.logLevel ?? (env.LOG_LEVEL as Level | undefined) ?? 'info';
   const logger = createRuntimeLogger(logLevel);
 
@@ -331,14 +342,14 @@ export async function buildContext(options: BuildContextOptions): Promise<Runtim
           'google.gcs_staging_bucket': env.GOOGLE_GCS_STAGING_BUCKET,
         },
         defaults: {
-          'google.region': options.googleDefaults.region,
-          'google.model': options.googleDefaults.model,
+          'google.region': googleDefaults.region,
+          'google.model': googleDefaults.model,
         },
       })
     : createMemorySettings({
         ...(env.GOOGLE_PROJECT_ID ? { 'google.project_id': env.GOOGLE_PROJECT_ID } : {}),
-        'google.region': env.GOOGLE_REGION ?? options.googleDefaults.region,
-        'google.model': env.GOOGLE_MODEL ?? options.googleDefaults.model,
+        'google.region': env.GOOGLE_REGION ?? googleDefaults.region,
+        'google.model': env.GOOGLE_MODEL ?? googleDefaults.model,
         ...(env.GOOGLE_GCS_STAGING_BUCKET
           ? { 'google.gcs_staging_bucket': env.GOOGLE_GCS_STAGING_BUCKET }
           : {}),

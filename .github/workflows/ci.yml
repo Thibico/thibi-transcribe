@@ -141,10 +141,15 @@ jobs:
       # default's justification and a settings-page hint. The region *value* is a fine
       # default; the claim that it is forced is not, and it must not reappear as a comment
       # or an error message. One file may name it, and it is named here.
+      #
+      # That file was `apps/cli/src/config.ts` until the worker also had to build a context
+      # and passed `region: 'asia-southeast1'` inline — which failed this check on `main`.
+      # The check was right: the constants moved to `@thibi/runtime`, the composition root
+      # both apps already share, so there is no longer anywhere else to put a second copy.
       - name: No region doctrine
         run: |
           hits=$(grep -rn 'asia-southeast1' packages/*/src apps/*/src 2>/dev/null \
-                 | grep -v '^apps/cli/src/config.ts:' \
+                 | grep -v '^apps/runtime/src/config.ts:' \
                  | grep -v '__tests__' \
                  | grep -vE ':[[:space:]]*(\*|//|/\*)' || true)
           if [ -n "$hits" ]; then

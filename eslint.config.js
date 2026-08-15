@@ -92,6 +92,41 @@ const noAmbientConfig = {
   },
 };
 
+/**
+ * A handler does its work and returns a `StepResult`. It does not ring the doorbell, does not
+ * reconcile, and does not decide its own retry.
+ *
+ * Those three belong to `sendStep`, `reconcile` and `runStep`, and each is the *only* thing
+ * that does its job — one promotion path, one send path, one retry count. A handler that
+ * reconciled after writing its own segments would be a second promotion path, and one that
+ * wrapped itself in `withRetry` would be a second retry count: the step would run six times
+ * while `/admin/queue` said three, and the number an admin can see is the one that has to be
+ * true. Phase 9 §13 asks for this rule by name.
+ */
+const handlersOwnNothing = {
+  files: ['apps/worker/src/handlers/**/*.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: '@thibi/engine',
+            importNames: ['reconcileRun', 'PgBossDoorbell', 'withRetry', 'reconcileAllLive'],
+            message:
+              'A handler returns a StepResult and nothing else. Promotion belongs to ' +
+              'reconcile, sending to the doorbell, and retry to runStep — see phase 9 §13.',
+          },
+          {
+            name: 'pg-boss',
+            message: 'Only queue/boss.ts imports pg-boss. A handler must not know it exists.',
+          },
+        ],
+      },
+    ],
+  },
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -122,6 +157,7 @@ export default tseslint.config(
     },
   },
   noAmbientConfig,
+  handlersOwnNothing,
   ...layerRules,
   {
     // Generated output is asserted byte-for-byte by the drift test; linting it would only

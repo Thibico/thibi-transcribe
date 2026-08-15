@@ -28,7 +28,7 @@ import { assetKey, extensionOf, rawResponseKey } from '@thibi/storage';
 import { stat } from 'node:fs/promises';
 import { buildContext, readEnvironment } from '../context.js';
 import { diarizeRun, resolveSource } from './diarize.js';
-import { buildProvider, isProviderId, PROVIDER_IDS } from '../providers.js';
+import { buildProvider, isProviderId, PROVIDER_IDS } from '@thibi/runtime';
 import { buildTranscript, EXIT, formatText, type TranscriptJson } from '../output.js';
 
 const ENGINE_VERSION = '0.1.0';

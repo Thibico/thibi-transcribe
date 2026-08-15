@@ -58,7 +58,9 @@ describe('parseWorkerEnv', () => {
   it('defaults the numbers, and rejects nonsense rather than coercing it', () => {
     const d = parseWorkerEnv({});
     expect(d.concurrency).toBe(1);
-    expect(d.healthPort).toBe(8081);
+    // 8090, not the plan's 8081: that is the sidecar's port in this repo's own dev compose,
+    // so the plan's default made the worker refuse to start on any box that can diarize.
+    expect(d.healthPort).toBe(8090);
     expect(d.gpuSlots).toBe(1);
     expect(d.localAsrSlots).toBe(1);
     expect(d.maxBucketWaitMs).toBe(30_000);

@@ -51,7 +51,6 @@ async function main(): Promise<void> {
   const runtime = await buildContext({
     engineVersion: ENGINE_VERSION,
     appName: 'thibi-worker',
-    googleDefaults: { region: 'asia-southeast1', model: 'chirp_2' },
     concurrency: Math.max(2, Math.round(4 * env.concurrency)),
     // The one part of the context that really differs from the CLI's: progress goes into
     // `run_events` and out over NOTIFY, coalesced, instead of being printed to stderr.
