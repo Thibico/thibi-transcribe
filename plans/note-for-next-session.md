@@ -8,7 +8,7 @@ see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 the doorbell, the execution path and a bootable worker all exist. **What is missing is
 handlers** — so the worker runs, and transcribes nothing.
 
-Four commits sit on `phase-9/worker`, pushed with a PR open. The two before them are merged.
+Everything is merged. **Nothing is in flight.**
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only,
 > `thibi eval translate` stays unrun, `--manifest` stays unbuilt. **Do not pick those up as
@@ -49,12 +49,15 @@ its kind. Also missing: `queue/cancel.ts` (the NOTIFY listener and `requestCance
 route, `/api/admin/queue`, `thibi run status|retry|cancel`, and the compose services.
 `apps/web` is still a stub.
 
-`main` is at `dc5fccd` (PR #36 merged). On `phase-9/worker`, awaiting review:
+`main` is at `fc65db6`, the merge of **PR #37**, which is this sitting's five commits:
 
 1. `41c370e` the pg-boss v12 adapter behind `Doorbell`
 2. `853b973` the execution path — claim, lease, apply, recover
 3. `83ee0f5` `@thibi/runtime`, one composition root for the CLI and the worker
 4. `2587bf4` `apps/worker` as a real process — and the bug that starting it found
+5. `4045cbc` amendments 90–93, the inline phase-09 corrections, the diary, this note
+
+PR #36 before it carried the DAG, the planner and the reconciler.
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1240 tests across 79
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1125 across 71 at the
