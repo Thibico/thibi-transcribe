@@ -15,11 +15,11 @@ import { materialisePlan, planRun, type PipelineSpec } from './plan.js';
  * `asr.chunk` takes the provider from it — so a step that became visible before the spec did
  * would fail on a run that was about to be perfectly valid.
  *
- * **`chunkCount: 0` is not a placeholder to be corrected.** The DAG is genuinely planned in two
- * stages: nothing knows how many chunks there are until `plan.chunks` has run, and its handler
- * calls `planRun` again with the real count in the transaction that writes `run_chunks`. The
- * `ON CONFLICT DO NOTHING` insert makes the second call an extension of this one rather than a
- * correction of it, which is why there is no repair path and no special case.
+ * **The DAG is planned in two stages, and this is the first.** Nothing knows how many chunks a
+ * recording has until `plan.chunks` has run, so this pass stops there and the `plan.chunks`
+ * handler calls `planRun` again with the real count, in the transaction that writes
+ * `run_chunks`. The convergent insert makes the second call an extension of this one rather
+ * than a correction of it, which is why there is no repair path and no special case.
  *
  * It does **not** ring the doorbell. `reconcile` is the only caller of `sendStep`, and the
  * caller of this function reconciles immediately afterwards; if it dies before doing so, the
@@ -70,7 +70,13 @@ export async function startRun(
     throw new JobNotStartableError(`No job ${input.jobId}.`, 'List them with `thibi runs show`.');
   }
 
-  const specs = planRun(input.spec, 0);
+  /**
+   * `null`, not `0`: the chunk count is unknown, which is a different statement from "there are
+   * no chunks". Passing `0` planned `normalize.text` with a wildcard dependency that resolved to
+   * an empty array, so it had no dependencies, so the reconciler promoted it immediately and a
+   * worker wrote an empty transcript before the first chunk was cut. See `planRun`.
+   */
+  const specs = planRun(input.spec, null);
   let runId = '';
 
   await ctx.db.transaction(async (tx) => {

@@ -74,7 +74,7 @@ describe.skipIf(!reachable)('speaker schema', () => {
     };
     runId = await makeRun();
     secondRunId = await makeRun();
-  });
+  }, 60_000);
 
   // 60 s, matching the `beforeAll` above. `drop database … with (force)` is slow when the
   // machine is busy and is not the thing under test. It must be set HERE rather than in

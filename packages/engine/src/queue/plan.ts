@@ -63,13 +63,26 @@ export interface StepSpec {
  * **`chunkCount` is not known when the run is created**, which is the interesting ordering
  * problem in this phase. Duration comes from `media.probe`, and a URL import has no duration
  * at all until the download finishes, so planning the whole DAG up front would mean guessing
- * and then re-planning anyway. Instead the run is planned twice: once through `plan.chunks`
- * with `chunkCount = 0`, and again by the `plan.chunks` handler with the real count, in the
- * same transaction that writes `run_chunks`. The `ON CONFLICT DO NOTHING` insert makes the
- * second call a pure extension of the first — one code path, no special cases, and the chunk
- * rows and the steps that consume them commit together.
+ * and then re-planning anyway. Instead the run is planned twice: once through `plan.chunks`,
+ * and again by the `plan.chunks` handler with the real count, in the same transaction that
+ * writes `run_chunks`. The convergent insert makes the second call an extension of the first —
+ * one code path, no special cases, and the chunk rows and the steps that consume them commit
+ * together.
+ *
+ * **`null` means "not known yet", and it is not the same as `0`.** The first pass used to pass
+ * `0`, which emitted zero `asr.chunk` shards *and* every step downstream of them — including
+ * `normalize.text`, whose `['asr.chunk','*']` dependency then resolved to an empty array. A
+ * step with no dependencies is a root, so the reconciler promoted it immediately, and a worker
+ * assembled a transcript out of nothing before a single chunk had been cut: the run reached
+ * `done` at progress 1 with zero segments while twenty `asr.chunk` steps were still queued.
+ * Found on the first real file, in the first minute of the first run — no unit test could have
+ * produced it, because every one of them plans with a chunk count already known.
+ *
+ * A wildcard over a kind that has no shards *yet* is vacuously satisfied, and `depends_on` is
+ * `uuid[]` by then, so the reconciler cannot tell that from a genuine root. The planner is the
+ * only place that still knows the difference, so it must not emit the step at all.
  */
-export function planRun(p: PipelineSpec, chunkCount: number): StepSpec[] {
+export function planRun(p: PipelineSpec, chunkCount: number | null): StepSpec[] {
   const out: Array<Omit<StepSpec, 'ordinal'>> = [];
 
   const add = (s: Partial<StepSpec> & Pick<StepSpec, 'kind'>): void => {
@@ -95,6 +108,19 @@ export function planRun(p: PipelineSpec, chunkCount: number): StepSpec[] {
   const asrQueue: QueueName = p.asr.local ? 'asr.local' : 'asr.cloud';
   let asrLeaves: DependencyRef[];
 
+  /**
+   * The first pass stops here on the chunked paths.
+   *
+   * Nothing below can be planned without knowing how many shards there are: every step past
+   * this point depends, directly or through `normalize.text`, on `['asr.chunk','*']`. The
+   * `batch` path is exempt because its ASR steps are not sharded at all — the count it does not
+   * know is not one it needs.
+   */
+  if (chunkCount === null && p.asr.mode !== 'batch') {
+    return out.map((s, ordinal) => ({ ...s, ordinal }));
+  }
+  const shards = chunkCount ?? 0;
+
   if (p.asr.mode === 'batch') {
     add({ kind: 'asr.batch.submit', queue: asrQueue, dependsOn: [['plan.chunks', -1]] });
     add({ kind: 'asr.poll', dependsOn: [['asr.batch.submit', -1]] });
@@ -102,7 +128,7 @@ export function planRun(p: PipelineSpec, chunkCount: number): StepSpec[] {
     add({ kind: 'staging.cleanup', dependsOn: [['asr.fetch', -1]], optional: true });
     asrLeaves = [['asr.fetch', -1]];
   } else {
-    for (let i = 0; i < chunkCount; i++) {
+    for (let i = 0; i < shards; i++) {
       add({
         kind: 'asr.chunk',
         shard: i,
@@ -210,6 +236,19 @@ export async function materialisePlan(
   if (specs.length === 0) return;
   const payload = JSON.stringify(toSpecRows(specs));
 
+  /**
+   * `do update set ordinal` rather than `do nothing`, guarded so it writes only on a change.
+   *
+   * Ordinal order is a topological order of the DAG, and `reconcile` relies on it to promote a
+   * whole chain in one pass. The second planning pass inserts the `asr.chunk` shards *between*
+   * `plan.chunks` and `normalize.text`, so every ordinal after the shards moves — and under a
+   * bare `DO NOTHING` the already-inserted rows kept the ordinals of the first pass. Observed on
+   * the first real run: `normalize.text` and `asr.chunk` shard 0 both sat at ordinal 3.
+   *
+   * The `where` is what keeps planning idempotent. An unconditional `DO UPDATE` rewrites every
+   * row on every call, which advances `xmin` and fails the idempotence tests — the reason those
+   * tests assert on `xmin` rather than on column values in the first place.
+   */
   await tx.execute(sql`
     insert into run_steps (run_id, kind, ordinal, shard, queue, optional, weight, max_attempts, input)
     select ${runId}::uuid, x.kind, x.ordinal, x.shard, x.queue, x.optional, x.weight,
@@ -217,7 +256,9 @@ export async function materialisePlan(
     from   jsonb_to_recordset(${payload}::jsonb) as x(
              kind text, ordinal int, shard int, queue text,
              optional boolean, weight int, max_attempts int, input jsonb)
-    on conflict (run_id, kind, shard) do nothing
+    on conflict (run_id, kind, shard) do update
+      set ordinal = excluded.ordinal
+      where run_steps.ordinal is distinct from excluded.ordinal
   `);
 
   /**

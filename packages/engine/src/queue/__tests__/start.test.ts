@@ -63,7 +63,7 @@ describe.skipIf(!reachable)('startRun', () => {
       )
     ).rows;
 
-  it('plans through plan.chunks and no further, because nothing knows the chunk count yet', async () => {
+  it('plans up to plan.chunks and no further, because nothing knows the chunk count yet', async () => {
     const jobId = await plantJob();
     const { runId, steps: planned } = await startRun(ctx, {
       jobId,
@@ -73,12 +73,19 @@ describe.skipIf(!reachable)('startRun', () => {
     });
 
     const kinds = (await steps(runId)).map((s) => s.kind);
-    expect(kinds).toEqual(['media.probe', 'media.normalize', 'plan.chunks', 'normalize.text']);
-    expect(planned).toBe(4);
+    expect(kinds).toEqual(['media.probe', 'media.normalize', 'plan.chunks']);
+    expect(planned).toBe(3);
 
-    // Not one `asr.chunk` shard. The count is genuinely unknown until plan.chunks runs, which
-    // is the reason the DAG is materialised twice rather than guessed at once.
+    /**
+     * Not one `asr.chunk` shard, and — the assertion that matters — no `normalize.text` either.
+     *
+     * A wildcard over a kind with no shards resolves to an empty array, so `normalize.text`
+     * planned in this pass would have no dependencies at all, and a step with no dependencies is
+     * a root. The reconciler promoted it on the first tick and a worker wrote an empty
+     * transcript before a chunk had been cut, on the first real file this code ever saw.
+     */
     expect(kinds).not.toContain('asr.chunk');
+    expect(kinds).not.toContain('normalize.text');
   });
 
   it('writes the spec where every handler reads it', async () => {

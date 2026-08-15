@@ -96,14 +96,31 @@ describe('planRun', () => {
     expect(kinds(planRun(spec({ peaks: true }), 1))).toContain('media.peaks');
   });
 
-  it('plans through plan.chunks when the chunk count is not yet known', () => {
-    // The two-stage plan. Duration comes from media.probe and a URL import has none until the
-    // download finishes, so the first plan is deliberately made with chunkCount = 0 and the
-    // plan.chunks handler re-plans with the real count in the transaction that writes
-    // run_chunks. Everything up to that point must still be there.
-    const first = planRun(spec(), 0);
-    expect(kinds(first)).toContain('plan.chunks');
-    expect(first.filter((s) => s.kind === 'asr.chunk')).toHaveLength(0);
+  it('stops at plan.chunks when the chunk count is not yet known', () => {
+    /**
+     * The two-stage plan. Duration comes from `media.probe` and a URL import has none until the
+     * download finishes, so the first pass is made with `null` and the `plan.chunks` handler
+     * re-plans with the real count in the transaction that writes `run_chunks`.
+     *
+     * **`normalize.text` must be absent, and that is the assertion that matters.** This test
+     * used to pass `0` and check only that there were no `asr.chunk` shards, which was true and
+     * useless: `normalize.text` was emitted, its `['asr.chunk','*']` dependency resolved to an
+     * empty array, and a step with no dependencies is a root. The reconciler promoted it on the
+     * first tick and a worker assembled an empty transcript before a chunk had been cut. The
+     * old assertion was satisfied the whole time.
+     */
+    const first = planRun(spec(), null);
+    expect(kinds(first)).toEqual(['media.probe', 'media.normalize', 'plan.chunks']);
+    expect(kinds(first)).not.toContain('normalize.text');
+  });
+
+  it('plans the whole batch DAG at once, because none of it is sharded', () => {
+    // The exemption from the rule above: `batch` has no `asr.chunk` steps at all, so the count
+    // it does not know is not one it needs. Planning it in one pass is what lets `asr.batch.submit`
+    // be reached without a second materialise.
+    const first = planRun(spec({ asr: { ...BASE.asr, mode: 'batch' } }), null);
+    expect(kinds(first)).toContain('asr.batch.submit');
+    expect(kinds(first)).toContain('normalize.text');
   });
 
   it('emits steps in a topological order', () => {
@@ -217,6 +234,32 @@ describe.skipIf(!reachable)('materialisePlan', () => {
       expect(normalize.depends_on).toHaveLength(8);
       expect(new Set(normalize.depends_on)).toEqual(chunkIds);
     })();
+  });
+
+  /**
+   * The second pass inserts the shards *between* `plan.chunks` and `normalize.text`, so every
+   * ordinal after them moves. Under a bare `ON CONFLICT DO NOTHING` the rows already inserted
+   * kept the first pass's ordinals, and `normalize.text` ended up at ordinal 3 alongside
+   * `asr.chunk` shard 0 — observed on the first real run. Ordinal order is a topological order
+   * and `reconcile` walks it, so this is the invariant, not a display detail.
+   */
+  it('renumbers when the second pass inserts shards ahead of what follows them', async () => {
+    const runId = await newRun();
+    await materialisePlan(t.db, runId, planRun(spec(), null));
+    await materialisePlan(t.db, runId, planRun(spec(), 8));
+
+    const rows = await snapshot(runId);
+    const ordinalOf = (kind: string): number => rows.find((r) => r.kind === kind)!.ordinal;
+
+    expect(rows.map((r) => r.ordinal)).toEqual([...rows.keys()]);
+    expect(ordinalOf('normalize.text')).toBeGreaterThan(
+      Math.max(...rows.filter((r) => r.kind === 'asr.chunk').map((r) => r.ordinal)),
+    );
+
+    // And it is still convergent: a third identical pass writes nothing at all.
+    const before = await snapshot(runId);
+    await materialisePlan(t.db, runId, planRun(spec(), 8));
+    expect(await snapshot(runId)).toEqual(before);
   });
 
   it('is convergent — replanning an unchanged run updates literally nothing', async () => {
