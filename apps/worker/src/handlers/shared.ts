@@ -5,6 +5,7 @@ import {
   loadRunContext,
   normalizedKeyFor,
   type EngineContext,
+  type ProviderConfig,
   type RunContext,
 } from '@thibi/engine';
 import { buildProvider, readEnvironment, type BuiltProvider } from '@thibi/runtime';
@@ -84,6 +85,32 @@ export async function providerFor(ctx: EngineContext, run: RunContext): Promise<
     requireWordTimestamps: false,
     store: ctx.store,
   });
+}
+
+/**
+ * The region this provider was configured for.
+ *
+ * Read off the built config and never named here, which is the *No region doctrine* invariant
+ * stated as code: `apps/runtime/src/config.ts` is the only file in source permitted to write a
+ * region down, and CI greps for a second one. The staging bucket's location is checked against
+ * this so a co-location mistake is caught before a 60 MB upload rather than after it.
+ *
+ * Refuses rather than defaulting when the config carries none. `ensureStageable` compares the
+ * bucket's location against this string, so an empty one would not skip the check — it would
+ * fail it, with a message reading `is in asia-southeast1 but the recognizer region is`. A
+ * provider that declares `batch` and has no region is a misconfiguration, and it is worth one
+ * sentence saying so.
+ */
+export function regionOf(providerId: string, config: ProviderConfig): string {
+  const region = (config as { region?: unknown }).region;
+  if (typeof region !== 'string' || region === '') {
+    throw new NotConfiguredError(
+      `Provider ${providerId} supports batch but its configuration names no region, and a ` +
+        `staging bucket has to be co-located with the recognizer.`,
+      { hint: 'Set GOOGLE_REGION, or the google.region setting.' },
+    );
+  }
+  return region;
 }
 
 /** The run's source audio, on this box's disk. Disposable — always `await using`. */

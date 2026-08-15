@@ -152,13 +152,23 @@ export const normalizeText: StepHandler = async (parent, step, signal) => {
    * Usage is recorded here rather than per chunk, on purpose: `usage_records` answers "what did
    * this run cost", and one row per run is what the rates table and the spend report expect. A
    * row per chunk would multiply a 180-chunk run into 180 rows saying the same thing.
+   *
+   * On a batch run the quantity comes from Google's `totalBilledDuration` instead of our probe,
+   * because the point of the row is to be checkable against an invoice rather than to agree
+   * with our own estimate — and when the two disagree it is the provider's number that appears
+   * on the bill. `asr.poll` put it in `runs.pipeline.batch` when the operation finished; the
+   * chunked path has no such number and falls through to `audioMs`, which is why this is a
+   * spread rather than a branch.
    */
+  const billed = (run.pipeline as { batch?: { totalBilledDuration?: string } }).batch
+    ?.totalBilledDuration;
   await recordUsage(ctx, {
     runId: run.runId,
     providerId: run.providerId,
     model: run.model,
     mode: run.mode,
     audioMs,
+    ...(billed !== undefined ? { status: { totalBilledDuration: billed } } : {}),
   });
 
   return {
