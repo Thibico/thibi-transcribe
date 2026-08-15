@@ -36,6 +36,19 @@ resumes" is a claim best proved with a CLI and `docker kill`, not a browser.
 >    the tick was marking its runs `running` at 0% forever.
 > 8. **The context builder is `@thibi/runtime`**, shared by the CLI and the worker, and
 >    `WORKER_QUEUES` now defaults to a set that includes `worker`.
+>
+> **Corrected once more when the batch handlers were built** (amendments 97–98):
+>
+> 9. **`awaiting_external` was not a state a step could leave.** `reconcile` sent `pending` and
+>    `ready` steps and nothing else, so a `poll_after` written by a handler was read by no
+>    mechanism. Everything around the gap was already correct — the claim predicate, the partial
+>    index, the `StepResult` variant — and all of it was written for a caller that did not
+>    exist. §3 and §8 corrected.
+> 10. **§7's `asr.batch.submit` cannot return `awaiting_external`**, because `asr.poll` depends
+>    on it and only `done` or `skipped` satisfies a dependency. The wait moves to `asr.poll`,
+>    which is where the queue routing already assumed it was. §7 corrected inline.
+> 11. **§8's nudge is a boot statement, not a tick statement.** Running it every 60 s would drag
+>    every scheduled poll forward to now, flattening a 30 s → 300 s backoff to a flat 60 s.
 
 ## Prerequisites
 
@@ -70,8 +83,8 @@ a test asserts it is gone.
 | `packages/engine/src/queue/rate-bucket.ts` | `takeTokens(key, n)` over `rate_buckets` |
 | `packages/engine/src/queue/recover.ts` | Boot + 60 s reconciler, stale-heartbeat sweep |
 | `packages/engine/src/queue/cancel.ts` | `requestCancel()`, `AbortSignal` plumbing, NOTIFY listener |
-| `packages/engine/src/queue/handlers/index.ts` | Handler registry `Record<StepKind, StepHandler>` |
-| `packages/engine/src/queue/handlers/*.ts` | One file per kind, wrapping the phase 1–8 stage functions |
+| `apps/worker/src/handlers/index.ts` | Handler registry `Record<StepKind, StepHandler>`. **Under `apps/worker/`, not the engine** — a handler builds providers, which means reading the environment, which no package may do |
+| `apps/worker/src/handlers/*.ts` | One file per kind, wrapping the phase 1–8 stage functions |
 | `packages/engine/src/events/emit.ts` | `emitRunEvent()` — insert + `pg_notify` in one statement, 500 ms coalescer |
 | `packages/engine/src/events/listener.ts` | One dedicated `pg.Client` per process → `EventEmitter` |
 | `apps/worker/src/main.ts` | Entrypoint: build `EngineContext`, subscribe queues, health port, SIGTERM drain |
@@ -421,6 +434,17 @@ Three details that matter more than they look:
   space in §6, which uses the two-argument `(classid, objid)` form.
 - **Terminal steps contribute a full fraction.** A run that failed shows a progress bar at 100%
   and a red state, not a bar frozen at 63% that looks like it is still working.
+
+**A fourth, added 2026-08-15 and missing from the sketch above: `awaiting_external` steps are
+re-rung too.** The sketch sends steps it promotes and re-rings `ready` ones, and nothing else —
+which makes `awaiting_external` a state a step can enter and never leave, because the
+`poll_after` a handler writes is then read by no mechanism at all. The send carries `poll_after`
+as pg-boss's `startAfter`, so the wait is held by the queue rather than by a worker slot, which
+is the entire reason the state exists. It is predicated on `poll_after` being set: a re-ring with
+no `startAfter` would poll instantly, return `awaiting_external`, and be rung again in a tight
+loop, so a step without one waits for §8's boot nudge instead — slow and bounded rather than fast
+and unbounded. Amendment 97, and it survived three sittings because until §7's handlers existed
+no handler ever returned the state.
 
 ### 4. The planner
 
@@ -874,6 +898,34 @@ sweep never touches it.
 >
 > One thing the sketch gets right and should keep: polling must not increment `attempt`. Phase 2
 > counts polls separately in `runs.pipeline.batch.polls` for the same reason.
+>
+> **Corrected again 2026-08-15, when the handlers were actually built.** Three more, and the
+> first is structural rather than a signature mismatch. The handlers as shipped are
+> `apps/worker/src/handlers/asr-batch-submit.ts`, `asr-poll.ts` and `asr-fetch.ts`.
+>
+> 5. **`asrBatchSubmit` must return `done`, not `awaiting_external`.** `asr.poll` depends on it
+>    and the reconciler satisfies a dependency only on `done` or `skipped`, so a submit that
+>    parked in `awaiting_external` would be re-claimed by its own re-ring, hit the idempotence
+>    guard, return `awaiting_external` again, and poll nothing forever while `asr.poll` sat
+>    `pending` behind it. The sketch predates `StepResult` and the reconciler and assumes one
+>    step where §2's own kind table lists three. The waiting belongs on `asr.poll` anyway —
+>    §6 routes that kind to its own queue precisely so a sub-second poll never queues behind a
+>    forty-minute diarize, and a submit holding the wait would have done it from `asr.cloud`.
+>    Amendment 97.
+> 6. **The idempotence guard is therefore the persisted `BatchOp`, not `step.externalRef`.** A
+>    `done` result has no `externalRef` field to set, and the stored operation is the better
+>    evidence regardless: `persistOperation` commits before the step row, so it is what proves
+>    the money is already committed. Same shape as `asr.chunk`'s artifact check — amendment 96.
+> 7. **The backoff is keyed off the poll count, not `step.attempt`.** The sketch's
+>    `2 ** Math.min(step.attempt, 4)` is 30 s on every poll of a healthy operation, because
+>    `attempt` deliberately never moves while polling — the same sentence two paragraphs down
+>    says so. Keyed off `output.polls`, which does.
+>
+> `stageChunksToGcs` and `takeTokens` do not exist. The upload is `ctx.staging.put` of the
+> normalized derivative, preceded by `ensureStageable` and `claimStagingPrefix` in that order —
+> the same sequence `runBatch` uses, and the ordering is the design: the lifecycle assertion must
+> not be discovered after a 60 MB upload, and the prefix must be claimed before it so a run that
+> dies mid-upload is still findable. `rate-bucket.ts` is unbuilt, so there is no token wait.
 
 export const asrBatchSubmit: StepHandler = async (ctx, step, signal) => {
   const run = await getRun(ctx, step.runId);
@@ -981,6 +1033,7 @@ RETURNING run_id;
 
 -- (b) External work is NEVER reset. It is still running on someone else's computer;
 --     resetting it re-submits and re-bills. All we do is make it pollable immediately.
+--     BOOT ONLY — see the note under this block. On the 60 s tick this flattens the backoff.
 UPDATE run_steps
 SET    poll_after = LEAST(COALESCE(poll_after, now()), now())
 WHERE  state = 'awaiting_external'
@@ -995,6 +1048,15 @@ Statement (b) is the single most valuable line in this phase. A `docker compose 
 a two-hour `batchRecognize` costs a poll cycle. The naive alternative — treating
 `awaiting_external` like `running` — costs $19 and two hours, silently, and only shows up on the
 bill.
+
+**And it is the one statement here that must not run on the timer.** The sentence above this
+block says the sweep runs "on worker boot and every 60 s thereafter", which is right for (a) and
+(c) and wrong for (b): `LEAST(poll_after, now())` drags a *future* poll forward, so on a
+one-minute tick every scheduled poll is pulled back to now once a minute. The capped 30 s → 300 s
+backoff in §7 becomes a flat 60 s, and a two-hour operation makes 120 requests against a
+per-project quota the sync path also needs. `recoverTick(ctx, { nudgeExternal: true })` on boot;
+plain `recoverTick(ctx)` on the interval. It matched zero rows on every tick until §7's handlers
+existed, which is why nothing noticed. Amendment 98.
 
 **Heartbeat wrapper.** Every handler runs inside it; there is no opt-out.
 

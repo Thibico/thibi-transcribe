@@ -162,7 +162,7 @@ export const normalizeText: StepHandler = async (parent, step, signal) => {
    */
   const billed = (run.pipeline as { batch?: { totalBilledDuration?: string } }).batch
     ?.totalBilledDuration;
-  await recordUsage(ctx, {
+  const usage = await recordUsage(ctx, {
     runId: run.runId,
     providerId: run.providerId,
     model: run.model,
@@ -170,6 +170,28 @@ export const normalizeText: StepHandler = async (parent, step, signal) => {
     audioMs,
     ...(billed !== undefined ? { status: { totalBilledDuration: billed } } : {}),
   });
+
+  /**
+   * The run's cost is the ledger's number, not the sum of the handlers' estimates.
+   *
+   * They disagreed by 5.3× on the first real batch run — `runs.cost_usd` said $0.2658 and
+   * `usage_records` said $0.0499 for the same sixteen minutes — because
+   * `provider.costModel(mode)` **ignores the mode it is handed** and returns Google's sync
+   * Recognition list price for everything, where the Dynamic Batch SKU is $0.003/min against
+   * $0.016. The estimate is a literal compiled into the provider; the ledger resolves the
+   * `rates` table, which carries the SKU, the catalogue it was read from and the date. When
+   * two numbers for the same run can drift, the one with provenance is the one to keep, and
+   * having them differ at all is how somebody quotes the wrong one to a newsroom.
+   *
+   * Falls back to the summed estimate when no rate is configured, because `recordUsage`
+   * returns null there and "we do not know what this cost" must not become $0.00.
+   */
+  if (usage) {
+    await ctx.db.$client.query(`update runs set cost_usd = $2 where id = $1`, [
+      run.runId,
+      usage.usd,
+    ]);
+  }
 
   return {
     state: 'done',

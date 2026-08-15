@@ -59,9 +59,22 @@ export async function reclaimStaleLeases(ctx: EngineContext): Promise<string[]> 
  * `running` step — resetting it so it can be "retried" — re-submits work that is already
  * happening and pays for it twice, silently, for two hours.
  *
- * All this does is drop `poll_after` to now, so the first poll after a restart is immediate
- * rather than up to five minutes away. A `docker compose restart` during a two-hour
- * `batchRecognize` therefore costs one poll cycle.
+ * All this does is drop `poll_after` to now.
+ *
+ * **What it does not do, measured 2026-08-15 against a live operation: make the next poll
+ * immediate.** The plan and amendment 92 both claim a restart costs nothing instead of a poll
+ * cycle. It does not, and the reason is the singleton key. Polling never bumps `attempt`, so
+ * every poll of a step sends under the same key `${stepId}:${attempt}`, and `reconcile` has
+ * *already* queued the next poll with the old `start_after` before the crash. The boot re-ring
+ * hits the `short` policy's one-queued-job-per-key rule and is dropped. The row says "poll now";
+ * the queue says "poll in 27 seconds"; the queue wins. Observed exactly that, to the second.
+ *
+ * So this is a **repair for a doorbell the queue lost**, not an accelerator — and it is still
+ * worth having in that role, because a step whose job was archived or dropped would otherwise
+ * wait for nothing at all. Making a restart genuinely immediate needs `Doorbell` to be able to
+ * reschedule or cancel a queued job, which is new interface surface and is recorded as debt
+ * rather than bolted on. The cost of not having it is bounded by one poll interval — latency
+ * only, never correctness and never money.
  *
  * **It is a boot statement, and running it periodically would be a bug.** `least(poll_after,
  * now())` drags a *future* poll forward, so calling it on the 60-second tick would pull every

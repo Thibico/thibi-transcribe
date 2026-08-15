@@ -441,11 +441,31 @@ describe.skipIf(!reachable)('batch handlers', () => {
 
       // Costed from Google's billed duration rather than from our probe, because that is the
       // number that appears on the invoice.
-      const usage = await t.db.$client.query<{ reported: { totalBilledDuration?: string } }>(
-        `select reported from usage_records where run_id = $1`,
+      const usage = await t.db.$client.query<{ reported: { totalBilledDuration?: string }; usd: number }>(
+        `select reported, usd from usage_records where run_id = $1`,
         [runId],
       );
       expect(usage.rows[0]?.reported).toMatchObject({ totalBilledDuration: '600s' });
+      // The Dynamic Batch SKU: 10 minutes at $0.003, not the sync rate's $0.016.
+      expect(Number(usage.rows[0]!.usd)).toBeCloseTo(0.03, 6);
+
+      /**
+       * The run's cost is the ledger's number, not the handlers' estimate.
+       *
+       * They differed by 5.3× on the first real batch run, because `costModel` ignores the
+       * mode it is given and prices everything at Google's sync rate. The step keeps its
+       * labelled estimate; the run keeps the number resolved from `rates`, which carries the
+       * SKU and the date it was read.
+       */
+      const cost = await t.db.$client.query<{ cost_usd: number }>(
+        `select cost_usd from runs where id = $1`,
+        [runId],
+      );
+      expect(Number(cost.rows[0]!.cost_usd)).toBeCloseTo(0.03, 6);
+      expect(artifact!.costUsd, 'the step-level estimate is deliberately left alone').toBeCloseTo(
+        0.16,
+        6,
+      );
     });
 
     it('does not re-read an operation whose result is already stored', async () => {

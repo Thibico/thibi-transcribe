@@ -112,6 +112,19 @@ export const createAsrFetch =
       list: staging.list.bind(staging),
     });
 
+    /**
+     * An estimate, and on the batch path a knowingly high one.
+     *
+     * `costModel` takes a `RunMode` and Google's implementation ignores it: every mode gets the
+     * sync Recognition list price of $0.016/min, where a Dynamic Batch minute is $0.003. So
+     * this number is 5.3× the truth on this path — measured on the first real batch run, where
+     * it put $0.2658 beside a ledger row saying $0.0499 for the same audio. It is kept because
+     * the step's `cost_usd` is what `/admin/queue` shows per step and a blank there is worse
+     * than a labelled estimate, and because the artifact's `costUsd` is what a chunked run
+     * stores too. **The run's total does not come from here** — `normalize.text` overwrites
+     * `runs.cost_usd` with what `recordUsage` resolved from the `rates` table, which is the
+     * number with a SKU and a provenance date attached.
+     */
     const costUsd =
       (result.usage.audioMs / 60_000) * built.provider.costModel(run.mode).usdPerMinute;
 
