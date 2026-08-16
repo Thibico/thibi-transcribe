@@ -97,7 +97,7 @@ function fakeProvider(status: BatchStatus = { state: 'running', progressPercent:
       raw: { responses: 'recorded' },
       warnings: [],
     },
-    deps: { providerFor: async () => ({}) as never },
+    deps: { providerFor: async () => ({}) as never, diarizerFor: () => null },
   };
 
   state.deps = {
@@ -139,6 +139,8 @@ function fakeProvider(status: BatchStatus = { state: 'running', progressPercent:
       model: 'chirp_2',
       modelReason: 'test',
     }),
+    // No sidecar in these tests: the batch path never reaches for one.
+    diarizerFor: () => null,
   };
 
   return state;

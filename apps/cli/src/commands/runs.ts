@@ -93,6 +93,17 @@ export function runsCommand(): Command {
       (v) => Number.parseInt(v, 10),
       DEFAULT_OVERLAP_MS,
     )
+    .option(
+      '--diarize',
+      'also plan speaker diarization. Runs beside ASR rather than after it, and is optional: ' +
+        'a failure downgrades the speaker labels, never the transcript. Needs SIDECAR_URL on ' +
+        'the worker.',
+    )
+    .option(
+      '--speakers <n>',
+      'tell the diarizer how many speakers to expect, when you know',
+      (v) => Number.parseInt(v, 10),
+    )
     .option('--no-ring', 'plan the run but do not ring the doorbell; the 30 s tick will find it')
     .action(async (jobId: string, opts: Record<string, unknown>) => {
       const cli = await buildContext({ engineVersion: ENGINE_VERSION });
@@ -151,6 +162,26 @@ export function runsCommand(): Command {
             local: built.provider.id === 'faster-whisper',
             overlapMs: opts['overlapMs'] as number,
           },
+          /**
+           * `required: false`, always, and it is not a flag waiting to be exposed.
+           *
+           * A required diarization would make `diarize` non-optional, and the reconciler fails
+           * a run whose non-optional step dies. Phase 3's founding invariant is that
+           * diarization never gates the transcript: pyannote is about 0.09x realtime on this
+           * box's CPU, so a one-hour interview is three hours of GPU against a minute of ASR,
+           * and a sidecar that is down must cost the speaker labels and nothing else.
+           */
+          ...(opts['diarize']
+            ? {
+                diarize: {
+                  providerId: 'pyannote',
+                  required: false,
+                  ...(typeof opts['speakers'] === 'number'
+                    ? { hints: { numSpeakers: opts['speakers'] } }
+                    : {}),
+                },
+              }
+            : {}),
           // Everything below is off until its handler exists. A step planned onto a kind no
           // worker can execute is a run that stops, and saying so in the plan is better than
           // discovering it in `/admin/queue`.

@@ -14,8 +14,14 @@ export interface RecoverOptions {
 export interface RecoveryReport {
   /** Steps whose worker stopped heartbeating and which are now someone else's to run. */
   reclaimed: number;
-  /** `awaiting_external` steps made immediately pollable. Never reset — see below. */
+  /** `awaiting_external` steps made immediately pollable. Never reset — see below. Boot only. */
   nudged: number;
+  /**
+   * `awaiting_external` steps that had no `poll_after` at all, and were therefore being rung
+   * by nothing. Should always be 0; a non-zero count names a handler that returned
+   * `awaiting_external` without one.
+   */
+  unstranded: number;
   /** Live runs re-reconciled. */
   reconciled: number;
 }
@@ -123,8 +129,43 @@ export async function recoverTick(
 ): Promise<RecoveryReport> {
   const reclaimed = await reclaimStaleLeases(ctx);
   const nudged = options.nudgeExternal === true ? await nudgeExternalWork(ctx) : [];
+  const unstranded = await unstrandExternalWork(ctx);
   const reconciled = await reconcileAllLive(ctx);
-  return { reclaimed: reclaimed.length, nudged: nudged.length, reconciled };
+  return {
+    reclaimed: reclaimed.length,
+    nudged: nudged.length,
+    unstranded: unstranded.length,
+    reconciled,
+  };
+}
+
+/**
+ * Give a poll-less external step something to be rung by. **Every tick, not just boot.**
+ *
+ * The hole this closes was opened by the two fixes either side of it, which is the whole
+ * reason it needs stating. `reconcile` re-rings an `awaiting_external` step only when it has a
+ * `poll_after` — the guard that stops a re-ring with no `startAfter` from polling instantly and
+ * spinning. `nudgeExternalWork` became boot-only, because pulling every scheduled poll forward
+ * once a minute flattens a 30 s → 300 s backoff to a flat 60 s. Both are right, and together
+ * they mean a step sitting in `awaiting_external` with a **null** `poll_after` is rung by
+ * nothing at all until the next process restart. On a two-hour operation that is two hours of
+ * a run looking alive and doing nothing.
+ *
+ * A handler is supposed to always return a `pollAfter`, so this should match no rows — but
+ * "supposed to" is what the heartbeat sweep exists for too, and the cost of the assumption
+ * being wrong is silent and long. It is deliberately **not** a pull-forward: a step that has a
+ * `poll_after` is left strictly alone, so no backoff can be flattened by it, which is what lets
+ * this run on the tick where `nudgeExternalWork` may not.
+ */
+export async function unstrandExternalWork(ctx: EngineContext): Promise<string[]> {
+  const result = await ctx.db.execute<{ run_id: string }>(sql`
+    update run_steps
+    set    poll_after = now()
+    where  state = 'awaiting_external'
+      and  poll_after is null
+    returning run_id
+  `);
+  return result.rows.map((r) => r.run_id);
 }
 
 /**

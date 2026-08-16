@@ -54,6 +54,20 @@ export function chunkResultKey(runId: string, idx: number): string {
   return `runs/${runId}/results/${pad3(idx)}.json`;
 }
 
+/**
+ * The diarizer's result, waiting for the step that attributes words to speakers.
+ *
+ * The same trick `chunkResultKey` plays, for the same reason and between a different pair of
+ * steps. `diarize.poll` fetches the turns; `reconcile.speakers` consumes them — and those two
+ * are not adjacent in the DAG, because reconciliation also needs the *words*, so it waits on
+ * the ASR leaves as well. Between them is an arbitrary amount of time and, on a busy box, a
+ * different process. Nothing else can hold the turns in the meantime: `speaker_turns` rows are
+ * written by `persistDiarization`, which is the very thing that cannot run until both arrive.
+ */
+export function diarizationResultKey(runId: string): string {
+  return `runs/${runId}/diarization.json`;
+}
+
 /** Everything scratch for a run. Swept when the run completes; the chunks are re-cuttable. */
 export function runChunksPrefix(runId: string): string {
   return `runs/${runId}/chunks/`;

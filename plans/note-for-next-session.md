@@ -4,14 +4,21 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-15 (second sitting). **Both ASR shapes now work end to end through a
-real worker.** A sixteen-minute Burmese interview went through `batchRecognize` — submitted,
-polled across a `kill -9`, fetched, assembled — and `submitBatch` was called once. What is
-missing is diarization, the editorial and export kinds, cancellation, rate buckets, the SSE
-route and the compose services.
+**Last updated:** 2026-08-16. **Both ASR shapes and speaker attribution now run through a real
+worker.** Twelve of fifteen step kinds have handlers; only `media.peaks`, `editorial.pass` and
+`export` are left, and none of them is a new *shape*.
 
-Everything is committed on **`phase-9/batch-handlers`**, three commits plus the diary. **Not
-yet pushed and no PR opened** — that is the first thing to do. `main` is at the merge of PR #38.
+**Read the first item under "Do this next" before anything else: a poll chain stalled for two
+hours during a live diarization and I could not explain it.** It cost a diarization that was
+64% done and on track to finish. A defensive fix is in, but whether it was *the* cause is not
+established.
+
+Two branches are open and stacked:
+- **`phase-9/batch-handlers`** → PR **#39**, open against `main`, unmerged.
+- **`phase-9/diarize-handlers`** → stacked on it, **not pushed and no PR**. A stacked PR merges
+  into its base, not into `main`.
+
+`main` is still at the merge of PR #38.
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only, `thibi eval translate`
 > stays unrun, `--manifest` stays unbuilt. **Do not pick those up as "next" unless asked.**
@@ -30,7 +37,7 @@ yet pushed and no PR opened** — that is the first thing to do. `main` is at th
 | 5 — eval harness | ASR half published; LLM half built and measured once. **Parked by decision** |
 | 6–7 | not started. 6 has measured evidence waiting for it |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
-| **9 — queue and worker** | **both ASR paths run end to end on real audio through a real worker.** Diarization, editorial and export have no handlers; §10–12 are unbuilt. See the split below |
+| **9 — queue and worker** | **both ASR paths and diarization run on real audio through a real worker.** Editorial and export have no handlers; §10–12 are unbuilt. See the split below |
 | 10–15 | not started |
 
 ### What Phase 9 has and has not got
@@ -38,18 +45,18 @@ yet pushed and no PR opened** — that is the first thing to do. `main` is at th
 **Built, tested, and run against real audio** — the tables and migration `0004`; in
 `packages/engine/src/queue/`: `queues.ts`, `retry.ts`, `plan.ts`, `reconcile.ts`, `boss.ts`,
 `lease.ts`, `run-step.ts`, `recover.ts`, `start.ts`, `run-context.ts`;
-`pipeline/chunk-result.ts`; `@thibi/runtime`; `apps/worker` with **nine handlers** —
-`media.probe`, `media.normalize`, `plan.chunks`, `asr.chunk`, `normalize.text`,
-`asr.batch.submit`, `asr.poll`, `asr.fetch`, `staging.cleanup`; and `thibi runs start <jobId>
---mode batch`.
+`pipeline/chunk-result.ts`; `diarize/queue-persist.ts`; `@thibi/runtime`; `apps/worker` with
+**twelve handlers** — `media.probe`, `media.normalize`, `plan.chunks`, `asr.chunk`,
+`normalize.text`, `asr.batch.submit`, `asr.poll`, `asr.fetch`, `staging.cleanup`, `diarize`,
+`diarize.poll`, `reconcile.speakers`; and `thibi runs start <jobId> [--mode batch] [--diarize
+[--speakers N]]`.
 
-**Not built** — handlers for `media.peaks`, `diarize`, `diarize.poll`, `reconcile.speakers`,
-`editorial.pass`, `export`. Also `queue/cancel.ts` (the NOTIFY listener and `requestCancel`),
-`queue/rate-bucket.ts` (`takeTokens`), the global advisory-lock slots in `lease.ts`, the SSE
-route, `/api/admin/queue`, `thibi run status|retry|cancel`, and the compose services.
-`apps/web` is still a stub.
+**Not built** — handlers for `media.peaks`, `editorial.pass`, `export`. Also `queue/cancel.ts`
+(the NOTIFY listener and `requestCancel`), `queue/rate-bucket.ts` (`takeTokens`),
+`withGlobalSlot` for `asr.local`, the SSE route, `/api/admin/queue`, `thibi run
+status|retry|cancel`, and the compose services. `apps/web` is still a stub.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1269 tests across 82
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1283 tests across 83
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 across 81.
 
 ### What was actually measured
@@ -66,32 +73,59 @@ files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 acro
 - **Per-step retry with no re-billing**, both paths: `normalize.text` alone reassembled the
   whole transcript from the stored chunk artifacts, no provider call.
 - **Drain**: SIGTERM mid-run, `graceful stop complete`, exit 0.
+- **Diarization, 30 s clip, real sidecar**: 6 polls at a clean 16 s cadence, 13 turns, 2
+  speakers persisted as `speaker-00`/`speaker-01`, 66 words attributed, run `done`.
+- **Diarization with no `SIDECAR_URL`**: all three kinds `skipped`, run `done` with its
+  transcript. Phase 3's founding invariant, demonstrated by accident.
+- **Diarization, 2-minute clip: FAILED, and see the first item below.** 23 polls at 16 s
+  reaching 63.6%, then no poll for 1 h 56 m, then the 24-minute deadline fired. The handler
+  cancelled the sidecar task correctly and the run still finished with its transcript — but a
+  diarization that was on track to succeed was lost.
+- **Throughput is not measured.** Two contaminated probes that disagree in the wrong direction
+  (0.44 on 30 s, ~0.14 on 2 min against a busy box), and S6's 0.6× was pyannote **3.1** where
+  the sidecar now runs **4.0.7**. Quote none of them.
 
 ---
 
 ## Do this next
 
-**First: push `phase-9/batch-handlers` and open the PR.** Nothing is in flight and nothing is
-pushed. Then ask the user to run `! gh pr merge <n> --merge`.
+**First, and before any new feature: work out why the poll chain stalled.** During a live
+2-minute diarization, `diarize.poll` ran 23 polls at a clean 16-second cadence over 9.3 minutes,
+reached 63.6%, and then **nothing rang it for 1 hour 56 minutes**. When a poll finally arrived
+the 24-minute deadline had passed; the handler cancelled the sidecar task (correctly) and the
+step went `skipped`. The run still produced its transcript, so nothing is *wrong* with the
+run — but a diarization that would have finished was thrown away, and the same mechanism would
+throw away a two-hour `batchRecognize`.
 
-Then **`diarize` + `diarize.poll` + `reconcile.speakers`**. It is the last unbuilt shape in the
-machine and the one that makes `worker-heavy` mean something. `asr.poll` is now a worked example
-of the long-async pair — submit ends `done`, the poll holds `awaiting_external` and reschedules
-itself — and `diarize` is the identical shape against the sidecar, with `idempotency_key:
-step.id` on the submit so a re-delivered doorbell returns the existing task id instead of
-starting a second GPU job. It needs the advisory-lock slots to be honest about a one-GPU box,
-so build those with it rather than after.
+What is established: both workers stayed alive, nothing logged an error, and no pg-boss job for
+that step exists after the last poll — though v12 deletes completed jobs, so that table is not a
+complete record. One send before the stall got a `start_after` 3m43s out where the handler
+always asks for 15 s, which is unexplained on its own. The 30-second reconcile tick re-rings
+`awaiting_external` steps and evidently did not.
+
+`unstrandExternalWork` (new, runs every tick, sets `poll_after = now()` only where it is null)
+closes the one mechanism I could *prove* would produce exactly this symptom. **Whether that was
+the mechanism here is not established.** It did not reproduce on a 30-second clip. Suggested
+approach: a long-running poll with the doorbell instrumented — log every `sendStep` and its
+pg-boss return value, since `sendStep` currently discards it and a dropped send is therefore
+invisible. **Making `sendStep` log when pg-boss returns null is probably the single highest-value
+half-hour in this phase.**
+
+**Then push and open the stacked PR** for `phase-9/diarize-handlers` against
+`phase-9/batch-handlers`, and ask the user to merge #39 first.
 
 Then, in this order: `queue/cancel.ts` and the `runs.cancel_requested_by` migration;
-`rate-bucket.ts`; the SSE route and `/api/admin/queue`, where `apps/web` stops being a stub.
+`withGlobalSlot` for `asr.local` only (see below); `rate-bucket.ts`; the SSE route and
+`/api/admin/queue`, where `apps/web` stops being a stub. `editorial.pass` and `export` are the
+only step kinds left and neither is a new shape.
 
 ### The alternative that was considered
 
-Building the SSE route next. Rejected again, and the reason has changed twice: last sitting it
-was that the CLI plus `psql` proved crash recovery more convincingly than a progress bar could.
-This sitting it is that `awaiting_external` was found to be **unreachable** by writing a handler
-that used it, not by watching anything — and the same is true of the diarize pair. The UI's turn
-comes when there is a run shape it can show that the CLI cannot.
+Building the SSE route next, or `editorial.pass`. Both rejected for the same reason this time,
+and it is a stronger one than the previous two sittings': **there is a known, unexplained defect
+that silently discards hours of provider work.** Everything built on top of the queue inherits
+it, and a progress bar over a run that has quietly stopped polling is worse than no progress bar,
+because it makes the stall look like slowness. Fix the foundation first.
 
 ---
 
@@ -123,6 +157,47 @@ accelerator. Latency only. Amendment 98.
 **`nudgeExternalWork` is boot-only.** `least(poll_after, now())` on a 60-second tick pulls every
 scheduled poll back to now once a minute, flattening a 30 s → 300 s backoff to a flat 60 s.
 `recoverTick(ctx, { nudgeExternal: true })` on boot; plain `recoverTick(ctx)` on the interval.
+
+**Two correct fixes can leave a hole between them.** The boot-only nudge and the
+`poll_after`-guarded re-ring are each right, and together they stranded any `awaiting_external`
+step with a **null** `poll_after` — rung by nothing until a restart. `unstrandExternalWork` runs
+every tick and sets `poll_after = now()` *only where it is null*, which is not a pull-forward and
+so cannot flatten a backoff. **A non-zero `unstranded` in the boot log names a handler that
+returned `awaiting_external` without a `pollAfter`.**
+
+**`sendStep` discards pg-boss's return value, so a dropped send is invisible.** Under the `short`
+policy `send` returns null when a job with that singleton key is already queued. That is usually
+correct dedup — and it is also the shape of the unexplained stall above. Log it.
+
+**§6's advisory-lock slots cannot bound `diarize`, and §7 is why.** `withGlobalSlot` is a session
+lock held for the duration of the work it wraps; a step waiting on someone else's computer holds
+no worker slot, so a lock around the submit releases while the GPU runs for hours, and no session
+lock spans two steps in two processes. The sidecar's own 429 → `no_slot` is the mechanism that
+works. **`GPU_SLOTS` is parsed and unused and should be deleted.** `LOCAL_ASR_SLOTS` is different
+— `asr.chunk` on `asr.local` blocks its worker for the whole transcription — and is worth
+building. Amendment 101.
+
+**The diarize idempotency key is derived from the run id, not the step id.**
+`diarizeStepKey(runId)`, because it must be reconstructible by a process that never saw the
+submit response. §7 says `step.id`, which re-planning invalidates — and a resubmit under a new
+key starts a second job on the only GPU. Amendment 99.
+
+**A source reporting `progress: 0` used to score worse than one reporting nothing.**
+`stepFraction` now floors at 0.1 rather than defaulting to it. The sidecar reports 0 for the
+first minutes of every pyannote run, which is exactly when a user has least other evidence the
+run is alive. Amendment 100.
+
+**`SIDECAR_URL` is not in `.env`**, even though the sidecar container is up on 8081. Export it
+explicitly for any diarization work: `export SIDECAR_URL=http://localhost:8081`.
+
+**`diarize` is a `worker-heavy` queue, and the default worker does not subscribe to it.** A
+diarized run needs a second process: `WORKER_QUEUES="diarize,asr.local" WORKER_HEALTH_PORT=8091`.
+Without it `diarize` sits `ready` forever and nothing says why.
+
+**`diarize` is planned in the second pass on a chunked run**, because the early return for an
+unknown chunk count precedes it. It depends only on `media.normalize`, so nothing about it needs
+the count — it just starts one short step later than the DAG implies. Left alone deliberately;
+see the comment in `planRun`.
 
 **`provider.costModel(mode)` ignores the mode it is handed.** Google's is literally
 `costModel(_mode)` returning $0.016/min for every mode, where a Dynamic Batch minute is $0.003
@@ -297,10 +372,21 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 
 ### Phase 9
 
-- **Six of fifteen step kinds have no handler**: `media.peaks`, `diarize`, `diarize.poll`,
-  `reconcile.speakers`, `editorial.pass`, `export`. A step routed to one lands `dead` naming the
-  kind (or `skipped` when optional). `thibi runs start` plans none of them, so this is currently
-  invisible rather than dangerous.
+- **A poll chain stalled for 1 h 56 m on a live diarization and the cause is not established.**
+  The top item under *Do this next*. It discarded a diarization that was 64% done. A defensive
+  fix is in; whether it addresses the actual cause is unknown, and it did not reproduce on a
+  30-second clip.
+- **Three of fifteen step kinds have no handler**: `media.peaks`, `editorial.pass`, `export`. A
+  step routed to one lands `dead` naming the kind (or `skipped` when optional). `thibi runs
+  start` plans none of them, so this is currently invisible rather than dangerous.
+- **`GPU_SLOTS` is parsed and ignored, and should be deleted rather than implemented.** See
+  amendment 101 — the sidecar's 429 is what bounds diarization.
+- **`reconcile.speakers` depends on the ASR leaves, not on `normalize.text`.** On a chunked run
+  those are siblings, so it can be promoted before the segments exist; it returns `skipped` with
+  `reason: 'no-segments'` rather than attributing nothing to nobody. The honest fix is a planner
+  change — depend it on `normalize.text` — not a handler one.
+- **A diarized run needs two worker processes**, because `diarize` is a `worker-heavy` queue.
+  Nothing warns you when only the light worker is up; the step just sits `ready`.
 - **`runs.cost_usd` and a step's `cost_usd` are different kinds of number, deliberately.** The
   run's comes from `recordUsage`'s resolved rate; a step's is `costModel`'s estimate, which is
   **5.3× high on the batch path** because `costModel` ignores its `mode` argument. Either make
@@ -365,6 +451,8 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
   ~40 s whenever the sidecar is up.
 - **The container's 0.51× realtime is a macOS artifact.**
 - **`persistDiarization` is not idempotent per run.** **`thibi speakers merge` has no unmerge.**
+  Now reachable from the queue: re-running `reconcile.speakers` on a run that already has
+  speakers goes through the same path.
 - **The sidecar suite is not in `pnpm test`.** Run it by hand:
   `cd services/sidecar && uv run --python 3.11 --with 'fastapi>=0.115' --with
   'pydantic-settings>=2.5' --with 'pytest>=8.3' --with 'httpx>=0.27' python -m pytest`.
@@ -418,7 +506,10 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
   `docker compose --env-file .env -f infra/compose.dev.yml --profile diarize up -d sidecar`.
 - On macOS prefix docker commands with
   `PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"`. There is no `timeout` here.
-- **`SIDECAR_URL` unset means this box does no diarization**, which is supported.
+- **`SIDECAR_URL` unset means this box does no diarization**, which is supported — and it *is*
+  unset in `.env` even though the container runs. `export SIDECAR_URL=http://localhost:8081`.
+- **A diarized run needs a second worker**:
+  `WORKER_QUEUES="diarize,asr.local" WORKER_HEALTH_PORT=8091 node apps/worker/dist/main.js`.
 - **`GOOGLE_GCS_STAGING_BUCKET` is set** and the batch path works from this box.
 - **`thibi eval asr` and the LLM evals cache into `.thibi-cache`**, gitignored.
 - **`/testdata/` is gitignored and holds real recordings.** Third-party, some editorially
