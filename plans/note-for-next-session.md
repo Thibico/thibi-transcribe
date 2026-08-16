@@ -93,23 +93,28 @@ files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 acro
 2-minute diarization, `diarize.poll` ran 23 polls at a clean 16-second cadence over 9.3 minutes,
 reached 63.6%, and then **nothing rang it for 1 hour 56 minutes**. When a poll finally arrived
 the 24-minute deadline had passed; the handler cancelled the sidecar task (correctly) and the
-step went `skipped`. The run still produced its transcript, so nothing is *wrong* with the
-run — but a diarization that would have finished was thrown away, and the same mechanism would
-throw away a two-hour `batchRecognize`.
+step went `skipped`. The run still produced its transcript — but a diarization that would have
+finished was thrown away, and the same mechanism would throw away a two-hour `batchRecognize`.
 
-What is established: both workers stayed alive, nothing logged an error, and no pg-boss job for
-that step exists after the last poll — though v12 deletes completed jobs, so that table is not a
-complete record. One send before the stall got a `start_after` 3m43s out where the handler
-always asks for 15 s, which is unexplained on its own. The 30-second reconcile tick re-rings
-`awaiting_external` steps and evidently did not.
+**What has been ruled out, by measurement rather than reasoning.** pg-boss's dedup is not it:
+a re-ring sent while a job under the same key is *active* is accepted (`boss.test.ts`, and that
+claim had no test before), and a twenty-cycle send→work→send loop under one key never drops a
+link. Both were the leading hypotheses and both are dead.
 
-`unstrandExternalWork` (new, runs every tick, sets `poll_after = now()` only where it is null)
-closes the one mechanism I could *prove* would produce exactly this symptom. **Whether that was
-the mechanism here is not established.** It did not reproduce on a 30-second clip. Suggested
-approach: a long-running poll with the doorbell instrumented — log every `sendStep` and its
-pg-boss return value, since `sendStep` currently discards it and a dropped send is therefore
-invisible. **Making `sendStep` log when pg-boss returns null is probably the single highest-value
-half-hour in this phase.**
+**What is left**: `reconcile` not producing the send, or the worker's subscription going quiet.
+Neither is currently observable from outside.
+
+**What is now in place to catch it next time.** `reportOverduePolls` runs on every recovery tick
+and warns about any `awaiting_external` step sitting more than five minutes past its `poll_after`
+— naming the step, run, external ref and how long it has been silent. It is **detection, not
+repair**, deliberately: `reconcile` already re-rings those every 30 seconds and evidently did
+not, so repairing here would paper over the failure and destroy the evidence. The worker logs the
+recovery report whenever anything is non-zero. That turns a two-hour silence into a one-minute
+warning, which is what the last investigation lacked.
+
+Next move: run a long diarization, watch for `external work is overdue a poll`, and when it
+fires, check whether the 30-second reconcile tick is still running at all (it logs nothing on a
+healthy pass — consider a heartbeat line for the duration of the hunt).
 
 **Then push and open the stacked PR** for `phase-9/diarize-handlers` against
 `phase-9/batch-handlers`, and ask the user to merge #39 first.
@@ -165,9 +170,13 @@ every tick and sets `poll_after = now()` *only where it is null*, which is not a
 so cannot flatten a backoff. **A non-zero `unstranded` in the boot log names a handler that
 returned `awaiting_external` without a `pollAfter`.**
 
-**`sendStep` discards pg-boss's return value, so a dropped send is invisible.** Under the `short`
-policy `send` returns null when a job with that singleton key is already queued. That is usually
-correct dedup — and it is also the shape of the unexplained stall above. Log it.
+**pg-boss is *not* the cause of the stall — that is now measured, not assumed.** Two new tests in
+`boss.test.ts` establish it: a re-ring sent while a job under the same key is **active** is
+accepted (the load-bearing claim in `boss.ts`'s class comment, which had no test until now), and
+a twenty-cycle send→work→send loop under one key never drops a link. So the doorbell's dedup
+semantics are ruled out, and the search narrows to `reconcile` not producing the send, or the
+subscription going quiet. `sendStep` does log a dropped send, at `debug` — which the worker never
+emits, so raise the level before the next long run if you want to see them.
 
 **§6's advisory-lock slots cannot bound `diarize`, and §7 is why.** `withGlobalSlot` is a session
 lock held for the duration of the work it wraps; a step waiting on someone else's computer holds

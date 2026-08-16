@@ -22,6 +22,12 @@ export interface RecoveryReport {
    * `awaiting_external` without one.
    */
   unstranded: number;
+  /**
+   * `awaiting_external` steps sitting well past their scheduled poll. Should always be 0; a
+   * non-zero count means something that should have rung a step did not, and each one is
+   * logged with its run, kind and how long it has been quiet.
+   */
+  overdue: number;
   /** Live runs re-reconciled. */
   reconciled: number;
 }
@@ -130,13 +136,83 @@ export async function recoverTick(
   const reclaimed = await reclaimStaleLeases(ctx);
   const nudged = options.nudgeExternal === true ? await nudgeExternalWork(ctx) : [];
   const unstranded = await unstrandExternalWork(ctx);
+  const overdue = await reportOverduePolls(ctx);
   const reconciled = await reconcileAllLive(ctx);
   return {
     reclaimed: reclaimed.length,
     nudged: nudged.length,
     unstranded: unstranded.length,
+    overdue: overdue.length,
     reconciled,
   };
+}
+
+/**
+ * How far past its `poll_after` a step may sit before the silence is worth a warning.
+ *
+ * Five minutes, against a poll cadence of 15 s to 300 s. Comfortably above the slowest
+ * scheduled poll plus a tick's slack, so a healthy run never trips it, and far below the length
+ * of a stall anyone would notice by hand.
+ */
+export const OVERDUE_AFTER_SECONDS = 300;
+
+/**
+ * Say something when external work has stopped being polled. **Detection, not repair.**
+ *
+ * This exists because of a specific failure that produced no signal whatever. On 2026-08-16 a
+ * live diarization polled cleanly at 16-second intervals for 9.3 minutes, reached 63.6%, and
+ * then was not polled again for **one hour and fifty-six minutes** — by which time its deadline
+ * had passed and the work was discarded. Two workers stayed up, nothing threw, nothing was
+ * logged, and the only way to find out was to query the database by hand. A stall is
+ * indistinguishable from a slow provider from the outside, which is what made it expensive.
+ *
+ * **Deliberately not a repair.** `reconcile` already re-rings every `awaiting_external` step
+ * with a `poll_after` on its 30-second tick, and in that incident it evidently did not — so a
+ * repair here would paper over whichever mechanism failed and remove the evidence with it. The
+ * warning names the step, the run and how long it has been quiet, which is what the next
+ * investigation needs. If the cause is ever found and fixed, this becomes a line that never
+ * fires, which is the right shape for a check of this kind.
+ */
+export async function reportOverduePolls(ctx: EngineContext): Promise<OverduePoll[]> {
+  const result = await ctx.db.execute<{
+    id: string;
+    run_id: string;
+    kind: string;
+    external_ref: string | null;
+    overdue_seconds: number;
+  }>(sql`
+    select id, run_id, kind, external_ref,
+           extract(epoch from (now() - poll_after))::int as overdue_seconds
+    from   run_steps
+    where  state = 'awaiting_external'
+      and  poll_after < now() - make_interval(secs => ${OVERDUE_AFTER_SECONDS})
+    order  by poll_after
+  `);
+
+  const overdue = result.rows.map((r) => ({
+    stepId: r.id,
+    runId: r.run_id,
+    kind: r.kind,
+    externalRef: r.external_ref,
+    overdueSeconds: r.overdue_seconds,
+  }));
+
+  for (const step of overdue) {
+    ctx.logger?.warn(
+      { ...step },
+      'external work is overdue a poll; something should have rung this step and did not',
+    );
+  }
+  return overdue;
+}
+
+export interface OverduePoll {
+  stepId: string;
+  runId: string;
+  kind: string;
+  externalRef: string | null;
+  /** How long past its scheduled poll it has been sitting. */
+  overdueSeconds: number;
 }
 
 /**

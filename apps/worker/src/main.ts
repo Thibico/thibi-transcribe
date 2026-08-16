@@ -94,7 +94,21 @@ async function main(): Promise<void> {
 
   const timers = [
     setInterval(() => {
-      void recoverTick(ctx).catch((err: unknown) => logger.error({ err }, 'recovery tick failed'));
+      void recoverTick(ctx)
+        .then((report) => {
+          /**
+           * Silent when there is nothing to say, and loud the moment there is.
+           *
+           * A healthy tick repairs nothing, and logging that once a minute is how the line
+           * everyone stops reading gets written. Every field below is an anomaly by
+           * construction — a reclaimed lease, a stranded step, a poll that should have
+           * happened and did not — so any of them being non-zero is worth a line.
+           */
+          if (report.reclaimed || report.unstranded || report.overdue) {
+            logger.warn({ ...report }, 'recovery tick repaired or found something');
+          }
+        })
+        .catch((err: unknown) => logger.error({ err }, 'recovery tick failed'));
     }, RECOVER_INTERVAL_MS),
     setInterval(() => {
       void reconcileAllLive(ctx).catch((err: unknown) =>
