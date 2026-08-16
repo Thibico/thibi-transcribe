@@ -24,6 +24,19 @@ describe('stepFraction', () => {
     expect(stepFraction({ state: 'running', output: { progress: 'lots' } })).toBe(0.1);
   });
 
+  /**
+   * The sidecar reports `progress: 0` for the whole of a pyannote run — pyannote does not
+   * stream progress and zero is how it says so. Without the floor, being honest about not
+   * knowing scored *worse* than saying nothing: a three-hour step contributed 0 for three
+   * hours where a silent one would have contributed 0.1. Found by watching a real diarization.
+   */
+  it('does not punish a source for honestly reporting zero', () => {
+    expect(stepFraction({ state: 'awaiting_external', output: { progress: 0 } })).toBe(0.1);
+    expect(stepFraction({ state: 'running', output: { progress: -1 } })).toBe(0.1);
+    // And a genuine report above the floor still wins.
+    expect(stepFraction({ state: 'awaiting_external', output: { progress: 0.5 } })).toBe(0.5);
+  });
+
   it('credits nothing to work that has not begun', () => {
     expect(stepFraction({ state: 'pending', output: null })).toBe(0);
     expect(stepFraction({ state: 'ready', output: null })).toBe(0);

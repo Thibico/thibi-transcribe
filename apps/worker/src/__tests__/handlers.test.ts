@@ -298,5 +298,6 @@ function neverCalling(onCall: () => void): HandlerDeps {
       model: 'chirp_2',
       modelReason: 'test',
     }),
+    diarizerFor: () => null,
   };
 }

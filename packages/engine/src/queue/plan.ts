@@ -30,7 +30,18 @@ export interface PipelineSpec {
      */
     overlapMs?: number;
   };
-  diarize?: { providerId: string; required: boolean };
+  diarize?: {
+    providerId: string;
+    required: boolean;
+    /**
+     * What the caller knows about how many people are talking, passed to the diarizer.
+     *
+     * On the spec rather than taken from a flag at execution time because it is a property of
+     * *this run*: a run planned with `numSpeakers: 2` must still be submitted that way when
+     * `diarize` is picked up by a different process, possibly days later after a redeploy.
+     */
+    hints?: { numSpeakers?: number; minSpeakers?: number; maxSpeakers?: number };
+  };
   editorial: Array<{ kind: 'cleanup' | 'translate' | 'entities' | 'document'; targetLang?: string }>;
   peaks: boolean;
   exports: Array<{ format: string; layer: string; targetLang?: string }>;
@@ -115,6 +126,16 @@ export function planRun(p: PipelineSpec, chunkCount: number | null): StepSpec[] 
    * this point depends, directly or through `normalize.text`, on `['asr.chunk','*']`. The
    * `batch` path is exempt because its ASR steps are not sharded at all — the count it does not
    * know is not one it needs.
+   *
+   * **`diarize` is caught by this too, and it costs a little parallelism.** That step depends
+   * only on `media.normalize`, so nothing about it needs a chunk count — but it is emitted
+   * after the early return, so on a chunked run it is not created until `plan.chunks` has
+   * committed. In DAG terms it still starts the moment its dependency is satisfied; in wall
+   * clock it starts one short step later than it could. Left alone rather than hoisted above
+   * the return: splitting the planner's output into "before the count is known" and "after"
+   * by anything other than that one condition is how the two passes stop being the same code
+   * path, which is the property that makes `materialisePlan` convergent. `plan.chunks` is
+   * seconds against a diarization measured in hours.
    */
   if (chunkCount === null && p.asr.mode !== 'batch') {
     return out.map((s, ordinal) => ({ ...s, ordinal }));
@@ -152,7 +173,10 @@ export function planRun(p: PipelineSpec, chunkCount: number | null): StepSpec[] 
       kind: 'diarize',
       optional,
       dependsOn: [['media.normalize', -1]],
-      input: { providerId: p.diarize.providerId },
+      input: {
+        providerId: p.diarize.providerId,
+        ...(p.diarize.hints ? { hints: p.diarize.hints } : {}),
+      },
     });
     add({ kind: 'diarize.poll', optional, dependsOn: [['diarize', -1]] });
     add({
