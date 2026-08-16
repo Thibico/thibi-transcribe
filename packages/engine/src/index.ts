@@ -27,6 +27,7 @@ export {
   ChunkTooLargeError,
   EngineError,
   FfmpegError,
+  NonRetryableError,
   NotConfiguredError,
   ProviderError,
   ProviderUnavailableError,
@@ -348,6 +349,7 @@ export {
   POLL_MAX_MS,
   POLL_START_MS,
   pollToCompletion,
+  providerCodeFor,
   runBatch,
   type BatchRunInput,
   type BatchRunOutput,
@@ -557,6 +559,7 @@ export {
   reclaimStaleLeases,
   reconcileAllLive,
   recoverTick,
+  type RecoverOptions,
   type RecoveryReport,
 } from './queue/recover.js';
 export {

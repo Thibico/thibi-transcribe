@@ -326,8 +326,19 @@ export async function pollToCompletion(
   }
 }
 
-/** The provider's own code for this language, from the matrix — never a literal. */
-function providerCodeFor(provider: TranscriptionProvider, language: ResolvedLanguage): string {
+/**
+ * The provider's own code for this language, from the matrix — never a literal.
+ *
+ * Exported because `asr.batch.submit` builds the same `BatchRequest` from a worker rather than
+ * from this function, and the mapping has to be the *same* mapping. A second copy in the
+ * handler would be one more place for `my-MM` to become `my` in one path and not the other —
+ * the sync path maps inside the provider, so batch is the only path where the caller does it,
+ * and a lone copy is a lone chance to drift.
+ */
+export function providerCodeFor(
+  provider: TranscriptionProvider,
+  language: ResolvedLanguage,
+): string {
   return provider.supportsLanguage(language.code)?.providerCode ?? language.code;
 }
 

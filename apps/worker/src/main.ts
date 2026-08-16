@@ -89,7 +89,7 @@ async function main(): Promise<void> {
    * Whatever the previous process was holding has to be reclaimed before this one starts
    * competing for it, or the first thirty seconds are spent racing a ghost.
    */
-  const report = await recoverTick(ctx);
+  const report = await recoverTick(ctx, { nudgeExternal: true });
   logger.info({ ...report }, 'boot recovery complete');
 
   const timers = [

@@ -4,14 +4,14 @@
 things you would otherwise have to rediscover. It is rewritten at the end of every session —
 see the *Session handoff* section of [`../AGENTS.md`](../AGENTS.md).
 
-**Last updated:** 2026-08-15. **Phase 9's central claim is no longer a claim.** A sixteen-minute
-Burmese interview went through a real worker end to end, and a `kill -9` mid-run resumed without
-re-billing two chunks that had already been paid for. What is missing is everything the *other*
-ten step kinds need, plus cancellation, rate buckets, the SSE route and the compose services.
+**Last updated:** 2026-08-15 (second sitting). **Both ASR shapes now work end to end through a
+real worker.** A sixteen-minute Burmese interview went through `batchRecognize` — submitted,
+polled across a `kill -9`, fetched, assembled — and `submitBatch` was called once. What is
+missing is diarization, the editorial and export kinds, cancellation, rate buckets, the SSE
+route and the compose services.
 
-Everything is merged. **Nothing is in flight.** `main` is at the merge of **PR #38**, which is
-this sitting's four commits — the region-grep fix and the shared provider builder, the five
-handlers and `thibi runs start`, the live run and the defect it found, and the record.
+Everything is committed on **`phase-9/batch-handlers`**, three commits plus the diary. **Not
+yet pushed and no PR opened** — that is the first thing to do. `main` is at the merge of PR #38.
 
 > **The eval work stays parked.** The CI gate is manual-dispatch only, `thibi eval translate`
 > stays unrun, `--manifest` stays unbuilt. **Do not pick those up as "next" unless asked.**
@@ -30,116 +30,145 @@ handlers and `thibi runs start`, the live run and the defect it found, and the r
 | 5 — eval harness | ASR half published; LLM half built and measured once. **Parked by decision** |
 | 6–7 | not started. 6 has measured evidence waiting for it |
 | 8 — ingest | engine + CLI done; web routes deliberately not built |
-| **9 — queue and worker** | **a chunked run works end to end, on real audio, through a real worker.** The batch, diarize, editorial and export kinds have no handlers; §10–12 are unbuilt. See the split below |
+| **9 — queue and worker** | **both ASR paths run end to end on real audio through a real worker.** Diarization, editorial and export have no handlers; §10–12 are unbuilt. See the split below |
 | 10–15 | not started |
 
 ### What Phase 9 has and has not got
 
 **Built, tested, and run against real audio** — the tables and migration `0004`; in
 `packages/engine/src/queue/`: `queues.ts`, `retry.ts`, `plan.ts`, `reconcile.ts`, `boss.ts`,
-`lease.ts`, `run-step.ts`, `recover.ts`, `start.ts` (new), `run-context.ts` (new);
-`pipeline/chunk-result.ts` (new); `@thibi/runtime` (now also the home of `buildProvider` and the
-Google defaults); `apps/worker` with **five handlers** — `media.probe`, `media.normalize`,
-`plan.chunks`, `asr.chunk`, `normalize.text`; and `thibi runs start <jobId>`.
+`lease.ts`, `run-step.ts`, `recover.ts`, `start.ts`, `run-context.ts`;
+`pipeline/chunk-result.ts`; `@thibi/runtime`; `apps/worker` with **nine handlers** —
+`media.probe`, `media.normalize`, `plan.chunks`, `asr.chunk`, `normalize.text`,
+`asr.batch.submit`, `asr.poll`, `asr.fetch`, `staging.cleanup`; and `thibi runs start <jobId>
+--mode batch`.
 
-**Not built** — handlers for `media.peaks`, `asr.batch.submit`, `asr.poll`, `asr.fetch`,
-`diarize`, `diarize.poll`, `reconcile.speakers`, `editorial.pass`, `export`, `staging.cleanup`.
-Also `queue/cancel.ts` (the NOTIFY listener and `requestCancel`), `queue/rate-bucket.ts`
-(`takeTokens`), the global advisory-lock slots in `lease.ts`, the SSE route,
-`/api/admin/queue`, `thibi run status|retry|cancel`, and the compose services. `apps/web` is
-still a stub.
+**Not built** — handlers for `media.peaks`, `diarize`, `diarize.poll`, `reconcile.speakers`,
+`editorial.pass`, `export`. Also `queue/cancel.ts` (the NOTIFY listener and `requestCancel`),
+`queue/rate-bucket.ts` (`takeTokens`), the global advisory-lock slots in `lease.ts`, the SSE
+route, `/api/admin/queue`, `thibi run status|retry|cancel`, and the compose services.
+`apps/web` is still a stub.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1256 tests across 81
-files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1240 across 79.
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1269 tests across 82
+files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 across 81.
 
 ### What was actually measured
 
-- **16m37s Burmese, 20 chunks, chirp_2**: 40 segments, 2553 words, 19 seams merged, no
-  placeholders, `wordTimingQuality=full`, **$0.2719**.
-- **Per-step retry with no re-billing**: `normalize.text` alone was reset and reassembled the
-  whole transcript from the stored chunk artifacts. Cost unchanged.
-- **Crash recovery**: 5-minute clip, `kill -9` with one chunk done and five running. All five
-  reclaimed at attempt 1; **chunks 0 and 5 logged `chunk already transcribed; not re-sending`**
-  because their provider call had completed before the kill. Run finished `done`, 12 segments,
-  724 words, $0.0816.
+- **Batch, 16m37s Burmese, chirp_2, `asia-southeast1`**: one operation, `dynamicBatching: true`,
+  5 polls, **317761 ms latency**, 35 segments, 2364 words, no placeholders,
+  `wordTimingQuality=full`, staging swept (2 objects), **$0.04985** at the `batch_minute` SKU
+  against Google's reported `totalBilledDuration` of `997s`.
+- **`kill -9` at 63% of the operation**: restart logged `reclaimed=0 nudged=1` — the poll step
+  correctly *not* reclaimed as a stale lease — and the same operation resumed and finished.
+  **`submitBatch` called once.**
+- **Chunked, same recording, 20 chunks** (first sitting): 40 segments, 2553 words, 19 seams
+  merged, $0.2719.
+- **Per-step retry with no re-billing**, both paths: `normalize.text` alone reassembled the
+  whole transcript from the stored chunk artifacts, no provider call.
 - **Drain**: SIGTERM mid-run, `graceful stop complete`, exit 0.
 
 ---
 
 ## Do this next
 
-**Pick one of two, and they are genuinely different bets.**
+**First: push `phase-9/batch-handlers` and open the PR.** Nothing is in flight and nothing is
+pushed. Then ask the user to run `! gh pr merge <n> --merge`.
 
-1. **Finish the ASR paths — `asr.batch.submit` / `asr.poll` / `asr.fetch`.** This is where the
-   phase's *other* headline claim lives: "restart during `awaiting_external` and assert
-   `submitBatch` was called once". Phase 2 already has `submitBatch`, `pollBatch`,
-   `fetchBatchResult`, `persistOperation` and `resumeBatchRun` built and live-tested, so these
-   three handlers are genuinely thin. **Recommended**, because `awaiting_external` is the only
-   state in the machine that has never been exercised, and it is the one where getting it wrong
-   costs money rather than time.
-2. **`diarize` + `diarize.poll` + `reconcile.speakers`**, which is the other long-async shape and
-   the one that makes `worker-heavy` mean something. Needs the advisory-lock slots to be honest
-   about a one-GPU box.
+Then **`diarize` + `diarize.poll` + `reconcile.speakers`**. It is the last unbuilt shape in the
+machine and the one that makes `worker-heavy` mean something. `asr.poll` is now a worked example
+of the long-async pair — submit ends `done`, the poll holds `awaiting_external` and reschedules
+itself — and `diarize` is the identical shape against the sidecar, with `idempotency_key:
+step.id` on the submit so a re-delivered doorbell returns the existing task id instead of
+starting a second GPU job. It needs the advisory-lock slots to be honest about a one-GPU box,
+so build those with it rather than after.
 
-Then, in this order: `queue/cancel.ts` and the `runs.cancel_requested_by` migration; the
-advisory-lock slots; `rate-bucket.ts`; the SSE route and `/api/admin/queue`, where `apps/web`
-stops being a stub.
+Then, in this order: `queue/cancel.ts` and the `runs.cancel_requested_by` migration;
+`rate-bucket.ts`; the SSE route and `/api/admin/queue`, where `apps/web` stops being a stub.
 
 ### The alternative that was considered
 
-Building the SSE route next, so there is something to look at. Still rejected, and now for a
-better reason than last sitting's: the CLI plus `psql` proved crash recovery and the no-re-bill
-guarantee *this sitting*, which a progress bar could not have. The UI's turn comes when there is
-a run shape it can show that the CLI cannot.
+Building the SSE route next. Rejected again, and the reason has changed twice: last sitting it
+was that the CLI plus `psql` proved crash recovery more convincingly than a progress bar could.
+This sitting it is that `awaiting_external` was found to be **unreachable** by writing a handler
+that used it, not by watching anything — and the same is true of the diarize pair. The UI's turn
+comes when there is a run shape it can show that the CLI cannot.
 
 ---
 
 ## What you would otherwise rediscover
 
-**A wildcard dependency over a kind with no shards yet is vacuously satisfied, and it made the
-first real run transcribe nothing and report success.** `startRun` planned with
-`chunkCount = 0`, so `normalize.text`'s `['asr.chunk','*']` resolved to an empty array — and a
-step with no dependencies is a root. It ran on the first tick, wrote zero segments, and the run
-hit `done` at progress 1 while twenty chunks were still queued. `planRun` now takes
-`number | null`; `null` stops the plan at `plan.chunks`. **The reconciler cannot defend against
-this**: by then `depends_on` is `uuid[]` and a collapsed wildcard looks exactly like a root.
-**Ask this of any new wildcard dependency.** Amendment 94.
+**`reconcile` is the only thing that sends a step, and it must send `awaiting_external` ones
+too.** Until this sitting it sent only `pending` (promoted) and `ready` (re-rung) steps, so
+`awaiting_external` was a state a step could enter and never leave — while `runStep` claimed
+`state in ('ready','awaiting_external')`, `run_steps` indexed `poll_after` for exactly that
+predicate, and `StepResult` had the variant. All of it written for a caller that did not exist.
+**Ask of any new step state: what sends it?** Amendment 97.
 
-**Replanning must renumber ordinals.** The second pass inserts the shards *between*
-`plan.chunks` and `normalize.text`, and `ON CONFLICT DO NOTHING` left the earlier rows on the
-first pass's numbering — `normalize.text` at ordinal 3 beside `asr.chunk` shard 0. Ordinal order
-is a topological order and `reconcile` walks it. Now `DO UPDATE SET ordinal` with a
-`WHERE ordinal IS DISTINCT FROM` guard, which is what keeps planning a no-op. Amendment 95.
+**A self-rescheduling step must always return a `pollAfter`.** The re-ring is predicated on it
+precisely because a re-ring with no `startAfter` polls instantly, returns `awaiting_external`,
+and is rung again — a tight loop against a provider.
 
-**Where the seam merge lives decides where persistence lives, and the plan had it wrong.**
-Segments are **not** written per chunk. Chunks overlap by 1200 ms so the LCS merge can drop the
-words said twice, so a chunk's *leading* words are not final until its predecessor's are known.
-`asr.chunk` writes its parsed result to `runs/{id}/results/{idx}.json`; `normalize.text` writes
-the segments once, in order, and inserts the placeholders. **The artifact is also the re-billing
-guard** — committed before the step row, so a worker killed between the provider answering and
-the step being marked done does not pay twice. Amendment 96.
+**A step that another step depends on cannot end in `awaiting_external`.** Only `done` or
+`skipped` satisfies a dependency. That is why `asr.batch.submit` ends `done` and the wait lives
+on `asr.poll`, against what §7 sketched. Amendment 97.
 
-**A JSON `null` is not a SQL NULL.** `createRun` wrote `JSON.stringify(x ?? null)` into a jsonb
-column, so `probe_raw is not null` was true for every asset ever inserted. Anything asking "was
-this ever populated" of a jsonb column needs `<> 'null'::jsonb` too.
+**The boot nudge does not make the next poll immediate, and the plan says it does.** Measured:
+after a `kill -9`, `run_steps.poll_after` was 35 s in the past while the queued pg-boss job
+still started 27 s in the future. Polling never bumps `attempt`, so every poll shares one
+singleton key, `reconcile` had already queued the next poll before the crash, and the boot
+re-ring was dropped by the `short` policy. **The row says "poll now", the queue says "poll
+later", and the queue wins.** The nudge is a repair for a doorbell the queue *lost*, not an
+accelerator. Latency only. Amendment 98.
 
-**`reconcile` is now also the only writer of `jobs.status`**, for terminal runs, predicated on
-`primary_run_id`. Without it every queue-driven run left its job listed as `running` forever.
+**`nudgeExternalWork` is boot-only.** `least(poll_after, now())` on a 60-second tick pulls every
+scheduled poll back to now once a minute, flattening a 30 s → 300 s backoff to a flat 60 s.
+`recoverTick(ctx, { nudgeExternal: true })` on boot; plain `recoverTick(ctx)` on the interval.
 
-**`WORKER_HEALTH_PORT` is 8090, not the plan's 8081** — 8081 is the sidecar's published port in
-this repo's own `infra/compose.dev.yml`.
+**`provider.costModel(mode)` ignores the mode it is handed.** Google's is literally
+`costModel(_mode)` returning $0.016/min for every mode, where a Dynamic Batch minute is $0.003
+— so a batch run's `runs.cost_usd` was 5.3× the truth, sitting beside a correct
+`usage_records` row. **`runs.cost_usd` now comes from `recordUsage`'s resolved rate**, never
+from the summed handler estimates. The `rates` table carries the SKU and the read date; the
+provider carries a literal. **Any new cost number should come from the ledger.**
+
+**`normalize.text` is not idempotent per run.** Re-running it over a run that still has segments
+violates `segments_run_idx_live`. The `superseded_at` / `superseded_by` columns exist for this
+and `writeTranscript` does not use them. Delete the segments first, or fix it properly.
+
+**`progressPercent` is absent on the first two polls of a Google batch operation** and populated
+from the third (31%, 63% measured). §7's "measured 26/52/78" is not the whole story and the 0.2
+fallback is load-bearing, not decorative.
+
+**A wildcard dependency over a kind with no shards yet is vacuously satisfied**, and it made the
+first real chunked run transcribe nothing and report success. `planRun` takes `number | null`;
+`null` stops the plan at `plan.chunks`. **The reconciler cannot defend against this.** Amendment 94.
+
+**Replanning must renumber ordinals.** `DO UPDATE SET ordinal` with a `WHERE ordinal IS DISTINCT
+FROM` guard, which is what keeps planning a no-op. Amendment 95.
+
+**Where the seam merge lives decides where persistence lives.** `asr.chunk` writes
+`runs/{id}/results/{idx}.json`; `normalize.text` writes the segments once, in order. **The
+artifact is also the re-billing guard.** `asr.fetch` writes the *same* artifact at `idx 0`, so
+one persistence path serves both ASR shapes. Amendment 96.
+
+**A JSON `null` is not a SQL NULL.** Anything asking "was this ever populated" of a jsonb column
+needs `<> 'null'::jsonb` too.
+
+**`reconcile` is the only writer of `jobs.status`**, for terminal runs, predicated on
+`primary_run_id`.
+
+**`WORKER_HEALTH_PORT` is 8090, not the plan's 8081** — 8081 is the sidecar's published port.
+**`EADDRINUSE` on 8090 means a worker is already running**, and it arrives as a raw stack trace.
 
 **A handler that builds its own provider is a handler no test can reach.** `HandlerDeps` injects
 `providerFor`. Amendment 75's question, asked of new code.
 
-**The three DB suites that kept timing out had no `beforeAll` budget at all**, and
-`constraints.test.ts` carried a comment claiming they did. All three now say `60_000`. **If a DB
-suite fails at exactly 5000ms or 10000ms, it is a missing budget, not a bug.**
+**A handler must never name a region.** `regionOf(providerId, config)` in
+`handlers/shared.ts` reads it off the built provider config; `apps/runtime/src/config.ts` is the
+only file in source permitted to write one down, and CI greps for a second.
 
-**The layer rule now lists `@thibi/runtime` as an app**, and it owns `buildProvider`,
-`readEnvironment` and `DEFAULT_GOOGLE_REGION`/`MODEL`. `apps/runtime/src/config.ts` is the only
-file in source permitted to name a region, and CI enforces it — **check that grep before adding
-a second app**.
+**The three DB suites that kept timing out had no `beforeAll` budget at all.** All three now say
+`60_000`. **If a DB suite fails at exactly 5000ms or 10000ms, it is a missing budget, not a bug.**
 
 ### Older findings that still hold
 
@@ -162,13 +191,10 @@ queue has a subscriber. **Ask this of any new queue name.**
 on `xmin`, which advances on any UPDATE including one writing what was already there.
 
 **A test can assert the opposite of the design and still look right.** Three sittings running.
-The two-stage-plan test checked only that no `asr.chunk` shards were emitted — true throughout,
-and satisfied by the bug that made the first real run useless.
 
 **Node and undici report connection failures on `err.code`, not in the message.**
 
-**`step_state` is a real Postgres enum**, deliberately against this schema's convention, because
-most writes to that table are hand-written SQL no TypeScript type constrains.
+**`step_state` is a real Postgres enum**, deliberately against this schema's convention.
 
 **Phase 1 already shipped `runs.state = 'partial'` and `cancel_requested_at`.**
 **`cancel_requested_by` does not exist** and §10's `requestCancel` writes it — that needs a
@@ -177,8 +203,8 @@ migration.
 **`reconcile` is exported as `reconcileRun`.** The package already exports a `reconcile`: the
 word↔turn diarization algorithm from Phase 3.
 
-**A pooled client must never keep a `LISTEN`.** Same hazard that stops PgBouncer in transaction
-pooling mode carrying `LISTEN` at all, which is why the real listener needs `DATABASE_URL_DIRECT`.
+**A pooled client must never keep a `LISTEN`.** Which is why the real listener needs
+`DATABASE_URL_DIRECT`.
 
 **A `spikes/*.mjs` or scratch script that imports `@thibi/*` cannot be run from outside the
 package.** Write it inside `packages/<x>/` and `cd` there.
@@ -212,9 +238,10 @@ Weight by duration.** Amendment 56.
 
 **One probe is not a measurement.** 1 in 21.
 
-**Run it. Build it. Start it.** Every defect in the last six sittings came from doing that. This
-sitting is the strongest case yet: the code passed 1250 tests, `pnpm lint`, `pnpm typecheck` and
-a full build, and the very first real file it saw produced an empty transcript labelled `done`.
+**Run it. Build it. Start it.** Every defect in the last seven sittings came from doing that.
+This sitting: the code passed 1269 tests, `pnpm lint`, `pnpm typecheck` and a full build, and
+the first real operation it saw produced a run cost 5.3× too high and disproved a claim the
+plan makes about restart latency.
 
 **Ask what shape the real caller passes, not what shape is convenient to construct.**
 
@@ -256,12 +283,13 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 5. **Is a hosted diarization service worth evaluating?** Long-tail coverage, then data residency,
    then whether it re-transcribes, then cost, then quality — which needs question 4 first.
 6. **Phase 9 open question 5: should `editorial.pass` steps live on the run's DAG at all?**
-   **Decide before phase 12 wires the UI.** Revisitable because `optional: true` steps do not
-   affect run terminality.
+   **Decide before phase 12 wires the UI.**
 7. **Phase 9 open question 6: should exporting a `partial` run require acknowledgement?**
    Recommendation: a warning in the response, and a visible note in docx/md.
 8. **Risk 8, from Phase 2**: nothing proves a `DYNAMIC_BATCHING` submission is billed against the
-   Dynamic Batch SKU. Needs a real invoice. Phase 14.
+   Dynamic Batch SKU. **A live run has now recorded `dynamicBatching: true` and a
+   `usage_records` row of $0.04985 at `batch_minute` for 997 billed seconds — the invoice is the
+   only thing left to check it against.** Phase 14.
 
 ---
 
@@ -269,31 +297,41 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 
 ### Phase 9
 
-- **Ten of fifteen step kinds have no handler.** A step routed to one lands `dead` naming the
+- **Six of fifteen step kinds have no handler**: `media.peaks`, `diarize`, `diarize.poll`,
+  `reconcile.speakers`, `editorial.pass`, `export`. A step routed to one lands `dead` naming the
   kind (or `skipped` when optional). `thibi runs start` plans none of them, so this is currently
-  invisible rather than dangerous — **but the moment `peaks`, `diarize`, `editorial` or `exports`
-  is put in a spec, that run stops.**
-- **`awaiting_external` has never been exercised.** No handler returns it yet, so the state, its
-  recovery nudge and the "`submitBatch` called once" guarantee are all still theory.
+  invisible rather than dangerous.
+- **`runs.cost_usd` and a step's `cost_usd` are different kinds of number, deliberately.** The
+  run's comes from `recordUsage`'s resolved rate; a step's is `costModel`'s estimate, which is
+  **5.3× high on the batch path** because `costModel` ignores its `mode` argument. Either make
+  `costModel` mode-aware, or price steps from `rates` too — but do not leave a caller assuming
+  the two agree.
+- **`normalize.text` is not idempotent per run.** `writeTranscript` inserts without superseding,
+  so a retry over existing segments violates `segments_run_idx_live`. The supersede columns
+  exist and are unused.
+- **The boot nudge cannot beat an already-queued poll job.** Making a restart genuinely
+  immediate needs `Doorbell` to reschedule or cancel a queued job — new interface surface.
+- **A failed batch operation cannot be re-submitted.** `status.retryable` says re-submitting
+  would be worth something; nothing acts on it, because `asr.batch.submit` is already `done` with
+  the failed operation persisted. Needs a re-plan mechanism.
 - **`asr.chunk` downloads the whole normalized FLAC per shard.** Twenty chunks means twenty
-  downloads of the same file from MinIO. Fine locally, wasteful in production; a byte-range fetch
-  or a presigned URL handed to ffmpeg would fix it.
+  downloads of the same file from MinIO.
 - **`media.probe` downloads the source to probe it** when the asset was not probed at ingest.
-  Unavoidable for a URL import, wasteful otherwise.
 - **`runs.cancel_requested_by` does not exist** and §10's `requestCancel` writes it.
 - **The advisory-lock global slots are unbuilt**, so `GPU_SLOTS` and `LOCAL_ASR_SLOTS` are parsed
   and ignored. `--scale worker-heavy=3` on a one-GPU box would OOM the card.
-- **`MAX_BUCKET_WAIT_MS` is parsed and ignored** — `rate-bucket.ts` does not exist, so the
-  `rate_buckets` table is empty and every provider is unthrottled.
+- **`MAX_BUCKET_WAIT_MS` is parsed and ignored** — `rate-bucket.ts` does not exist.
 - **The worker's error path for an unexpected startup failure is a raw stack trace.**
 - **`infra/compose.yml` has no `worker` or `worker-heavy` service**, and no
   `stop_grace_period: 120s`. Docker's default grace is 10 s, which turns a graceful drain into
   the crash path on every deploy.
 - **The chunk-result artifacts are never swept.** `runs/{id}/results/*.json` stays in the bucket
-  after `normalize.text` has consumed it. `staging.cleanup` is the natural owner and is unbuilt.
+  after `normalize.text` has consumed it. `staging.cleanup` **cannot** own this — it is a
+  sibling of `normalize.text`, not a successor, so it would race the read. Needs a new step
+  depending on `normalize.text`.
 - **The fourth routing rule is still unbuilt and undesigned** ("sync quota exhausted → batch").
-  It must not be silent, and it only makes sense at submit time. If neither is worth it, **delete
-  the rule from the overview rather than leaving an unimplemented promise.**
+  If it is not worth it, **delete the rule from the overview rather than leaving an
+  unimplemented promise.**
 - **`thibi runs start` has no `--diarize`, no `--peaks`, no `--max-duration`.** Deliberate: each
   would plan a step nothing can execute.
 
@@ -349,11 +387,14 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 
 - **The worker's health port is 8090.** 8081 is the sidecar.
 - **Start a worker with** `set -a && source .env && set +a && node apps/worker/dist/main.js`.
-  `pnpm build` first — it runs from `dist`, not from source.
-- **The full loop, end to end**, and it works today:
-  `thibi ingest <file> --lang my-MM -y` → `thibi runs start <jobId> -p google` → start the worker
-  → `thibi runs show <runId>`.
-- **`Db` is a Drizzle handle over a `pg.Pool` exposed as `$client`**, and `@thibi/db` now exports
+  `pnpm build` first — it runs from `dist`, not from source. **`kill` the shell wrapper and the
+  node process survives**: kill the pid from `pgrep -f "worker/dist/main.js"`, not the job.
+- **The full loop, end to end**, and it works today for both modes:
+  `thibi ingest <file> --lang my-MM -y` → `thibi runs start <jobId> -p google [--mode batch]` →
+  start the worker → `thibi runs show <runId>`.
+- **`psql` into the dev database**: `docker exec thibi-dev-postgres-1 psql -U thibi -d thibi`.
+  The role is `thibi`, **not** `postgres`.
+- **`Db` is a Drizzle handle over a `pg.Pool` exposed as `$client`**, and `@thibi/db` exports
   `DbClient` so callers need not depend on `pg` for the type. `connect` is overloaded with a
   callback form, so `Awaited<ReturnType<…>>` resolves to `void` — do not re-derive it.
 - **Groq's free tier caps `openai/gpt-oss-20b` at 8000 tokens per minute**, and one cleanup
@@ -378,6 +419,7 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
 - On macOS prefix docker commands with
   `PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"`. There is no `timeout` here.
 - **`SIDECAR_URL` unset means this box does no diarization**, which is supported.
+- **`GOOGLE_GCS_STAGING_BUCKET` is set** and the batch path works from this box.
 - **`thibi eval asr` and the LLM evals cache into `.thibi-cache`**, gitignored.
 - **`/testdata/` is gitignored and holds real recordings.** Third-party, some editorially
   sensitive, and this repo is public. Do not `git add -f` in there and do not name a source in
@@ -387,7 +429,7 @@ used. Put the timeout on the individual `beforeAll`/`afterAll`/`it`.
   and `GROQ_API_KEY`. **A CLI run needs it exported** — `set -a && source .env && set +a`.
 - **Run `pnpm test` with the services up**, and **re-run before believing a red DB suite**.
 - **`git` leaves a stale `.git/index.lock`, and it is now routine.** Run `ps aux | grep "[g]it"`
-  — the bracket matters — and remove the lock when nothing is there. Hit twice this sitting.
+  — the bracket matters — and remove the lock when nothing is there.
 - **A stacked PR merges into its base, not into `main`.**
 - Merging PRs is frequently blocked by the permission classifier. Push and open the PR, then ask
   the user to run `! gh pr merge <n> --merge` themselves — and do not re-check afterwards.

@@ -472,6 +472,40 @@ describe.skipIf(!reachable)('recovery sweep', () => {
     expect((await row(runId, 'media.probe')).poll_after!.getTime()).toBeCloseTo(past.getTime(), -3);
   });
 
+  /**
+   * The nudge is a *boot* statement, and running it on the 60-second tick was a bug that only
+   * a handler using `awaiting_external` could ever expose.
+   *
+   * `least(poll_after, now())` drags a scheduled poll forward. On the periodic tick that means
+   * every poll is pulled back to now once a minute, so a capped backoff of 30 s → 300 s
+   * silently becomes a flat 60 s: a two-hour batch run would make 120 pointless requests
+   * against a quota the sync path also needs.
+   */
+  it('does not drag a scheduled poll forward on the periodic tick', async () => {
+    const runId = await plant();
+    const future = new Date(Date.now() + 5 * 60_000);
+    await t.db.$client.query(
+      `update run_steps set state = 'awaiting_external', poll_after = $2
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId, future],
+    );
+
+    const tick = await recoverTick(ctx);
+    expect(tick.nudged).toBe(0);
+    expect((await row(runId, 'media.probe')).poll_after!.getTime()).toBeCloseTo(
+      future.getTime(),
+      -3,
+    );
+
+    // The boot call still does it, which is what makes a restart cost nothing rather than a
+    // poll cycle.
+    const boot = await recoverTick(ctx, { nudgeExternal: true });
+    expect(boot.nudged).toBeGreaterThanOrEqual(1);
+    expect((await row(runId, 'media.probe')).poll_after!.getTime()).toBeLessThanOrEqual(
+      Date.now() + 1000,
+    );
+  });
+
   it('lists live runs and skips finished ones', async () => {
     const live = await plant();
     const done = await plant();

@@ -1,9 +1,13 @@
 import type { HandlerRegistry } from '@thibi/engine';
+import { createAsrBatchSubmit } from './asr-batch-submit.js';
 import { createAsrChunk } from './asr-chunk.js';
+import { createAsrFetch } from './asr-fetch.js';
+import { createAsrPoll } from './asr-poll.js';
 import { mediaNormalize } from './media-normalize.js';
 import { mediaProbe } from './media-probe.js';
 import { normalizeText } from './normalize-text.js';
 import { createPlanChunks } from './plan-chunks.js';
+import { stagingCleanup } from './staging-cleanup.js';
 import { defaultDeps, type HandlerDeps } from './shared.js';
 
 /**
@@ -15,13 +19,13 @@ import { defaultDeps, type HandlerDeps } from './shared.js';
  * retried by two mechanisms that disagree about how many times it has run. An ESLint rule on
  * `handlers/**` enforces it, and `tests/lint-rules.test.ts` watches the rule.
  *
- * **The five below are a complete chunked run** and nothing more. The kinds still absent —
- * `media.peaks`, the three `asr.batch.*`, `diarize`, `diarize.poll`, `reconcile.speakers`,
- * `editorial.pass`, `export`, `staging.cleanup` — are absent on purpose rather than forgotten:
- * a step routed to a kind with no handler lands `dead` naming the kind, which is the right
- * answer for a worker built before that kind existed, and an `optional: true` kind lands
- * `skipped` and does not fail the run. `thibi runs start` plans none of them today, so the gap
- * is visible in the plan rather than only at execution time.
+ * **The nine below are a complete chunked run and a complete batch run**, and nothing more. The
+ * kinds still absent — `media.peaks`, `diarize`, `diarize.poll`, `reconcile.speakers`,
+ * `editorial.pass`, `export` — are absent on purpose rather than forgotten: a step routed to a
+ * kind with no handler lands `dead` naming the kind, which is the right answer for a worker
+ * built before that kind existed, and an `optional: true` kind lands `skipped` and does not
+ * fail the run. `thibi runs start` plans none of them today, so the gap is visible in the plan
+ * rather than only at execution time.
  */
 export function createHandlerRegistry(deps: HandlerDeps = defaultDeps()): HandlerRegistry {
   return {
@@ -29,6 +33,10 @@ export function createHandlerRegistry(deps: HandlerDeps = defaultDeps()): Handle
     'media.normalize': mediaNormalize,
     'plan.chunks': createPlanChunks(deps),
     'asr.chunk': createAsrChunk(deps),
+    'asr.batch.submit': createAsrBatchSubmit(deps),
+    'asr.poll': createAsrPoll(deps),
+    'asr.fetch': createAsrFetch(deps),
+    'staging.cleanup': stagingCleanup,
     'normalize.text': normalizeText,
   };
 }

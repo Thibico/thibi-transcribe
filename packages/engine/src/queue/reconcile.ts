@@ -202,6 +202,36 @@ export async function reconcile(
       }
     }
 
+    /**
+     * Ring the next poll of anything waiting on someone else's computer.
+     *
+     * **Without this the whole `awaiting_external` state is unreachable**, and it was: nothing
+     * in this function sent a step that was not `pending` or `ready`, so the first handler to
+     * return `awaiting_external` would have parked its step forever with a `poll_after` no
+     * mechanism ever read. `runStep` has always claimed `state in ('ready','awaiting_external')`
+     * and `run_steps_poll_idx` has always indexed `poll_after` for exactly this predicate —
+     * both were written for a caller that did not exist. Found by building the first handler
+     * that uses the state rather than by any test, because every test until now planned a DAG
+     * whose steps all finish in one go.
+     *
+     * `sendFor` puts `poll_after` on the send as `startAfter`, so the delay is held by pg-boss
+     * rather than by a sleeping worker — which is the point of the state. The singleton key is
+     * `${id}:${attempt}` and polling deliberately does not touch `attempt`, so a re-ring while
+     * the previous poll is still queued is deduped by the `short` policy and one while it is
+     * *active* is allowed through and finds `running`. Both are the behaviours we want.
+     *
+     * **Predicated on `poll_after` being set**, and that is a guard rather than a formality: a
+     * handler that returned `awaiting_external` without one would otherwise be re-rung with no
+     * `startAfter` at all, poll instantly, and spin. A null `poll_after` is instead picked up
+     * by `nudgeExternalWork` on the next boot, which is slow and bounded rather than fast and
+     * unbounded.
+     */
+    for (const s of steps) {
+      if (s.state === 'awaiting_external' && s.pollAfter) {
+        sends.push(sendFor(s, runId));
+      }
+    }
+
     // ---- weighted progress ----------------------------------------------------------------
     const totalWeight = steps.reduce((a, s) => a + s.weight, 0) || 1;
     const doneWeight = steps.reduce((a, s) => a + s.weight * stepFraction(s), 0);
