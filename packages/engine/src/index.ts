@@ -450,6 +450,14 @@ export {
 } from './diarize/identity.js';
 export { DiarizerBusyError, PyannoteSource, type SidecarConfig } from './diarize/pyannote.js';
 export {
+  loadDiarizeHandle,
+  persistDiarizeHandle,
+  readDiarizationResult,
+  recordDiarizeProgress,
+  writeDiarizationResult,
+  type DiarizePipelineRecord,
+} from './diarize/queue-persist.js';
+export {
   allocateSpeakerKeys,
   freshSpeakersFromTurns,
   loadReconcileInput,
@@ -559,6 +567,7 @@ export {
   reclaimStaleLeases,
   reconcileAllLive,
   recoverTick,
+  unstrandExternalWork,
   type RecoverOptions,
   type RecoveryReport,
 } from './queue/recover.js';

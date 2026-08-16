@@ -244,10 +244,10 @@ the alternative; `-1` is chosen because it also sorts and groups without special
 | `media.peaks` | — | `media` | **yes** | 2 | Waveform peaks; failure must not fail a run |
 | `plan.chunks` | — | `media` | no | 1 | Writes `run_chunks` before any network call |
 | `asr.chunk` | chunk idx | `asr.cloud` / `asr.local` | no | 10 each | The bulk of a chunked run |
-| `asr.batch.submit` | — | `asr.cloud` | no | 5 | Persists LRO to `external_ref`, → `awaiting_external` |
+| `asr.batch.submit` | — | `asr.cloud` | no | 5 | Persists the whole `BatchOp` to `runs.pipeline.batch`, ends **`done`** — see the §7 note |
 | `asr.poll` | — | `asr.poll` | no | 40 | Self-rescheduling; carries the batch's whole weight |
 | `asr.fetch` | — | `asr.cloud` | no | 10 | Reads the output JSON from staging, persists segments |
-| `diarize` | — | `diarize` | **yes** | 40 | pyannote; `optional` when the pipeline says best-effort |
+| `diarize` | — | `diarize` | **yes** | 40 | pyannote; submits and ends **`done`** — the wait is `diarize.poll`'s. A 429 is `no_slot`, never an attempt |
 | `diarize.poll` | — | `asr.poll` | yes | — | Weight folded into `diarize` |
 | `reconcile.speakers` | — | `worker` | yes | 4 | The word↔turn algorithm from phase 3 |
 | `normalize.text` | — | `worker` | no | 3 | Registry normalizer chain, per word |
@@ -741,7 +741,7 @@ Note the retry goes back to `pending`, not `ready` — the reconciler owns promo
 | `editorial` | `editorial.pass` | `worker` | LLM calls; network-bound |
 | `export` | `export` | `worker` | Pure CPU, fast |
 | `maintenance` | `maintenance.*` | `worker` | Cron |
-| `diarize` | `diarize` | **`worker-heavy`** | pyannote: **~0.6× realtime on CPU** (measured ×2, S6 2026-08-10; was an unmeasured 0.15–0.4×). Never gates the transcript — ASR completes in ~1 min where this takes ~1 h 40 m |
+| `diarize` | `diarize` | **`worker-heavy`** | pyannote: S6 measured **~0.6× realtime on CPU** (×2, 2026-08-10) against **pyannote 3.1**; the sidecar now runs **4.0.7** and the number has not been re-measured properly. Two contaminated probes on 2026-08-15: a 30 s clip reported `realtimeFactor` **0.44**, a 2-minute clip implied **~0.14** while a test suite competed for the box. **Do not quote either** — both are far below the "clip too short to mean anything" bar of amendment 56, and they disagree in the wrong direction. Never gates the transcript — ASR completes in ~1 min |
 | `asr.local` | `asr.chunk` (faster-whisper) | **`worker-heavy`** | Same GPU/RAM, same contention |
 
 The split exists so that a 2.5-hour pyannote job on a 1-hour interview cannot starve the
@@ -808,6 +808,27 @@ wrong and a busy hour marks half the diarize steps dead.
 
 Slot counts come from `GPU_SLOTS` (default 1) and `LOCAL_ASR_SLOTS` (default 1). They are
 per-database, so they hold across containers, which is the entire point.
+
+> **Corrected 2026-08-15, when the diarize handlers were built: this cannot bound `diarize`,
+> and §7 is the reason.** `withGlobalSlot` is a *session-scoped* advisory lock held for the
+> duration of `fn`, which works only for a step that occupies a worker while the constrained
+> resource is busy. §7's whole rule is that a step waiting on someone else's computer holds no
+> worker slot — so `diarize` submits and returns in milliseconds, and a lock taken around the
+> submit would release while the GPU ran for the next three hours. There is no way to hold a
+> session lock across `diarize` and `diarize.poll`: they are different steps, usually different
+> processes, and the worker holding it may die. **The two sections contradict each other and §7
+> wins**, because holding a worker for three hours to hold a lock is the failure this phase
+> exists to remove.
+>
+> What actually bounds diarization is the sidecar, which owns one slot, knows whether it is
+> taken, and answers 429 — mapped to `no_slot`, which is the same `StepResult` this section
+> specifies and reaches it without a second mechanism that could disagree. **The authority on a
+> resource's capacity should be the thing that has it.** `GPU_SLOTS` is therefore parsed and
+> unused, and should be deleted rather than left as a knob that does nothing.
+>
+> `LOCAL_ASR_SLOTS` is *not* in the same position and the lock is still the right tool there:
+> `asr.chunk` routed to `asr.local` is one synchronous step that holds its worker for the whole
+> transcription, so a session lock spans exactly the work it is protecting. It is unbuilt.
 
 **Outbound per-provider token bucket.** Google's quota is per *project*. Ten containers each
 respecting `maxConcurrentRequests: 8` is 80 concurrent requests against one project quota.
@@ -1003,9 +1024,38 @@ The poll step's `attempt` counter is reserved for *poll calls that themselves fa
 Polls are counted in `output.polls` and displayed on the timeline; a run showing 47 polls over
 four hours is informative, a run showing `attempt 47/8` is a bug report.
 
-`diarize` / `diarize.poll` are the identical pair against the sidecar, with
-`idempotency_key: step.id` on the submit so a re-delivered doorbell returns the existing task id
-instead of starting a second GPU job.
+`diarize` / `diarize.poll` are the identical pair against the sidecar — built 2026-08-15, with
+the same structural correction as the batch pair: **`diarize` ends `done` and the wait lives on
+`diarize.poll`**, because the poll step depends on the submit step and only `done` or `skipped`
+satisfies a dependency.
+
+**The idempotency key is derived from the run id, not from `step.id`.** Phase 3 settled this
+before `run_steps` existed and the reason survives: `diarizeStepKey(runId)` is
+`"<runId>:diarize"`, and the sidecar's task id is `uuid5(NAMESPACE_URL, key)`. A key that has to
+be *reconstructible by a process that never saw the submit response* is what makes the guarantee
+hold — `step.id` is not, because re-planning a run mints new step rows, and a resubmit under a
+new key starts a second job on the only GPU rather than finding the first. There are therefore
+two guards and both are worth having: the persisted `DiarizeHandle` saves the round trip, and
+the sidecar's own key covers the window where the handle never reached Postgres.
+
+Three differences from the batch pair, each for a stated reason:
+
+- **`diarize.poll` fetches as well as polls.** `asr.fetch` is a separate step because reading a
+  `batchRecognize` output is a bucket listing plus an unbounded JSON parse against a provider
+  that charges per operation; the sidecar returns its result on one call over the compose
+  network, so a fourth step would be a queue round trip to save nothing.
+- **The poll interval is flat at 15 s, not a capped backoff.** Google's quota is shared with the
+  sync path, so backing off there has a price attached. The sidecar is ours and a status call
+  costs nothing, so the useful property is a progress bar that moves.
+- **A 429 becomes `no_slot`, never an error.** The sidecar holds one slot; a busy one is
+  scheduling. `diarize` has two attempts, so spending one on a scheduling collision would fail a
+  run with nothing wrong with it.
+
+`reconcile.speakers` is the join, and **the only step in the DAG that depends on both branches
+of it**. That is why the turns go to object storage between `diarize.poll` and it rather than
+into `speaker_turns`: those rows are written by `persistDiarization` in the same transaction
+that attributes segments and words, and a turn set without its attribution is a half-finished
+diarization the editor would render as speakers who said nothing.
 
 ### 8. Crash recovery
 

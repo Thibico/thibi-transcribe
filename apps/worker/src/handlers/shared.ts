@@ -2,8 +2,10 @@ import type { RunStepRow } from '@thibi/db';
 import { extensionOf, toTempFile, type TempFile } from '@thibi/storage';
 import {
   NotConfiguredError,
+  PyannoteSource,
   loadRunContext,
   normalizedKeyFor,
+  type DiarizationSource,
   type EngineContext,
   type ProviderConfig,
   type RunContext,
@@ -59,10 +61,35 @@ export type ProviderFor = (ctx: EngineContext, run: RunContext) => Promise<Built
  */
 export interface HandlerDeps {
   providerFor: ProviderFor;
+  /**
+   * The diarizer, or null when this box does no diarization.
+   *
+   * **Null is a supported configuration, not a failure.** `SIDECAR_URL` unset means the
+   * operator did not deploy a GPU tier, and the three diarize kinds are all `optional`
+   * precisely so such a run produces a transcript with no speaker labels rather than no
+   * transcript. A handler that threw here would turn a deliberate deployment choice into a
+   * dead step.
+   */
+  diarizerFor: DiarizerFor;
 }
 
+export type DiarizerFor = (ctx: EngineContext) => DiarizationSource | null;
+
 export function defaultDeps(): HandlerDeps {
-  return { providerFor };
+  return { providerFor, diarizerFor };
+}
+
+/**
+ * Build the sidecar client from the environment, once per call.
+ *
+ * `SIDECAR_URL` is read here rather than carried on `EngineContext` because the context is
+ * built in `@thibi/runtime` and shared with the CLI, which reaches for the sidecar through its
+ * own flag. The env read is what keeps this out of the engine — a package may not read
+ * ambient configuration, and a `PyannoteSource` constructed inside one would be exactly that.
+ */
+export function diarizerFor(_ctx: EngineContext): DiarizationSource | null {
+  const baseUrl = readEnvironment().SIDECAR_URL;
+  return baseUrl ? new PyannoteSource({ baseUrl }) : null;
 }
 
 /**

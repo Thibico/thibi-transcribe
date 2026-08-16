@@ -23,6 +23,7 @@ export {
   chunkKey,
   chunkResultKey,
   derivativeKey,
+  diarizationResultKey,
   extensionOf,
   rawResponseKey,
   runChunksPrefix,

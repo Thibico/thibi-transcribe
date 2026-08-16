@@ -506,6 +506,45 @@ describe.skipIf(!reachable)('recovery sweep', () => {
     );
   });
 
+  /**
+   * The hole between the two fixes either side of it.
+   *
+   * `reconcile` re-rings an `awaiting_external` step only when it has a `poll_after` — the
+   * guard against a re-ring with no `startAfter` spinning. The blanket nudge became boot-only,
+   * because pulling every scheduled poll forward once a minute flattens the backoff. Together
+   * they leave a step with a **null** `poll_after` rung by nothing until the next restart.
+   */
+  it('un-strands an external step that has no poll_after at all', async () => {
+    const runId = await plant();
+    await t.db.$client.query(
+      `update run_steps set state = 'awaiting_external', poll_after = null
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId],
+    );
+
+    const report = await recoverTick(ctx);
+    expect(report.unstranded).toBeGreaterThanOrEqual(1);
+    expect((await row(runId, 'media.probe')).poll_after).not.toBeNull();
+  });
+
+  it('leaves a scheduled poll alone while un-stranding', async () => {
+    // The property that lets this one run on the tick where the blanket nudge may not: a step
+    // that already has a `poll_after` is strictly untouched, so no backoff can be flattened.
+    const runId = await plant();
+    const future = new Date(Date.now() + 5 * 60_000);
+    await t.db.$client.query(
+      `update run_steps set state = 'awaiting_external', poll_after = $2
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId, future],
+    );
+
+    await recoverTick(ctx);
+    expect((await row(runId, 'media.probe')).poll_after!.getTime()).toBeCloseTo(
+      future.getTime(),
+      -3,
+    );
+  });
+
   it('lists live runs and skips finished ones', async () => {
     const live = await plant();
     const done = await plant();

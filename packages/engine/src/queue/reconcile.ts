@@ -342,10 +342,26 @@ export function stepFraction(s: Pick<RunStepRow, 'state' | 'output'>): number {
   if (TERMINAL.includes(s.state)) return 1;
   if (s.state === 'running' || s.state === 'awaiting_external') {
     const p = (s.output as { progress?: unknown } | null)?.progress;
-    return typeof p === 'number' ? clamp01(p) : 0.1;
+    /**
+     * `STARTED_FRACTION` is a floor, not a default — and it was only a default until a real
+     * diarization was watched.
+     *
+     * The sidecar reports `progress: 0` for the whole of a pyannote run, because pyannote does
+     * not stream progress and 0 is how it says so. Under a plain default that made a *reported*
+     * zero score strictly worse than reporting nothing at all: a three-hour step contributed 0
+     * to the bar for three hours, where a silent one would have contributed 0.1. A source being
+     * honest about not knowing should not be punished for it.
+     *
+     * Still never inflated upward: the floor is the same 0.1 any started step gets, and any
+     * genuine report above it wins.
+     */
+    return typeof p === 'number' ? Math.max(STARTED_FRACTION, clamp01(p)) : STARTED_FRACTION;
   }
   return 0;
 }
+
+/** What a step is worth for having begun. Visible, honest, and never guessed upward. */
+const STARTED_FRACTION = 0.1;
 
 function clamp01(n: number): number {
   if (!Number.isFinite(n)) return 0;
