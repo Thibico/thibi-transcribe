@@ -174,6 +174,7 @@ function fakeDiarizer(status: DiarizeStatus = { state: 'running', progress: 0.4 
         throw new Error('the diarize path must not build an ASR provider');
       },
       diarizerFor: () => source,
+      maxBucketWaitMs: 30_000,
     },
   } as unknown as FakeDiarizer;
 }
@@ -351,6 +352,7 @@ describe.skipIf(!reachable)('diarize handlers', () => {
           throw new Error('unused');
         },
         diarizerFor: () => null,
+      maxBucketWaitMs: 30_000,
       };
 
       const result = await createDiarize(deps)(ctx, await stepFor(runId, 'diarize'), NEVER);

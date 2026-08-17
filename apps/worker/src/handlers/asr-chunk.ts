@@ -2,15 +2,23 @@ import { sql } from 'drizzle-orm';
 import { rawResponseKey } from '@thibi/storage';
 import {
   AbortedError,
+  RateLimitedError,
   SidecarBusyError,
+  awaitBucket,
   cutChunk,
   loadRunChunks,
+  penalise,
   readChunkResult,
   toChunkResult,
   writeChunkResult,
   type StepHandler,
 } from '@thibi/engine';
-import { openStep, fetchNormalized, type HandlerDeps } from './shared.js';
+import {
+  bucketKeyFor,
+  fetchNormalized,
+  openStep,
+  type HandlerDeps,
+} from './shared.js';
 
 /**
  * `asr.chunk` — recognise one chunk. The bulk of a chunked run, one shard at a time.
@@ -104,6 +112,33 @@ export const createAsrChunk = (deps: HandlerDeps): StepHandler => async (parent,
    * own `Retry-After`, and **`attempt` untouched**. The one authority on the sidecar's capacity
    * is the sidecar.
    */
+  /**
+   * Ask the shared bucket before talking to the provider.
+   *
+   * Layer 2 (`batchSize`) is per process; a quota is per project. Ten containers each
+   * respecting a cap of eight is eighty concurrent requests against one Google project, and
+   * the provider's answer to that arrives as 429s that look like our bug. The bucket is a row,
+   * so it is the only mechanism here that knows what every *other* worker is doing.
+   *
+   * A long wait requeues instead of sleeping: a worker asleep on a bucket holds a lease and
+   * does nothing, and `no_slot` exists precisely so contention costs a queue position rather
+   * than a retry. An unconfigured provider has no row and no wait, which is what keeps the
+   * throttle opt-in rather than something to remember before anything works.
+   */
+  const bucket = bucketKeyFor(run, built.config);
+  const gate = await awaitBucket(ctx, bucket, 1, { maxWaitMs: deps.maxBucketWaitMs });
+  if (gate.kind === 'requeue') {
+    ctx.logger.info(
+      { chunk: idx, bucket, retryAfter: gate.retryAfter.toISOString() },
+      'asr: throttled by the provider bucket; requeueing without an attempt',
+    );
+    await ctx.db.execute(sql`
+      update run_chunks set status = 'pending', attempts = greatest(attempts - 1, 0)
+      where run_id = ${run.runId}::uuid and idx = ${idx}
+    `);
+    return { state: 'no_slot', retryAfter: gate.retryAfter };
+  }
+
   let result;
   try {
     result = await built.provider.transcribe(built.config, {
@@ -116,6 +151,22 @@ export const createAsrChunk = (deps: HandlerDeps): StepHandler => async (parent,
       logger: ctx.logger.child({ chunk: idx }),
     });
   } catch (err) {
+    /**
+     * Charge a rejection to every sibling about to make the same call.
+     *
+     * `capacity / 2` off the shared bucket is how one chunk's 429 slows its seven siblings with
+     * no cross-process messaging at all — they read the deficit out of the row on their next
+     * `takeTokens`. The error is then rethrown rather than swallowed: a provider saying "too
+     * many" is a real signal, and the step's own backoff honours its `Retry-After`. This differs
+     * from the local-sidecar case below on purpose — that is contention for *our* one slot,
+     * which is scheduling; this is us being over someone's quota, which is a fault worth a
+     * visible attempt.
+     */
+    if (err instanceof RateLimitedError && !(err instanceof SidecarBusyError)) {
+      await penalise(ctx.db, bucket);
+      ctx.logger.warn({ chunk: idx, bucket }, 'asr: provider rate-limited us; bucket penalised');
+      throw err;
+    }
     if (err instanceof SidecarBusyError) {
       const waitMs = err.retryAfterMs ?? 60_000;
       ctx.logger.info(

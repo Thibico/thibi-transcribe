@@ -562,6 +562,14 @@ export {
   type StepResult,
 } from './queue/run-step.js';
 export {
+  awaitBucket,
+  declareBucket,
+  penalise,
+  takeTokens,
+  type BucketOutcome,
+  type BucketWaitOptions,
+} from './queue/rate-bucket.js';
+export {
   CANCEL_CHANNEL,
   isRunCancelling,
   requestCancel,

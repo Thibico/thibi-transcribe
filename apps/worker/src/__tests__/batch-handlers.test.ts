@@ -97,7 +97,11 @@ function fakeProvider(status: BatchStatus = { state: 'running', progressPercent:
       raw: { responses: 'recorded' },
       warnings: [],
     },
-    deps: { providerFor: async () => ({}) as never, diarizerFor: () => null },
+    deps: {
+      providerFor: async () => ({}) as never,
+      diarizerFor: () => null,
+      maxBucketWaitMs: 30_000,
+    },
   };
 
   state.deps = {
@@ -141,6 +145,7 @@ function fakeProvider(status: BatchStatus = { state: 'running', progressPercent:
     }),
     // No sidecar in these tests: the batch path never reaches for one.
     diarizerFor: () => null,
+    maxBucketWaitMs: 30_000,
   };
 
   return state;
