@@ -51,17 +51,27 @@ Two branches are open and stacked:
 `diarize.poll`, `reconcile.speakers`; and `thibi runs start <jobId> [--mode batch] [--diarize
 [--speakers N]]`.
 
-**Not built** — handlers for `media.peaks`, `editorial.pass`, `export`. Also
-`queue/rate-bucket.ts` (`takeTokens`), `withGlobalSlot` for `asr.local`, the **`LISTEN
+**Not built** — handlers for `media.peaks`, `editorial.pass`, `export`. Also the **`LISTEN
 run_cancel` subscriber** (the notify is sent; nothing consumes it — see below), the SSE route,
 `/api/admin/queue`, `thibi run status|retry`, and the compose services. `apps/web` is still a
 stub.
 
+**Cancellation and rate limiting are built** — `queue/cancel.ts` with migration `0005`, and
+`queue/rate-bucket.ts` wired into `asr.chunk`. `GPU_SLOTS`/`LOCAL_ASR_SLOTS` are deleted rather
+than implemented (amendments 101, 103), so §6's three concurrency layers are now: container
+subscription, `batchSize`, and the shared bucket.
+
 **Cancellation is built** — `queue/cancel.ts`, migration `0005` for `cancel_requested_by`, and
 the heartbeat carrying it to a running handler. `thibi runs cancel <id> [--by who]`.
 
-`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1283 tests across 83
-files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 across 81.
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1301 tests across 84
+files, nothing skipped**, three consecutive clean runs, with Postgres, MinIO and the sidecar up.
+
+**`pnpm test:contract` is a second command you have to run**, and it covers something the default
+pass no longer does: `pyannote.contract.test.ts`, which checks our hard-coded wire shapes against
+what `schemas.py` actually emits. It performs a real diarization and was starving the Postgres
+suites into hook timeouts — see amendment 104. 6 tests, ~58 s. **In the definition of done for
+any change to the sidecar or `pyannote.ts`**, because the two halves can now drift in silence.
 
 ### What was actually measured
 
@@ -135,9 +145,16 @@ healthy pass — consider a heartbeat line for the duration of the hunt).
 **Then push and open the stacked PR** for `phase-9/diarize-handlers` against
 `phase-9/batch-handlers`, and ask the user to merge #39 first.
 
-Then, in this order: `withGlobalSlot` for `asr.local` only (see below); `rate-bucket.ts`; the
-SSE route and `/api/admin/queue`, where `apps/web` stops being a stub. `editorial.pass` and
-`export` are the only step kinds left and neither is a new shape.
+Then **the SSE route and `/api/admin/queue`**, where `apps/web` stops being a stub — that is the
+whole of what is left in §11–12, and everything it needs now exists. `editorial.pass` and
+`export` are the only step kinds without handlers and neither is a new shape.
+
+The overview's **fourth routing rule** ("sync quota exhausted → batch") is now buildable for the
+first time, because `rate_buckets` is the component that knows that state. §6 says settle two
+things before building it: it must not be silent (a run that becomes 5× slower because a
+*different* run exhausted the quota is a support ticket), and it only makes sense at submit time
+for runs still `pending`. **If neither is worth it, delete the rule from the overview** rather
+than leaving an unimplemented promise.
 
 ### The alternative that was considered
 
@@ -200,6 +217,15 @@ nothing subscribes, and the heartbeat's existing UPDATE carries it with one extr
 stall. The heartbeat re-reads the row every 15 s forever, so a missed check is a delay rather
 than a bug. **The listener is still worth building, as an accelerator over that guarantee.**
 Amendment 102.
+
+**A test that asserts a wall-clock window is measuring the machine.** Three of the rate-bucket
+tests asserted "the wait is between 1.5 s and 3 s" against a bucket refilling once a second; they
+passed alone and failed under a loaded full-suite run. Assert the arithmetic against the balance
+the row actually holds, and set rates so only the deficit moves.
+
+**`pnpm test` no longer runs the pyannote contract test — run `pnpm test:contract` too.** It does
+a real diarization and was starving the Postgres suites into hook timeouts; **raising its deadline
+made that worse**, which is how you know the timeout was not the problem. Amendment 104.
 
 **A busy sidecar is not a broken one, and the contract test used to say otherwise.** Running
 `pnpm test` while any worker is diarizing failed `pyannote.contract.test.ts` with
