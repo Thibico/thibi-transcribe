@@ -166,4 +166,84 @@ describe.skipIf(!reachable)('PgBossDoorbell', () => {
     await sleep(2500);
     expect(calls, 'retryLimit: 0 means one attempt, full stop').toBe(1);
   });
+
+  /**
+   * **The load-bearing claim in `boss.ts`'s class comment, which had no test.**
+   *
+   * `short` was chosen over `stately` and `exclusive` because those "also exclude the *active*
+   * job", and a re-ring while a step is running has to be allowed. That is not a nicety: it is
+   * the entire poll loop. `runStep` calls `reconcile` from its `finally`, which is *inside* the
+   * pg-boss handler, so the job carrying the current poll is `active` at the moment the next
+   * poll is sent. If `short` excluded active jobs, every self-rescheduling step would ring its
+   * own next poll into a void and stall — which is exactly the symptom a live diarization
+   * produced on 2026-08-16.
+   */
+  it('accepts a re-ring sent while a job under the same key is still active', async () => {
+    // `!` because the resolvers are assigned inside the executors, which TypeScript cannot see.
+    let inHandler!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      inHandler = resolve;
+    });
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    await doorbell.work('editorial', async () => {
+      inHandler();
+      await held;
+    });
+
+    const key = 'active-rering:0';
+    const cycle = send({ queue: 'editorial', singletonKey: key });
+    await doorbell.sendStep(cycle);
+    await entered;
+
+    // The job is active right now. This is the send `reconcile` makes from `runStep`'s finally.
+    await doorbell.sendStep({ ...cycle, startAfter: new Date(Date.now() + 3600_000) });
+    expect(
+      await queued('editorial', key),
+      'a re-ring during an active job is how a poll schedules its successor',
+    ).toBe(1);
+
+    release();
+  });
+
+  /**
+   * The poll loop itself, compressed from two hours into a second.
+   *
+   * A self-rescheduling step runs this cycle for as long as the provider takes: send, work,
+   * complete, send again under the *same* key, because polling deliberately does not bump
+   * `attempt`. A single dropped link stalls the step until something else happens to ring it,
+   * and on 2026-08-16 that cost a diarization which was 64% done and on track to finish.
+   *
+   * Twenty cycles rather than three: the failure being ruled out is one that appears after a
+   * queue has some history — a stale unique index entry, a maintenance pass, a completed job
+   * that keeps blocking its own successor.
+   */
+  it('never drops a link in a repeated send-work-send cycle under one key', async () => {
+    // `asr.cloud`, because it is the fastest-polling queue no other test in this file
+    // subscribes to — a second `work()` on a queue already worked here would make the count
+    // a measure of which handler won.
+    const key = 'pollcycle:0';
+    const cycle = send({ queue: 'asr.cloud', singletonKey: key });
+    let delivered = 0;
+
+    await doorbell.work('asr.cloud', async () => {
+      delivered += 1;
+      // Ring the next poll from inside the handler, as `runStep`'s finally does.
+      await doorbell.sendStep(cycle);
+    });
+
+    await doorbell.sendStep(cycle);
+
+    // One cycle per second at this queue's polling interval, so this is generous rather than
+    // tight: the failure it looks for is a chain that stops, not one that runs slowly.
+    const TARGET = 10;
+    for (let i = 0; i < 600 && delivered < TARGET; i++) await sleep(50);
+
+    expect(delivered, 'the chain stalled — see the class comment on `short`').toBeGreaterThanOrEqual(
+      TARGET,
+    );
+  }, 60_000);
 });

@@ -5,7 +5,14 @@ import { createRun } from '../../pipeline/persist.js';
 import { AbortedError, NonRetryableError, RateLimitedError } from '../../errors.js';
 import { materialisePlan, planRun, type PipelineSpec } from '../plan.js';
 import { runStep, type HandlerRegistry, type StepResult } from '../run-step.js';
-import { reclaimStaleLeases, liveRunIds, nudgeExternalWork, recoverTick } from '../recover.js';
+import {
+  reclaimStaleLeases,
+  liveRunIds,
+  nudgeExternalWork,
+  recoverTick,
+  reportOverduePolls,
+  OVERDUE_AFTER_SECONDS,
+} from '../recover.js';
 import type { Doorbell, PendingSend, StepJob } from '../queues.js';
 
 const BASE_URL = process.env['TEST_DATABASE_URL'] ?? DEFAULT_TEST_DATABASE_URL;
@@ -543,6 +550,50 @@ describe.skipIf(!reachable)('recovery sweep', () => {
       future.getTime(),
       -3,
     );
+  });
+
+  /**
+   * The check that would have turned a two-hour silence into a one-minute warning.
+   *
+   * A stalled poll is indistinguishable from a slow provider from the outside, which is what
+   * made the 2026-08-16 incident expensive: two workers up, nothing thrown, nothing logged, and
+   * the only way to notice was to query the database by hand.
+   */
+  it('warns about external work that is overdue a poll, and does not repair it', async () => {
+    const runId = await plant();
+    await t.db.$client.query(
+      `update run_steps
+       set state = 'awaiting_external', external_ref = 'projects/x/operations/y',
+           poll_after = now() - interval '30 minutes'
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId],
+    );
+
+    const overdue = await reportOverduePolls(ctx);
+    const hit = overdue.find((o) => o.runId === runId);
+    expect(hit, 'a step 30 minutes past its poll is overdue by any reading').toBeDefined();
+    expect(hit!.kind).toBe('media.probe');
+    expect(hit!.externalRef).toBe('projects/x/operations/y');
+    expect(hit!.overdueSeconds).toBeGreaterThan(OVERDUE_AFTER_SECONDS);
+
+    // Detection, not repair: a repair here would paper over whichever mechanism failed and
+    // destroy the evidence the next investigation needs.
+    const after = await row(runId, 'media.probe');
+    expect(after.state).toBe('awaiting_external');
+    expect(after.poll_after!.getTime()).toBeLessThan(Date.now());
+  });
+
+  it('says nothing about a poll that is merely scheduled', async () => {
+    const runId = await plant();
+    await t.db.$client.query(
+      `update run_steps set state = 'awaiting_external', poll_after = now() + interval '4 minutes'
+       where run_id = $1 and kind = 'media.probe'`,
+      [runId],
+    );
+
+    // A healthy run polls on a cadence between 15 s and 300 s, so the threshold has to sit
+    // above the slowest of those plus a tick's slack or the warning becomes noise nobody reads.
+    expect((await reportOverduePolls(ctx)).some((o) => o.runId === runId)).toBe(false);
   });
 
   it('lists live runs and skips finished ones', async () => {

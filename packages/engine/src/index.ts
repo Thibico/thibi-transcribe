@@ -567,7 +567,10 @@ export {
   reclaimStaleLeases,
   reconcileAllLive,
   recoverTick,
+  reportOverduePolls,
   unstrandExternalWork,
+  OVERDUE_AFTER_SECONDS,
+  type OverduePoll,
   type RecoverOptions,
   type RecoveryReport,
 } from './queue/recover.js';
