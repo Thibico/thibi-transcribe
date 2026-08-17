@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import { rawResponseKey } from '@thibi/storage';
 import {
   AbortedError,
+  SidecarBusyError,
   cutChunk,
   loadRunChunks,
   readChunkResult,
@@ -88,15 +89,47 @@ export const createAsrChunk = (deps: HandlerDeps): StepHandler => async (parent,
     where run_id = ${run.runId}::uuid and idx = ${idx}
   `);
 
-  const result = await built.provider.transcribe(built.config, {
-    audio: { path: cut.path },
-    languageCode: language.code,
-    offsetMs: plan.offsetMs,
-    durationMs: plan.endMs - plan.offsetMs,
-    model: run.model,
-    signal,
-    logger: ctx.logger.child({ chunk: idx }),
-  });
+  /**
+   * A busy local sidecar is scheduling, not failure — and until now it was spending a retry.
+   *
+   * `SidecarBusyError` is a `RateLimitedError`, so `isRetryable` said yes and `onStepError`
+   * burned one of this step's five attempts on every 429. The sidecar holds **one** slot for
+   * both faster-whisper and pyannote, and its own comment says the likely holder is "a
+   * diarization of this same file" — so a `--provider faster-whisper --diarize` run contends
+   * with itself, twenty chunks at a time, and after five refusals apiece the shards start
+   * landing `dead`. That is exactly the "a busy hour marks half the steps dead" failure the
+   * `no_slot` result exists to prevent, arrived at from the other direction.
+   *
+   * Same treatment `diarize` gives `DiarizerBusyError`: back to `pending` with the provider's
+   * own `Retry-After`, and **`attempt` untouched**. The one authority on the sidecar's capacity
+   * is the sidecar.
+   */
+  let result;
+  try {
+    result = await built.provider.transcribe(built.config, {
+      audio: { path: cut.path },
+      languageCode: language.code,
+      offsetMs: plan.offsetMs,
+      durationMs: plan.endMs - plan.offsetMs,
+      model: run.model,
+      signal,
+      logger: ctx.logger.child({ chunk: idx }),
+    });
+  } catch (err) {
+    if (err instanceof SidecarBusyError) {
+      const waitMs = err.retryAfterMs ?? 60_000;
+      ctx.logger.info(
+        { chunk: idx, waitMs },
+        'asr: the local sidecar is busy; requeueing without an attempt',
+      );
+      await ctx.db.execute(sql`
+        update run_chunks set status = 'pending', attempts = greatest(attempts - 1, 0)
+        where run_id = ${run.runId}::uuid and idx = ${idx}
+      `);
+      return { state: 'no_slot', retryAfter: new Date(ctx.clock.now().getTime() + waitMs) };
+    }
+    throw err;
+  }
 
   const costUsd =
     (result.usage.audioMs / 60_000) * built.provider.costModel(run.mode).usdPerMinute;
