@@ -741,7 +741,7 @@ Note the retry goes back to `pending`, not `ready` — the reconciler owns promo
 | `editorial` | `editorial.pass` | `worker` | LLM calls; network-bound |
 | `export` | `export` | `worker` | Pure CPU, fast |
 | `maintenance` | `maintenance.*` | `worker` | Cron |
-| `diarize` | `diarize` | **`worker-heavy`** | pyannote: S6 measured **~0.6× realtime on CPU** (×2, 2026-08-10) against **pyannote 3.1**; the sidecar now runs **4.0.7** and the number has not been re-measured properly. Two contaminated probes on 2026-08-15: a 30 s clip reported `realtimeFactor` **0.44**, a 2-minute clip implied **~0.14** while a test suite competed for the box. **Do not quote either** — both are far below the "clip too short to mean anything" bar of amendment 56, and they disagree in the wrong direction. Never gates the transcript — ASR completes in ~1 min |
+| `diarize` | `diarize` | **`worker-heavy`** | pyannote **4.0.7**: **0.669× realtime on CPU**, measured 2026-08-17 on a 16 m 37 s recording through the worker (95 polls, ~25 min of compute) — the first diarization figure on a clip long enough to clear amendment 56. It **confirms** S6's 0.6× rather than contradicting it: 4.0.7 is not meaningfully slower than the 3.1 that S6 measured. Ignore the 2026-08-15 probes (0.44 on 30 s, ~0.14 on 2 min against a loaded box); both were too short or contaminated. So a one-hour interview is ~1 h 30 m of diarization. Never gates the transcript — ASR completes in ~1 min |
 | `asr.local` | `asr.chunk` (faster-whisper) | **`worker-heavy`** | Same GPU/RAM, same contention |
 
 The split exists so that a 2.5-hour pyannote job on a 1-hour interview cannot starve the

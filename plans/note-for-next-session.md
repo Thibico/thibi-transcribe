@@ -85,9 +85,15 @@ files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 acro
   reaching 63.6%, then no poll for 1 h 56 m, then the 24-minute deadline fired. The handler
   cancelled the sidecar task correctly and the run still finished with its transcript — but a
   diarization that was on track to succeed was lost.
-- **Throughput is not measured.** Two contaminated probes that disagree in the wrong direction
-  (0.44 on 30 s, ~0.14 on 2 min against a busy box), and S6's 0.6× was pyannote **3.1** where
-  the sidecar now runs **4.0.7**. Quote none of them.
+- **Diarization throughput, properly measured at last: 0.669× realtime** on a 16 m 37 s
+  recording through the worker (pyannote 4.0.7, CPU, 95 polls, ~25 min of compute). The first
+  such figure on a clip long enough to clear amendment 56, and it **confirms** S6's 0.6× rather
+  than contradicting it — 4.0.7 is not meaningfully slower than 3.1. A one-hour interview is
+  about 1 h 30 m of diarization. Discard the 2026-08-15 probes (0.44 on 30 s, ~0.14 on a loaded
+  box); both were too short or contaminated.
+- **A full run, both long-async shapes at once**: batch ASR (5 polls, 390 s) and diarization (95
+  polls) on the same 16 m 37 s recording. All eleven steps `done`, 295 turns attributed across 35
+  segments, 2 speakers, $0.04985.
 
 ---
 
@@ -107,6 +113,12 @@ link. Both were the leading hypotheses and both are dead.
 
 **What is left**: `reconcile` not producing the send, or the worker's subscription going quiet.
 Neither is currently observable from outside.
+
+**It did not reproduce on a deliberate 16 m 37 s hunt** (2026-08-17): 95 polls at a steady
+16-second cadence, no `overdue` warning, no recovery-tick repair, run finished clean — against
+the 23 polls at which the original broke. **That is not a clean bill of health.** It has been
+seen once and not reproduced, and a hunt that catches nothing narrows nothing. What it does rule
+out is a defect that fires reliably on every long poll chain.
 
 **What is now in place to catch it next time.** `reportOverduePolls` runs on every recovery tick
 and warns about any `awaiting_external` step sitting more than five minutes past its `poll_after`
