@@ -14,7 +14,7 @@ import {
 } from '@thibi/engine';
 import { parseWorkerEnv, WorkerEnvError } from './env.js';
 import { startHealthServer, type HealthState } from './health.js';
-import { createHandlerRegistry } from './handlers/index.js';
+import { createHandlerRegistry, defaultDeps } from './handlers/index.js';
 
 /**
  * Defaults that are not the operator's business, kept here rather than as env vars nobody
@@ -73,7 +73,10 @@ async function main(): Promise<void> {
   });
 
   const ctx: EngineContext = { ...runtime.ctx, doorbell, workerId };
-  const registry = createHandlerRegistry();
+  // `MAX_BUCKET_WAIT_MS` reaches the handlers here rather than being read inside one: a handler
+  // that read the environment would be a handler no test could vary, and packages may not read
+  // ambient configuration at all.
+  const registry = createHandlerRegistry(defaultDeps(env.maxBucketWaitMs));
 
   const state: HealthState = { draining: false, ready: false };
   const health = await startHealthServer(env.healthPort, () => state, logger);

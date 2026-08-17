@@ -62,6 +62,14 @@ export type ProviderFor = (ctx: EngineContext, run: RunContext) => Promise<Built
 export interface HandlerDeps {
   providerFor: ProviderFor;
   /**
+   * `MAX_BUCKET_WAIT_MS`. Above this a throttled step requeues rather than sleeping.
+   *
+   * On the deps rather than read from the environment in the handler for the same reason
+   * `providerFor` is: a handler that read `process.env` would be one no test could vary, and
+   * the engine may not read ambient configuration at all.
+   */
+  maxBucketWaitMs: number;
+  /**
    * The diarizer, or null when this box does no diarization.
    *
    * **Null is a supported configuration, not a failure.** `SIDECAR_URL` unset means the
@@ -75,8 +83,26 @@ export interface HandlerDeps {
 
 export type DiarizerFor = (ctx: EngineContext) => DiarizationSource | null;
 
-export function defaultDeps(): HandlerDeps {
-  return { providerFor, diarizerFor };
+export function defaultDeps(maxBucketWaitMs = 30_000): HandlerDeps {
+  return { providerFor, diarizerFor, maxBucketWaitMs };
+}
+
+/**
+ * Which bucket this run's provider draws from.
+ *
+ * Google's quota is per **project**, and a project is reached through a regional host, so the
+ * region is the axis that matters there. Everyone else meters per model. Getting this wrong is
+ * not a crash but something worse — a bucket that throttles the wrong set of callers, either
+ * starving one model because another is busy or failing to throttle at all.
+ *
+ * A key with no row is unthrottled, so a provider nobody has configured a bucket for simply
+ * proceeds. That is what keeps this opt-in.
+ */
+export function bucketKeyFor(run: RunContext, config: ProviderConfig): string {
+  const region = (config as { region?: unknown }).region;
+  return typeof region === 'string' && region !== ''
+    ? `${run.providerId}:${region}`
+    : `${run.providerId}:${run.model}`;
 }
 
 /**

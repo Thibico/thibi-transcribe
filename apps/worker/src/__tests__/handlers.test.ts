@@ -330,6 +330,7 @@ describe.skipIf(!reachable)('handlers', () => {
           modelReason: 'test',
         }),
         diarizerFor: () => null,
+      maxBucketWaitMs: 30_000,
       };
 
       const step = await stepFor(runId, 'asr.chunk', 0);
@@ -376,5 +377,6 @@ function neverCalling(onCall: () => void): HandlerDeps {
       modelReason: 'test',
     }),
     diarizerFor: () => null,
+    maxBucketWaitMs: 30_000,
   };
 }
