@@ -6,9 +6,12 @@ import {
   type RunStepRow,
   type TestDb,
 } from '@thibi/db';
-import { MemoryObjectStore } from '@thibi/storage';
+import { MemoryObjectStore, createTempDirPort } from '@thibi/storage';
 import { createRegistry } from '@thibi/languages';
 import {
+  NORMALIZE,
+  RECIPE_VERSION,
+  SidecarBusyError,
   createRun,
   insertChunks,
   materialisePlan,
@@ -82,6 +85,19 @@ describe.skipIf(!reachable)('handlers', () => {
     ctx = {
       db: t.db,
       store: new MemoryObjectStore(),
+      tmp: createTempDirPort(),
+      /**
+       * A no-op ffmpeg. The busy-sidecar test has to reach the provider call, which sits after
+       * the chunk cut, and cutting for real would mean shipping audio and shelling out to
+       * ffmpeg to assert something about error classification. The port exists precisely so a
+       * test can decline to run the tool.
+       */
+      ffmpeg: {
+        run: async () => ({ stdout: '', stderr: '' }),
+        stream: () => {
+          throw new Error('not used');
+        },
+      },
       languages: createRegistry(),
       clock: systemClock(),
       engineVersion: '0.1.0',
@@ -104,7 +120,7 @@ describe.skipIf(!reachable)('handlers', () => {
   /** A run with its DAG, its chunk rows, and nothing transcribed yet. */
   const plant = async (): Promise<string> => {
     const hex = String(sha++).padStart(64, '0');
-    const { jobId } = await createRun(ctx, {
+    const { jobId, assetId } = await createRun(ctx, {
       sha256: hex,
       storageKey: `assets/${hex.slice(0, 2)}/${hex}/source.flac`,
       filename: 'interview.flac',
@@ -123,6 +139,17 @@ describe.skipIf(!reachable)('handlers', () => {
       model: 'chirp_2',
       spec: SPEC,
     });
+    // What `media.normalize` leaves behind. Only the busy-sidecar test reaches for it — the
+    // others short-circuit on the stored-artifact guard first — but a fixture that models a
+    // half-real run is how a test starts asserting the fixture instead of the code.
+    const normalizedKey = `derivatives/${assetId}/normalized.flac`;
+    await ctx.store.put(normalizedKey, Buffer.from('FLAC-ish'), { contentType: 'audio/flac' });
+    await t.db.$client.query(
+      `insert into media_derivatives (asset_id, kind, storage_key, recipe_version, bytes)
+       values ($1, $2, $3, $4, 8)`,
+      [assetId, NORMALIZE.kind, normalizedKey, RECIPE_VERSION],
+    );
+
     // What `plan.chunks` does, minus the ffmpeg: write the chunk rows and extend the DAG with
     // the shards that consume them. In the same transaction there; separately here, because
     // the two statements are what this fixture is standing in for rather than what it tests.
@@ -270,6 +297,56 @@ describe.skipIf(!reachable)('handlers', () => {
 
       expect(result).toMatchObject({ state: 'done', costUsd: 0.01 });
       expect(calls).toBe(0);
+    });
+
+    /**
+     * **A busy local sidecar was spending a retry, and would have killed a run.**
+     *
+     * `SidecarBusyError` is a `RateLimitedError`, so `isRetryable` said yes and `onStepError`
+     * burned one of this step's five attempts on each 429. The sidecar holds one slot for both
+     * faster-whisper and pyannote — its own comment names "a diarization of this same file" as
+     * the likely holder — so a `--provider faster-whisper --diarize` run contends with itself,
+     * twenty shards at a time, and after five refusals apiece they start landing `dead`. That
+     * is the failure `no_slot` exists to prevent, reached from the other direction.
+     */
+    it('treats a busy local sidecar as no_slot rather than spending an attempt', async () => {
+      const runId = await plant();
+      const deps: HandlerDeps = {
+        providerFor: async () => ({
+          provider: {
+            id: 'faster-whisper',
+            label: 'faster-whisper',
+            capabilities: () => ({ limits: {} }) as never,
+            supportsLanguage: () => null,
+            resolveModel: () => 'small',
+            isConfigured: () => true,
+            costModel: () => ({ usdPerMinute: 0, source: 'test' }),
+            transcribe: async (): Promise<TranscribeResult> => {
+              throw new SidecarBusyError(45);
+            },
+          } as never,
+          config: {},
+          model: 'small',
+          modelReason: 'test',
+        }),
+        diarizerFor: () => null,
+      };
+
+      const step = await stepFor(runId, 'asr.chunk', 0);
+      const result = await createAsrChunk(deps)(ctx, step, NEVER);
+
+      expect(result.state).toBe('no_slot');
+      if (result.state !== 'no_slot') return;
+      // The provider's own Retry-After, honoured rather than guessed at.
+      expect(result.retryAfter.getTime()).toBeGreaterThan(Date.now() + 40_000);
+
+      // And the chunk row is handed back the way it was found, so a requeue does not read as
+      // an attempt there either.
+      const { rows } = await t.db.$client.query<{ status: string; attempts: number }>(
+        `select status, attempts from run_chunks where run_id = $1 and idx = 0`,
+        [runId],
+      );
+      expect(rows[0]).toMatchObject({ status: 'pending', attempts: 0 });
     });
   });
 });

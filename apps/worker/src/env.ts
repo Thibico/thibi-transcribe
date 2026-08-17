@@ -10,10 +10,6 @@ export interface WorkerEnv {
   /** Multiplier over each queue's `batchSize`. */
   concurrency: number;
   healthPort: number;
-  /** Global advisory-lock slots for `diarize`, held across every container. */
-  gpuSlots: number;
-  /** Global slots for `asr.local`. */
-  localAsrSlots: number;
   /** Above this, a rate-bucket wait requeues rather than sleeping while holding a slot. */
   maxBucketWaitMs: number;
   /**
@@ -103,8 +99,18 @@ export function parseWorkerEnv(env: NodeJS.ProcessEnv): WorkerEnv {
      * the phase after this one cares about. Found by starting it. Amendment 95.
      */
     healthPort: intOf(env['WORKER_HEALTH_PORT'], 8090, 'WORKER_HEALTH_PORT'),
-    gpuSlots: intOf(env['GPU_SLOTS'], 1, 'GPU_SLOTS'),
-    localAsrSlots: intOf(env['LOCAL_ASR_SLOTS'], 1, 'LOCAL_ASR_SLOTS'),
+    /**
+     * `GPU_SLOTS` and `LOCAL_ASR_SLOTS` are **deliberately gone**, not yet to be added.
+     *
+     * §6 sizes an advisory-lock layer with them, and building the two workloads they were
+     * meant to bound showed the layer cannot do the job for either. `diarize` submits and
+     * returns in milliseconds, so a session lock around it releases while the GPU runs for
+     * hours (amendment 101); and `asr.chunk` on `asr.local` does block its worker, but the
+     * sidecar it calls already holds the one slot, knows whether it is taken, and answers 429.
+     * Both now map that refusal to `no_slot`, which costs no retry budget and needs no second
+     * opinion. **The authority on a resource's capacity should be the thing that has it**, and
+     * a knob that is parsed and ignored is worse than no knob: it reads as a control.
+     */
     maxBucketWaitMs: intOf(env['MAX_BUCKET_WAIT_MS'], 30_000, 'MAX_BUCKET_WAIT_MS'),
     databaseUrlDirect: env['DATABASE_URL_DIRECT'] ?? env['DATABASE_URL'],
   };

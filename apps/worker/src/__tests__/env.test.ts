@@ -61,19 +61,28 @@ describe('parseWorkerEnv', () => {
     // 8090, not the plan's 8081: that is the sidecar's port in this repo's own dev compose,
     // so the plan's default made the worker refuse to start on any box that can diarize.
     expect(d.healthPort).toBe(8090);
-    expect(d.gpuSlots).toBe(1);
-    expect(d.localAsrSlots).toBe(1);
     expect(d.maxBucketWaitMs).toBe(30_000);
 
     // `Number('two')` is NaN and `Number('')` is 0; both would silently become a worker with
     // no concurrency or a health server on port 0.
     expect(() => parseWorkerEnv({ WORKER_CONCURRENCY: 'two' })).toThrow(WorkerEnvError);
     expect(() => parseWorkerEnv({ WORKER_CONCURRENCY: '0' })).toThrow(WorkerEnvError);
-    expect(() => parseWorkerEnv({ GPU_SLOTS: '1.5' })).toThrow(/non-negative integer/);
+    expect(() => parseWorkerEnv({ MAX_BUCKET_WAIT_MS: '1.5' })).toThrow(/non-negative integer/);
   });
 
-  it('allows zero GPU slots, which is how a box says it has no GPU', () => {
-    expect(parseWorkerEnv({ GPU_SLOTS: '0' }).gpuSlots).toBe(0);
+  /**
+   * `GPU_SLOTS` and `LOCAL_ASR_SLOTS` were parsed and never read, and are now gone.
+   *
+   * Building the two workloads they were meant to bound showed §6's advisory-lock layer cannot
+   * do the job for either — the sidecar owns the one slot and answers 429, which both handlers
+   * now map to `no_slot`. An unknown key is ignored rather than rejected, so an operator who
+   * still sets them gets a worker that starts; the point of this assertion is that they no
+   * longer read as controls that do something.
+   */
+  it('ignores the slot knobs that were parsed and never read', () => {
+    const parsed = parseWorkerEnv({ GPU_SLOTS: 'nonsense', LOCAL_ASR_SLOTS: '4' });
+    expect(parsed).not.toHaveProperty('gpuSlots');
+    expect(parsed).not.toHaveProperty('localAsrSlots');
   });
 
   it('falls back to DATABASE_URL for the listener, but prefers the direct one', () => {

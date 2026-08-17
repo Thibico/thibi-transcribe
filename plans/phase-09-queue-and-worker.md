@@ -826,9 +826,20 @@ per-database, so they hold across containers, which is the entire point.
 > resource's capacity should be the thing that has it.** `GPU_SLOTS` is therefore parsed and
 > unused, and should be deleted rather than left as a knob that does nothing.
 >
-> `LOCAL_ASR_SLOTS` is *not* in the same position and the lock is still the right tool there:
-> `asr.chunk` routed to `asr.local` is one synchronous step that holds its worker for the whole
-> transcription, so a session lock spans exactly the work it is protecting. It is unbuilt.
+> **Corrected again 2026-08-17: `LOCAL_ASR_SLOTS` goes too, and the lock has no workload left.**
+> The first reading was that `asr.chunk` on `asr.local` is one synchronous step holding its
+> worker for the whole transcription, so a session lock would span exactly the work it protects.
+> True, and beside the point: the sidecar it calls already holds the one slot, already knows
+> whether it is taken, and already answers 429 as `SidecarBusyError`. A lock in front of that is
+> a second opinion about a fact the sidecar owns.
+>
+> Reading the two together found a live bug rather than only a redundancy. `SidecarBusyError`
+> extends `RateLimitedError`, so `isRetryable` said yes and every 429 spent one of `asr.chunk`'s
+> five attempts — and since one slot serves faster-whisper *and* pyannote, a
+> `--provider faster-whisper --diarize` run contends with itself twenty shards at a time and
+> starts marking them `dead`. `asr.chunk` now returns `no_slot` on it, as `diarize` does.
+> **Both knobs are deleted.** `MAX_BUCKET_WAIT_MS` stays: `rate-bucket.ts` is unbuilt rather than
+> unnecessary. Amendment 103.
 
 **Outbound per-provider token bucket.** Google's quota is per *project*. Ten containers each
 respecting `maxConcurrentRequests: 8` is 80 concurrent requests against one project quota.
