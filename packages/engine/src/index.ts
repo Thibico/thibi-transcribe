@@ -363,7 +363,6 @@ export {
   persistOperation,
   recordBatchProgress,
   recordUsage,
-  requestCancel,
   type BatchPipelineRecord,
   type UsageInput,
   type UsageWritten,
@@ -552,6 +551,7 @@ export {
   STALE_AFTER_SECONDS,
   abortReason,
   withHeartbeat,
+  type HeartbeatOptions,
 } from './queue/lease.js';
 export {
   NoHandlerError,
@@ -561,6 +561,12 @@ export {
   type StepHandler,
   type StepResult,
 } from './queue/run-step.js';
+export {
+  CANCEL_CHANNEL,
+  isRunCancelling,
+  requestCancel,
+  type RequestCancelResult,
+} from './queue/cancel.js';
 export {
   liveRunIds,
   nudgeExternalWork,

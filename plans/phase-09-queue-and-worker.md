@@ -1232,10 +1232,38 @@ Four propagation paths, because a cancel that only stops the *next* step is not 
 | External operations | Best-effort `provider.cancelBatch?.(cfg, externalRef)` and `DELETE {sidecar}/v1/tasks/{id}`. Best-effort means: log the failure, mark the step `cancelled` anyway, and let the lifecycle rule on the staging prefix clean up. Never block a user's cancel on a provider's cooperation. |
 
 `CancelledError` is explicitly non-retryable in `isRetryable`. Without that, cancelling a run
-schedules five more attempts of the thing you just cancelled.
+schedules five more attempts of the thing you just cancelled. (Built as `AbortedError`, which
+already carried `retryable = false`; there is no separate `CancelledError`.)
 
 The NOTIFY channel is separate from `run_events` so that workers can subscribe to cancels
 without parsing the whole progress firehose.
+
+> **Corrected 2026-08-17, when this was built: the guarantee is the heartbeat, not the
+> `LISTEN`.** The channel is still sent — the UI and any future subscriber want it, and adding a
+> subscriber later should be a subscriber and not also a producer — but nothing subscribes to it,
+> and the mechanism that actually reaches a running handler is the heartbeat's existing statement
+> with one extra join.
+>
+> The reason is failure mode rather than latency. A `LISTEN` needs a dedicated non-pooled client
+> held open for the life of the process, and when it dies nothing throws: cancellation silently
+> stops working until somebody notices a run that will not die. This phase has an open
+> investigation into precisely that shape — a poll chain that went quiet for two hours with
+> nothing logged — and putting a *guarantee* behind a second subsystem with the same failure mode
+> would be repeating the mistake while still reading the report on it.
+>
+> The heartbeat is the opposite shape: it already runs every 15 s for every running step, it
+> already round-trips to Postgres, and it already aborts the handler when it dislikes what it
+> finds. `returning (r.cancel_requested_at is not null)` costs one join. It is self-healing by
+> construction, because the state lives in the row rather than in a message that was or was not
+> delivered — a missed check is simply retried 15 seconds later, forever. The price is up to 15
+> seconds of latency on a cancel, and a cancel that arrives 15 seconds late is a delay where a
+> cancel that never arrives is a bug. **The listener remains worth adding as an accelerator over
+> that guarantee, never as the guarantee.**
+>
+> `requestCancel` also does not reconcile, against the sketch above. It is called from places
+> with no doorbell on the context — the CLI, and a future HTTP route — so the caller reconciles
+> when it can and the 30-second tick does it otherwise. Requiring a doorbell would make a cancel
+> impossible without one; not requiring it costs queued steps one tick.
 
 ### 11. Progress
 
