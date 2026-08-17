@@ -49,9 +49,21 @@ const S3_BUCKET = process.env['TEST_S3_BUCKET'] ?? 'thibi';
 interface SidecarHealth {
   status: string;
   models: { diarization: string };
+  /** One slot on this box. See the busy check in `sidecarReady`. */
+  slots?: { max: number; busy: number };
 }
 
-/** Reachable *and* able to diarize. A degraded sidecar would fail every assertion below. */
+/**
+ * Reachable, able to diarize, **and free**. A degraded sidecar would fail every assertion below.
+ *
+ * The free check was added 2026-08-17, after a full suite run went red because a worker on the
+ * same box was in the middle of a real diarization and held the only slot. The failure was
+ * `DiarizerBusyError` out of this file's `beforeAll` — reported as FAIL, which is wrong twice
+ * over: nothing is broken, and the message names a busy queue rather than a bug. "Somebody else
+ * is using the machine" belongs with "the sidecar is not running", not with "the contract
+ * changed". It matters more now than it used to: before the `diarize` handler existed, nothing
+ * but this test ever submitted a task, so the slot was never contended.
+ */
 async function sidecarReady(): Promise<{ ready: boolean; why: string }> {
   let health: SidecarHealth;
   try {
@@ -63,6 +75,14 @@ async function sidecarReady(): Promise<{ ready: boolean; why: string }> {
   }
   if (health.models.diarization !== 'loaded') {
     return { ready: false, why: `the model is ${health.models.diarization}` };
+  }
+  if (health.slots && health.slots.busy >= health.slots.max) {
+    return {
+      ready: false,
+      why:
+        `all ${health.slots.max} slot(s) are busy — something else on this box is diarizing. ` +
+        `That is contention, not a fault`,
+    };
   }
   return { ready: true, why: '' };
 }

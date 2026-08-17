@@ -1,0 +1,11 @@
+-- Who asked for the cancel, beside when they asked.
+--
+-- Phase 1 shipped `cancel_requested_at` and phase 9 §10 writes a `cancel_requested_by` next to
+-- it, which did not exist. Nullable and unconstrained on purpose: a cancel can also come from
+-- the CLI, where there is no authenticated user to name, and phase 10 is where `users` arrives.
+-- A NOT NULL column here would have to be back-filled with a lie.
+--
+-- Text rather than a `users` foreign key for the same reason plus one more: a run's audit trail
+-- must survive the account that triggered it being deleted, and a cascade would erase precisely
+-- the record someone is asking about.
+ALTER TABLE "runs" ADD COLUMN "cancel_requested_by" text;

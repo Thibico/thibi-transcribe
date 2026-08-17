@@ -51,10 +51,14 @@ Two branches are open and stacked:
 `diarize.poll`, `reconcile.speakers`; and `thibi runs start <jobId> [--mode batch] [--diarize
 [--speakers N]]`.
 
-**Not built** — handlers for `media.peaks`, `editorial.pass`, `export`. Also `queue/cancel.ts`
-(the NOTIFY listener and `requestCancel`), `queue/rate-bucket.ts` (`takeTokens`),
-`withGlobalSlot` for `asr.local`, the SSE route, `/api/admin/queue`, `thibi run
-status|retry|cancel`, and the compose services. `apps/web` is still a stub.
+**Not built** — handlers for `media.peaks`, `editorial.pass`, `export`. Also
+`queue/rate-bucket.ts` (`takeTokens`), `withGlobalSlot` for `asr.local`, the **`LISTEN
+run_cancel` subscriber** (the notify is sent; nothing consumes it — see below), the SSE route,
+`/api/admin/queue`, `thibi run status|retry`, and the compose services. `apps/web` is still a
+stub.
+
+**Cancellation is built** — `queue/cancel.ts`, migration `0005` for `cancel_requested_by`, and
+the heartbeat carrying it to a running handler. `thibi runs cancel <id> [--by who]`.
 
 `pnpm build && pnpm typecheck && pnpm lint && pnpm test` is green at **1283 tests across 83
 files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 across 81.
@@ -81,9 +85,15 @@ files, nothing skipped**, with Postgres, MinIO and the sidecar up. Was 1256 acro
   reaching 63.6%, then no poll for 1 h 56 m, then the 24-minute deadline fired. The handler
   cancelled the sidecar task correctly and the run still finished with its transcript — but a
   diarization that was on track to succeed was lost.
-- **Throughput is not measured.** Two contaminated probes that disagree in the wrong direction
-  (0.44 on 30 s, ~0.14 on 2 min against a busy box), and S6's 0.6× was pyannote **3.1** where
-  the sidecar now runs **4.0.7**. Quote none of them.
+- **Diarization throughput, properly measured at last: 0.669× realtime** on a 16 m 37 s
+  recording through the worker (pyannote 4.0.7, CPU, 95 polls, ~25 min of compute). The first
+  such figure on a clip long enough to clear amendment 56, and it **confirms** S6's 0.6× rather
+  than contradicting it — 4.0.7 is not meaningfully slower than 3.1. A one-hour interview is
+  about 1 h 30 m of diarization. Discard the 2026-08-15 probes (0.44 on 30 s, ~0.14 on a loaded
+  box); both were too short or contaminated.
+- **A full run, both long-async shapes at once**: batch ASR (5 polls, 390 s) and diarization (95
+  polls) on the same 16 m 37 s recording. All eleven steps `done`, 295 turns attributed across 35
+  segments, 2 speakers, $0.04985.
 
 ---
 
@@ -104,6 +114,12 @@ link. Both were the leading hypotheses and both are dead.
 **What is left**: `reconcile` not producing the send, or the worker's subscription going quiet.
 Neither is currently observable from outside.
 
+**It did not reproduce on a deliberate 16 m 37 s hunt** (2026-08-17): 95 polls at a steady
+16-second cadence, no `overdue` warning, no recovery-tick repair, run finished clean — against
+the 23 polls at which the original broke. **That is not a clean bill of health.** It has been
+seen once and not reproduced, and a hunt that catches nothing narrows nothing. What it does rule
+out is a defect that fires reliably on every long poll chain.
+
 **What is now in place to catch it next time.** `reportOverduePolls` runs on every recovery tick
 and warns about any `awaiting_external` step sitting more than five minutes past its `poll_after`
 — naming the step, run, external ref and how long it has been silent. It is **detection, not
@@ -119,10 +135,9 @@ healthy pass — consider a heartbeat line for the duration of the hunt).
 **Then push and open the stacked PR** for `phase-9/diarize-handlers` against
 `phase-9/batch-handlers`, and ask the user to merge #39 first.
 
-Then, in this order: `queue/cancel.ts` and the `runs.cancel_requested_by` migration;
-`withGlobalSlot` for `asr.local` only (see below); `rate-bucket.ts`; the SSE route and
-`/api/admin/queue`, where `apps/web` stops being a stub. `editorial.pass` and `export` are the
-only step kinds left and neither is a new shape.
+Then, in this order: `withGlobalSlot` for `asr.local` only (see below); `rate-bucket.ts`; the
+SSE route and `/api/admin/queue`, where `apps/web` stops being a stub. `editorial.pass` and
+`export` are the only step kinds left and neither is a new shape.
 
 ### The alternative that was considered
 
@@ -177,6 +192,20 @@ a twenty-cycle send→work→send loop under one key never drops a link. So the 
 semantics are ruled out, and the search narrows to `reconcile` not producing the send, or the
 subscription going quiet. `sendStep` does log a dropped send, at `debug` — which the worker never
 emits, so raise the level before the next long run if you want to see them.
+
+**A guarantee must not sit behind a subsystem whose failure mode is silence.** §10 routes a
+cancel to a running handler over `LISTEN run_cancel`. Built the other way: the notify is sent,
+nothing subscribes, and the heartbeat's existing UPDATE carries it with one extra join. A dropped
+`LISTEN` throws nothing and cancellation would just stop working — the same shape as the open
+stall. The heartbeat re-reads the row every 15 s forever, so a missed check is a delay rather
+than a bug. **The listener is still worth building, as an accelerator over that guarantee.**
+Amendment 102.
+
+**A busy sidecar is not a broken one, and the contract test used to say otherwise.** Running
+`pnpm test` while any worker is diarizing failed `pyannote.contract.test.ts` with
+`DiarizerBusyError` out of its `beforeAll`. Its readiness probe now checks `slots.busy` and
+skips. Before the `diarize` handler existed, nothing but that test ever took the slot — so this
+only became reachable this week.
 
 **§6's advisory-lock slots cannot bound `diarize`, and §7 is why.** `withGlobalSlot` is a session
 lock held for the duration of the work it wraps; a step waiting on someone else's computer holds

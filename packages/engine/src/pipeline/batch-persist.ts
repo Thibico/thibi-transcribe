@@ -169,12 +169,16 @@ export async function isCancelRequested(ctx: EngineContext, runId: string): Prom
   return rows[0]?.requested ?? false;
 }
 
-export async function requestCancel(ctx: EngineContext, runId: string): Promise<void> {
-  await ctx.db.$client.query(
-    `update runs set cancel_requested_at = now() where id = $1 and cancel_requested_at is null`,
-    [runId],
-  );
-}
+/**
+ * Moved to `queue/cancel.ts`, which is the only writer of the cancel columns.
+ *
+ * The version that lived here wrote `cancel_requested_at` and nothing else — no
+ * `cancel_requested_by`, no `run.cancelling` event, no `pg_notify`. Leaving it beside the real
+ * one would be two functions of the same name doing different amounts of the same job, which is
+ * the drift this repo has already paid for twice (two retry tables, two queue tables). Re-export
+ * so existing callers keep working and there is still only one implementation.
+ */
+export { requestCancel } from '../queue/cancel.js';
 
 export interface UsageInput {
   runId: string;

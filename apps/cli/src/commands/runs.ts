@@ -224,14 +224,55 @@ export function runsCommand(): Command {
   command
     .command('cancel')
     .argument('<id>')
-    .description('Request cancellation. A running CLI picks it up before its next poll.')
-    .action(async (id: string) => {
+    .option('--by <who>', 'record who asked, for the audit trail')
+    .description('Stop a run. Queued steps die at once; a running one within ~15 s.')
+    .action(async (id: string, opts: Record<string, unknown>) => {
       const cli = await buildContext({ engineVersion: ENGINE_VERSION });
+      let doorbell: PgBossDoorbell | null = null;
       try {
         if (!cli.db) throw new Error('runs cancel needs a database.');
-        await requestCancel(cli.ctx, id);
-        process.stdout.write(`Cancellation requested for ${id}.\n`);
+
+        const outcome = await requestCancel(
+          cli.ctx,
+          id,
+          typeof opts['by'] === 'string' ? opts['by'] : undefined,
+        );
+
+        /**
+         * Say which of the two things happened, rather than the same sentence for both.
+         *
+         * A repeat press is not an error — it is what an impatient user does while a
+         * forty-minute diarization refuses to die — but telling them "requested" a second time
+         * suggests the first one did not take.
+         */
+        if (!outcome.requested) {
+          process.stdout.write(
+            `Run ${id} is already cancelling, or has already finished. Nothing to do.\n`,
+          );
+          return;
+        }
+
+        /**
+         * Reconcile here so queued steps die now rather than on the next 30-second tick.
+         *
+         * `requestCancel` deliberately does not do this itself — it is called from places with
+         * no doorbell on the context — so the caller does it when it can. Best effort: a cancel
+         * that could not reach the queue has still been *recorded*, and the tick will carry it
+         * out, so a failure here must not make the command look like it did nothing.
+         */
+        const url = readEnvironment().DATABASE_URL;
+        if (url) {
+          doorbell = await PgBossDoorbell.create({ connectionString: url, max: 2 });
+          await reconcileRun({ ...cli.ctx, doorbell }, id);
+        }
+
+        process.stdout.write(
+          `Cancelling ${id}.\n` +
+            `Queued steps are already stopped. A step that is mid-request stops within about ` +
+            `15 seconds, when its heartbeat next reads the run.\n`,
+        );
       } finally {
+        if (doorbell) await doorbell.stop({ timeoutMs: 5_000 });
         await cli.close();
       }
     });

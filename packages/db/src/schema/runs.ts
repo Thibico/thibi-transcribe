@@ -76,6 +76,12 @@ export const runs = pgTable(
     engineVersion: text('engine_version').notNull(),
 
     cancelRequestedAt: timestamp('cancel_requested_at', { withTimezone: true }),
+    /**
+     * Who asked. `text` and not a `users` reference, on two counts: the CLI cancels without an
+     * authenticated user to name, and a run's audit trail has to outlive the account that
+     * triggered it — a cascade would delete exactly the record someone is asking about.
+     */
+    cancelRequestedBy: text('cancel_requested_by'),
     error: jsonb('error').$type<Record<string, unknown> | null>(),
 
     startedAt: timestamp('started_at', { withTimezone: true }),
